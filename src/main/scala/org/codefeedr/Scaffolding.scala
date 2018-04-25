@@ -3,8 +3,7 @@ package org.codefeedr
 import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.scala.DataStream
 
-case class None {
-}
+case class NoType()
 
 ////////// CONTEXT/ENV
 
@@ -47,9 +46,9 @@ abstract class PipelineObject[In, Out] {
   def main(): Unit
 }
 
-abstract class Job[In] extends PipelineObject[In, None] {
+abstract class Job[In] extends PipelineObject[In, NoType] {
   def setup() {}
-  
+
   def start(): Unit = {
     println("Start the CF Job")
   }
