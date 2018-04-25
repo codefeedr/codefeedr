@@ -26,7 +26,7 @@ class Context {
 
 ////////// PIPELINE
 
-class PipelineObject[In, Out] {
+abstract class PipelineObject[In, Out] {
 
 //  def getStorageSource[T](typ: String, collection: String): DataStream[T] = {
 //
@@ -44,18 +44,14 @@ class PipelineObject[In, Out] {
 //
 //  }
 
-  def setup(): Unit = {
-
-  }
-
-
-  def main(): Unit = {
-
-  }
-
+  def setup(): Unit
+  def main(): Unit
 }
 
-class Job[In] extends PipelineObject[In, None] {
+abstract class Job[In] extends PipelineObject[In, None] {
+
+  def setup(): Unit = {
+  }
 
   def start(): Unit = {
     println("Start the CF Job")
@@ -147,5 +143,9 @@ object Main2 {
 case class Person(name: String, age: Int)
 
 class MyJob extends Job[Person] {
+
+  def main(): Unit = {
+    println("Job Main")
+  }
 
 }
