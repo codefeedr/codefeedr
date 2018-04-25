@@ -1,28 +1,26 @@
-import sbt.Keys.libraryDependencies
+// import sbt.Keys.libraryDependencies
 
 resolvers in ThisBuild ++= Seq(
   "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
-  Resolver.mavenLocal)
+  Resolver.mavenLocal
+)
 
 name := "CodeFeedr"
-
 version := "0.1-SNAPSHOT"
+organization := "org.codefeedr"
 
-val settings = Seq(
-  organization := "org.codefeedr"
-)
-scalaVersion in ThisBuild := "2.11.11"
+ThisBuild / scalaVersion := "2.11.11"
 
 parallelExecution in Test := false
 
 val flinkVersion = "1.4.2"
-val dep_flink = Seq(
+val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-table" % flinkVersion % "provided"
 )
 
-val dep_core = Seq(
+val coreDependencies = Seq(
   // "codes.reactive" %% "scala-time" % "0.4.1",
   // "org.apache.zookeeper" % "zookeeper" % "3.4.9",
   // "org.mockito" % "mockito-core" % "2.13.0" % "test",
@@ -51,18 +49,23 @@ val dep_core = Seq(
 
 lazy val root = (project in file("."))
   .settings(
-    libraryDependencies ++= dep_core,
-    libraryDependencies ++= dep_flink,
+    libraryDependencies ++= coreDependencies,
+    libraryDependencies ++= flinkDependencies,
     libraryDependencies ~= { _.map(_.exclude("org.slf4j", "slf4j-log4j12")) }
   )
 
-mainClass in assembly := Some("org.codefeedr.Job")
+assembly / mainClass := Some("org.codefeedr.Main")
 
 // make run command include the provided dependencies
-run in Compile := Defaults.runTask(fullClasspath in Compile,
-  mainClass in (Compile, run),
-  runner in (Compile, run))
+Compile / run  := Defaults.runTask(Compile / fullClasspath,
+                                   Compile / run / mainClass,
+                                   Compile / run / runner
+                                  ).evaluated
+
+// stays inside the sbt console when we press "ctrl-c" while a Flink programme executes with "run" or "runMain"
+Compile / run / fork := true
+Global / cancelable := true
 
 // exclude Scala library from assembly
-assemblyOption in assembly := (assemblyOption in assembly).value
-  .copy(includeScala = false)
+assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
+
