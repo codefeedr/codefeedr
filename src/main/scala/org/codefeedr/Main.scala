@@ -31,7 +31,8 @@ object Main {
       }
       .flatMap {
         _ match {
-          case lineRegex(ip, date, target, responseCode, contentSize, referrer, userAgent) => Some(LogLine(ip, df.parse(date), target, responseCode.toInt, contentSize.toInt, referrer, userAgent))
+          case lineRegex(ip, date, target, responseCode, contentSize, referrer, userAgent) =>
+            Some(LogLine(ip, df.parse(date), target, responseCode.toInt, contentSize.toInt, referrer, userAgent))
           case _ => None
         }
       }
@@ -40,7 +41,7 @@ object Main {
       .keyBy(0) // key by the IP
       .window(EventTimeSessionWindows.withGap(Time.minutes(30))) // Session window with a timeout of 1 day
       .allowedLateness(Time.seconds(5))
-      .reduce((w1,w2) => (w1._1, w1._2 + w2._2)) // sum number of entries per IP
+      .reduce((w1, w2) => (w1._1, w1._2 + w2._2)) // sum number of entries per IP
       .keyBy(0)
       .sum(1)
       .print()
