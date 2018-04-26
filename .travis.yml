@@ -34,3 +34,7 @@ before_script:
 script:
   - sbt package
   - sbt 'set parallelExecution in ThisBuild := false' test
+  - sbt clean coverage test coverageReport
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
