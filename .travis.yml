@@ -1,0 +1,36 @@
+language: scala
+scala: 2.11.11
+sudo: required
+dist: trusty
+
+services:
+  - docker
+  - mongodb
+
+
+before_cache:
+  # Cleanup the cached directories to avoid unnecessary cache updates
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt        -name "*.lock"               -print -delete
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt
+
+
+#before_install:
+#  - docker-compose -f "containers/kafka/docker-compose.yml" up -d
+#  - docker ps -a
+matrix:
+  include:
+    - env: SCALA_VERSION=2.11.11
+      os: linux
+      jdk: oraclejdk8
+
+before_script:
+  - sleep 10
+
+script:
+  - sbt package
+  - sbt 'set parallelExecution in ThisBuild := false' test
