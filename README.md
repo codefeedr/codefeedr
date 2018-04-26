@@ -1,9 +1,9 @@
 Bachelor Project Codefeedr
 --------------------------
 
-[![Build Status](https://travis-ci.org/joskuijoers/bep_codefeedr.svg?branch=master)](https://travis-ci.org/joskuijoers/bep_codefeedr)
+[![Build Status](https://travis-ci.org/joskuijpers/bep_codefeedr.svg?branch=master)](https://travis-ci.org/joskuijpers/bep_codefeedr)
 [![BCH compliance](https://bettercodehub.com/edge/badge/joskuijpers/bep_codefeedr?branch=master)](https://bettercodehub.com/)
-
+[![codecov](https://codecov.io/gh/joskuijpers/bep_codefeedr/branch/master/graph/badge.svg)](https://codecov.io/gh/joskuijpers/bep_codefeedr)
 
 A framework for easily building Flink streaming programs
 
