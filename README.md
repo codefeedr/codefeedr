@@ -1,6 +1,10 @@
 Bachelor Project Codefeedr
 --------------------------
 
+[![Build Status](https://travis-ci.org/joskuijoers/bep_codefeedr.svg?branch=master)](https://travis-ci.org/joskuijoers/bep_codefeedr)
+[![BCH compliance](https://bettercodehub.com/edge/badge/joskuijpers/bep_codefeedr?branch=master)](https://bettercodehub.com/)
+
+
 A framework for easily building Flink streaming programs
 
 ## Configuring the build environment
@@ -18,8 +22,6 @@ Run `sbt`. Then at the SBT console:
 - `run` to run the default class
 - `test` to run the tests
 - `clean` to clean
-- `scalafmt` to format according to project guidelines
-- `scalafmt::test` to check if format according to project guidelines
 
 ### From IntelliJ
 

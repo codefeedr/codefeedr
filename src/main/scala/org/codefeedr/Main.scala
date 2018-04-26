@@ -25,7 +25,7 @@ object Main {
 
     env.readTextFile("../access.log")
       .flatMap {
-        _.split("\\n") filter {
+        _.split("""\n""") filter {
           _.nonEmpty
         }
       }
