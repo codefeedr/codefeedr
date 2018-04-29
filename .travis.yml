@@ -35,6 +35,7 @@ script:
   - sbt package
   - sbt 'set parallelExecution in ThisBuild := false' test
   - sbt clean coverage test coverageReport
+  - sbt clean coverage test
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - sbt coverageReport coveralls
