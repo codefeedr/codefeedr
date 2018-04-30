@@ -24,6 +24,37 @@ class Context {
 
 ////////// PIPELINE
 
+class Runner {
+
+  def run() {
+    // IF LOCAL
+    // create buffers
+    // for each PO
+      // run setup
+    // for each PO
+      // run main
+
+    // IF CLUSTER
+    // for requested PO
+      // run setup
+      // run main
+  }
+}
+
+object Main {
+  def main(x  : Array[String]): Unit = {
+
+    // builder(args)
+
+    // setup
+
+    // run
+
+  }
+
+}
+
+
 abstract class PipelineObject[In, Out] {
 
 //  def getStorageSource[T](typ: String, collection: String): DataStream[T] = {
@@ -91,11 +122,17 @@ trait KeyValueStore {
   // def watch
 }
 
-trait KeyManager extends KeyValueStore {
-
+trait KeyManager {
+  def request(t: String, numCalls: Int) : String
 }
 
 class StaticKeyManager extends KeyManager {
+  def request(t: String, numCalls: Int) : String = {
+    ""
+  }
+}
+
+class ZookeeperStore extends KeyValueStore {
   def get(key: String): String = {
     "none"
   }
@@ -106,22 +143,11 @@ class StaticKeyManager extends KeyManager {
   def has(key: String): Boolean = {
     false
   }
-}
-
-class ZookeeperStore {
-
 }
 
 class ZookeeperKeyManager extends ZookeeperStore with KeyManager {
-  def get(key: String): String = {
-    "none"
-  }
-
-  def set(key: String, value: String) {
-  }
-
-  def has(key: String): Boolean = {
-    false
+  def request(t: String, numCalls: Int) : String = {
+    ""
   }
 }
 

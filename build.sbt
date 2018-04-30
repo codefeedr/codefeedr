@@ -28,8 +28,8 @@ val coreDependencies = Seq(
   // "org.json4s" % "json4s-jackson_2.11" % "3.6.0-M2",
 
 
-  // "org.scalactic" %% "scalactic" % "3.0.1",
-   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+   "org.scalactic" %% "scalactic" % "3.0.5",
+   "org.scalatest" %% "scalatest" % "3.0.5" % "test",
 
   // "ch.qos.logback" % "logback-classic" % "1.1.7",
   // "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
