@@ -1,3 +1,7 @@
+<p align="center"><img src="https://i.imgur.com/A2kv4Wy.png" width="300px"/></p>
+
+- - - -
+
 Bachelor Project Codefeedr
 --------------------------
 
