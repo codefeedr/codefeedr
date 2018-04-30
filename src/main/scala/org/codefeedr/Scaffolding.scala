@@ -41,18 +41,18 @@ class Runner {
   }
 }
 
-object Main {
-  def main(x  : Array[String]): Unit = {
-
-    // builder(args)
-
-    // setup
-
-    // run
-
-  }
-
-}
+//object Main {
+//  def main(x  : Array[String]): Unit = {
+//
+//    // builder(args)
+//
+//    // setup
+//
+//    // run
+//
+//  }
+//
+//}
 
 
 abstract class PipelineObject[In, Out] {
