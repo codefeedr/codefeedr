@@ -10,11 +10,11 @@ case class Pipeline(bufferType: BufferType, objects: Seq[PipelineObject[Pipeline
 
     // TODO: clustered
     for (obj <- objects) {
-      obj.setup()
+      obj.setUp(this)
     }
 
     for (obj <- objects) {
-      obj.main(this)
+      obj.main()
     }
 
     env.execute("CodeFeedr Job")

@@ -5,8 +5,8 @@ import org.codefeedr.pipeline._
 import org.codefeedr.plugins.rss._
 
 class MyJob extends Job[RSSItem] {
-  override def main(pipeline: Pipeline): Unit = {
-    getSource()
+  override def main(): Unit = {
+    getSource
       .map { item => (item.title, 1) }
       .keyBy(0)
       .sum(1)

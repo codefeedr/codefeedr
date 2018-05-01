@@ -1,14 +1,21 @@
 package org.codefeedr.pipeline
 
+import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.buffer.BufferFactory
 
 abstract class PipelineObject[In <: PipelinedItem, Out <: PipelinedItem] {
   var pipeline: Pipeline = null
 
-  def setup() {}
+  def setUp(pipeline: Pipeline): Unit = {
+    this.pipeline = pipeline
+  }
 
-  def main(pipeline: Pipeline)
+  def main()
+
+  def tearDown(): Unit = {
+    this.pipeline = null
+  }
 
   //  def getStorageSource[T](typ: String, collection: String): DataStream[T] = {
   //
@@ -17,24 +24,23 @@ abstract class PipelineObject[In <: PipelinedItem, Out <: PipelinedItem] {
   //  def getStorageSink[T](typ: String, collection: String): DataSink[T] = {
   //
   //  }
-  //
-    def getSource(): DataStream[In] = {
-      assert(pipeline != null)
 
-      // Look up what source there is
-      // if In == NoType then THROW
-      // else make buffer
+  // TODO: disallow In = NoType    (implict ev: In =:= NoType = null)
+  def getSource: DataStream[In] = {
+    assert(pipeline != null)
 
-      val factory = new BufferFactory(pipeline)
-      val buffer = factory.create[In]()
-      val source = buffer.getSource
+    // Look up what source there is
+    // if In == NoType then THROW
+    // else make buffer
 
-      source
-    }
+    val factory = new BufferFactory(pipeline)
+    val buffer = factory.create[In]()
+    val source = buffer.getSource
 
-//    def getSink(): DataSink[Out] = {
-//
-//    }
+    source
+  }
 
-  // TODO: Add pipeline building with ->
+  def getSink: DataSink[Out] = {
+    null
+  }
 }
