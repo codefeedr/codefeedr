@@ -17,14 +17,6 @@ abstract class PipelineObject[In <: PipelinedItem, Out <: PipelinedItem] {
     this.pipeline = null
   }
 
-  //  def getStorageSource[T](typ: String, collection: String): DataStream[T] = {
-  //
-  //  }
-  //
-  //  def getStorageSink[T](typ: String, collection: String): DataSink[T] = {
-  //
-  //  }
-
   // TODO: disallow In = NoType    (implict ev: In =:= NoType = null)
   def getSource: DataStream[In] = {
     assert(pipeline != null)
@@ -43,4 +35,8 @@ abstract class PipelineObject[In <: PipelinedItem, Out <: PipelinedItem] {
   def getSink: DataSink[Out] = {
     null
   }
+
+  def getStorageSource[T](typ: String, collection: String): DataStream[T] = ???
+
+  def getStorageSink[T](typ: String, collection: String): DataSink[T] = ???
 }
