@@ -33,6 +33,6 @@ class PipelineBuilder() {
     }
 
 //    Pipeline(bufferType, objects.asInstanceOf[Array[PipelineObject[PipelinedItem, PipelinedItem]]])
-    Pipeline(bufferType, objects.asInstanceOf[Array[PipelineObject[PipelinedItem, PipelinedItem]]])
+    Pipeline(bufferType, objects.asInstanceOf[ArrayBuffer[PipelineObject[PipelinedItem, PipelinedItem]]])
   }
 }
