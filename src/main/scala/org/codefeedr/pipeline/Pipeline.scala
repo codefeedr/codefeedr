@@ -14,7 +14,11 @@ case class Pipeline(bufferType: BufferType, objects: Seq[PipelineObject[Pipeline
     }
 
     for (obj <- objects) {
-      obj.main()
+      val result = obj.main(obj.getSource)
+
+      // TODO: check for NoType
+
+      result.addSink(obj.getSink)
     }
 
     env.execute("CodeFeedr Job")
