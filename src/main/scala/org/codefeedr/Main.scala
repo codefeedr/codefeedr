@@ -9,8 +9,9 @@ package org.codefeedr
 //import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 //import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows
 //import org.apache.flink.streaming.api.windowing.time.Time
-import org.codefeedr.pipeline.{NoType, Pipeline, PipelineBuilder, PipelineObject}
-import org.codefeedr.plugins.rss.RSSItem
+import org.codefeedr.pipeline._
+import org.codefeedr.pipeline.buffer.FakeBuffer
+import org.codefeedr.plugins.rss._
 
 //case class LogLine(ip: String, date: Date, target: String, responseCode: Int, contentSize: Int, referrer: String, UserAgent: String)
 //
@@ -52,9 +53,12 @@ import org.codefeedr.plugins.rss.RSSItem
 //  }
 //}
 
-class MyJob extends PipelineObject[RSSItem, NoType] {
+class MyJob extends Job[RSSItem] {
   override def main(pipeline: Pipeline): Unit = {
+//    pipeline
+//      .getSource()
 
+//    env.map { item => item.title }
   }
 }
 
@@ -64,6 +68,11 @@ object Main {
 
     // Create pipeline
     val builder = new PipelineBuilder()
+//    builder.setBufferType(classOf[FakeBuffer])
+
+    val source = new RSSSource("")
+    val job = new MyJob()
+    builder.pipe(source, job)
 
     val pipeline = builder.build()
 

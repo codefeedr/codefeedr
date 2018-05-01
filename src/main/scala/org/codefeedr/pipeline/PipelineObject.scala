@@ -1,6 +1,6 @@
 package org.codefeedr.pipeline
 
-trait PipelineObject[In, Out] {
+abstract class PipelineObject[+In <: PipelinedItem, +Out <: PipelinedItem] {
 
   def setup() {}
 
@@ -14,11 +14,14 @@ trait PipelineObject[In, Out] {
   //
   //  }
   //
-  //  def getSource(): DataStream[In] = {
-  //
-  //  }
-  //
-  //  def getSink(): DataSink[Out] = {
-  //
-  //  }
+//    def getSource(): DataStream[In] = {
+//      StreamExecutionEnvironment.getExecutionEnvironment
+//        .readTextFile("test")
+//    }
+
+//    def getSink(): DataSink[Out] = {
+//
+//    }
+
+  // TODO: Add pipeline building with ->
 }

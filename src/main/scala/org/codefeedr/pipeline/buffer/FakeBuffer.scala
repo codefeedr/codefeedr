@@ -4,7 +4,7 @@ import org.apache.flink.streaming.api.scala.DataStream
 
 
 class FakeBuffer[T] extends Buffer[T] {
-  override def createSource(): DataStream[T] = ???
+  override def getSource: DataStream[T] = ???
 
-  override def createSink(): DataSink[T] = ???
+  override def getSink: DataSink[T] = ???
 }

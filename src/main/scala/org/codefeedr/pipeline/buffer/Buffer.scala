@@ -5,6 +5,6 @@ import org.apache.flink.streaming.api.scala.DataStream
 
 
 trait Buffer[T] {
-  def createSource(): DataStream[T]
-  def createSink(): DataSink[T]
+  def getSource: DataStream[T]
+  def getSink: DataSink[T]
 }
