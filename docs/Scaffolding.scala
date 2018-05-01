@@ -77,15 +77,6 @@ abstract class PipelineObject[In, Out] {
   def main(): Unit
 }
 
-abstract class Job[In] extends PipelineObject[In, NoType] {
-  def setup() {}
-
-  def start(): Unit = {
-    println("Start the CF Job")
-  }
-
-}
-
 trait Buffer[T] {
   def getSource(): DataStream[T]
 
