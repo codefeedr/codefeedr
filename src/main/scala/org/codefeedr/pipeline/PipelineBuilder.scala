@@ -1,5 +1,10 @@
 package org.codefeedr.pipeline
 
-class PipelineBuilder {
+class PipelineBuilder() {
 
+
+
+  def build(): Pipeline = {
+    new Pipeline()
+  }
 }

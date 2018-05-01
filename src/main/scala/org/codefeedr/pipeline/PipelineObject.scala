@@ -4,7 +4,7 @@ trait PipelineObject[In, Out] {
 
   def setup() {}
 
-  def main()
+  def main(pipeline: Pipeline)
 
   //  def getStorageSource[T](typ: String, collection: String): DataStream[T] = {
   //
