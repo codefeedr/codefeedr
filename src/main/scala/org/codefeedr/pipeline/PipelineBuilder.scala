@@ -17,9 +17,7 @@ class PipelineBuilder() {
     objects += item
   }
 
-  def pipe[U <: PipelinedItem, V <: PipelinedItem, X <: PipelinedItem, Y <: PipelinedItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]) = {
-
-  }
+  def pipe[U <: PipelinedItem, V <: PipelinedItem, X <: PipelinedItem, Y <: PipelinedItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]) = ???
 
   def build(): Pipeline = {
     if (this.objects.isEmpty) {

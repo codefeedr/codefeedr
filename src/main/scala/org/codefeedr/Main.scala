@@ -2,6 +2,7 @@ package org.codefeedr
 
 import org.apache.flink.api.scala._
 import org.codefeedr.pipeline._
+import org.codefeedr.pipeline.buffer.BufferType
 import org.codefeedr.plugins.rss._
 
 class MyJob extends Job[RSSItem] {
