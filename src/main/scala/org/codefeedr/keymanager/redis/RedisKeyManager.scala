@@ -6,7 +6,7 @@ import java.util.Date
 import com.redis._
 import org.codefeedr.keymanager.KeyManager
 
-class RedisKeyManager(host: String) extends KeyManager {
+class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") extends KeyManager {
   private var connection: RedisClient = _
   private var requestScriptId: String = _
 
@@ -15,7 +15,7 @@ class RedisKeyManager(host: String) extends KeyManager {
     *
     * @throws RuntimeException
     */
-  private def connect: Unit = {
+  private def connect(): Unit = {
     val uri = new URI(host)
     connection = new RedisClient(uri)
 
@@ -24,6 +24,11 @@ class RedisKeyManager(host: String) extends KeyManager {
       throw new RuntimeException("Could not add request script to Redis")
     else
       requestScriptId = sha.get
+  }
+
+  private def disconnect(): Unit = {
+    connection.disconnect
+    connection = null
   }
 
   /**
@@ -48,13 +53,13 @@ class RedisKeyManager(host: String) extends KeyManager {
     * @param target Target of the key pool
     * @return Target key
     */
-  private def redisKeyForTarget(target: String): String = "codefeedr:keymanager:" + target
+  private def redisKeyForTarget(target: String): String = root + ":" + target
 
   override def request(target: String, numberOfCalls: Int): Option[String] = {
     import serialization.Parse.Implicits.parseString
 
     if (!isConnected)
-      connect
+      connect()
 
     val targetKey = redisKeyForTarget(target)
 
@@ -71,21 +76,37 @@ class RedisKeyManager(host: String) extends KeyManager {
       data.head
   }
 
-  def set(target: String, key: String, numCalls: Int): Unit = {
+  //noinspection ScalaUnusedSymbol
+  private def set(target: String, key: String, numCalls: Int): Unit = {
     if (!isConnected)
-      connect
+      connect()
 
     val targetKey = redisKeyForTarget(target)
     connection.zadd(targetKey + ":keys", numCalls, key)
 
     // TODO: refresh policy
     connection.hset(targetKey + ":lastRefresh", key, new Date().getTime)
-//    connection.hset(targetKey + ":policy"
+    //    connection.hset(targetKey + ":policy"
   }
 
-  def delete(target: String, key: String): Unit = {
+  //noinspection ScalaUnusedSymbol
+  private def get(target: String, key: String): Option[Int] = {
     if (!isConnected)
-      connect
+      connect()
+
+    val targetKey = redisKeyForTarget(target)
+    val result = connection.zscore(targetKey + ":keys", key)
+
+    if (result.isEmpty)
+      None
+    else
+      Some(result.get.toInt)
+  }
+
+  //noinspection ScalaUnusedSymbol
+  private def delete(target: String, key: String): Unit = {
+    if (!isConnected)
+      connect()
 
     val targetKey = redisKeyForTarget(target)
 
@@ -95,12 +116,12 @@ class RedisKeyManager(host: String) extends KeyManager {
     connection.hdel(targetKey + ":lastRefresh", key)
   }
 
-//  def refresh(): Unit = {
-//    if (!isConnected)
-//      connect
-//
-//    val mapKey = "codefeedr:keymanager:policy"
-//    connection.evalMultiSHA(requestScriptId, List(mapKey), List())
-//  }
+  //noinspection ScalaUnusedSymbol
+  private def deleteAll(): Unit = {
+    if (!isConnected)
+      connect()
+
+    connection.del(root)
+  }
 
 }

@@ -1,7 +1,8 @@
 package org.codefeedr
 
 import java.util
-import collection.JavaConverters._
+
+import scala.collection.JavaConverters._
 
 /**
   * Object containing configuration properties.

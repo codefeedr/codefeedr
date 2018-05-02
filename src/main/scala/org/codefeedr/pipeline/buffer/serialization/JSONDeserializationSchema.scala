@@ -24,8 +24,7 @@ import org.apache.flink.api.java.typeutils.TypeExtractor
 import org.json4s.NoTypeHints
 import org.json4s.jackson.Serialization
 
-import scala.reflect.Manifest
-import scala.reflect.classTag
+import scala.reflect.{Manifest, classTag}
 
 class JSONDeserializationSchema[T <: AnyRef : Manifest] extends AbstractDeserializationSchema[T] {
 

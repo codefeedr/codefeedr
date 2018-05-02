@@ -4,10 +4,8 @@ import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.buffer.BufferFactory
-import scala.reflect.Manifest
 
-import scala.reflect.ClassTag
-
+import scala.reflect.{ClassTag, Manifest}
 import scala.reflect.runtime.universe._
 
 abstract class PipelineObject[In <: PipelinedItem : ClassTag : Manifest, Out <: PipelinedItem : ClassTag : Manifest] {
