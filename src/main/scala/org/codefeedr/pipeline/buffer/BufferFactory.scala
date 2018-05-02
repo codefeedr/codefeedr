@@ -9,7 +9,7 @@ class BufferFactory(pipeline: Pipeline) {
       case BufferType.Fake =>
         new FakeBuffer[T](pipeline)
       case BufferType.Kafka =>
-        new KafkaBuffer[T](pipeline)
+        new KafkaBuffer[T](pipeline, "hallo")
     }
   }
 }

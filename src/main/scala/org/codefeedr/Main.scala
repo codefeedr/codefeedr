@@ -20,7 +20,8 @@ object Main {
 
     // Create pipeline
     val builder = new PipelineBuilder()
-    builder.setBufferType(BufferType.Fake)
+    builder.setBufferType(BufferType.Kafka)
+//    builder.addBufferProperty(key, value)
 
     val source = new RSSSource("")
     val job = new MyJob()

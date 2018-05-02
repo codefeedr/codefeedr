@@ -16,7 +16,8 @@ parallelExecution in Test := false
 val flinkVersion = "1.4.2"
 val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "compile",
-  "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "compile"
+  "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "compile",
+  "org.apache.flink" %% "flink-connector-kafka-0.11" % flinkVersion % "compile"
 //  "org.apache.flink" %% "flink-table" % flinkVersion % "provided"
 )
 
