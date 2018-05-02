@@ -1,6 +1,5 @@
 package org.codefeedr.pipeline
 
-import com.sun.tools.javac.code.TypeTag
 import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
@@ -9,7 +8,7 @@ import org.codefeedr.pipeline.buffer.BufferFactory
 import scala.reflect.{ClassTag, classTag}
 
 abstract class PipelineObject[In <: PipelinedItem : ClassTag, Out <: PipelinedItem : ClassTag] {
-  var pipeline: Pipeline = null
+  var pipeline: Pipeline = _
 
   def setUp(pipeline: Pipeline): Unit = {
     this.pipeline = pipeline
@@ -21,24 +20,13 @@ abstract class PipelineObject[In <: PipelinedItem : ClassTag, Out <: PipelinedIt
     this.pipeline = null
   }
 
-
-//  implicit object NoTypeSource extends PipelineObject[NoType, Out] {
-//    def smaller = (a:Int, b:Int) => (a < b)
-//  }
-
   // TODO: disallow In = NoType    (implict ev: In =:= NoType = null)
-//  def getSource[In: TypeTag]: DataStream[In] = {
   def getSource: DataStream[In] = {
     assert(pipeline != null)
 
-
-  if (classTag[In] == classTag[NoType]) {
-      print("NO TYPE SOURCE!")
+    if (classTag[In] == classTag[NoType]) {
+      throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
     }
-
-    // Look up what source there is
-    // if In == NoType then THROW
-    // else make buffer
 
     val factory = new BufferFactory(pipeline)
     val buffer = factory.create[In]()
@@ -47,6 +35,12 @@ abstract class PipelineObject[In <: PipelinedItem : ClassTag, Out <: PipelinedIt
   }
 
   def getSink: SinkFunction[Out] = {
+    assert(pipeline != null)
+
+    if (classTag[Out] == classTag[NoType]) {
+      throw NoSinkException("PipelineObject defined NoType as Out type. Buffer can't be created.")
+    }
+
     val factory = new BufferFactory(pipeline)
     val buffer = factory.create[Out]()
 
