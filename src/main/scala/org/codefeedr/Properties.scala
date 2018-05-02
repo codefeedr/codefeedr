@@ -9,8 +9,13 @@ import collection.JavaConverters._
 class Properties {
   protected val contents = new util.Properties()
 
-  def get(key: String): String = {
-    contents.getProperty(key)
+  def get(key: String, default: String = ""): String = {
+    val value = contents.getProperty(key)
+
+    if (value == null)
+      return default
+
+    value
   }
 
   def set(key: String, value: String): Unit = {
