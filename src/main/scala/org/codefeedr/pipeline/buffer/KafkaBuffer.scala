@@ -30,15 +30,15 @@ class KafkaBuffer[T <: AnyRef : Manifest](pipeline: Pipeline, topic: String) ext
 
   override def getSource: DataStream[T] = {
     val properties = new Properties()
-    properties.setProperty("bootstrap.servers", pipeline.bufferProperties.get(KafkaBuffer.HOST))
+    properties.setProperty("bootstrap.servers", "localhost:9092")
 
     implicit val typeInfo = TypeInformation.of(inputClassType)
 
-    pipeline.getEnvironment.
+    pipeline.environment.
       addSource(new FlinkKafkaConsumer011[T](topic, new JSONDeserializationSchema[T](), properties))
   }
 
   override def getSink: SinkFunction[T] = {
-    new FlinkKafkaProducer011(pipeline.bufferProperties.get(KafkaBuffer.BROKER_LIST), topic, new JSONSerializationSchema[T]())
+    new FlinkKafkaProducer011("localhost:9092", topic, new JSONSerializationSchema[T]())
   }
 }

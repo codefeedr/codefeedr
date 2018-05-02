@@ -16,7 +16,7 @@ case class Pipeline(bufferType: BufferType,
 
   def start(options: Int): Unit = {
     // TODO: decide which to start
-    startMock(options)
+    startLocal(options)
   }
 
   // Without any buffers. Connect all POs to each other

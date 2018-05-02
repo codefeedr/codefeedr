@@ -24,8 +24,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     // Create pipeline
     val builder = new PipelineBuilder()
-//    builder.setBufferType(BufferType.Kafka)
-//    builder.bufferProperties.set(KafkaBuffer.HOST, "localhost:9092")
+    builder.setBufferType(BufferType.Kafka)
+    builder.bufferProperties.set(KafkaBuffer.HOST, "localhost:9092")
 
     builder.add(new StringSource())
     builder.add(new MyJob())

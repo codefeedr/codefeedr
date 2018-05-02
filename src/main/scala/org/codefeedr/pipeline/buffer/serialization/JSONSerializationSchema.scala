@@ -32,6 +32,7 @@ class JSONSerializationSchema[IN <: AnyRef] extends SerializationSchema[IN] {
   override def serialize(element: IN): Array[Byte] = {
     implicit val formats = Serialization.formats(NoTypeHints)
     val bytes = Serialization.write(element)(formats)
+    println(bytes)
     bytes.getBytes
   }
 }
