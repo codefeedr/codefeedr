@@ -20,9 +20,7 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     connection = new RedisClient(uri)
 
     val sha = connection.scriptLoad(getRequestLuaScript)
-    if (sha.isEmpty)
-      throw new RuntimeException("Could not add request script to Redis")
-    else
+    if (sha.isDefined)
       requestScriptId = sha.get
   }
 
@@ -121,7 +119,7 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     if (!isConnected)
       connect()
 
-    connection.del(root)
+    connection.evalBulk("for _,k in ipairs(redis.call('keys',ARGV[1])) do redis.call('del',k) end", List(), List(root + ":*"))
   }
 
 }
