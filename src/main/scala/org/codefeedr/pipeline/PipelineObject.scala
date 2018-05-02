@@ -1,13 +1,14 @@
 package org.codefeedr.pipeline
 
-import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.buffer.BufferFactory
 import scala.reflect.Manifest
 
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
+
+import scala.reflect.runtime.universe._
 
 abstract class PipelineObject[In <: PipelinedItem : ClassTag : Manifest, Out <: PipelinedItem : ClassTag : Manifest] {
   var pipeline: Pipeline = _
@@ -22,14 +23,14 @@ abstract class PipelineObject[In <: PipelinedItem : ClassTag : Manifest, Out <: 
     this.pipeline = null
   }
 
-  def hasSource: Boolean = classTag[In] != classTag[NoType]
+  def hasSource: Boolean = typeOf[In] != typeOf[NoType]
 
-  def hasSink: Boolean = classTag[Out] == classTag[NoType]
+  def hasSink: Boolean = typeOf[Out] != typeOf[NoType]
 
   def getSource: DataStream[In] = {
     assert(pipeline != null)
 
-    if (classTag[In] == classTag[NoType]) {
+    if (!hasSource) {
       throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
     }
 
@@ -42,7 +43,7 @@ abstract class PipelineObject[In <: PipelinedItem : ClassTag : Manifest, Out <: 
   def getSink: SinkFunction[Out] = {
     assert(pipeline != null)
 
-    if (classTag[Out] == classTag[NoType]) {
+    if (!hasSink) {
       throw NoSinkException("PipelineObject defined NoType as Out type. Buffer can't be created.")
     }
 
