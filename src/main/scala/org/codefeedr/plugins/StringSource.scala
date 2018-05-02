@@ -19,7 +19,7 @@ class StringSource extends PipelineObject[NoType, StringType] {
 
     val list = text.split("[ \n]")
 
-    pipeline.getEnvironment
+    pipeline.environment
       .fromCollection(list)
       .map { str => StringType(str) }
   }

@@ -19,31 +19,16 @@ class MyJob extends Job[StringType] {
 
 }
 
-//class MyJob extends Job[RSSItem] {
-//  override def main(source: DataStream[RSSItem]): Unit = {
-//    source
-//      .map { item => (item.title, 1) }
-//      .keyBy(0)
-//      .sum(1)
-//      .print()
-//  }
-//}
-
 object Main {
 
   def main(args: Array[String]): Unit = {
-
     // Create pipeline
     val builder = new PipelineBuilder()
 //    builder.setBufferType(BufferType.Kafka)
 //    builder.bufferProperties.set(KafkaBuffer.HOST, "localhost:9092")
 
-//    val source = new RSSSource("")
-    val source = new StringSource()
-    val job = new MyJob()
-//    builder.pipe(source, job)
-    builder.add(source)
-    builder.add(job)
+    builder.add(new StringSource())
+    builder.add(new MyJob())
 
     val pipeline = builder.build()
 

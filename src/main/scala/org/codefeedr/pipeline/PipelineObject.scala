@@ -20,7 +20,6 @@ abstract class PipelineObject[In <: PipelinedItem : ClassTag, Out <: PipelinedIt
     this.pipeline = null
   }
 
-  // TODO: disallow In = NoType    (implict ev: In =:= NoType = null)
   def getSource: DataStream[In] = {
     assert(pipeline != null)
 
