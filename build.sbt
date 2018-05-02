@@ -27,7 +27,7 @@ val coreDependencies = Seq(
   // "org.apache.zookeeper" % "zookeeper" % "3.4.9",
   // "org.mockito" % "mockito-core" % "2.13.0" % "test",
   "org.json4s" % "json4s-scalap_2.11" % "3.6.0-M2",
-  "org.json4s" % "json4s-jackson_2.11" % "3.6.0-M2",
+  "org.json4s" % "jsonOption[String]4s-jackson_2.11" % "3.6.0-M2",
 
 
    "org.scalactic" %% "scalactic" % "3.0.1",
