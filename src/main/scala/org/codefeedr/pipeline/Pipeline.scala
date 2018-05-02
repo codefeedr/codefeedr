@@ -70,9 +70,11 @@ case class Pipeline(bufferType: BufferType,
     lazy val source = if (obj.hasSource) obj.getSource else null
     lazy val sink = if (obj.hasSink) obj.getSink else null
 
-    obj
-      .transform(source)
-      .addSink(sink)
+    val transformed = obj.transform(source)
+
+    if (obj.hasSink) {
+      transformed.addSink(sink)
+    }
   }
 
 }
