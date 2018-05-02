@@ -4,17 +4,30 @@ import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline._
 import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
+import org.codefeedr.plugins.{StringSource, StringType}
 import org.codefeedr.plugins.rss._
 
-class MyJob extends Job[RSSItem] {
-  override def main(source: DataStream[RSSItem]): Unit = {
+class MyJob extends Job[StringType] {
+
+  override def main(source: DataStream[StringType]): Unit = {
     source
-      .map { item => (item.title, 1) }
+      .map { item => (item.value.length, 1) }
       .keyBy(0)
       .sum(1)
       .print()
   }
+
 }
+
+//class MyJob extends Job[RSSItem] {
+//  override def main(source: DataStream[RSSItem]): Unit = {
+//    source
+//      .map { item => (item.title, 1) }
+//      .keyBy(0)
+//      .sum(1)
+//      .print()
+//  }
+//}
 
 object Main {
 
@@ -22,10 +35,11 @@ object Main {
 
     // Create pipeline
     val builder = new PipelineBuilder()
-    builder.setBufferType(BufferType.Kafka)
-    builder.bufferProperties.set(KafkaBuffer.HOST, "localhost:9092")
+//    builder.setBufferType(BufferType.Kafka)
+//    builder.bufferProperties.set(KafkaBuffer.HOST, "localhost:9092")
 
-    val source = new RSSSource("")
+//    val source = new RSSSource("")
+    val source = new StringSource()
     val job = new MyJob()
 //    builder.pipe(source, job)
     builder.add(source)
