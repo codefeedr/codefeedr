@@ -29,6 +29,7 @@ val coreDependencies = Seq(
   "org.json4s" % "json4s-scalap_2.11" % "3.6.0-M2",
   "org.json4s" % "json4s-jackson_2.11" % "3.6.0-M2",
 
+  "net.debasishg" %% "redisclient" % "3.6",
 
    "org.scalactic" %% "scalactic" % "3.0.1",
    "org.scalatest" %% "scalatest" % "3.0.1" % "test",

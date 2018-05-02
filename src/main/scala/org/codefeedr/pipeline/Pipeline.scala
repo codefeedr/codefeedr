@@ -2,12 +2,14 @@ package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.codefeedr.ImmutableProperties
+import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
 
 case class Pipeline(bufferType: BufferType,
                     bufferProperties: ImmutableProperties,
                     objects: Seq[PipelineObject[PipelinedItem, PipelinedItem]],
-                    properties: ImmutableProperties) {
+                    properties: ImmutableProperties,
+                    keyManager: KeyManager) {
   val environment: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
   def start(args: Array[String]): Unit = {

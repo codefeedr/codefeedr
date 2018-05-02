@@ -1,6 +1,7 @@
 package org.codefeedr.pipeline
 
 import org.codefeedr.Properties
+import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.buffer.BufferType
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
 
@@ -18,6 +19,9 @@ class PipelineBuilder() {
 
   /** Pipeline properties */
   val properties = new Properties()
+
+  /** Key manager */
+  protected var keyManager: KeyManager = _
 
   def getBufferType: BufferType = {
     bufferType
@@ -47,6 +51,12 @@ class PipelineBuilder() {
     this
   }
 
+  def setKeyManager(km: KeyManager): PipelineBuilder = {
+    keyManager = km
+
+    this
+  }
+
   def build(): Pipeline = {
     if (this.objects.isEmpty) {
       throw EmptyPipelineException()
@@ -54,6 +64,6 @@ class PipelineBuilder() {
 
     val objects = this.objects.asInstanceOf[ArrayBuffer[PipelineObject[PipelinedItem, PipelinedItem]]]
 
-    Pipeline(bufferType, bufferProperties.toImmutable, objects, properties.toImmutable)
+    Pipeline(bufferType, bufferProperties.toImmutable, objects, properties.toImmutable, keyManager)
   }
 }
