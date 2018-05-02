@@ -23,7 +23,7 @@ object Main {
     // Create pipeline
     val builder = new PipelineBuilder()
     builder.setBufferType(BufferType.Kafka)
-    builder.bufferProperties.set(KafkaBuffer.HOST, "localhost:1234")
+    builder.bufferProperties.set(KafkaBuffer.HOST, "localhost:9092")
 
     val source = new RSSSource("")
     val job = new MyJob()
