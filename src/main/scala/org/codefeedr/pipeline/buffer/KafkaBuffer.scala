@@ -11,6 +11,9 @@ import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.Pipeline
 
 object KafkaBuffer {
+  val HOST = "KAFKA_HOST"
+
+
   private var bootstrapServer = "localhost:9092"
   private var zookeeperConnect = "localhost:2181"
   private var brokerList = "localhost:9092"

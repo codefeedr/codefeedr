@@ -3,7 +3,7 @@ package org.codefeedr
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline._
-import org.codefeedr.pipeline.buffer.BufferType
+import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
 import org.codefeedr.plugins.rss._
 
 class MyJob extends Job[RSSItem] {
@@ -23,7 +23,7 @@ object Main {
     // Create pipeline
     val builder = new PipelineBuilder()
     builder.setBufferType(BufferType.Kafka)
-    builder.bufferProperties.set("KAFKA_HOST", "localhost:1234")
+    builder.bufferProperties.set(KafkaBuffer.HOST, "localhost:1234")
 
     val source = new RSSSource("")
     val job = new MyJob()
