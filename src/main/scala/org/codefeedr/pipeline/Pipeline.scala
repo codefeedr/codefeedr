@@ -67,8 +67,8 @@ case class Pipeline(bufferType: BufferType,
     * @param obj
     */
   private def runObject(obj: PipelineObject[PipelinedItem, PipelinedItem]): Unit = {
-    lazy val source = obj.getSource
-    lazy val sink = obj.getSink
+    lazy val source = if (obj.hasSource) obj.getSource else null
+    lazy val sink = if (obj.hasSink) obj.getSink else null
 
     obj
       .transform(source)

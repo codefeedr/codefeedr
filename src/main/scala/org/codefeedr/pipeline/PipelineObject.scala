@@ -22,6 +22,10 @@ abstract class PipelineObject[In <: PipelinedItem : ClassTag : Manifest, Out <: 
     this.pipeline = null
   }
 
+  def hasSource: Boolean = classTag[In] != classTag[NoType]
+
+  def hasSink: Boolean = classTag[Out] == classTag[NoType]
+
   def getSource: DataStream[In] = {
     assert(pipeline != null)
 
