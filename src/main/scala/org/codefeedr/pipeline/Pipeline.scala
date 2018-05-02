@@ -8,11 +8,7 @@ case class Pipeline(bufferType: BufferType,
                     bufferProperties: ImmutableProperties,
                     objects: Seq[PipelineObject[PipelinedItem, PipelinedItem]],
                     properties: ImmutableProperties) {
-
-  def getEnvironment : StreamExecutionEnvironment = {
-    StreamExecutionEnvironment.getExecutionEnvironment
-  }
-
+  val environment: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
   def start(args: Array[String]): Unit = {
     start(1)
@@ -25,8 +21,6 @@ case class Pipeline(bufferType: BufferType,
 
   // Without any buffers. Connect all POs to each other
   def startMock(options: Int): Unit = {
-    val env = getEnvironment
-
     // Run all setups
     for (obj <- objects) {
       obj.setUp(this)
@@ -38,13 +32,11 @@ case class Pipeline(bufferType: BufferType,
       buffer = obj.transform(buffer)
     }
 
-    env.execute("CodeFeedr Mock Job")
+    environment.execute("CodeFeedr Mock Job")
   }
 
   // With buffers, all in same program
   def startLocal(options: Int): Unit = {
-    val env = getEnvironment
-
     // Run all setups
     for (obj <- objects) {
       obj.setUp(this)
@@ -55,19 +47,17 @@ case class Pipeline(bufferType: BufferType,
       runObject(obj)
     }
 
-    env.execute("CodeFeedr Local Job")
+    environment.execute("CodeFeedr Local Job")
   }
 
   // With buffers, running just one PO
   def startClustered(options: Int): Unit = {
-    val env = getEnvironment
-
     // TODO: find that PO
     val obj = objects.head
     obj.setUp(this)
     runObject(obj)
 
-    env.execute("CodeFeedr Cluster Job")
+    environment.execute("CodeFeedr Cluster Job")
   }
 
   /**

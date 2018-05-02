@@ -3,6 +3,8 @@ package org.codefeedr.plugins
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.{NoType, Pipeline, PipelineObject, PipelinedItem}
 
+import org.apache.flink.streaming.api.scala._
+
 case class StringType(value: String) extends PipelinedItem
 
 class StringSource extends PipelineObject[NoType, StringType] {
@@ -17,7 +19,7 @@ class StringSource extends PipelineObject[NoType, StringType] {
 
     val list = text.split("[ \n]")
 
-    pipeline.getEnvironment
+    pipeline.environment
       .fromCollection(list)
       .map { str => StringType(str) }
   }
