@@ -21,7 +21,6 @@ import scala.reflect.Manifest
 
 object KafkaBuffer {
   val HOST = "KAFKA_HOST"
-  val BROKER_LIST = "KAFKA_BROKER_LIST"
 }
 
 class KafkaBuffer[T <: AnyRef : Manifest](pipeline: Pipeline, topic: String) extends Buffer[T](pipeline) {
@@ -30,7 +29,7 @@ class KafkaBuffer[T <: AnyRef : Manifest](pipeline: Pipeline, topic: String) ext
 
   override def getSource: DataStream[T] = {
     val properties = new Properties()
-    properties.setProperty("bootstrap.servers", "localhost:9092")
+    properties.setProperty("bootstrap.servers", pipeline.bufferProperties.get(KafkaBuffer.HOST))
 
     implicit val typeInfo = TypeInformation.of(inputClassType)
 
@@ -39,6 +38,6 @@ class KafkaBuffer[T <: AnyRef : Manifest](pipeline: Pipeline, topic: String) ext
   }
 
   override def getSink: SinkFunction[T] = {
-    new FlinkKafkaProducer011("localhost:9092", topic, new JSONSerializationSchema[T]())
+    new FlinkKafkaProducer011(pipeline.bufferProperties.get(KafkaBuffer.HOST), topic, new JSONSerializationSchema[T]())
   }
 }
