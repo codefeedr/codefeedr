@@ -22,17 +22,12 @@ class MyJob extends Job[StringType] {
 object Main {
 
   def main(args: Array[String]): Unit = {
-    // Create pipeline
-    val builder = new PipelineBuilder()
-    builder.setBufferType(BufferType.Kafka)
-    builder.bufferProperties.set(KafkaBuffer.HOST, "localhost:9092")
-
-    builder.add(new StringSource())
-    builder.add(new MyJob())
-
-    val pipeline = builder.build()
-
-    // Run
-    pipeline.start(args)
+    new PipelineBuilder()
+      .setBufferType(BufferType.Kafka)
+      .setBufferProperty(KafkaBuffer.HOST, "localhost:9092")
+      .add(new StringSource())
+      .add(new MyJob())
+      .build()
+      .start(args)
   }
 }

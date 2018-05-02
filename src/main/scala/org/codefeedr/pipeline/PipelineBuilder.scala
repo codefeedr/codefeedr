@@ -23,12 +23,28 @@ class PipelineBuilder() {
     bufferType
   }
 
-  def setBufferType(bufferType: BufferType): Unit = {
+  def setBufferType(bufferType: BufferType): PipelineBuilder = {
     this.bufferType = bufferType
+
+    this
   }
 
-  def add[U <: PipelinedItem, V <: PipelinedItem](item: PipelineObject[U, V]): Unit = {
+  def add[U <: PipelinedItem, V <: PipelinedItem](item: PipelineObject[U, V]): PipelineBuilder = {
     objects += item
+
+    this
+  }
+
+  def setProperty(key: String, value: String): PipelineBuilder = {
+    properties.set(key, value)
+
+    this
+  }
+
+  def setBufferProperty(key: String, value: String): PipelineBuilder = {
+    bufferProperties.set(key, value)
+
+    this
   }
 
   def build(): Pipeline = {
