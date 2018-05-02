@@ -7,14 +7,12 @@ import org.codefeedr.pipeline.buffer.BufferType
 import org.codefeedr.plugins.rss._
 
 class MyJob extends Job[RSSItem] {
-  override def main(source: DataStream[RSSItem]): DataStream[NoType] = {
+  override def main(source: DataStream[RSSItem]): Unit = {
     source
       .map { item => (item.title, 1) }
       .keyBy(0)
       .sum(1)
       .print()
-
-    null
   }
 }
 
@@ -25,7 +23,7 @@ object Main {
     // Create pipeline
     val builder = new PipelineBuilder()
     builder.setBufferType(BufferType.Kafka)
-//    builder.addBufferProperty(key, value)
+    builder.bufferProperties.set("KAFKA_HOST", "localhost:1234")
 
     val source = new RSSSource("")
     val job = new MyJob()

@@ -12,7 +12,7 @@ abstract class PipelineObject[In <: PipelinedItem, Out <: PipelinedItem] {
     this.pipeline = pipeline
   }
 
-  def main(source: DataStream[In]): DataStream[Out]
+  def transform(source: DataStream[In]): DataStream[Out]
 
   def tearDown(): Unit = {
     this.pipeline = null
