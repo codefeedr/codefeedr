@@ -9,7 +9,7 @@ import collection.JavaConverters._
 class Properties {
   protected var contents = new util.Properties()
 
-  def get(key: String, default: String = ""): String = {
+  def get(key: String, default: String = null): String = {
     val value = contents.getProperty(key)
 
     if (value == null)

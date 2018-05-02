@@ -41,6 +41,11 @@ class PropertiesTest extends FunSuite {
     assert(props.get("key", "default") == "value")
   }
 
+  test("When no default is given, a non-existing key should return null") {
+    val props = new Properties()
+    assert(props.get("key") == null)
+  }
+
   test("A Java properties list created from the properties should be comparable in content") {
     val props = new Properties()
     props.set("key", "value")
