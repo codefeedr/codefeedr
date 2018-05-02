@@ -8,23 +8,17 @@ class RedisKeyManagerTest extends FunSuite
 
   var km: RedisKeyManager = _
 
-  private val disconnectFn = PrivateMethod[Unit]('disconnect)
-  private val setFn = PrivateMethod[Unit]('set)
-  private val getFn = PrivateMethod[Option[Int]]('get)
-  private val deleteFn = PrivateMethod[Unit]('delete)
-  private val deleteAllFn = PrivateMethod[Unit]('deleteAll)
-
   before {
     km = new RedisKeyManager("redis://localhost:6379", "cf_test")
   }
 
   after {
-    km invokePrivate deleteAllFn()
-    km invokePrivate disconnectFn()
+    km.deleteAll()
+    km.disconnect()
   }
 
   test("A set key should be retrievable" ) {
-    km invokePrivate setFn("testTarget", "testKey", 10)
+    km.set("testTarget", "testKey", 10)
 
     val key = km.request("testTarget", 1)
 
@@ -33,8 +27,8 @@ class RedisKeyManagerTest extends FunSuite
   }
 
   test("The key with the best fitting number of calls should be used" ) {
-    km invokePrivate setFn("testTarget", "testKey", 10)
-    km invokePrivate setFn("testTarget", "testKey2", 4)
+    km.set("testTarget", "testKey", 10)
+    km.set("testTarget", "testKey2", 4)
 
     val key = km.request("testTarget", 3)
 
@@ -43,14 +37,14 @@ class RedisKeyManagerTest extends FunSuite
   }
 
   test("After getting a key the number of calls remaining should be lowered") {
-    km invokePrivate setFn("testTarget", "testKey", 10)
+    km.set("testTarget", "testKey", 10)
 
     val key = km.request("testTarget", 3)
 
     assert(key.isDefined)
     assert(key.get == "testKey")
 
-    val remaining = km invokePrivate[Option[Int]] getFn("testTarget", "testKey")
+    val remaining = km.get("testTarget", "testKey")
 
     assert(remaining.isDefined)
     assert(remaining.get == (10 - 3))

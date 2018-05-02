@@ -24,11 +24,6 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
       requestScriptId = sha.get
   }
 
-  private def disconnect(): Unit = {
-    connection.disconnect
-    connection = null
-  }
-
   /**
     * Custom script for getting a key from the KV-store.
     *
@@ -74,8 +69,14 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
       data.head
   }
 
-  //noinspection ScalaUnusedSymbol
-  private def set(target: String, key: String, numCalls: Int): Unit = {
+  ///////// Methods for testing
+
+  private[redis] def disconnect(): Unit = {
+    connection.disconnect
+    connection = null
+  }
+
+  private[redis] def set(target: String, key: String, numCalls: Int): Unit = {
     if (!isConnected)
       connect()
 
@@ -87,8 +88,7 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     //    connection.hset(targetKey + ":policy"
   }
 
-  //noinspection ScalaUnusedSymbol
-  private def get(target: String, key: String): Option[Int] = {
+  private[redis] def get(target: String, key: String): Option[Int] = {
     if (!isConnected)
       connect()
 
@@ -101,8 +101,7 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
       Some(result.get.toInt)
   }
 
-  //noinspection ScalaUnusedSymbol
-  private def delete(target: String, key: String): Unit = {
+  private[redis] def delete(target: String, key: String): Unit = {
     if (!isConnected)
       connect()
 
@@ -114,8 +113,7 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     connection.hdel(targetKey + ":lastRefresh", key)
   }
 
-  //noinspection ScalaUnusedSymbol
-  private def deleteAll(): Unit = {
+  private[redis] def deleteAll(): Unit = {
     if (!isConnected)
       connect()
 
