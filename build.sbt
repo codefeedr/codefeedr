@@ -2,6 +2,7 @@
 
 resolvers in ThisBuild ++= Seq(
   "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
+  "Artima Maven Repository" at "http://repo.artima.com/releases",
   Resolver.mavenLocal
 )
 
@@ -29,8 +30,8 @@ val coreDependencies = Seq(
   // "org.json4s" % "json4s-jackson_2.11" % "3.6.0-M2",
 
 
-   "org.scalactic" %% "scalactic" % "3.0.5",
-   "org.scalatest" %% "scalatest" % "3.0.5" % "test",
+   "org.scalactic" %% "scalactic" % "3.0.1",
+   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
 
   // "ch.qos.logback" % "logback-classic" % "1.1.7",
   // "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
