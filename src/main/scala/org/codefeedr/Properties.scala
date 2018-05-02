@@ -26,6 +26,11 @@ class Properties {
     contents.keys().asScala.toList.asInstanceOf[List[String]]
   }
 
+  override def equals(that: Any): Boolean = that match {
+    case that: Properties => that.contents == contents
+    case _ => false
+  }
+
   /**
     * Acquire a Java Properties object containing the same properties as this object.
     *

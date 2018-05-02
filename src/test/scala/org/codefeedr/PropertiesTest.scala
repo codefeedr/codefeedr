@@ -50,7 +50,7 @@ class PropertiesTest extends FunSuite {
     val propsSet = props.keys().toSet
     val jPropsSet = jProps.keySet().toArray.toSet
 
-    assert(propsSet.equals(jPropsSet))
+    assert(propsSet == jPropsSet)
   }
 
   test("An ImmutableProperties created from the properties should be comparable in content") {
@@ -62,9 +62,8 @@ class PropertiesTest extends FunSuite {
     val propsSet = props.keys().toSet
     val iPropsSet = iProps.keys().toSet
 
-    assert(propsSet.equals(iPropsSet))
-
-    assert(props.keys().equals(iProps.keys()))
+    assert(propsSet == iPropsSet)
+    assert(props.keys() == iProps.keys())
   }
 
   test("An ImmutableProperties should not allow setting values") {
@@ -78,7 +77,7 @@ class PropertiesTest extends FunSuite {
     }
   }
 
-  test("Building ImmutbaleProperties with Properties renders a copy") {
+  test("Building ImmutableProperties with Properties renders a copy") {
     val props = new Properties()
     props.set("key", "value")
 
@@ -87,10 +86,22 @@ class PropertiesTest extends FunSuite {
     val propsSet = props.keys().toSet
     val iPropsSet = iProps.keys().toSet
 
-    println(propsSet)
-    println(iPropsSet)
-
-    assert(propsSet.equals(iPropsSet))
+    assert(propsSet == iPropsSet)
   }
 
+  test("Making an ImmutableProperties immutable makes no change") {
+    val props = new Properties()
+    props.set("key", "value")
+
+    val iProps = props.toImmutable
+
+    assert(iProps.toImmutable == iProps)
+  }
+
+  test("Comparing to non-Properties gives non-equality") {
+    val props = new Properties()
+
+    //noinspection ComparingUnrelatedTypes
+    assert(props != 5)
+  }
 }
