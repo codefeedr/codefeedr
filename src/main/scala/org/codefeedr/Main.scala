@@ -1,16 +1,20 @@
 package org.codefeedr
 
 import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline._
+import org.codefeedr.pipeline.buffer.BufferType
 import org.codefeedr.plugins.rss._
 
 class MyJob extends Job[RSSItem] {
-  override def main(): Unit = {
-    getSource
+  override def main(source: DataStream[RSSItem]): DataStream[NoType] = {
+    source
       .map { item => (item.title, 1) }
       .keyBy(0)
       .sum(1)
       .print()
+
+    null
   }
 }
 

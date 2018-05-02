@@ -1,6 +1,7 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.api.java.operators.DataSink
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.buffer.BufferFactory
 
@@ -11,19 +12,11 @@ abstract class PipelineObject[In <: PipelinedItem, Out <: PipelinedItem] {
     this.pipeline = pipeline
   }
 
-  def main()
+  def main(source: DataStream[In]): DataStream[Out]
 
   def tearDown(): Unit = {
     this.pipeline = null
   }
-
-  //  def getStorageSource[T](typ: String, collection: String): DataStream[T] = {
-  //
-  //  }
-  //
-  //  def getStorageSink[T](typ: String, collection: String): DataSink[T] = {
-  //
-  //  }
 
   // TODO: disallow In = NoType    (implict ev: In =:= NoType = null)
   def getSource: DataStream[In] = {
@@ -40,7 +33,11 @@ abstract class PipelineObject[In <: PipelinedItem, Out <: PipelinedItem] {
     source
   }
 
-  def getSink: DataSink[Out] = {
+  def getSink: SinkFunction[Out] = {
     null
   }
+
+  def getStorageSource[T](typ: String, collection: String): DataStream[T] = ???
+
+  def getStorageSink[T](typ: String, collection: String): DataSink[T] = ???
 }

@@ -1,7 +1,7 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.codefeedr.pipeline.BufferType.BufferType
+import org.codefeedr.pipeline.buffer.BufferType.BufferType
 
 case class Pipeline(bufferType: BufferType, objects: Seq[PipelineObject[PipelinedItem, PipelinedItem]]) {
 
@@ -14,7 +14,11 @@ case class Pipeline(bufferType: BufferType, objects: Seq[PipelineObject[Pipeline
     }
 
     for (obj <- objects) {
-      obj.main()
+      val result = obj.main(obj.getSource)
+
+      // TODO: check for NoType
+
+      result.addSink(obj.getSink)
     }
 
     env.execute("CodeFeedr Job")

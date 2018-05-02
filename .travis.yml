@@ -39,3 +39,6 @@ script:
 
 after_success:
   - sbt coverageReport coveralls
+
+notifications:
+  email: false

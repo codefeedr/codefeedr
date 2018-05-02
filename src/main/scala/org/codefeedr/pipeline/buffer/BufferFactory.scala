@@ -1,6 +1,6 @@
 package org.codefeedr.pipeline.buffer
 
-import org.codefeedr.pipeline.{BufferType, Pipeline}
+import org.codefeedr.pipeline.Pipeline
 
 class BufferFactory(pipeline: Pipeline) {
 
