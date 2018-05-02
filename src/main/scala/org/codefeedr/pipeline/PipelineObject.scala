@@ -28,13 +28,15 @@ abstract class PipelineObject[In <: PipelinedItem, Out <: PipelinedItem] {
 
     val factory = new BufferFactory(pipeline)
     val buffer = factory.create[In]()
-    val source = buffer.getSource
 
-    source
+    buffer.getSource
   }
 
   def getSink: SinkFunction[Out] = {
-    null
+    val factory = new BufferFactory(pipeline)
+    val buffer = factory.create[Out]()
+
+    buffer.getSink
   }
 
   def getStorageSource[T](typ: String, collection: String): DataStream[T] = ???

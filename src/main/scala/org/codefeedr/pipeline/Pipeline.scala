@@ -70,6 +70,12 @@ case class Pipeline(bufferType: BufferType,
     env.execute("CodeFeedr Cluster Job")
   }
 
+  /**
+    * Run a pipeline object.
+    *
+    * Creates a source and sink for the object and then runs the transform function.
+    * @param obj
+    */
   private def runObject(obj: PipelineObject[PipelinedItem, PipelinedItem]): Unit = {
     lazy val source = obj.getSource
     lazy val sink = obj.getSink
