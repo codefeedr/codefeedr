@@ -7,7 +7,7 @@ import collection.JavaConverters._
   * Object containing configuration properties.
   */
 class Properties {
-  protected val contents = new util.Properties()
+  protected var contents = new util.Properties()
 
   def get(key: String, default: String = ""): String = {
     val value = contents.getProperty(key)
@@ -45,13 +45,19 @@ class Properties {
 
 /**
   * Immutable version of Properties. Create using properties.toImmutable
-  *
-  * @param properties
   */
-final class ImmutableProperties(properties: util.Properties) extends Properties {
+final class ImmutableProperties extends Properties {
+
+  def this(properties: util.Properties) {
+    this()
+
+    contents = properties
+  }
 
   def this(properties: Properties) {
-    this(properties.toJavaProperties)
+    this()
+
+    contents = properties.toJavaProperties
   }
 
   override def set(key: String, value: String): Unit = {

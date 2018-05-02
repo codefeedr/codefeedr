@@ -5,7 +5,6 @@ import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline._
 import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
 import org.codefeedr.plugins.{StringSource, StringType}
-import org.codefeedr.plugins.rss._
 
 class MyJob extends Job[StringType] {
 

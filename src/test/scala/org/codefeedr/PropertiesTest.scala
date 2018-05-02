@@ -41,23 +41,31 @@ class PropertiesTest extends FunSuite {
     assert(props.get("key", "default") == "value")
   }
 
-//  test("A Java properties list created from the properties should be comparable in content") {
-//    val props = new Properties()
-//    props.set("key", "value")
-//
-//    val jProps = props.toJavaProperties
-//
-//    assert(props.keys().equals(jProps.keys()))
-//  }
-//
-//  test("An ImmutableProperties created from the properties should be comparable in content") {
-//    val props = new Properties()
-//    props.set("key", "value")
-//
-//    val iProps = props.toImmutable
-//
-//    assert(props.keys().equals(iProps.keys()))
-//  }
+  test("A Java properties list created from the properties should be comparable in content") {
+    val props = new Properties()
+    props.set("key", "value")
+
+    val jProps = props.toJavaProperties
+
+    val propsSet = props.keys().toSet
+    val jPropsSet = jProps.keySet().toArray.toSet
+
+    assert(propsSet.equals(jPropsSet))
+  }
+
+  test("An ImmutableProperties created from the properties should be comparable in content") {
+    val props = new Properties()
+    props.set("key", "value")
+
+    val iProps = props.toImmutable
+
+    val propsSet = props.keys().toSet
+    val iPropsSet = iProps.keys().toSet
+
+    assert(propsSet.equals(iPropsSet))
+
+    assert(props.keys().equals(iProps.keys()))
+  }
 
   test("An ImmutableProperties should not allow setting values") {
     val props = new Properties()
@@ -68,6 +76,21 @@ class PropertiesTest extends FunSuite {
     assertThrows[NotImplementedError] {
       iProps.set("key", "newValue")
     }
+  }
+
+  test("Building ImmutbaleProperties with Properties renders a copy") {
+    val props = new Properties()
+    props.set("key", "value")
+
+    val iProps = new ImmutableProperties(props)
+
+    val propsSet = props.keys().toSet
+    val iPropsSet = iProps.keys().toSet
+
+    println(propsSet)
+    println(iPropsSet)
+
+    assert(propsSet.equals(iPropsSet))
   }
 
 }
