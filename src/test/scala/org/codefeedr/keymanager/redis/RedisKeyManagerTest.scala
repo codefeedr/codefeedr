@@ -1,5 +1,9 @@
 package org.codefeedr.keymanager.redis
 
+import java.net.URI
+import java.util.Date
+
+import com.redis.RedisClient
 import org.scalatest.{BeforeAndAfter, FunSuite, PrivateMethodTester}
 
 class RedisKeyManagerTest extends FunSuite
@@ -53,12 +57,12 @@ class RedisKeyManagerTest extends FunSuite
   }
 
   test("Keys should refresh after interval") {
-    km.set("testTarget", "testKey", 10, 1000)
+    km.set("testTarget", "testKey", 10, 500)
 
     km.request("testTarget", 3)
 
     // Wait 5 seconds to make the keys pass
-    Thread.sleep(5000)
+    Thread.sleep(2000)
 
     val key = km.request(target = "testTarget", numberOfCalls = 8)
 
@@ -67,10 +71,10 @@ class RedisKeyManagerTest extends FunSuite
   }
 
   test("Refreshing should reset number of calls to limit") {
-    km.set("testTarget", "testKey", 15, 1000)
+    km.set("testTarget", "testKey", 15, 500)
     km.request("testTarget", 15)
 
-    Thread.sleep(5000)
+    Thread.sleep(2000)
 
     // Refresh is only needed after new key
     val key = km.request("testTarget", 1)
@@ -84,5 +88,26 @@ class RedisKeyManagerTest extends FunSuite
     val key = km.request("randomTarget", 1)
 
     assert(key.isEmpty)
+  }
+
+  test("When a key is refreshed, the new refreshTime should be in the future") {
+    // TODO
+
+    km.set("testTarget", "testKey", 10, 500)
+
+    Thread.sleep(3000)
+
+    val key = km.request("testTarget", 1)
+
+    assert(key.isDefined)
+    assert(key.get.remainingCalls == (10 - 1))
+
+    // As per documentation
+    val uri = new URI("redis://localhost:6379")
+    val rc = new RedisClient(uri)
+    val refreshTime = rc.zscore("cf_test:testTarget:refreshTime", "testKey")
+    rc.disconnect
+
+    assert(refreshTime.get > new Date().getTime)
   }
 }

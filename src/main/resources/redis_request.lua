@@ -20,7 +20,12 @@ if #toRefresh ~= 0 then
     local limit = redis.call("HGET", targetKey .. ":limit", key)
     local lastRefresh = toRefresh[2]
 
-    redis.call("ZADD", targetKey .. ":refreshTime", lastRefresh + interval, key)
+    local newRefresh = lastRefresh + interval
+    while newRefresh < tonumber(ARGV[2]) do
+        newRefresh = newRefresh + interval
+    end
+
+    redis.call("ZADD", targetKey .. ":refreshTime", newRefresh, key)
     redis.call("ZADD", targetKey .. ":keys", limit, key)
 
     -- If there was no hit, do use the refreshed key
