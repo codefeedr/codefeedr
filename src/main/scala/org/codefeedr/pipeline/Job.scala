@@ -1,11 +1,8 @@
 package org.codefeedr.pipeline
 
-import org.apache.flink.api.common.typeinfo.TypeInformation
-
 import org.apache.flink.streaming.api.scala.DataStream
-import scala.reflect.Manifest
 
-import scala.reflect.ClassTag
+import scala.reflect.{ClassTag, Manifest}
 
 abstract class Job[T <: PipelinedItem : ClassTag : Manifest] extends PipelineObject[T, NoType] {
 

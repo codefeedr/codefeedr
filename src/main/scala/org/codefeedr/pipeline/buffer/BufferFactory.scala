@@ -1,7 +1,7 @@
 package org.codefeedr.pipeline.buffer
 
-import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.codefeedr.pipeline.Pipeline
+
 import scala.reflect.Manifest
 
 class BufferFactory(pipeline: Pipeline) {
