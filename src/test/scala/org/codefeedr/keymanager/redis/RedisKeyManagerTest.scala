@@ -91,8 +91,6 @@ class RedisKeyManagerTest extends FunSuite
   }
 
   test("When a key is refreshed, the new refreshTime should be in the future") {
-    // TODO
-
     km.set("testTarget", "testKey", 10, 500)
 
     Thread.sleep(3000)
