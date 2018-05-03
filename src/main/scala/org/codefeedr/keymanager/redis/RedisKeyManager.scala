@@ -44,7 +44,7 @@ import org.codefeedr.keymanager.KeyManager
   */
 class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") extends KeyManager {
   private var connection: RedisClient = _
-  private var requestScriptId: String = _
+  private var scriptId: String = _
 
   connect()
 
@@ -55,9 +55,7 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     val uri = new URI(host)
     connection = new RedisClient(uri)
 
-    val sha = connection.scriptLoad(getRequestLuaScript)
-    if (sha.isDefined)
-      requestScriptId = sha.get
+    scriptId = connection.scriptLoad(getRequestLuaScript).get
   }
 
   /**
@@ -91,10 +89,7 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     val time = new Date().getTime
 
     // Run the custom script for a fully atomic get+decr operation
-    val result: Option[List[Option[String]]] = connection.evalMultiSHA(requestScriptId, List(targetKey), List(numberOfCalls, time))
-
-    if (result.isEmpty)
-      return None
+    val result: Option[List[Option[String]]] = connection.evalMultiSHA(scriptId, List(targetKey), List(numberOfCalls, time))
 
     val data = result.get
     if (data.isEmpty)

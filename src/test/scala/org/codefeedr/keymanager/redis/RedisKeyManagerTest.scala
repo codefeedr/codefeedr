@@ -26,6 +26,12 @@ class RedisKeyManagerTest extends FunSuite
     assert(key.get == "testKey")
   }
 
+  test("An empty store should return no keys") {
+    val key = km.request("testTarget", 1)
+
+    assert(key.isEmpty)
+  }
+
   test("The key with the best fitting number of calls should be used" ) {
     km.set("testTarget", "testKey", 10, 10000)
     km.set("testTarget", "testKey2", 4, 10000)
@@ -75,5 +81,12 @@ class RedisKeyManagerTest extends FunSuite
 
     val num = km.get("testTarget", "testKey")
     assert(num.get == (15 - 1))
+  }
+
+  test("RedisKeyManager has a valid default root") {
+    val km = new RedisKeyManager("redis://localhost:6379")
+    val key = km.request("randomTarget", 1)
+
+    assert(key.isEmpty)
   }
 }
