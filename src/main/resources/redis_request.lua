@@ -13,7 +13,7 @@ local targetKey = KEYS[1]
 local hit = redis.call("ZRANGEBYSCORE", targetKey .. ":keys", tonumber(ARGV[1]), "+inf", "WITHSCORES", "LIMIT", 0, 1)
 
 -- Find key to refresh
-local toRefresh = redis.call("ZRANGEBYSCORE", targetKey .. ":refreshTime", "-inf", tonumber(ARGV[2]), "WITHSCORES", "LIMIT", 0, 1)
+local toRefresh = redis.call("ZRANGEBYSCORE", targetKey .. ":refreshTime", 0, tonumber(ARGV[2]), "WITHSCORES", "LIMIT", 0, 1)
 if #toRefresh ~= 0 then
     local key = toRefresh[1]
     local interval = redis.call("HGET", targetKey .. ":interval", key)
@@ -25,7 +25,7 @@ if #toRefresh ~= 0 then
 
     -- If there was no hit, do use the refreshed key
     if #hit == 0 then
-        hit = {key, limit }
+        hit = {key, limit}
     end
 end
 

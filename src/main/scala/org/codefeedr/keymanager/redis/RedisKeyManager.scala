@@ -70,19 +70,13 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
   }
 
   /**
-    * Get whether there is an active connection
-    * @return has active connection
-    */
-  private def isConnected: Boolean = connection != null
-
-  /**
     * Get the Redis key for given target.
     * @param target Target of the key pool
     * @return Target key
     */
   private def redisKeyForTarget(target: String): String = root + ":" + target
 
-  override def request(target: String, numberOfCalls: Int): Option[String] = {
+  override def request(target: String, numberOfCalls: Int): Option[(String, Int)] = {
     import serialization.Parse.Implicits.parseString
 
     val targetKey = redisKeyForTarget(target)
@@ -95,10 +89,8 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     if (data.isEmpty)
       None
     else
-      data.head
+      Some((data.head.get, data.last.get.toInt))
   }
-
-  ///////// Methods for testing
 
   private[redis] def disconnect(): Unit = {
     connection.disconnect
@@ -121,19 +113,6 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     connection.zadd(targetKey + ":refreshTime", time, key)
     connection.hset(targetKey + ":limit", key, numCalls)
     connection.hset(targetKey + ":interval", key, interval)
-  }
-
-  private[redis] def get(target: String, key: String): Option[Int] = {
-    if (!isConnected)
-      connect()
-
-    val targetKey = redisKeyForTarget(target)
-    val result = connection.zscore(targetKey + ":keys", key)
-
-    if (result.isEmpty)
-      None
-    else
-      Some(result.get.toInt)
   }
 
   private[redis] def deleteAll(): Unit = {

@@ -21,8 +21,8 @@ class StaticKeyManagerTest extends FunSuite {
   test("The same key as set is returned for the same target") {
     val km = new StaticKeyManager(Map("aTarget" -> "aKey", "bTarget" -> "bKey"))
 
-    assert(km.request("aTarget", 1).get == "aKey")
-    assert(km.request("bTarget", 1).get == "bKey")
+    assert(km.request("aTarget", 1).get._1 == "aKey")
+    assert(km.request("bTarget", 1).get._1 == "bKey")
   }
 
   test("When key will not be used, no key is returned") {
