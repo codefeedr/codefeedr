@@ -6,6 +6,42 @@ import java.util.Date
 import com.redis._
 import org.codefeedr.keymanager.KeyManager
 
+/**
+  * A key manager using Redis, supporting refresh intervals and call counting.
+  *
+  * <h3>Adding keys to Redis</h3>
+  * When adding a key to Redis, a refresh policy is required:
+  *
+  * <i>Key</i> is the API key to store
+  * <i>Limit</i> is the number of calls the key allows within a time interval
+  * <i>Interval</i> is the number of milliseconds between two resets of the use count.
+  * <i>Time</i> is the next time the key counter should reset.
+  *
+  * When, for example, a key has 1000 calls every day, one would use:
+  * <pre>limit = 1000, interval = 60 * 60 * 24 * 1000, time = next midnight</pre>
+  *
+  *
+  * <pre>
+  * targetKey = [root]:[target]
+  * ZADD [targetKey]:keys [limit] [key]
+  * ZADD [targetKey]:refreshTime [time] [key]
+  * HSET [targetKey]:limit [key] [limit]
+  * HSET [targetKey]:interval [key] [interval]
+  * </pre>
+  *
+  * <h3>Deleting keys from Redis</h3>
+  *
+  * <pre>
+  * targetKey = [root]:[target]
+  * ZREM [targetKey]:keys key
+  * ZREM [targetKey]:refreshTime key
+  * HDEL [targetKey]:limit key
+  * HDEL [targetKey]:interval key
+  * </pre>
+  *
+  * @param host Hostname and port of Redis. Use the redis scheme: 'redis://localhost:6379'
+  * @param root Root path of the key manager within Redis. Defaults to 'codefeedr:keymanager'
+  */
 class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") extends KeyManager {
   private var connection: RedisClient = _
   private var requestScriptId: String = _
@@ -14,8 +50,6 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
 
   /**
     * Start a new connection to Redis and configure it properly.
-    *
-    * @throws RuntimeException
     */
   private def connect(): Unit = {
     val uri = new URI(host)
@@ -105,15 +139,6 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
       None
     else
       Some(result.get.toInt)
-  }
-
-  private[redis] def delete(target: String, key: String): Unit = {
-    val targetKey = redisKeyForTarget(target)
-
-    connection.zrem(targetKey + ":keys", key)
-    connection.zrem(targetKey + ":refreshTime", key)
-    connection.hdel(targetKey + ":limit", key)
-    connection.hdel(targetKey + ":interval", key)
   }
 
   private[redis] def deleteAll(): Unit = {
