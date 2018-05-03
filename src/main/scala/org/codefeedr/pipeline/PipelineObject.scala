@@ -21,14 +21,14 @@ abstract class PipelineObject[In <: PipelinedItem : ClassTag : Manifest, Out <: 
     this.pipeline = null
   }
 
-  def hasSource: Boolean = typeOf[In] != typeOf[NoType]
+  def hasMainSource: Boolean = typeOf[In] != typeOf[NoType]
 
   def hasSink: Boolean = typeOf[Out] != typeOf[NoType]
 
-  def getSource: DataStream[In] = {
+  def getMainSource: DataStream[In] = {
     assert(pipeline != null)
 
-    if (!hasSource) {
+    if (!hasMainSource) {
       throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
     }
 
@@ -54,4 +54,7 @@ abstract class PipelineObject[In <: PipelinedItem : ClassTag : Manifest, Out <: 
   def getStorageSource[T](typ: String, collection: String): DataStream[T] = ???
 
   def getStorageSink[T](typ: String, collection: String): DataSink[T] = ???
+
+  // Returns data source based on the sink of the PO given. Find the PO in the nodes, and then get topic etc
+//  def getSource[T](objectClass: poClass): DataStream[T] = ???
 }

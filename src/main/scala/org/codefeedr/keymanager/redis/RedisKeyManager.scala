@@ -10,6 +10,8 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
   private var connection: RedisClient = _
   private var requestScriptId: String = _
 
+  connect()
+
   /**
     * Start a new connection to Redis and configure it properly.
     *
@@ -51,13 +53,11 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
   override def request(target: String, numberOfCalls: Int): Option[String] = {
     import serialization.Parse.Implicits.parseString
 
-    if (!isConnected)
-      connect()
-
     val targetKey = redisKeyForTarget(target)
+    val time = new Date().getTime
 
     // Run the custom script for a fully atomic get+decr operation
-    val result: Option[List[Option[String]]] = connection.evalMultiSHA(requestScriptId, List(targetKey), List(numberOfCalls))
+    val result: Option[List[Option[String]]] = connection.evalMultiSHA(requestScriptId, List(targetKey), List(numberOfCalls, time))
 
     if (result.isEmpty)
       return None
@@ -76,16 +76,22 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     connection = null
   }
 
-  private[redis] def set(target: String, key: String, numCalls: Int): Unit = {
-    if (!isConnected)
-      connect()
-
+  /**
+    * Add a new key to redis for testing.
+    *
+    * @param target Key target
+    * @param key Key
+    * @param numCalls Number of calls allowed within interval
+    * @param interval Interval in milliseconds
+    */
+  private[redis] def set(target: String, key: String, numCalls: Int, interval: Int): Unit = {
     val targetKey = redisKeyForTarget(target)
-    connection.zadd(targetKey + ":keys", numCalls, key)
+    val time = new Date().getTime + interval
 
-    // TODO: refresh policy
-    connection.hset(targetKey + ":lastRefresh", key, new Date().getTime)
-    //    connection.hset(targetKey + ":policy"
+    connection.zadd(targetKey + ":keys", numCalls, key)
+    connection.zadd(targetKey + ":refreshTime", time, key)
+    connection.hset(targetKey + ":limit", key, numCalls)
+    connection.hset(targetKey + ":interval", key, interval)
   }
 
   private[redis] def get(target: String, key: String): Option[Int] = {
@@ -102,21 +108,15 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
   }
 
   private[redis] def delete(target: String, key: String): Unit = {
-    if (!isConnected)
-      connect()
-
     val targetKey = redisKeyForTarget(target)
 
     connection.zrem(targetKey + ":keys", key)
-
-    // TODO: refresh policy
-    connection.hdel(targetKey + ":lastRefresh", key)
+    connection.zrem(targetKey + ":refreshTime", key)
+    connection.hdel(targetKey + ":limit", key)
+    connection.hdel(targetKey + ":interval", key)
   }
 
   private[redis] def deleteAll(): Unit = {
-    if (!isConnected)
-      connect()
-
     connection.evalBulk("for _,k in ipairs(redis.call('keys',ARGV[1])) do redis.call('del',k) end", List(), List(root + ":*"))
   }
 

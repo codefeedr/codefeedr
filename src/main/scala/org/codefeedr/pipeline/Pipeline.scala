@@ -69,7 +69,9 @@ case class Pipeline(bufferType: BufferType,
     * @param obj
     */
   private def runObject(obj: PipelineObject[PipelinedItem, PipelinedItem]): Unit = {
-    lazy val source = if (obj.hasSource) obj.getSource else null
+    // TODO: get main source, based on graph
+    lazy val source = if (obj.hasMainSource) obj.getMainSource else null
+
     lazy val sink = if (obj.hasSink) obj.getSink else null
 
     val transformed = obj.transform(source)

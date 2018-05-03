@@ -8,28 +8,30 @@
 --
 
 local targetKey = KEYS[1]
+
 -- Find value
-local getHit = function ()
-    return redis.call("ZRANGEBYSCORE", targetKey .. ":keys", tonumber(ARGV[1]), "+inf", "WITHSCORES", "LIMIT", 0, 1)
+local hit = redis.call("ZRANGEBYSCORE", targetKey .. ":keys", tonumber(ARGV[1]), "+inf", "WITHSCORES", "LIMIT", 0, 1)
+
+-- Find key to refresh
+local toRefresh = redis.call("ZRANGEBYSCORE", targetKey .. ":refreshTime", "-inf", tonumber(ARGV[2]), "WITHSCORES", "LIMIT", 0, 1)
+if #toRefresh ~= 0 then
+    local key = toRefresh[1]
+    local interval = redis.call("HGET", targetKey .. ":interval", key)
+    local limit = redis.call("HGET", targetKey .. ":limit", key)
+    local lastRefresh = toRefresh[2]
+
+    redis.call("ZADD", targetKey .. ":refreshTime", lastRefresh + interval, key)
+    redis.call("ZADD", targetKey .. ":keys", limit, key)
+
+    -- If there was no hit, do use the refreshed key
+    if #hit == 0 then
+        hit = {key, limit }
+    end
 end
 
-local hit = getHit()
-
--- Check
+-- Check if we had a key
 if #hit == 0 then
---    local canRefresh = false
---
---    if canRefresh then
---        -- Do refresh
---
---
---        hit = getHit()
---        if #hit == 0 then
---            return {}
---        end
---    else
-        return {}
---    end
+    return {}
 end
 
 -- Update key
