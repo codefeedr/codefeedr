@@ -23,7 +23,7 @@ class RedisKeyManagerTest extends FunSuite
     val key = km.request("testTarget", 1)
 
     assert(key.isDefined)
-    assert(key.get._1 == "testKey")
+    assert(key.get.value == "testKey")
   }
 
   test("An empty store should return no keys") {
@@ -39,7 +39,7 @@ class RedisKeyManagerTest extends FunSuite
     val key = km.request("testTarget", 3)
 
     assert(key.isDefined)
-    assert(key.get._1 == "testKey2")
+    assert(key.get.value == "testKey2")
   }
 
   test("After getting a key the number of calls remaining should be lowered") {
@@ -48,8 +48,8 @@ class RedisKeyManagerTest extends FunSuite
     val key = km.request("testTarget", 3)
 
     assert(key.isDefined)
-    assert(key.get._1 == "testKey")
-    assert(key.get._2 == (10 - 3))
+    assert(key.get.value == "testKey")
+    assert(key.get.remainingCalls == (10 - 3))
   }
 
   test("Keys should refresh after interval") {
@@ -63,7 +63,7 @@ class RedisKeyManagerTest extends FunSuite
     val key = km.request(target = "testTarget", numberOfCalls = 8)
 
     assert(key.isDefined)
-    assert(key.get._1 == "testKey")
+    assert(key.get.value == "testKey")
   }
 
   test("Refreshing should reset number of calls to limit") {
@@ -76,7 +76,7 @@ class RedisKeyManagerTest extends FunSuite
     val key = km.request("testTarget", 1)
 
     assert(key.isDefined)
-    assert(key.get._2 == (15 - 1))
+    assert(key.get.remainingCalls == (15 - 1))
   }
 
   test("RedisKeyManager has a valid default root") {

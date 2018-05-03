@@ -2,7 +2,7 @@ package org.codefeedr.keymanager
 
 class StaticKeyManager(map: Map[String, String] = Map()) extends KeyManager {
 
-  override def request(target: String, numberOfCalls: Int): Option[(String, Int)]= {
+  override def request(target: String, numberOfCalls: Int): Option[ManagedKey]= {
     if (target == null)
       throw new IllegalArgumentException()
 
@@ -14,7 +14,7 @@ class StaticKeyManager(map: Map[String, String] = Map()) extends KeyManager {
     if (key.isEmpty)
       None
     else
-      Some((key.get, Int.MaxValue))
+      Some(ManagedKey(key.get, Int.MaxValue))
   }
 
 }

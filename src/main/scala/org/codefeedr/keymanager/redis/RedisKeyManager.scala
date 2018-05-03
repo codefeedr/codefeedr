@@ -4,7 +4,7 @@ import java.net.URI
 import java.util.Date
 
 import com.redis._
-import org.codefeedr.keymanager.KeyManager
+import org.codefeedr.keymanager.{KeyManager, ManagedKey}
 
 /**
   * A key manager using Redis, supporting refresh intervals and call counting.
@@ -76,7 +76,7 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     */
   private def redisKeyForTarget(target: String): String = root + ":" + target
 
-  override def request(target: String, numberOfCalls: Int): Option[(String, Int)] = {
+  override def request(target: String, numberOfCalls: Int): Option[ManagedKey] = {
     import serialization.Parse.Implicits.parseString
 
     val targetKey = redisKeyForTarget(target)
@@ -89,7 +89,7 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     if (data.isEmpty)
       None
     else
-      Some((data.head.get, data.last.get.toInt))
+      Some(ManagedKey(data.head.get, data.last.get.toInt))
   }
 
   private[redis] def disconnect(): Unit = {
