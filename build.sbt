@@ -1,6 +1,7 @@
 // import sbt.Keys.libraryDependencies
 
 resolvers in ThisBuild ++= Seq(
+  "confluent" at "http://packages.confluent.io/maven/",
   "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
   "Artima Maven Repository" at "http://repo.artima.com/releases",
   Resolver.mavenLocal
@@ -18,8 +19,11 @@ val flinkVersion = "1.4.2"
 val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "compile",
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "compile",
-  "org.apache.flink" %% "flink-connector-kafka-0.11" % flinkVersion % "compile"
-//  "org.apache.flink" %% "flink-table" % flinkVersion % "provided"
+  "org.apache.flink" %% "flink-connector-kafka-0.11" % flinkVersion % "compile",
+  // https://mvnrepository.com/artifact/org.apache.flink/flink-avro
+  "org.apache.flink" % "flink-avro" % "1.4.0"
+
+  //  "org.apache.flink" %% "flink-table" % flinkVersion % "provided"
 )
 
 val coreDependencies = Seq(
@@ -32,15 +36,19 @@ val coreDependencies = Seq(
 
    "org.scalactic" %% "scalactic" % "3.0.1",
    "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-
   // "ch.qos.logback" % "logback-classic" % "1.1.7",
   // "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
 
   // "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "2.1.5" % "provided",
   // "com.typesafe" % "config" % "1.3.1",
-  // "org.mongodb.scala" %% "mongo-scala-driver" % "2.1.0",
-
+  // "org.mongodb.scala" %% "mongo-scala-driver" % "2.1.0"
   "org.apache.kafka" % "kafka-clients" % "1.0.0",
+  "com.sksamuel.avro4s" %% "avro4s-core" % "1.8.3",
+  "io.confluent" % "kafka-avro-serializer" % "4.0.0",
+  "me.lyh" %% "shapeless-datatype-avro" % "0.1.9",
+  "org.json4s" % "json4s-scalap_2.11" % "3.6.0-M2",
+  "org.json4s" % "json4s-jackson_2.11" % "3.6.0-M2"
+
   // "com.jsuereth" %% "scala-arm" % "2.0",
   // "org.scala-lang.modules" % "scala-java8-compat_2.11" % "0.8.0",
   // "org.scala-lang.modules" %% "scala-async" % "0.9.7",
