@@ -5,8 +5,7 @@ dist: trusty
 
 services:
   - docker
-  - mongodb
-
+  - redis
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -18,10 +17,10 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
 
-
 #before_install:
-#  - docker-compose -f "containers/kafka/docker-compose.yml" up -d
+#  - docker-compose -f "docker-compose.yml" up -d
 #  - docker ps -a
+
 matrix:
   include:
     - env: SCALA_VERSION=2.11.11
