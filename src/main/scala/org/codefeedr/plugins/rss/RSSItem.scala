@@ -2,7 +2,7 @@ package org.codefeedr.plugins.rss
 
 import java.util.Date
 
-import org.codefeedr.pipeline.PipelinedItem
+import org.codefeedr.pipeline.PipelineItem
 
 case class RSSItem(
                     title: String,
@@ -10,4 +10,4 @@ case class RSSItem(
                     link: String, // URL,
                     pubDate: Date,
                     guid: String
-                  ) extends PipelinedItem
+                  ) extends PipelineItem

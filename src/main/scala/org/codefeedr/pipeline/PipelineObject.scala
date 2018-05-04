@@ -8,7 +8,7 @@ import org.codefeedr.pipeline.buffer.BufferFactory
 import scala.reflect.{ClassTag, Manifest}
 import scala.reflect.runtime.universe._
 
-abstract class PipelineObject[In <: PipelinedItem : ClassTag : Manifest, Out <: PipelinedItem : ClassTag : Manifest] {
+abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest, Out <: PipelineItem : ClassTag : Manifest] {
   var pipeline: Pipeline = _
 
   def setUp(pipeline: Pipeline): Unit = {

@@ -7,7 +7,7 @@ import org.codefeedr.pipeline.buffer.BufferType.BufferType
 
 case class Pipeline(bufferType: BufferType,
                     bufferProperties: ImmutableProperties,
-                    objects: Seq[PipelineObject[PipelinedItem, PipelinedItem]],
+                    objects: Seq[PipelineObject[PipelineItem, PipelineItem]],
                     properties: ImmutableProperties,
                     keyManager: KeyManager) {
   val environment: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
@@ -29,7 +29,7 @@ case class Pipeline(bufferType: BufferType,
     }
 
     // Connect each object by getting a starting buffer, if any, and sending it to the next.
-    var buffer: DataStream[PipelinedItem] = null
+    var buffer: DataStream[PipelineItem] = null
     for (obj <- objects) {
       buffer = obj.transform(buffer)
     }
@@ -68,7 +68,7 @@ case class Pipeline(bufferType: BufferType,
     * Creates a source and sink for the object and then runs the transform function.
     * @param obj
     */
-  private def runObject(obj: PipelineObject[PipelinedItem, PipelinedItem]): Unit = {
+  private def runObject(obj: PipelineObject[PipelineItem, PipelineItem]): Unit = {
     // TODO: get main source, based on graph
     lazy val source = if (obj.hasMainSource) obj.getMainSource else null
 

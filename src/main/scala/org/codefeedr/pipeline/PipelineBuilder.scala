@@ -33,7 +33,7 @@ class PipelineBuilder() {
     this
   }
 
-  def add[U <: PipelinedItem, V <: PipelinedItem](item: PipelineObject[U, V]): PipelineBuilder = {
+  def add[U <: PipelineItem, V <: PipelineItem](item: PipelineObject[U, V]): PipelineBuilder = {
     objects += item
 
     this
@@ -62,7 +62,7 @@ class PipelineBuilder() {
       throw EmptyPipelineException()
     }
 
-    val objects = this.objects.asInstanceOf[ArrayBuffer[PipelineObject[PipelinedItem, PipelinedItem]]]
+    val objects = this.objects.asInstanceOf[ArrayBuffer[PipelineObject[PipelineItem, PipelineItem]]]
 
     Pipeline(bufferType, bufferProperties.toImmutable, objects, properties.toImmutable, keyManager)
   }
