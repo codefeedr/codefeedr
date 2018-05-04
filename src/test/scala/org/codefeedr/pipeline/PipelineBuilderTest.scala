@@ -1,6 +1,7 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.pipeline.buffer.BufferType
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
@@ -67,5 +68,26 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
       .build()
 
     assert(pipeline.properties.get("key") == "value")
+  }
+
+  test("Set buffer properties should be available in pipeline buffer properties") {
+    val pipeline = builder
+      .add(new EmptySourcePipelineObject())
+      .setBufferProperty("key", "value")
+      .build()
+
+    assert(pipeline.bufferProperties.get("key") == "value")
+    assert(pipeline.properties.get("key") != "value")
+  }
+
+  test("A set keymanager should be forwarded to the pipeline") {
+    val km = new StaticKeyManager()
+
+    val pipeline = builder
+      .add(new EmptySourcePipelineObject())
+      .setKeyManager(km)
+      .build()
+
+    assert(pipeline.keyManager == km)
   }
 }
