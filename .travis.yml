@@ -32,7 +32,8 @@ before_script:
 
 script:
   - sbt package
-  - sbt 'set parallelExecution in ThisBuild := false' sbt clean coverage test
+  - sbt 'set parallelExecution in ThisBuild := false' test
+  - sbt clean coverage test
 
 after_success:
   - sbt coverageReport coveralls
