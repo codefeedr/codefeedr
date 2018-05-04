@@ -18,6 +18,8 @@
  */
 package org.codefeedr.pipeline.buffer.serialization
 
+import java.nio.charset.StandardCharsets
+
 import org.apache.flink.api.common.serialization.AbstractDeserializationSchema
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
@@ -28,8 +30,9 @@ import scala.reflect.{Manifest, classTag}
 
 class JSONDeserializationSchema[T <: AnyRef : Manifest] extends AbstractDeserializationSchema[T] {
 
-  //get type of class
+  // Get type of class
   val inputClassType : Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
+
   /**
     * Deserializes a (JSON) message into a (generic) case class
     * @param message the message to deserialized.
@@ -37,7 +40,7 @@ class JSONDeserializationSchema[T <: AnyRef : Manifest] extends AbstractDeserial
     */
   override def deserialize(message: Array[Byte]): T = {
     implicit val formats = Serialization.formats(NoTypeHints)
-    Serialization.read[T](new String(message))
+    Serialization.read[T](new String(message, StandardCharsets.UTF_8))
   }
 
   override def getProducedType: TypeInformation[T] = {

@@ -18,21 +18,24 @@
  */
 package org.codefeedr.pipeline.buffer.serialization
 
+import java.nio.charset.StandardCharsets
+
 import org.apache.flink.api.common.serialization.SerializationSchema
 import org.json4s.NoTypeHints
 import org.json4s.jackson.Serialization
 
-class JSONSerializationSchema[IN <: AnyRef] extends SerializationSchema[IN] {
+class JSONSerializationSchema[T <: AnyRef] extends SerializationSchema[T] {
 
   /**
     * Serializes a (generic) element into a json format.
     * @param element the element to serialized.
     * @return a serialized byte array.
     */
-  override def serialize(element: IN): Array[Byte] = {
+  override def serialize(element: T): Array[Byte] = {
     implicit val formats = Serialization.formats(NoTypeHints)
+
     val bytes = Serialization.write(element)(formats)
-    println(bytes)
-    bytes.getBytes
+
+    bytes.getBytes(StandardCharsets.UTF_8)
   }
 }
