@@ -9,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class PipelineBuilder() {
   /** Type of buffer used in the pipeline */
-  protected var bufferType: BufferType = BufferType.Fake
+  protected var bufferType: BufferType = BufferType.None
 
   /** Properties of the buffer */
   val bufferProperties = new Properties()

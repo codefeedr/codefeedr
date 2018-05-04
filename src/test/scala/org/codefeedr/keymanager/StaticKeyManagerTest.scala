@@ -2,7 +2,7 @@ package org.codefeedr.keymanager
 
 import org.scalatest.FunSuite
 
-class StaticKeyManagerTest extends FunSuite {
+class StaticKeyManagerTest extends KeyManagerTest(new StaticKeyManager()) {
 
   test("An empty key manager returns no keys") {
     val km = new StaticKeyManager()
@@ -11,11 +11,10 @@ class StaticKeyManagerTest extends FunSuite {
     assert(key.isEmpty)
   }
 
-  test("An unknown target returns no keys") {
-    val km = new StaticKeyManager(Map("target" -> "key"))
+  test("Supplying no map of keys creates an empty key manager") {
+    val km = new StaticKeyManager()
 
-    val key = km.request("otherTarget", 1)
-    assert(key.isEmpty)
+    assert(km.request("target", 1).isEmpty)
   }
 
   test("The same key as set is returned for the same target") {
@@ -23,25 +22,5 @@ class StaticKeyManagerTest extends FunSuite {
 
     assert(km.request("aTarget", 1).get.value == "aKey")
     assert(km.request("bTarget", 1).get.value == "bKey")
-  }
-
-  test("When key will not be used, no key is returned") {
-    val km = new StaticKeyManager(Map("target" -> "key"))
-
-    assert(km.request("target", 0).isEmpty)
-  }
-
-  test("When requesting a key the target must not be null") {
-    val km = new StaticKeyManager()
-
-    assertThrows[IllegalArgumentException] {
-      km.request(null, 1)
-    }
-  }
-
-  test("Supplying no map of keys creates an empty key manager") {
-    val km = new StaticKeyManager()
-
-    assert(km.request("target", 1).isEmpty)
   }
 }

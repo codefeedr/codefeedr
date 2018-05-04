@@ -79,6 +79,9 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
   override def request(target: String, numberOfCalls: Int): Option[ManagedKey] = {
     import serialization.Parse.Implicits.parseString
 
+    if (target == null)
+      throw new IllegalArgumentException()
+
     val targetKey = redisKeyForTarget(target)
     val time = new Date().getTime
 
