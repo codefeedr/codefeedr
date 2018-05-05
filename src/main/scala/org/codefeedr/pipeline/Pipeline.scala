@@ -1,9 +1,11 @@
 package org.codefeedr.pipeline
 
+import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.codefeedr.ImmutableProperties
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
+import org.codefeedr.pipeline.Runtime.Runtime
 
 case class Pipeline(bufferType: BufferType,
                     bufferProperties: ImmutableProperties,
@@ -13,16 +15,36 @@ case class Pipeline(bufferType: BufferType,
   val environment: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
   def start(args: Array[String]): Unit = {
-    start(1)
+    val params = ParameterTool.fromArgs(args)
+    var runtime = Runtime.Local
+
+    // If a pipeline object is specified, set to cluster
+    val stage = params.get("stage")
+    if (stage != null) {
+      runtime = Runtime.Cluster
+    }
+
+    // Override runtime with runtime parameter
+    runtime = params.get("runtime") match {
+      case "mock" => Runtime.Mock
+      case "local" => Runtime.Local
+      case "cluster" => Runtime.Cluster
+      case _ => runtime
+    }
+
+    start(runtime, stage)
   }
 
-  def start(options: Int): Unit = {
-    // TODO: decide which to start
-    startLocal(options)
+  def start(runtime: Runtime, stage: String = null): Unit = {
+    runtime match {
+      case Runtime.Mock => startMock()
+      case Runtime.Local => startLocal()
+      case Runtime.Cluster => startClustered(stage)
+    }
   }
 
   // Without any buffers. Connect all POs to each other
-  def startMock(options: Int): Unit = {
+  def startMock(): Unit = {
     // Run all setups
     for (obj <- objects) {
       obj.setUp(this)
@@ -38,7 +60,7 @@ case class Pipeline(bufferType: BufferType,
   }
 
   // With buffers, all in same program
-  def startLocal(options: Int): Unit = {
+  def startLocal(): Unit = {
     // Run all setups
     for (obj <- objects) {
       obj.setUp(this)
@@ -53,7 +75,7 @@ case class Pipeline(bufferType: BufferType,
   }
 
   // With buffers, running just one PO
-  def startClustered(options: Int): Unit = {
+  def startClustered(stage: String): Unit = {
     // TODO: find that PO
     val obj = objects.head
     obj.setUp(this)
