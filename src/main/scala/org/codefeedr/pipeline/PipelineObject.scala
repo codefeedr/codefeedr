@@ -43,6 +43,15 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest, Out <: P
   }
 
   /**
+    * Get all parents for this object
+    *
+    * @return set of parents. Can be empty
+    */
+  def getParents: Set[PipelineObject[PipelineItem, PipelineItem]] = {
+    pipeline.graph.getParents(this).asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
+  }
+
+  /**
     * Check if this pipeline object is sourced from a Buffer.
     * @return if this object has a (buffer) source.
     */

@@ -27,9 +27,13 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
   }
 
   def addEdge(from: AnyRef, to: AnyRef): DirectedAcyclicGraph = {
+    if (!hasNode(from) || !hasNode(to)) {
+      throw new IllegalArgumentException("One or more nodes for edge do not exist")
+    }
+
     // If to can reach from already adding this edge will cause a cycle
     if (canReach(to, from)) {
-      throw new IllegalArgumentException("Given edge causes a cycle in the DAG")
+      throw new IllegalStateException("Given edge causes a cycle in the DAG")
     }
 
     new DirectedAcyclicGraph(nodes, edges + DirectedAcyclicGraph.Edge(from, to))
@@ -51,10 +55,18 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     false
   }
 
-  def withoutOrphans: DirectedAcyclicGraph = {
-    // TODO; find if everything is connected
+  protected def hasAnyEdge(node: AnyRef): Boolean = {
+    for (n <- nodes) {
+      if (hasEdge(node, n) || hasEdge(n, node)) {
+        return true
+      }
+    }
+    false
+  }
 
-    this
+  def withoutOrphans: DirectedAcyclicGraph = {
+    val newNodes = nodes.filter(n => hasAnyEdge(n))
+    new DirectedAcyclicGraph(newNodes, edges)
   }
 
   def getParents(node: AnyRef): Set[AnyRef] = {
@@ -66,9 +78,37 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
   }
 
   def isSequential: Boolean = {
-    // TODO
+    var node = nodes.head
+
+    // Must have at most 1 parent, and each node before it too
+    while (node != null) {
+      val parents = getParents(node)
+      if (parents.size > 1) {
+        return false
+      }
+
+      node = if (parents.isEmpty) null else parents.head
+    }
+
+    // Must have at most 1 child, and each child too
+    node = nodes.head
+    while (node != null) {
+      val children = getChildren(node)
+      if (children.size > 1) {
+        return false
+      }
+
+      node = if (children.isEmpty) null else children.head
+    }
 
     true
+  }
+
+  override def equals(obj: scala.Any): Boolean = {
+    obj match {
+      case dag: DirectedAcyclicGraph => this.nodes == dag.nodes && this.edges == dag.edges
+      case _ => false
+    }
   }
 }
 
