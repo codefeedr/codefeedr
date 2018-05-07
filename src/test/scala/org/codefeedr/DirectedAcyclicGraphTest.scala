@@ -111,6 +111,18 @@ class DirectedAcyclicGraphTest extends FunSuite {
     assert(!dag.isSequential)
   }
 
+  test("A DAG is non-sequential when the graph is split") {
+    val dag = new DirectedAcyclicGraph()
+      .addNode(nodeA)
+      .addNode(nodeB)
+      .addNode(nodeC)
+      .addNode(nodeD)
+      .addEdge(nodeA, nodeB)
+      .addEdge(nodeC, nodeD)
+
+    assert(!dag.isSequential)
+  }
+
   test("Any orphans will be removed") {
     val dag = new DirectedAcyclicGraph()
       .addNode(nodeA)

@@ -121,32 +121,8 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     *
     * @return true when the graph is sequential
     */
-  def isSequential: Boolean = {
-    var node = nodes.head
-
-    // Must have at most 1 parent, and each node before it too
-    while (node != null) {
-      val parents = getParents(node)
-      if (parents.size > 1) {
-        return false
-      }
-
-      node = if (parents.isEmpty) null else parents.head
-    }
-
-    // Must have at most 1 child, and each child too
-    node = nodes.head
-    while (node != null) {
-      val children = getChildren(node)
-      if (children.size > 1) {
-        return false
-      }
-
-      node = if (children.isEmpty) null else children.head
-    }
-
-    true
-  }
+  def isSequential: Boolean =
+    nodes.size - 1 == edges.size
 
   override def equals(obj: scala.Any): Boolean = {
     obj match {
