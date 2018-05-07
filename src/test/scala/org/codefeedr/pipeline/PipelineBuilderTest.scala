@@ -7,7 +7,7 @@ import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
 class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
-  case class StringType(value: String) extends PipelinedItem
+  case class StringType(value: String) extends PipelineItem
 
   class EmptySourcePipelineObject extends PipelineObject[NoType, StringType] {
     override def transform(source: DataStream[NoType]): DataStream[StringType] = ???
