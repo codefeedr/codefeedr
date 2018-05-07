@@ -41,29 +41,29 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("Every pipeline object should appear in the pipeline (1)") {
     val pipeline = builder
-      .add(new EmptySourcePipelineObject())
+      .append(new EmptySourcePipelineObject())
       .build()
 
-    assert(pipeline.objects.length == 1)
+    assert(pipeline.graph.nodes.size == 1)
 
-    pipeline.objects.head shouldBe an[EmptySourcePipelineObject]
+    pipeline.graph.nodes.head shouldBe an[EmptySourcePipelineObject]
   }
 
   test("Every pipeline object should appear in the pipeline (2)") {
     val pipeline = builder
-      .add(new EmptySourcePipelineObject())
-      .add(new EmptyTransformPipelineObject())
+      .append(new EmptySourcePipelineObject())
+      .append(new EmptyTransformPipelineObject())
       .build()
 
-    assert(pipeline.objects.length == 2)
+    assert(pipeline.graph.nodes.size == 2)
 
-    pipeline.objects.head shouldBe an[EmptySourcePipelineObject]
-    pipeline.objects.last shouldBe an[EmptyTransformPipelineObject]
+    pipeline.graph.nodes.head shouldBe an[EmptySourcePipelineObject]
+    pipeline.graph.nodes.last shouldBe an[EmptyTransformPipelineObject]
   }
 
   test("Set properties should be available in pipeline properties") {
     val pipeline = builder
-      .add(new EmptySourcePipelineObject())
+      .append(new EmptySourcePipelineObject())
       .setProperty("key", "value")
       .build()
 
@@ -72,7 +72,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("Set buffer properties should be available in pipeline buffer properties") {
     val pipeline = builder
-      .add(new EmptySourcePipelineObject())
+      .append(new EmptySourcePipelineObject())
       .setBufferProperty("key", "value")
       .build()
 
@@ -84,7 +84,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val km = new StaticKeyManager()
 
     val pipeline = builder
-      .add(new EmptySourcePipelineObject())
+      .append(new EmptySourcePipelineObject())
       .setKeyManager(km)
       .build()
 
