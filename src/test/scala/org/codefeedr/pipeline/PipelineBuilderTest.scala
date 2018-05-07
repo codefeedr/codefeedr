@@ -155,4 +155,14 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     assert(builder.graph.isSequential)
   }
+
+  test("Cannot append same object twice") {
+    val a = new EmptySourcePipelineObject()
+
+    builder.append(a)
+
+    assertThrows[IllegalArgumentException] {
+      builder.append(a)
+    }
+  }
 }
