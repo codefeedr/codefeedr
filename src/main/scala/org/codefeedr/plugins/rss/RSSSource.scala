@@ -9,10 +9,3 @@ class RSSSource(url: String, pollingInterval: Int) extends PipelineObject[NoType
     pipeline.environment.addSource(new RSSItemSource(url, pollingInterval))
   }
 }
-
-object RSSTest {
-  def main(args: Array[String]): Unit = {
-
-
-  }
-}
