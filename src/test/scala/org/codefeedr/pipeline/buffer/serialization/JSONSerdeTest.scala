@@ -1,17 +1,22 @@
 package org.codefeedr.pipeline.buffer.serialization
 
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
 
 
-class JSONSerializationSchemaTest extends FunSuite {
+class JSONSerdeTest extends FunSuite with BeforeAndAfter {
   private case class SimpleCaseClass(str: String, i: Int)
 
+  private var serde : JSONSerde[SimpleCaseClass] = null
+
+  before {
+    serde = new JSONSerde[SimpleCaseClass]()
+  }
+
   test("Serializes simple values") {
-    val serializer = new JSONSerializationSchema[SimpleCaseClass]
     val value = SimpleCaseClass("hello", 42)
 
-    val byteArray = serializer.serialize(value)
+    val byteArray = serde.serialize(value)
 
     val expected = """{"str":"hello","i":42}"""
 
@@ -26,22 +31,18 @@ class JSONSerializationSchemaTest extends FunSuite {
   }
 
   test("Deserializes simple values") {
-    val deserializer = new JSONDeserializationSchema[SimpleCaseClass]
-
     val value = """{"str":"hello","i":42}"""
-    val deserialized = deserializer.deserialize(value.getBytes)
+    val deserialized = serde.deserialize(value.getBytes)
     val expected = SimpleCaseClass("hello", 42)
 
     assert(deserialized == expected)
   }
 
   test("Deserializes simple serialized values") {
-    val serializer = new JSONSerializationSchema[SimpleCaseClass]
-    val deserializer = new JSONDeserializationSchema[SimpleCaseClass]
     val value = SimpleCaseClass("hello", 42)
 
-    val serialized = serializer.serialize(value)
-    val deserialized = deserializer.deserialize(serialized)
+    val serialized = serde.serialize(value)
+    val deserialized = serde.deserialize(serialized)
 
     assert(deserialized == value)
   }

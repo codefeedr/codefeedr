@@ -20,22 +20,48 @@ package org.codefeedr.pipeline.buffer.serialization
 
 import java.nio.charset.StandardCharsets
 
-import org.apache.flink.api.common.serialization.SerializationSchema
+import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
+import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.api.java.typeutils.TypeExtractor
 import org.json4s.NoTypeHints
 import org.json4s.jackson.Serialization
 
-class JSONSerializationSchema[T <: AnyRef] extends SerializationSchema[T] {
+import scala.reflect.{ClassTag, classTag}
+
+class JSONSerde[T <: AnyRef : Manifest : ClassTag] extends AbstractDeserializationSchema[T] with SerializationSchema[T] {
+
+  // Get type of class
+  val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
+
+  //implicit serialization format
+  implicit lazy val formats = Serialization.formats(NoTypeHints)
 
   /**
     * Serializes a (generic) element into a json format.
+    *
     * @param element the element to serialized.
     * @return a serialized byte array.
     */
   override def serialize(element: T): Array[Byte] = {
-    implicit val formats = Serialization.formats(NoTypeHints)
-
     val bytes = Serialization.write(element)(formats)
-
     bytes.getBytes(StandardCharsets.UTF_8)
+  }
+
+  /**
+    * Deserializes a (JSON) message into a (generic) case class
+    *
+    * @param message the message to deserialized.
+    * @return a deserialized case class.
+    */
+  override def deserialize(message: Array[Byte]): T = {
+    Serialization.read[T](new String(message, StandardCharsets.UTF_8))
+  }
+
+  /**
+    * Get type information of (de)serialized clss.
+    * @return the typeinformation of the generic class.
+    */
+  override def getProducedType: TypeInformation[T] = {
+    TypeExtractor.createTypeInfo(inputClassType)
   }
 }

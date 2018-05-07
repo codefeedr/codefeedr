@@ -1,5 +1,6 @@
 package org.codefeedr.pipeline
 
+import com.sksamuel.avro4s.{FromRecord, SchemaFor}
 import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
@@ -14,7 +15,7 @@ import scala.reflect.runtime.universe._
   * @tparam In  input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest, Out <: PipelineItem : ClassTag : Manifest] {
+abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] {
 
   var pipeline: Pipeline = _
 
