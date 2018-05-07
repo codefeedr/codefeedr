@@ -58,7 +58,11 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
   }
 
   def getParents(node: AnyRef): Set[AnyRef] = {
-    null
+    nodes.filter(n => hasEdge(n, node))
+  }
+
+  def getChildren(node: AnyRef): Set[AnyRef] = {
+    nodes.filter(n => hasEdge(node, n))
   }
 
   def isSequential: Boolean = {

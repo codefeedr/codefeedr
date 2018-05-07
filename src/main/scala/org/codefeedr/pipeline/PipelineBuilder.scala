@@ -6,8 +6,6 @@ import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.pipeline.buffer.BufferType
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
 
-import scala.collection.mutable.ArrayBuffer
-
 class PipelineBuilder() {
   /** Type of buffer used in the pipeline */
   protected var bufferType: BufferType = BufferType.None
@@ -53,13 +51,6 @@ class PipelineBuilder() {
 
   /**
     * Append a node to the sequential pipeline.
-    *
-    * @param item
-    * @tparam U
-    * @tparam V
-    * @return
-    * @throws IllegalStateException
-    * @throws IllegalArgumentException
     */
   def append[U <: PipelinedItem, V <: PipelinedItem](item: PipelineObject[U, V]): PipelineBuilder = {
     if (pipelineType != PipelineType.Sequential) {
@@ -86,15 +77,6 @@ class PipelineBuilder() {
     *
     * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
     * already configured as sequential, it will throw an illegal state exception.
-    *
-    * @param from
-    * @param to
-    * @tparam U
-    * @tparam V
-    * @tparam X
-    * @tparam Y
-    * @return
-    * @throws IllegalStateException
     */
   def edge[U <: PipelinedItem, V <: PipelinedItem, X <: PipelinedItem, Y <: PipelinedItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
     if (pipelineType != PipelineType.DAG) {
@@ -145,8 +127,6 @@ class PipelineBuilder() {
       throw EmptyPipelineException()
     }
 
-//    val objects = this.objects.asInstanceOf[ArrayBuffer[PipelineObject[PipelinedItem, PipelinedItem]]]
-//
     Pipeline(bufferType, bufferProperties.toImmutable, graph.withoutOrphans , properties.toImmutable, keyManager)
   }
 }
