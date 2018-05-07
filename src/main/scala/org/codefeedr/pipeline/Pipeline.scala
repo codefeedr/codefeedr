@@ -49,7 +49,7 @@ case class Pipeline(bufferType: BufferType,
       throw new IllegalStateException("Mock runtime can't run non-sequential pipelines")
     }
 
-    val objects = graph.nodes.asInstanceOf[Set[PipelineObject[PipelinedItem, PipelinedItem]]]
+    val objects = graph.nodes.asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
 
     // Run all setups
     for (obj <- objects) {
@@ -57,7 +57,7 @@ case class Pipeline(bufferType: BufferType,
     }
 
     // Connect each object by getting a starting buffer, if any, and sending it to the next.
-    var buffer: DataStream[PipelinedItem] = null
+    var buffer: DataStream[PipelineItem] = null
     for (obj <- objects) {
       buffer = obj.transform(buffer)
     }
@@ -67,7 +67,7 @@ case class Pipeline(bufferType: BufferType,
 
   // With buffers, all in same program
   def startLocal(): Unit = {
-    val objects = graph.nodes.asInstanceOf[Set[PipelineObject[PipelinedItem, PipelinedItem]]]
+    val objects = graph.nodes.asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
 
     // Run all setups
     for (obj <- objects) {
@@ -85,7 +85,7 @@ case class Pipeline(bufferType: BufferType,
   // With buffers, running just one PO
   def startClustered(stage: String): Unit = {
     // TODO: find that PO
-    val obj = graph.nodes.head.asInstanceOf[PipelineObject[PipelinedItem, PipelinedItem]]
+    val obj = graph.nodes.head.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
     obj.setUp(this)
     runObject(obj)
@@ -99,7 +99,7 @@ case class Pipeline(bufferType: BufferType,
     * Creates a source and sink for the object and then runs the transform function.
     * @param obj
     */
-  private def runObject(obj: PipelineObject[PipelinedItem, PipelinedItem]): Unit = {
+  private def runObject(obj: PipelineObject[PipelineItem, PipelineItem]): Unit = {
     // TODO: get main source, based on graph
     lazy val source = if (obj.hasMainSource) obj.getMainSource else null
 

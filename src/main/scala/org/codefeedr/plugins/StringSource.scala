@@ -1,9 +1,9 @@
 package org.codefeedr.plugins
 
 import org.apache.flink.streaming.api.scala.{DataStream, _}
-import org.codefeedr.pipeline.{NoType, PipelineObject, PipelinedItem}
+import org.codefeedr.pipeline.{NoType, PipelineItem, PipelineObject}
 
-case class StringType(value: String) extends PipelinedItem
+case class StringType(value: String) extends PipelineItem
 
 class StringSource extends PipelineObject[NoType, StringType] {
 

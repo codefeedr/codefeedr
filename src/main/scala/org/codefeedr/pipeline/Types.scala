@@ -1,5 +1,4 @@
 package org.codefeedr.pipeline
 
-case class NoType() extends PipelinedItem
-
-trait PipelinedItem extends Serializable
+trait PipelineItem extends Serializable
+case class NoType() extends PipelineItem

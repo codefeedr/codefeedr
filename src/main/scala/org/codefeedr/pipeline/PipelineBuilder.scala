@@ -52,7 +52,7 @@ class PipelineBuilder() {
   /**
     * Append a node to the sequential pipeline.
     */
-  def append[U <: PipelinedItem, V <: PipelinedItem](item: PipelineObject[U, V]): PipelineBuilder = {
+  def append[U <: PipelineItem, V <: PipelineItem](item: PipelineObject[U, V]): PipelineBuilder = {
     if (pipelineType != PipelineType.Sequential) {
       throw new IllegalStateException("Can't append node to non-sequential pipeline")
     }
@@ -78,7 +78,7 @@ class PipelineBuilder() {
     * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
     * already configured as sequential, it will throw an illegal state exception.
     */
-  def edge[U <: PipelinedItem, V <: PipelinedItem, X <: PipelinedItem, Y <: PipelinedItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
+  def edge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
     if (pipelineType != PipelineType.DAG) {
       if (!graph.isEmpty) {
         throw new IllegalStateException("Can't append node to non-sequential pipeline")
