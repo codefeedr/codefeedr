@@ -44,6 +44,12 @@ class PipelineBuilder() {
   }
 
   def setPipelineType(pipelineType: PipelineType): PipelineBuilder = {
+    if (pipelineType == PipelineType.Sequential && this.pipelineType == PipelineType.DAG) {
+      if (!graph.isSequential) {
+        throw new IllegalStateException("The current non-sequential pipeline can't be turned into a sequential pipeline")
+      }
+    }
+
     this.pipelineType = pipelineType
 
     this
@@ -96,7 +102,7 @@ class PipelineBuilder() {
     }
 
     if (graph.hasEdge(from, to)) {
-      throw new IllegalStateException("Edge in graph already exists")
+      throw new IllegalArgumentException("Edge in graph already exists")
     }
 
     graph = graph.addEdge(from, to)
@@ -127,6 +133,6 @@ class PipelineBuilder() {
       throw EmptyPipelineException()
     }
 
-    Pipeline(bufferType, bufferProperties.toImmutable, graph.withoutOrphans , properties.toImmutable, keyManager)
+    Pipeline(bufferType, bufferProperties.toImmutable, graph , properties.toImmutable, keyManager)
   }
 }

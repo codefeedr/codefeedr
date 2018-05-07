@@ -90,4 +90,57 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     assert(pipeline.keyManager == km)
   }
+
+  test("Building with edges creates a DAG") {
+
+  }
+
+  test("A DAG pipeline can't be appeneded to") {
+    builder.edge(new EmptySourcePipelineObject(), new EmptyTransformPipelineObject())
+
+    assertThrows[IllegalStateException] {
+      builder.append(new EmptySourcePipelineObject())
+    }
+  }
+
+  test("A sequential pipeline cannot switch to a DAG automatically") {
+    builder.append(new EmptySourcePipelineObject())
+
+    assertThrows[IllegalStateException] {
+      builder.edge(new EmptyTransformPipelineObject(), new EmptySinkPipelineObject())
+    }
+  }
+
+  test("A sequential pipeline can switch to a DAG manually") {
+    builder.append(new EmptySourcePipelineObject())
+    builder.setPipelineType(PipelineType.DAG)
+
+    builder.edge(new EmptyTransformPipelineObject(), new EmptySinkPipelineObject())
+  }
+
+  test("A non-sequential pipeline cannot switch to a sequential pipeline") {
+    val a = new EmptySourcePipelineObject()
+    val b = new EmptyTransformPipelineObject()
+    val c = new EmptyTransformPipelineObject()
+
+    builder.edge(a, b)
+    builder.edge(a, c)
+
+    assert(builder.getPipelineType == PipelineType.DAG)
+
+    assertThrows[IllegalStateException] {
+      builder.setPipelineType(PipelineType.Sequential)
+    }
+  }
+
+  test("Can't add edges to the DAG pipeline twice") {
+    val a = new EmptySourcePipelineObject()
+    val b = new EmptyTransformPipelineObject()
+
+    builder.edge(a, b)
+
+    assertThrows[IllegalArgumentException] {
+      builder.edge(a, b)
+    }
+  }
 }
