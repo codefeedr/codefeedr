@@ -173,4 +173,16 @@ class DirectedAcyclicGraphTest extends FunSuite {
     assert(dag2 != dag3)
     assert(dag != "hello")
   }
+
+  test("Empty DAG is sequential") {
+    val dag = new DirectedAcyclicGraph()
+
+    assert(dag.isSequential)
+  }
+
+  test("Last in sequence of empty dag") {
+    val dag = new DirectedAcyclicGraph()
+
+    assert(dag.lastInSequence.isEmpty)
+  }
 }
