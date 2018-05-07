@@ -6,12 +6,8 @@ import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, Flink
 import org.codefeedr.pipeline.buffer.serialization.{JSONDeserializationSchema, JSONSerializationSchema}
 
 import scala.reflect.classTag
-//import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema, SimpleStringSchema}
-//import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
-//import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011.Semantic
-//import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
 import org.codefeedr.pipeline.Pipeline
 
 import scala.reflect.Manifest
