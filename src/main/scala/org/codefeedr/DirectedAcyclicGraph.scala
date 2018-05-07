@@ -122,7 +122,7 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     * @return true when the graph is sequential
     */
   def isSequential: Boolean =
-    nodes.size - 1 == edges.size
+    !nodes.exists(n => getParents(n).size > 1 || getChildren(n).size > 1) && nodes.size - 1 == edges.size
 
   override def equals(obj: scala.Any): Boolean = {
     obj match {

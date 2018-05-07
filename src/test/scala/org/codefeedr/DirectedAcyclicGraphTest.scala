@@ -97,7 +97,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
     assert(dag.isSequential)
   }
 
-  test("Non-sequential DAG should be detected") {
+  test("Non-sequential DAG should be detected (1)") {
     val dag = new DirectedAcyclicGraph()
       .addNode(nodeA)
       .addNode(nodeB)
@@ -107,6 +107,32 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeA, nodeC)
       .addEdge(nodeC, nodeD)
       .addEdge(nodeB, nodeD)
+
+    assert(!dag.isSequential)
+  }
+
+  test("Non-sequential DAG should be detected (2)") {
+    val dag = new DirectedAcyclicGraph()
+      .addNode(nodeA)
+      .addNode(nodeB)
+      .addNode(nodeC)
+      .addNode(nodeD)
+      .addEdge(nodeA, nodeB)
+      .addEdge(nodeA, nodeC)
+      .addEdge(nodeC, nodeD)
+
+    assert(!dag.isSequential)
+  }
+
+  test("Non-sequential DAG should be detected (3)") {
+    val dag = new DirectedAcyclicGraph()
+      .addNode(nodeA)
+      .addNode(nodeB)
+      .addNode(nodeC)
+      .addNode(nodeD)
+      .addEdge(nodeA, nodeB)
+      .addEdge(nodeB, nodeC)
+      .addEdge(nodeD, nodeC)
 
     assert(!dag.isSequential)
   }
