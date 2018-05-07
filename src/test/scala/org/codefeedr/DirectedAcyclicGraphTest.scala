@@ -95,6 +95,8 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeB, nodeC)
 
     assert(dag.isSequential)
+
+    assert(dag.lastInSequence.get == nodeC)
   }
 
   test("Non-sequential DAG should be detected (1)") {
@@ -109,6 +111,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeB, nodeD)
 
     assert(!dag.isSequential)
+    assert(dag.lastInSequence.isEmpty)
   }
 
   test("Non-sequential DAG should be detected (2)") {
@@ -168,5 +171,6 @@ class DirectedAcyclicGraphTest extends FunSuite {
 
     assert(dag == dag2)
     assert(dag2 != dag3)
+    assert(dag != "hello")
   }
 }

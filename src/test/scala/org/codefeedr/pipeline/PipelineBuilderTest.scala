@@ -143,4 +143,16 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
       builder.edge(a, b)
     }
   }
+
+  test("Appending after switching to seq") {
+    val a = new EmptySourcePipelineObject()
+    val b = new EmptyTransformPipelineObject()
+    val c = new EmptyTransformPipelineObject()
+
+    builder.edge(a, b)
+    builder.setPipelineType(PipelineType.Sequential)
+    builder.append(c)
+
+    assert(builder.graph.isSequential)
+  }
 }

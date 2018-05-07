@@ -124,6 +124,29 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
   def isSequential: Boolean =
     !nodes.exists(n => getParents(n).size > 1 || getChildren(n).size > 1) && nodes.size - 1 == edges.size
 
+  /**
+    * Find the last node, assuming this graph is sequential.
+    *
+    * @return node or null
+    */
+  def lastInSequence: Option[AnyRef] = {
+    if (!isSequential) {
+      return None
+    }
+
+    var node = nodes.head
+
+    while (node != null) {
+      val edge = edges.find(edge => edge.from == node)
+      if (edge.isEmpty) {
+        return Some(node)
+      }
+      node = edge.get.to
+    }
+
+    None
+  }
+
   override def equals(obj: scala.Any): Boolean = {
     obj match {
       case dag: DirectedAcyclicGraph => this.nodes == dag.nodes && this.edges == dag.edges

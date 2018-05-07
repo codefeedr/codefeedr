@@ -23,7 +23,7 @@ class PipelineBuilder() {
   protected var keyManager: KeyManager = _
 
   /** Graph of the pipeline */
-  protected var graph = new DirectedAcyclicGraph()
+  protected[pipeline] var graph = new DirectedAcyclicGraph()
 
   /** Last inserted pipeline obejct, used to convert sequential to dag. */
   private var lastObject: AnyRef = _
@@ -48,6 +48,8 @@ class PipelineBuilder() {
       if (!graph.isSequential) {
         throw new IllegalStateException("The current non-sequential pipeline can't be turned into a sequential pipeline")
       }
+
+      lastObject = graph.lastInSequence.get
     }
 
     this.pipelineType = pipelineType
