@@ -30,7 +30,8 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     * @param node
     * @return A new graph with the node included
     */
-  def addNode(node: AnyRef): DirectedAcyclicGraph = new DirectedAcyclicGraph(nodes + node, edges)
+  def addNode(node: AnyRef): DirectedAcyclicGraph =
+    new DirectedAcyclicGraph(nodes + node, edges)
 
   /**
     * Get whethere there is an edge directly from the first to the second node.
@@ -38,15 +39,8 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     * @param to A node
     * @return true when an edge from 'from' to 'to'.
     */
-  def hasEdge(from: AnyRef, to: AnyRef): Boolean = {
-    for (edge <- edges) {
-      if (edge.from == from && edge.to == to) {
-        return true
-      }
-    }
-
-    false
-  }
+  def hasEdge(from: AnyRef, to: AnyRef): Boolean =
+    edges.exists(edge => edge.from == from && edge.to == to)
 
   /**
     * Add an edge.
@@ -81,24 +75,11 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
       return true
     }
 
-    for (node <- nodes) {
-      // Find neighbour nodes and do recursive call
-      if (hasEdge(from, node) && canReach(node, to)) {
-        return true
-      }
-    }
-
-    false
+    nodes.exists(node => hasEdge(from, node) && canReach(node, to))
   }
 
-  protected def hasAnyEdge(node: AnyRef): Boolean = {
-    for (n <- nodes) {
-      if (hasEdge(node, n) || hasEdge(n, node)) {
-        return true
-      }
-    }
-    false
-  }
+  protected def hasAnyEdge(node: AnyRef): Boolean =
+    nodes.exists(n => hasEdge(node, n) || hasEdge(n, node))
 
   /**
     * Get a copy of the graph with all orphans removed.
