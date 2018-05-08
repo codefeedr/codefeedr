@@ -11,11 +11,6 @@ import org.codefeedr.plugins.{StringSource, StringType}
 class MyJob extends Job[StringType] {
 
   override def main(source: DataStream[StringType]): Unit = {
-
-    println("Get value from key manager")
-    val key = pipeline.keyManager.request("test", 5)
-    println(key)
-
     source
       .map { item => (item.value.length, 1) }
       .keyBy(0)
@@ -40,6 +35,6 @@ object Main {
 
       .build()
 
-      .start(args)
+      .startLocal()
   }
 }
