@@ -57,6 +57,24 @@ class PipelineBuilder() {
     this
   }
 
+  def setProperty(key: String, value: String): PipelineBuilder = {
+    properties.set(key, value)
+
+    this
+  }
+
+  def setBufferProperty(key: String, value: String): PipelineBuilder = {
+    bufferProperties.set(key, value)
+
+    this
+  }
+
+  def setKeyManager(km: KeyManager): PipelineBuilder = {
+    keyManager = km
+
+    this
+  }
+
   /**
     * Append a node to the sequential pipeline.
     */
@@ -131,24 +149,6 @@ class PipelineBuilder() {
     }
 
     makeEdge(from, to, main = false)
-
-    this
-  }
-
-  def setProperty(key: String, value: String): PipelineBuilder = {
-    properties.set(key, value)
-
-    this
-  }
-
-  def setBufferProperty(key: String, value: String): PipelineBuilder = {
-    bufferProperties.set(key, value)
-
-    this
-  }
-
-  def setKeyManager(km: KeyManager): PipelineBuilder = {
-    keyManager = km
 
     this
   }
