@@ -28,6 +28,7 @@ class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter{
       (httpMock.getResponse _).expects(*).returning(response).noMoreThanOnce()
     }
 
+    //Needed to tell ScalaMock that collect() will be called (without caring about the arguments and how often)
     (ctxMock.collect _).expects(*).anyNumberOfTimes()
 
     rssItemSource.open(null)
@@ -35,7 +36,6 @@ class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter{
   }
 
   test("RSS source should collect all RSS items"){
-
     val httpMock = mock[Http]
     val fakeUrl = "http://www.example.com"
     val rssItemSource = new RSSItemSource(fakeUrl, 2000, 2, httpMock)
@@ -50,15 +50,14 @@ class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter{
       (httpMock.getResponse _).expects(*).returning(response).noMoreThanOnce()
     }
 
-    var rssItemList: List[RSSItem] = List()
-    (ctxMock.collect _).expects(new FunctionAdapter1[RSSItem, Boolean]((x:RSSItem) => {rssItemList = x :: rssItemList; true})).repeated(15)
+    //Exactly 15 RSS items should be collected, because thats how many unique ones there are
+    (ctxMock.collect _).expects(*).repeated(15)
 
     rssItemSource.open(null)
     rssItemSource.run(ctxMock)
   }
 
   test("RSS source should collect RSS items in order"){
-
     val httpMock = mock[Http]
     val fakeUrl = "http://www.example.com"
     val rssItemSource = new RSSItemSource(fakeUrl, 2000, 2, httpMock)
@@ -73,12 +72,14 @@ class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter{
       (httpMock.getResponse _).expects(*).returning(response).noMoreThanOnce()
     }
 
+    //Add RSS items to a list to check later
     var rssItemList: List[RSSItem] = List()
     (ctxMock.collect _).expects(new FunctionAdapter1[RSSItem, Boolean]((x:RSSItem) => {rssItemList = x :: rssItemList; true})).anyNumberOfTimes()
 
     rssItemSource.open(null)
     rssItemSource.run(ctxMock)
 
+    //RSS items should already be in order
     val orderedRSSItemList = rssItemList.sortWith((x,y) => y.pubDate.isBefore(x.pubDate))
     assert(rssItemList.equals(orderedRSSItemList))
   }

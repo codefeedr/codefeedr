@@ -4,8 +4,7 @@ import java.time.LocalDateTime
 
 import org.codefeedr.pipeline.PipelinedItem
 
-case class RSSItem(
-                    title: String,
+case class RSSItem( title: String,
                     category: String,
                     link: String, // URL,
                     pubDate: LocalDateTime,

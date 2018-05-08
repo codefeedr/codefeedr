@@ -1,7 +1,5 @@
 package org.codefeedr.plugins.rss
 
-import java.text.SimpleDateFormat
-
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
 import org.codefeedr.utilities.Http
@@ -26,22 +24,17 @@ class RSSItemSource(url: String,
   }
 
   override def run(ctx: SourceFunction.SourceContext[RSSItem]): Unit = {
-
     var lastItem: Option[RSSItem] = None
-
     var numRunsRemaining = maxNumberOfRuns
 
     while (isRunning && numRunsRemaining != 0) {
-
       if (numRunsRemaining > 0) {
         numRunsRemaining -= 1
       }
 
       val nodes = getXMLFromUrl(url) \\ "item"
       val items = for (t <- nodes) yield xmlToRSSItem(t)
-
       val sortedItems = items.sortWith((x: RSSItem, y: RSSItem) => x.pubDate.isBefore(y.pubDate))
-
       sortedItems.dropWhile((x: RSSItem) => {
         if (lastItem.isDefined)
           x.pubDate.isBefore(lastItem.get.pubDate) || lastItem.get.guid == x.guid
@@ -51,7 +44,6 @@ class RSSItemSource(url: String,
         .foreach(ctx.collect)
 
       lastItem = Some(sortedItems.last)
-
 
       Thread.sleep(pollingInterval)
     }
