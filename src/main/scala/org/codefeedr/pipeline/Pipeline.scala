@@ -100,7 +100,6 @@ case class Pipeline(bufferType: BufferType,
     * @param obj
     */
   private def runObject(obj: PipelineObject[PipelineItem, PipelineItem]): Unit = {
-    // TODO: get main source, based on graph
     lazy val source = if (obj.hasMainSource) obj.getMainSource else null
 
     lazy val sink = if (obj.hasSink) obj.getSink else null
