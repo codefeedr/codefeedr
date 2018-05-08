@@ -3,6 +3,8 @@ package org.codefeedr.pipeline
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.pipeline.buffer.BufferType
+import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
 class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
@@ -186,5 +188,29 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assertThrows[IllegalArgumentException] {
       builder.edge(c, b)
     }
+  }
+
+  test("Append an anonymous pipeline item") {
+    val pipeline = builder.append(new EmptySourcePipelineObject())
+      .append { x : DataStream[StringType] =>
+        x.map(x => x)
+      }.build()
+
+    assert(pipeline.graph.nodes.size == 2)
+
+    pipeline.graph.nodes.head shouldBe an[EmptySourcePipelineObject]
+    pipeline.graph.nodes.last shouldBe an[PipelineObject[StringType, StringType]]
+  }
+
+  test("Append an anonymous pipeline job") {
+    val pipeline = builder.append(new EmptySourcePipelineObject())
+      .append { x : DataStream[StringType] =>
+        x.addSink(new SinkFunction[StringType] {})
+      }.build()
+
+    assert(pipeline.graph.nodes.size == 2)
+
+    pipeline.graph.nodes.head shouldBe an[EmptySourcePipelineObject]
+    pipeline.graph.nodes.last shouldBe an[Job[StringType]]
   }
 }
