@@ -5,6 +5,7 @@ import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
 import org.codefeedr.plugins.{StringSource, StringType}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 
 import scala.collection.JavaConverters._
 
@@ -14,15 +15,14 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
   before {
     builder = new PipelineBuilder()
+    CollectSink.result.clear()
   }
 
-  test("Simple pipeline test") {
+  test("Simple pipeline test wordcount") {
     builder
       .append(new StringSource("Hallo hallo doei doei doei"))
       .append { x : DataStream[StringType] =>
-          x.flatMap(_.value.toLowerCase.split("\\\\W+"))
-          .filter(_.nonEmpty)
-          .map((_, 1))
+          x.map(x => (x.value, 1))
           .keyBy(0)
           .sum(1)
           .map(x => WordCount(x._1, x._2))
@@ -37,6 +37,21 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
     assert(res.contains(WordCount("doei", 3)))
     assert(res.contains(WordCount("hallo", 2)))
+  }
+
+  test("Simple pipeline test") {
+    builder
+      .append(new StringSource())
+      .append { x: DataStream[StringType] =>
+        x.map(x => WordCount(x.value, 1))
+          .addSink(new CollectSink)
+      }
+      .build()
+      .startMock()
+
+    val res = CollectSink.result.asScala
+
+    assert(res.isEmpty)
   }
 
 }
