@@ -35,8 +35,8 @@ object Main {
       .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
       .setKeyManager(new RedisKeyManager("redis://localhost:6379"))
 
-      .add(new StringSource())
-      .add(new MyJob())
+      .append(new StringSource())
+      .append(new MyJob())
 
       .build()
 

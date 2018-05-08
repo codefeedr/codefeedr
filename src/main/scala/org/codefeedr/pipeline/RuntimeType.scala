@@ -1,6 +1,6 @@
 package org.codefeedr.pipeline
 
-object Runtime extends Enumeration {
-  type Runtime = Value
+object RuntimeType extends Enumeration {
+  type RuntimeType = Value
   val Mock, Local, Cluster = Value
 }
