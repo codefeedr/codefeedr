@@ -9,6 +9,11 @@ class KeyManagerTest(keyManager: KeyManager) extends FunSuite {
     assert(key.isEmpty)
   }
 
+  test("An unknown target returns no keys with convenience function") {
+    val key = keyManager.request("otherTarget")
+    assert(key.isEmpty)
+  }
+
   test("When key will not be used, no key is returned") {
     assert(keyManager.request("target", 0).isEmpty)
   }
