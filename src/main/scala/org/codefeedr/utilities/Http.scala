@@ -1,11 +1,11 @@
 package org.codefeedr.utilities
 
-import scalaj.http.{Http, HttpResponse}
+import scalaj.http.HttpResponse
 
 class Http() {
 
   def getResponse(url: String): HttpResponse[String] = {
-    Http(url).asString
+    scalaj.http.Http(url).asString
   }
 
 }
