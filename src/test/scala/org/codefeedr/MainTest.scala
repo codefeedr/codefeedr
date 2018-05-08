@@ -7,6 +7,7 @@ import org.codefeedr.pipeline._
 import org.codefeedr.pipeline.buffer.serialization.Serializer
 import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
 import org.codefeedr.plugins.{StringSource, StringType}
+import org.scalatest.FunSuite
 
 class MyJob extends Job[StringType] {
 
@@ -20,9 +21,9 @@ class MyJob extends Job[StringType] {
 
 }
 
-object Main {
+class MainTest extends FunSuite {
 
-  def main(args: Array[String]): Unit = {
+  test("Run a thing") {
     new PipelineBuilder()
 
       .setBufferType(BufferType.Kafka)
@@ -35,6 +36,6 @@ object Main {
 
       .build()
 
-      .startLocal()
+      .startMock()
   }
 }
