@@ -92,10 +92,11 @@ class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://lo
   }
 
   test("When a key is refreshed, the new refreshTime should be in the future") {
-    km.set("testTarget", "testKey", 10, 500)
+    km.set("testTarget", "testKey", 10, 800)
 
     Thread.sleep(3000)
 
+    val now = new Date().getTime
     val key = km.request("testTarget", 1)
 
     assert(key.isDefined)
@@ -107,6 +108,6 @@ class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://lo
     val refreshTime = rc.zscore("cf_test:testTarget:refreshTime", "testKey")
     rc.disconnect
 
-    assert(refreshTime.get > new Date().getTime)
+    assert(refreshTime.get > now)
   }
 }

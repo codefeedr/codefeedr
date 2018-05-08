@@ -44,7 +44,6 @@ val coreDependencies = Seq(
   // "com.typesafe" % "config" % "1.3.1",
   // "org.mongodb.scala" %% "mongo-scala-driver" % "2.1.0"
   "org.apache.kafka" % "kafka-clients" % "1.0.0",
-  "com.sksamuel.avro4s" %% "avro4s-core" % "1.8.3",
   "io.confluent" % "kafka-avro-serializer" % "4.0.0",
   "me.lyh" %% "shapeless-datatype-avro" % "0.1.9",
   "org.json4s" % "json4s-scalap_2.11" % "3.6.0-M2",

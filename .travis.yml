@@ -17,9 +17,9 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
 
-#before_install:
-#  - docker-compose -f "docker-compose.yml" up -d
-#  - docker ps -a
+before_install:
+  - docker-compose -f "containers/kafka/docker-compose.yml" up -d
+  - docker ps -a
 
 matrix:
   include:
