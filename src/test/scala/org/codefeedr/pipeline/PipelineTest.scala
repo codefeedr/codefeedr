@@ -20,7 +20,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
   test("Simple pipeline test wordcount") {
     builder
-      .append(new StringSource("Hallo hallo doei doei doei"))
+      .append(new StringSource("hallo hallo doei doei doei"))
       .append { x : DataStream[StringType] =>
           x.map(x => (x.value, 1))
           .keyBy(0)
@@ -51,7 +51,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
     val res = CollectSink.result.asScala
 
-    assert(res.isEmpty)
+    assert(res.contains(WordCount("",1)))
   }
 
 }
