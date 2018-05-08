@@ -56,8 +56,9 @@ val coreDependencies = Seq(
   // "io.reactivex" %% "rxscala" % "0.26.5"
 
   // https://mvnrepository.com/artifact/org.scalaj/scalaj-http
-  "org.scalaj" %% "scalaj-http" % "2.4.0"
+  "org.scalaj" %% "scalaj-http" % "2.4.0",
 
+  "org.scalamock" % "scalamock_2.11" % "4.1.0"
 )
 
 
