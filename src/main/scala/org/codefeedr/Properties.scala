@@ -1,31 +1,54 @@
 package org.codefeedr
 
-import java.util
+import scala.language.implicitConversions
 
-import scala.collection.JavaConverters._
+object Properties {
+  // Conversion implicits
+  implicit def stringToBoolean(str: String): Boolean = str.toBoolean
+  implicit def booleanToString(bool: Boolean): String = bool.toString
+}
 
 /**
   * Object containing configuration properties.
   */
-class Properties {
-  protected var contents = new util.Properties()
+class Properties(private val contents: Map[String,String] = Map()) {
 
-  def get(key: String, default: String = null): String = {
-    val value = contents.getProperty(key)
+  /**
+    * Get a value converted to an implicitly converted type.
+    *
+    * @param key Key
+    * @param convert Conversion implicit
+    * @tparam T Type of the value
+    * @return Value option
+    */
+  def get[T](key: String)(implicit convert: String => T): Option[T] = {
+    val option = contents.get(key)
+    if (option.isEmpty) {
+      return None
+    }
 
-    if (value == null)
-      return default
-
-    value
+    Option(option.get)
   }
 
-  def set(key: String, value: String): Unit = {
-    contents.setProperty(key, value)
-  }
+  /**
+    * Set a value of an implicitly converted type
+    *
+    * @param key Key
+    * @param value Value
+    * @param convert Conversion implicit
+    * @tparam T Type of value
+    * @return New immutable properties
+    */
+  def set[T](key: String, value: T)(implicit convert: T => String): Properties =
+    new Properties(contents + (key -> value))
 
-  def keys(): List[String] = {
-    contents.keys().asScala.toList.asInstanceOf[List[String]]
-  }
+  /**
+    * Get a set if keys in this properties.
+    *
+    * @return
+    */
+  def keys(): Set[String] =
+    contents.keys.toSet
 
   override def equals(that: Any): Boolean = that match {
     case that: Properties => that.contents == contents
@@ -39,36 +62,13 @@ class Properties {
     *
     * @return a Java Properties object
     */
-  def toJavaProperties: util.Properties = contents
+  def toJavaProperties: java.util.Properties = {
+    val props = new java.util.Properties()
 
-  /**
-    * Create an immutable version of these properties.
-    *
-    * @return Immutable version
-    */
-  def toImmutable: ImmutableProperties = new ImmutableProperties(contents)
-}
+    contents.foreach { case (key, value) =>
+      props.setProperty(key, value)
+    }
 
-/**
-  * Immutable version of Properties. Create using properties.toImmutable
-  */
-final class ImmutableProperties extends Properties {
-
-  def this(properties: util.Properties) {
-    this()
-
-    contents = properties
+    props
   }
-
-  def this(properties: Properties) {
-    this()
-
-    contents = properties.toJavaProperties
-  }
-
-  override def set(key: String, value: String): Unit = {
-    throw new NotImplementedError("set() not allowed on an immutable object")
-  }
-
-  override def toImmutable: ImmutableProperties = this
 }

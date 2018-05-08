@@ -14,10 +14,10 @@ class PipelineBuilder() {
   protected var pipelineType: PipelineType = PipelineType.Sequential
 
   /** Properties of the buffer */
-  val bufferProperties = new Properties()
+  var bufferProperties = new Properties()
 
   /** Pipeline properties */
-  val properties = new Properties()
+  var properties = new Properties()
 
   /** Key manager */
   protected var keyManager: KeyManager = _
@@ -58,13 +58,13 @@ class PipelineBuilder() {
   }
 
   def setProperty(key: String, value: String): PipelineBuilder = {
-    properties.set(key, value)
+    properties = properties.set(key, value)
 
     this
   }
 
   def setBufferProperty(key: String, value: String): PipelineBuilder = {
-    bufferProperties.set(key, value)
+    bufferProperties = bufferProperties.set(key, value)
 
     this
   }
@@ -164,6 +164,6 @@ class PipelineBuilder() {
       throw EmptyPipelineException()
     }
 
-    Pipeline(bufferType, bufferProperties.toImmutable, graph , properties.toImmutable, keyManager)
+    Pipeline(bufferType, bufferProperties, graph , properties, keyManager)
   }
 }

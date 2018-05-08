@@ -2,15 +2,15 @@ package org.codefeedr.pipeline
 
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import org.codefeedr.{DirectedAcyclicGraph, ImmutableProperties}
+import org.codefeedr.{DirectedAcyclicGraph, Properties}
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
 import org.codefeedr.pipeline.RuntimeType.RuntimeType
 
 case class Pipeline(bufferType: BufferType,
-                    bufferProperties: ImmutableProperties,
+                    bufferProperties: Properties,
                     graph: DirectedAcyclicGraph,
-                    properties: ImmutableProperties,
+                    properties: Properties,
                     keyManager: KeyManager) {
   val environment: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
