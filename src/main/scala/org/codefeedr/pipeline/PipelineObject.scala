@@ -76,9 +76,9 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
       throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
     }
 
-//    val parentNode = pipeline.graph.getMainParent(this)
+    val parentNode = pipeline.graph.getMainParent(this).get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
-    val factory = new BufferFactory(pipeline)
+    val factory = new BufferFactory(pipeline, parentNode)
     val buffer = factory.create[In]()
 
     buffer.getSource
@@ -95,11 +95,20 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
       throw NoSinkException("PipelineObject defined NoType as Out type. Buffer can't be created.")
     }
 
-    val factory = new BufferFactory(pipeline)
+    val factory = new BufferFactory(pipeline, this)
     val buffer = factory.create[Out]()
 
     buffer.getSink
   }
+
+  /**
+    * Get the sink subject used by the buffer.
+    *
+    * This is also used for child objects to read from the buffer again.
+    *
+    * @return Sink subject
+    */
+  def getSinkSubject: String = this.getClass.getName
 
   def getStorageSource[T](typ: String, collection: String): DataStream[T] = ???
 
