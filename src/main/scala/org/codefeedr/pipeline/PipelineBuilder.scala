@@ -72,21 +72,14 @@ class PipelineBuilder() {
     graph = graph.addNode(item)
 
     if (lastObject != null) {
-      graph = graph.addEdge(lastObject, item)
+      graph = graph.addEdge(lastObject, item, true)
     }
     lastObject = item
 
     this
   }
 
-
-  /**
-    * Create an edge between two sources in a DAG pipeline.
-    *
-    * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
-    * already configured as sequential, it will throw an illegal state exception.
-    */
-  def edge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
+  private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y], main: Boolean): Unit = {
     if (pipelineType != PipelineType.DAG) {
       if (!graph.isEmpty) {
         throw new IllegalStateException("Can't append node to non-sequential pipeline")
@@ -107,7 +100,37 @@ class PipelineBuilder() {
       throw new IllegalArgumentException("Edge in graph already exists")
     }
 
-    graph = graph.addEdge(from, to)
+    graph = graph.addEdge(from, to, main)
+  }
+
+  /**
+    * Create an edge between two sources in a DAG pipeline. The 'to' must not already have a parent.
+    *
+    * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
+    * already configured as sequential, it will throw an illegal state exception.
+    */
+  def edge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
+    if (graph.getParents(to).nonEmpty) {
+      throw new IllegalArgumentException("Can't add main edge to node with already any parent")
+    }
+
+    makeEdge(from, to, main = true)
+
+    this
+  }
+
+  /**
+    * Create an edge between two sources in a DAG pipeline. The 'to' can already have a parent.
+    *
+    * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
+    * already configured as sequential, it will throw an illegal state exception.
+    */
+  def extraEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
+    if (graph.getParents(to).isEmpty) {
+      throw new IllegalArgumentException("Can't add extra edge to node with no main parent")
+    }
+
+    makeEdge(from, to, main = false)
 
     this
   }
@@ -130,6 +153,12 @@ class PipelineBuilder() {
     this
   }
 
+  /**
+    * Build a pipeline from the builder configuration
+    *
+    * @throws EmptyPipelineException When no pipeline is defined
+    * @return Pipeline
+    */
   def build(): Pipeline = {
     if (this.graph.isEmpty) {
       throw EmptyPipelineException()

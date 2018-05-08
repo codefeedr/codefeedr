@@ -50,17 +50,35 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     * @throws IllegalArgumentException When either node is not in the graph or when the given edge causes a cycle.
     * @return A new graph with the edge included
     */
-  def addEdge(from: AnyRef, to: AnyRef): DirectedAcyclicGraph = {
+  def addEdge(from: AnyRef, to: AnyRef, main: Boolean = false): DirectedAcyclicGraph = {
     if (!hasNode(from) || !hasNode(to)) {
       throw new IllegalArgumentException("One or more nodes for edge do not exist")
     }
 
-    // If to can reach from already adding this edge will cause a cycle
-    if (canReach(to, from)) {
-      throw new IllegalStateException("Given edge causes a cycle in the DAG")
+    if (main && getMainParent(to).isDefined) {
+      throw new IllegalArgumentException("Can't add second main parent to node")
     }
 
-    new DirectedAcyclicGraph(nodes, edges + DirectedAcyclicGraph.Edge(from, to))
+    // If to can reach from already adding this edge will cause a cycle
+    if (canReach(to, from)) {
+      throw new IllegalArgumentException("Given edge causes a cycle in the DAG")
+    }
+
+    new DirectedAcyclicGraph(nodes, edges + DirectedAcyclicGraph.Edge(from, to, main))
+  }
+
+  /**
+    * Get the value at the given edge, if any.
+    *
+    * @param from From node
+    * @param to To node
+    * @return Optional value
+    */
+  def getEdge(from: AnyRef, to: AnyRef): Option[Boolean] = {
+    edges.find(edge => edge.from == from && edge.to == to) match {
+      case Some(e: DirectedAcyclicGraph.Edge) => Some(e.main)
+      case _ => None
+    }
   }
 
   /**
@@ -78,6 +96,12 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     nodes.exists(node => hasEdge(from, node) && canReach(node, to))
   }
 
+  /**
+    * Determine whether the node has any edge at all.
+    *
+    * @param node Node
+    * @return true when it has any edge
+    */
   protected def hasAnyEdge(node: AnyRef): Boolean =
     nodes.exists(n => hasEdge(node, n) || hasEdge(n, node))
 
@@ -99,9 +123,17 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     * @param node Node
     * @return A set which can be empty.
     */
-  def getParents(node: AnyRef): Set[AnyRef] = {
+  def getParents(node: AnyRef): Set[AnyRef] =
     nodes.filter(n => hasEdge(n, node))
-  }
+
+  /**
+    * Get the parent that is designated as main parent.
+    *
+    * @param node Node
+    * @return Optional parent
+    */
+  def getMainParent(node: AnyRef): Option[AnyRef] =
+    nodes.filter(n => getEdge(n, node) getOrElse false).lastOption
 
   /**
     * Get a set of children for given node
@@ -109,9 +141,8 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     * @param node Node
     * @return A set which can be empty
     */
-  def getChildren(node: AnyRef): Set[AnyRef] = {
+  def getChildren(node: AnyRef): Set[AnyRef] =
     nodes.filter(n => hasEdge(node, n))
-  }
 
   /**
     * Decide whether the graph is sequential.
@@ -164,5 +195,5 @@ object DirectedAcyclicGraph {
     * @param from Node
     * @param to Node
     */
-  case class Edge(from: AnyRef, to: AnyRef)
+  case class Edge(from: AnyRef, to: AnyRef, main: Boolean)
 }

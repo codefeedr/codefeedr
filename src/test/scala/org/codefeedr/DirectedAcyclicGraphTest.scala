@@ -47,7 +47,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeA, nodeB)
       .addEdge(nodeB, nodeC)
 
-    assertThrows[IllegalStateException] {
+    assertThrows[IllegalArgumentException] {
       dag.addEdge(nodeC, nodeA)
     }
   }
@@ -184,5 +184,31 @@ class DirectedAcyclicGraphTest extends FunSuite {
     val dag = new DirectedAcyclicGraph()
 
     assert(dag.lastInSequence.isEmpty)
+  }
+
+  test("Should find main parent") {
+    val dag = new DirectedAcyclicGraph()
+      .addNode(nodeA)
+      .addNode(nodeB)
+      .addNode(nodeC)
+      .addEdge(nodeA, nodeB, true)
+      .addEdge(nodeC, nodeB, false)
+
+    val main = dag.getMainParent(nodeB)
+
+    assert(main.isDefined)
+    assert(main.get == nodeA)
+  }
+
+  test("Should disallow multiple main parents") {
+    val dag = new DirectedAcyclicGraph()
+      .addNode(nodeA)
+      .addNode(nodeB)
+      .addNode(nodeC)
+      .addEdge(nodeA, nodeB, true)
+
+    assertThrows[IllegalArgumentException] {
+      dag.addEdge(nodeC, nodeB, true)
+    }
   }
 }

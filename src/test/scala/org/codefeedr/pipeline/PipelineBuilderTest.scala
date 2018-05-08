@@ -140,7 +140,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     builder.edge(a, b)
 
     assertThrows[IllegalArgumentException] {
-      builder.edge(a, b)
+      builder.extraEdge(a, b)
     }
   }
 
@@ -163,6 +163,28 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     assertThrows[IllegalArgumentException] {
       builder.append(a)
+    }
+  }
+
+  test("Should disallow extra edge when no main edge is in the graph") {
+    val a = new EmptySourcePipelineObject()
+    val b = new EmptyTransformPipelineObject()
+    val c = new EmptyTransformPipelineObject()
+
+    assertThrows[IllegalArgumentException] {
+      builder.extraEdge(a, b)
+    }
+  }
+
+  test("Should disallow a second main edge") {
+    val a = new EmptySourcePipelineObject()
+    val b = new EmptyTransformPipelineObject()
+    val c = new EmptyTransformPipelineObject()
+
+    builder.edge(a, b)
+
+    assertThrows[IllegalArgumentException] {
+      builder.edge(c, b)
     }
   }
 }
