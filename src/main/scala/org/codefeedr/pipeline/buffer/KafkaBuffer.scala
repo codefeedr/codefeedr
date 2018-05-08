@@ -17,6 +17,10 @@ import scala.reflect.Manifest
 object KafkaBuffer {
   val HOST = "KAFKA_HOST"
   val SERIALIZER = "SERIALIZER"
+
+  val DEFAULT_BROKER = "localhost:9092"
+
+  val MESSAGE_LIMIT = "MESSAGE_LIMIT"
 }
 
 class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic: String) extends Buffer[T](pipeline) {
@@ -29,7 +33,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
 
   override def getSource: DataStream[T] = {
     val properties = new Properties()
-    properties.setProperty("bootstrap.servers", pipeline.bufferProperties.get(KafkaBuffer.HOST))
+    properties.setProperty("bootstrap.servers", pipeline.bufferProperties.get(KafkaBuffer.HOST, KafkaBuffer.DEFAULT_BROKER))
 
     //get correct serde
     val serde = Serializer.getSerde[T](pipeline.bufferProperties.get(KafkaBuffer.SERIALIZER))
@@ -41,7 +45,6 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
   override def getSink: SinkFunction[T] = {
     //get correct serde
     val serde = Serializer.getSerde[T](pipeline.bufferProperties.get(KafkaBuffer.SERIALIZER))
-
-    new FlinkKafkaProducer011[T](pipeline.bufferProperties.get(KafkaBuffer.HOST), topic, serde)
+    new FlinkKafkaProducer011[T](pipeline.bufferProperties.get(KafkaBuffer.HOST, KafkaBuffer.DEFAULT_BROKER), topic, serde)
   }
 }
