@@ -28,20 +28,22 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
   implicit val typeInfo = TypeInformation.of(inputClassType)
 
   override def getSource: DataStream[T] = {
-    val properties = new Properties()
-    properties.setProperty("bootstrap.servers", pipeline.bufferProperties.get(KafkaBuffer.HOST))
+    val props = pipeline.bufferProperties
 
-    //get correct serde
-    val serde = Serializer.getSerde[T](pipeline.bufferProperties.get(KafkaBuffer.SERIALIZER))
+    val properties = new Properties()
+    properties.setProperty("bootstrap.servers", props.get(KafkaBuffer.HOST).get)
+
+    val serde = Serializer.getSerde[T](props.get(KafkaBuffer.SERIALIZER).get)
 
     pipeline.environment.
       addSource(new FlinkKafkaConsumer011[T](topic, serde, properties))
   }
 
   override def getSink: SinkFunction[T] = {
-    //get correct serde
-    val serde = Serializer.getSerde[T](pipeline.bufferProperties.get(KafkaBuffer.SERIALIZER))
+    val props = pipeline.bufferProperties
 
-    new FlinkKafkaProducer011[T](pipeline.bufferProperties.get(KafkaBuffer.HOST), topic, serde)
+    val serde = Serializer.getSerde[T](props.get(KafkaBuffer.SERIALIZER).get)
+
+    new FlinkKafkaProducer011[T](props.get(KafkaBuffer.HOST).get, topic, serde)
   }
 }
