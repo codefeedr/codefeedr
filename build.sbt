@@ -47,12 +47,17 @@ val coreDependencies = Seq(
   "io.confluent" % "kafka-avro-serializer" % "4.0.0",
   "me.lyh" %% "shapeless-datatype-avro" % "0.1.9",
   "org.json4s" % "json4s-scalap_2.11" % "3.6.0-M2",
-  "org.json4s" % "json4s-jackson_2.11" % "3.6.0-M2"
+  "org.json4s" % "json4s-jackson_2.11" % "3.6.0-M2",
 
   // "com.jsuereth" %% "scala-arm" % "2.0",
   // "org.scala-lang.modules" % "scala-java8-compat_2.11" % "0.8.0",
   // "org.scala-lang.modules" %% "scala-async" % "0.9.7",
   // "io.reactivex" %% "rxscala" % "0.26.5"
+
+  // https://mvnrepository.com/artifact/org.scalaj/scalaj-http
+  "org.scalaj" %% "scalaj-http" % "2.4.0",
+
+  "org.scalamock" % "scalamock_2.11" % "4.1.0"
 )
 
 

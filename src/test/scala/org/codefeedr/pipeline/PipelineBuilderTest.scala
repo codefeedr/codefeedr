@@ -56,7 +56,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
       .setProperty("key", "value")
       .build()
 
-    assert(pipeline.properties.get("key") == "value")
+    assert(pipeline.properties.get("key").get == "value")
   }
 
   test("Set buffer properties should be available in pipeline buffer properties") {
@@ -65,8 +65,8 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
       .setBufferProperty("key", "value")
       .build()
 
-    assert(pipeline.bufferProperties.get("key") == "value")
-    assert(pipeline.properties.get("key") != "value")
+    assert(pipeline.bufferProperties.get("key").get == "value")
+    assert(pipeline.properties.get("key").isEmpty)
   }
 
   test("A set keymanager should be forwarded to the pipeline") {
