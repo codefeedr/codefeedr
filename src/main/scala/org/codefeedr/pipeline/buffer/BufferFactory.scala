@@ -24,7 +24,7 @@ class BufferFactory[U <: PipelineItem, V <: PipelineItem](pipeline: Pipeline, si
     * @tparam T Object type within the buffer
     * @return Buffer
     * @throws IllegalArgumentException When sinkObject is null
-    * @throws RuntimeException When buffer could not be instantiated due to bad configuration
+    * @throws IllegalStateException When buffer could not be instantiated due to bad configuration
     */
   def create[T <: AnyRef : Manifest : FromRecord](): Buffer[T] = {
     if (sinkObject == null) {
@@ -35,7 +35,7 @@ class BufferFactory[U <: PipelineItem, V <: PipelineItem](pipeline: Pipeline, si
 
     pipeline.bufferType match {
       case BufferType.None =>
-        throw new RuntimeException("Cannot instantiate buffer of type 'None'")
+        throw new IllegalStateException("Cannot instantiate buffer of type 'None'")
       case BufferType.Kafka =>
         new KafkaBuffer[T](pipeline, subject)
     }
