@@ -1,27 +1,14 @@
 package org.codefeedr.pipeline
 
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.pipeline.buffer.BufferType
 import org.apache.flink.api.scala._
-import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.codefeedr.testUtils.{EmptySinkPipelineObject, EmptySourcePipelineObject, EmptyTransformPipelineObject, StringType}
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
 class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
-
-  case class StringType(value: String) extends PipelineItem
-
-  class EmptySourcePipelineObject extends PipelineObject[NoType, StringType] {
-    override def transform(source: DataStream[NoType]): DataStream[StringType] = ???
-  }
-
-  class EmptyTransformPipelineObject extends PipelineObject[StringType, StringType] {
-    override def transform(source: DataStream[StringType]): DataStream[StringType] = ???
-  }
-
-  class EmptySinkPipelineObject extends PipelineObject[StringType, NoType] {
-    override def transform(source: DataStream[StringType]): DataStream[NoType] = ???
-  }
 
   var builder: PipelineBuilder = _
 
