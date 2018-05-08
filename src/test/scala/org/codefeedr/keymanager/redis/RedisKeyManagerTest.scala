@@ -92,7 +92,7 @@ class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://lo
   }
 
   test("When a key is refreshed, the new refreshTime should be in the future") {
-    km.set("testTarget", "testKey", 10, 500)
+    km.set("testTarget", "testKey", 10, 750)
 
     Thread.sleep(3000)
 

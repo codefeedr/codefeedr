@@ -1,5 +1,6 @@
 package org.codefeedr.plugins.rss
 
+import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.{NoType, PipelineObject}
 

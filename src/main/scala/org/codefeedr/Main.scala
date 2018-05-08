@@ -4,6 +4,7 @@ import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.redis.RedisKeyManager
 import org.codefeedr.pipeline._
+import org.codefeedr.pipeline.buffer.serialization.Serializer
 import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
 import org.codefeedr.plugins.{StringSource, StringType}
 
@@ -31,7 +32,7 @@ object Main {
 
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.HOST, "localhost:9092")
-
+      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
       .setKeyManager(new RedisKeyManager("redis://localhost:6379"))
 
       .append(new StringSource())

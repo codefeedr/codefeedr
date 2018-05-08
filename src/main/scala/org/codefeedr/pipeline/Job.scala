@@ -1,5 +1,6 @@
 package org.codefeedr.pipeline
 
+import com.sksamuel.avro4s.{FromRecord, SchemaFor}
 import org.apache.flink.streaming.api.scala.DataStream
 
 import scala.reflect.{ClassTag, Manifest}
@@ -10,7 +11,7 @@ import scala.reflect.{ClassTag, Manifest}
   *
   * @tparam T the input type of the job.
   */
-abstract class Job[T <: PipelineItem : ClassTag : Manifest] extends PipelineObject[T, NoType] {
+abstract class Job[T <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[T, NoType] {
 
   /**
     * Transform a (buffer) input source to its final result.

@@ -18,24 +18,38 @@
  */
 package org.codefeedr.pipeline.buffer.serialization
 
-import java.nio.charset.StandardCharsets
+import com.sksamuel.avro4s.FromRecord
 
-import org.apache.flink.api.common.serialization.SerializationSchema
-import org.json4s.NoTypeHints
-import org.json4s.jackson.Serialization
-
-class JSONSerializationSchema[T <: AnyRef] extends SerializationSchema[T] {
+import scala.reflect.ClassTag
+/**
+  * Keeps track of all types of serde's and creates instances of serdes.
+  */
+object Serializer {
 
   /**
-    * Serializes a (generic) element into a json format.
-    * @param element the element to serialized.
-    * @return a serialized byte array.
+    * AVRO serde support.
+    * See: https://avro.apache.org/
     */
-  override def serialize(element: T): Array[Byte] = {
-    implicit val formats = Serialization.formats(NoTypeHints)
+  val AVRO = "AVRO"
 
-    val bytes = Serialization.write(element)(formats)
+  /**
+    * JSON serde support.
+    * See: http://json4s.org/
+    */
+  val JSON = "JSON"
 
-    bytes.getBytes(StandardCharsets.UTF_8)
+  /**
+    * Retrieve a serde.
+    *
+    * Default is JSONSerde.
+    * @param name the name of the serde, see values above for the options.
+    * @tparam T the type which has to be serialized/deserialized.
+    * @return the serde instance.
+    */
+  def getSerde[T <: AnyRef : ClassTag : FromRecord : Manifest](name: String) = name match {
+    case "AVRO" => new AvroSerde[T]()
+    case "JSON" => new JSONSerde[T]()
+    case _ => new JSONSerde[T]() //default is JSON
   }
+
 }
