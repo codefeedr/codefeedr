@@ -4,11 +4,16 @@ import java.text.SimpleDateFormat
 
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
-import scalaj.http.Http
+import org.codefeedr.utilities.Http
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-import scala.xml.XML
+import scala.xml.{Elem, XML}
 
-class RSSItemSource(url: String, pollingInterval: Int) extends RichSourceFunction[RSSItem] {
+class RSSItemSource(url: String,
+                    pollingInterval: Int = 1000,
+                    maxNumberOfRuns: Int = -1,
+                    http: Http = new Http) extends RichSourceFunction[RSSItem] {
 
   var isRunning = false
 
@@ -22,27 +27,38 @@ class RSSItemSource(url: String, pollingInterval: Int) extends RichSourceFunctio
 
   override def run(ctx: SourceFunction.SourceContext[RSSItem]): Unit = {
 
-    var lastItem = None: Option[RSSItem]
+    var lastItem: Option[RSSItem] = None
 
-    while (isRunning) {
+    var numRunsRemaining = maxNumberOfRuns
 
-      val xmlString = Http(url).asString.body
-      val xml = XML.loadString(xmlString)
+    while (isRunning && numRunsRemaining != 0) {
 
-      val nodes = xml \\ "item"
+      if (numRunsRemaining > 0) {
+        numRunsRemaining -= 1
+      }
+
+      val nodes = getXMLFromUrl(url) \\ "item"
       val items = for (t <- nodes) yield xmlToRSSItem(t)
 
-      val sortedItems = items.sortWith((x: RSSItem, y: RSSItem) => x.pubDate.before(y.pubDate))
+      val sortedItems = items.sortWith((x: RSSItem, y: RSSItem) => x.pubDate.isBefore(y.pubDate))
 
-      sortedItems.dropWhile((x: RSSItem) => if (lastItem.isDefined)
-        x.pubDate.before(lastItem.get.pubDate) || lastItem.get.guid == x.guid
-      else false)
+      sortedItems.dropWhile((x: RSSItem) => {
+        if (lastItem.isDefined)
+          x.pubDate.isBefore(lastItem.get.pubDate) || lastItem.get.guid == x.guid
+        else
+          false
+      })
         .foreach(ctx.collect)
 
       lastItem = Some(sortedItems.last)
 
+
       Thread.sleep(pollingInterval)
     }
+  }
+
+  def getXMLFromUrl(url: String) : Elem = {
+    XML.loadString(http.getResponse(url).body)
   }
 
   def xmlToRSSItem(node: scala.xml.Node): RSSItem = {
@@ -51,11 +67,9 @@ class RSSItemSource(url: String, pollingInterval: Int) extends RichSourceFunctio
     val link = (node \ "link").text
     val guid = (node \ "guid").text
 
-    val format = new SimpleDateFormat("EEE, dd MMMMM yyyy HH:mm:ss z")
-
-    val pubDate = format.parse((node \ "pubDate").text)
-
-    //07 May 2018 12:38:27 GMT
+    //Tue, 08 May 2018 08:59:00 GMT
+    val formatter = DateTimeFormatter.RFC_1123_DATE_TIME //.ofPattern("EEE, dd MMMMM yyyy HH:mm:ss z")
+    val pubDate = LocalDateTime.parse((node \ "pubDate").text, formatter)
 
     RSSItem(title, description, link, pubDate, guid)
   }
