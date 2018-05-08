@@ -44,10 +44,20 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
   }
 
   /**
+    * Get all parents for this object
+    *
+    * @return set of parents. Can be empty
+    */
+  def getParents: Set[PipelineObject[PipelineItem, PipelineItem]] = {
+    pipeline.graph.getParents(this).asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
+  }
+
+  /**
     * Check if this pipeline object is sourced from a Buffer.
     * @return if this object has a (buffer) source.
     */
-  def hasMainSource: Boolean = typeOf[In] != typeOf[NoType]
+  def hasMainSource: Boolean =
+    typeOf[In] != typeOf[NoType] && pipeline.graph.getMainParent(this).isDefined
 
   /**
     * Check if this pipeline object is sinked to a Buffer.
@@ -65,6 +75,8 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
     if (!hasMainSource) {
       throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
     }
+
+//    val parentNode = pipeline.graph.getMainParent(this)
 
     val factory = new BufferFactory(pipeline)
     val buffer = factory.create[In]()
@@ -93,6 +105,17 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
 
   def getStorageSink[T](typ: String, collection: String): DataSink[T] = ???
 
-  // Returns data source based on the sink of the PO given. Find the PO in the nodes, and then get topic etc
-  //  def getSource[T](objectClass: poClass): DataStream[T] = ???
+  /**
+    * Get a source for given parent object.
+    *
+    * @param objectClass
+    * @tparam T
+    * @return
+    */
+//  def getSource[T](objectClass: Class): DataStream[T] = {
+//
+//    val parents = pipeline.graph.getParents(this)
+//
+//    null
+//  }
 }
