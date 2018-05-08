@@ -1,5 +1,6 @@
 package org.codefeedr.pipeline.buffer.serialization
 
+import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 
@@ -45,6 +46,12 @@ class JSONSerdeTest extends FunSuite with BeforeAndAfter {
     val deserialized = serde.deserialize(serialized)
 
     assert(deserialized == value)
+  }
+
+  test("Simple typeinformation check") {
+    val typeInformation = TypeInformation.of(classOf[SimpleCaseClass])
+
+    assert(typeInformation == serde.getProducedType)
   }
 
 }

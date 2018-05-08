@@ -1,9 +1,3 @@
-package org.codefeedr.pipeline.buffer.serialization
-
-import com.sksamuel.avro4s.FromRecord
-
-import scala.reflect.ClassTag
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -22,7 +16,11 @@ import scala.reflect.ClassTag
  * limitations under the License.
  *
  */
+package org.codefeedr.pipeline.buffer.serialization
 
+import com.sksamuel.avro4s.FromRecord
+
+import scala.reflect.ClassTag
 /**
   * Keeps track of all types of serde's and creates instances of serdes.
   */

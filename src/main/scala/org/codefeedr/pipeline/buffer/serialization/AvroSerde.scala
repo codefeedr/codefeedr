@@ -46,13 +46,7 @@ class AvroSerde[T: ClassTag](implicit val recordFrom: FromRecord[T]) extends Abs
   override def serialize(element: T): Array[Byte] = {
     val out: ByteArrayOutputStream = new ByteArrayOutputStream()
     val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(out, null)
-    var writer: DatumWriter[T] = null
-
-    if (classOf[SpecificRecordBase].isAssignableFrom(inputClassType)) {
-      writer = new SpecificDatumWriter[T](inputClassType)
-    } else {
-      writer = new ReflectDatumWriter[T](inputClassType)
-    }
+    val writer: DatumWriter[T] = new ReflectDatumWriter[T](inputClassType)
 
     writer.write(element, encoder)
     encoder.flush()
@@ -68,14 +62,7 @@ class AvroSerde[T: ClassTag](implicit val recordFrom: FromRecord[T]) extends Abs
     * @return a deserialized case class.
     */
   override def deserialize(message: Array[Byte]): T = {
-    var schema: Schema = null
-
-    if (classOf[SpecificRecordBase].isAssignableFrom(inputClassType)) {
-      schema = inputClassType.newInstance.asInstanceOf[SpecificRecordBase].getSchema
-    } else {
-      schema = ReflectData.get().getSchema(inputClassType);
-    }
-
+    val schema: Schema = ReflectData.get().getSchema(inputClassType);
     val datumReader = new GenericDatumReader[GenericRecord](schema)
     val decoder = DecoderFactory.get().binaryDecoder(message, null)
 
