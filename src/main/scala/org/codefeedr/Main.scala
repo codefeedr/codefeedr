@@ -35,6 +35,6 @@ object Main {
 
       .build()
 
-      .start(RuntimeType.Local)
+      .startLocal()
   }
 }
