@@ -10,7 +10,7 @@ import scalaj.http.HttpResponse
 
 import scala.io.Source
 
-class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter{
+class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 
 
   test("RSS source should poll maxNumberOfRuns times") {
