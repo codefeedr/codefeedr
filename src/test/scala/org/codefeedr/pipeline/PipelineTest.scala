@@ -1,5 +1,7 @@
 package org.codefeedr.pipeline
 
+import java.util.Properties
+
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
 import org.codefeedr.plugins.{StringSource, StringType}
@@ -8,6 +10,7 @@ import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.runtime.messages.JobManagerMessages.JobResultSuccess
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, KafkaAdminClient}
 import org.codefeedr.testUtils.{EmptySinkPipelineObject, EmptySourcePipelineObject, EmptyTransformPipelineObject, JobFinishedException}
 
 import scala.collection.JavaConverters._
@@ -68,6 +71,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
   test("Non-sequential pipeline local test") {
     val pipeline = simpleDAGPipeline(1)
         .setBufferType(BufferType.Kafka)
+        .setBufferProperty(KafkaBuffer.DEFAULT_BROKER, "127.0.0.1:9092")
         .build()
 
     assertThrows[JobExecutionException] {

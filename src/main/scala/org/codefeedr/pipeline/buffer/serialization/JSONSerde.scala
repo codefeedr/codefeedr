@@ -19,10 +19,12 @@
 package org.codefeedr.pipeline.buffer.serialization
 
 import java.nio.charset.StandardCharsets
+import java.util.Properties
 
 import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
+import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.json4s.NoTypeHints
 import org.json4s.jackson.Serialization
 
@@ -42,6 +44,11 @@ class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends Abs
     */
   override def serialize(element: T): Array[Byte] = {
     println(s"Now serializing data $element")
+    val props = new Properties()
+    props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+
+    val adminClient = AdminClient.create(props)
+    println(adminClient.listTopics().names().get())
     val bytes = Serialization.write(element)(formats)
     bytes.getBytes(StandardCharsets.UTF_8)
   }
