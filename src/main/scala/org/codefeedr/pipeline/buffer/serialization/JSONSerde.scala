@@ -24,10 +24,11 @@ import java.util.Properties
 import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
-import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
+import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.json4s.NoTypeHints
 import org.json4s.jackson.Serialization
 
+import scala.collection.JavaConverters._
 import scala.reflect.{ClassTag, classTag}
 
 class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends AbstractSerde[T] {
@@ -48,6 +49,7 @@ class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends Abs
     props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
 
     val adminClient = AdminClient.create(props)
+    adminClient.createTopics(List(new NewTopic("test", 1, 1)).asJavaCollection)
     println(adminClient.listTopics().names().get())
     val bytes = Serialization.write(element)(formats)
     bytes.getBytes(StandardCharsets.UTF_8)
