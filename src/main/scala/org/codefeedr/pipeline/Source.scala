@@ -16,23 +16,30 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.keymanager
+package org.codefeedr.pipeline
 
-class StaticKeyManager(map: Map[String, String] = Map()) extends KeyManager {
+import com.sksamuel.avro4s.FromRecord
+import org.apache.flink.streaming.api.scala.DataStream
 
-  override def request(target: String, numberOfCalls: Int): Option[ManagedKey]= {
-    if (target == null)
-      throw new IllegalArgumentException()
+import scala.reflect.{ClassTag, Manifest}
 
-    if (numberOfCalls == 0) {
-      return Option.empty
-    }
 
-    val key = map.get(target)
-    if (key.isEmpty)
-      None
-    else
-      Some(ManagedKey(key.get, Int.MaxValue))
+/**
+  * The Source class represents the start of a pipeline.
+  * It has an input type but no specific output type since it will not be connected to the buffer.
+  *
+  * @tparam Out the output type of the job.
+  */
+abstract class Source[Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[NoType, Out] {
+
+  override def transform(source: DataStream[NoType]): DataStream[Out] = {
+    main()
   }
 
+  /**
+    * Create a new datastream
+    *
+    * @return Stream
+    */
+  def main(): DataStream[Out]
 }
