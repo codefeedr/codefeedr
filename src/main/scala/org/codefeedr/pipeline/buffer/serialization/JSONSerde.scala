@@ -41,6 +41,7 @@ class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends Abs
     * @return a serialized byte array.
     */
   override def serialize(element: T): Array[Byte] = {
+    println(s"Now serializing data $element")
     val bytes = Serialization.write(element)(formats)
     bytes.getBytes(StandardCharsets.UTF_8)
   }
@@ -52,6 +53,7 @@ class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends Abs
     * @return a deserialized case class.
     */
   override def deserialize(message: Array[Byte]): T = {
+    println(s"Now deserializing data $message")
     Serialization.read[T](new String(message, StandardCharsets.UTF_8))
   }
 }
