@@ -69,8 +69,10 @@ case class Pipeline(bufferType: BufferType,
   def startLocal(): Unit = {
     val objects = graph.nodes.asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
 
+    println("Setup objects")
     // Run all setups
     for (obj <- objects) {
+      println(s"Setup $obj")
       obj.setUp(this)
     }
 
@@ -78,6 +80,8 @@ case class Pipeline(bufferType: BufferType,
     for (obj <- objects) {
       runObject(obj)
     }
+
+    println("All objects are running")
 
     environment.execute("CodeFeedr Local Job")
   }
@@ -107,6 +111,7 @@ case class Pipeline(bufferType: BufferType,
     val transformed = obj.transform(source)
 
     if (obj.hasSink) {
+      println(s"Found sink for $obj, sink is ${sink}")
       transformed.addSink(sink)
     }
   }

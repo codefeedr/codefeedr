@@ -19,7 +19,7 @@ class EmptySourcePipelineObject extends PipelineObject[NoType, StringType] {
           ctx.collect(StringType("hallo"))
           ctx.collect(StringType("hallo2"))
           ctx.close()
-        };
+        }
 
         override def cancel(): Unit = {}
       }
@@ -44,6 +44,8 @@ class PrintSinkElements(elements : Int) extends PrintSinkFunction[StringType] {
   def invoke(value: StringType, context: SinkFunction.Context[_]): Unit = {
     super.invoke(value)
     count += 1
+
+    println(s"Current count: $count")
 
     if (elements != -1 && count >= elements) {
       throw new JobFinishedException()
