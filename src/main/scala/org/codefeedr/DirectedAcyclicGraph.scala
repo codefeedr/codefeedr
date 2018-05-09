@@ -28,7 +28,7 @@ package org.codefeedr
   * @param nodes List of nodes
   * @param edges List of edges
   */
-class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[DirectedAcyclicGraph.Edge] = Set()) {
+class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges: Vector[DirectedAcyclicGraph.Edge] = Vector()) {
 
   /**
     * Get whether the collection is empty
@@ -49,7 +49,7 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     * @return A new graph with the node included
     */
   def addNode(node: AnyRef): DirectedAcyclicGraph =
-    new DirectedAcyclicGraph(nodes + node, edges)
+    new DirectedAcyclicGraph(nodes :+ node, edges)
 
   /**
     * Get whethere there is an edge directly from the first to the second node.
@@ -82,7 +82,11 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
       throw new IllegalArgumentException("Given edge causes a cycle in the DAG")
     }
 
-    new DirectedAcyclicGraph(nodes, edges + DirectedAcyclicGraph.Edge(from, to, main))
+    val edge = DirectedAcyclicGraph.Edge(from, to, main)
+    if (edges.contains(edge))
+      this
+    else
+      new DirectedAcyclicGraph(nodes, edges :+ edge)
   }
 
   /**
@@ -141,7 +145,7 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     * @param node Node
     * @return A set which can be empty.
     */
-  def getParents(node: AnyRef): Set[AnyRef] =
+  def getParents(node: AnyRef): Vector[AnyRef] =
     nodes.filter(n => hasEdge(n, node))
 
   /**
@@ -159,7 +163,7 @@ class DirectedAcyclicGraph(val nodes: Set[AnyRef] = Set(), val edges: Set[Direct
     * @param node Node
     * @return A set which can be empty
     */
-  def getChildren(node: AnyRef): Set[AnyRef] =
+  def getChildren(node: AnyRef): Vector[AnyRef] =
     nodes.filter(n => hasEdge(node, n))
 
   /**

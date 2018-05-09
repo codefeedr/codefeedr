@@ -40,6 +40,8 @@ val coreDependencies = Seq(
   // "ch.qos.logback" % "logback-classic" % "1.1.7",
   // "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
 
+  "com.chuusai" %% "shapeless" % "2.3.3",
+
   // "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "2.1.5" % "provided",
   // "com.typesafe" % "config" % "1.3.1",
   // "org.mongodb.scala" %% "mongo-scala-driver" % "2.1.0"
