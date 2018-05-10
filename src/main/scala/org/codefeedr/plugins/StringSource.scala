@@ -11,8 +11,8 @@ class StringSource(str : String = "") extends PipelineObject[NoType, StringType]
     val list = str.split("[ \n]")
 
     pipeline.environment
-      .fromCollection(list)
-      .map { str => StringType(str) }
+      .fromCollection(list).setParallelism(1)
+      .map { str => StringType(str) }.setParallelism(1)
   }
 
 }

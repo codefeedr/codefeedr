@@ -15,7 +15,7 @@ import org.codefeedr.pipeline.Pipeline
 import scala.reflect.Manifest
 
 object KafkaBuffer {
-  val HOST = "KAFKA_HOST"
+  val HOST = "HOST"
   val SERIALIZER = "SERIALIZER"
 
   val DEFAULT_BROKER = "localhost:9092"
@@ -34,19 +34,28 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
   override def getSource: DataStream[T] = {
     val props = pipeline.bufferProperties
 
-    val properties = new Properties()
-    properties.setProperty("bootstrap.servers", props.get(KafkaBuffer.HOST).getOrElse[String](KafkaBuffer.DEFAULT_BROKER))
+    val kafkaProp = new java.util.Properties()
+    kafkaProp.put("bootstrap.servers", "localhost:9092")
+    kafkaProp.put("zookeeper.connect", "localhost:2181")
+    kafkaProp.put("auto.offset.reset", "earliest")
+    kafkaProp.put("auto.commit.interval.ms", "100")
+    kafkaProp.put("enable.auto.commit", "true")
 
     val serde = Serializer.getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).getOrElse(Serializer.JSON))
 
     pipeline.environment.
-      addSource(new FlinkKafkaConsumer011[T](topic, serde, properties))
+      addSource(new FlinkKafkaConsumer011[T](topic, serde, kafkaProp))
   }
 
   override def getSink: SinkFunction[T] = {
     val props = pipeline.bufferProperties
 
     val serde = Serializer.getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).getOrElse(Serializer.JSON))
-    new FlinkKafkaProducer011[T](props.get(KafkaBuffer.HOST).getOrElse[String](KafkaBuffer.DEFAULT_BROKER), topic, serde)
+
+    val kafkaProp = new java.util.Properties()
+    kafkaProp.put("bootstrap.servers", "localhost:9092")
+    kafkaProp.put("zookeeper.connect", "localhost:2181")
+
+    new FlinkKafkaProducer011[T](topic, serde, kafkaProp)
   }
 }

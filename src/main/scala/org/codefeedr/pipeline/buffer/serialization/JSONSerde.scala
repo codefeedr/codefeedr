@@ -45,12 +45,6 @@ class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends Abs
     */
   override def serialize(element: T): Array[Byte] = {
     println(s"Now serializing data $element")
-    val props = new Properties()
-    props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
-
-    val adminClient = AdminClient.create(props)
-    adminClient.createTopics(List(new NewTopic("test", 1, 1)).asJavaCollection)
-    println(adminClient.listTopics().names().get())
     val bytes = Serialization.write(element)(formats)
     bytes.getBytes(StandardCharsets.UTF_8)
   }

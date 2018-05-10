@@ -49,8 +49,8 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     builder
       .append(new StringSource())
       .append { x: DataStream[StringType] =>
-        x.map(x => WordCount(x.value, 1))
-          .addSink(new CollectSink)
+        x.map(x => WordCount(x.value, 1)).setParallelism(1)
+          .addSink(new CollectSink).setParallelism(1)
       }
       .build()
       .startMock()
@@ -69,9 +69,14 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Non-sequential pipeline local test") {
+    //val props = new Properties()
+    //props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+
+   // val adminClient = AdminClient.create(props)
+   // println(adminClient.listTopics().names().get())
     val pipeline = simpleDAGPipeline(1)
         .setBufferType(BufferType.Kafka)
-        .setBufferProperty(KafkaBuffer.DEFAULT_BROKER, "127.0.0.1:9092")
+        .setBufferProperty(KafkaBuffer.HOST, "localhost:9092")
         .build()
 
     assertThrows[JobExecutionException] {
