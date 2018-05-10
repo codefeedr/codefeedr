@@ -11,7 +11,7 @@ import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.runtime.messages.JobManagerMessages.JobResultSuccess
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, KafkaAdminClient}
-import org.codefeedr.testUtils.{EmptySinkPipelineObject, EmptySourcePipelineObject, EmptyTransformPipelineObject, JobFinishedException}
+import org.codefeedr.testUtils._
 
 import scala.collection.JavaConverters._
 
@@ -69,14 +69,8 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Non-sequential pipeline local test") {
-    //val props = new Properties()
-    //props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
-
-   // val adminClient = AdminClient.create(props)
-   // println(adminClient.listTopics().names().get())
     val pipeline = simpleDAGPipeline(1)
         .setBufferType(BufferType.Kafka)
-        .setBufferProperty(KafkaBuffer.HOST, "localhost:9092")
         .build()
 
     assertThrows[JobExecutionException] {
@@ -84,11 +78,16 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     }
   }
 
+  /**
+    * Builds a really simple (DAG) graph
+    * @param expectedMessages after the job will finish.
+    * @return a pipelinebuilder (add elements or finish it with .build())
+    */
   def simpleDAGPipeline(expectedMessages : Int = -1) = {
-    val source = new EmptySourcePipelineObject()
-    val a = new EmptyTransformPipelineObject()
-    val b = new EmptyTransformPipelineObject()
-    val sink = new EmptySinkPipelineObject(expectedMessages)
+    val source = new SimpleSourcePipelineObject()
+    val a = new SimpleTransformPipelineObject()
+    val b = new SimpleTransformPipelineObject()
+    val sink = new SimpleSinkPipelineObject(expectedMessages)
 
     builder
       .append(source)

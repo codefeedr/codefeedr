@@ -15,12 +15,12 @@ import org.codefeedr.pipeline.Pipeline
 import scala.reflect.Manifest
 
 object KafkaBuffer {
-  val HOST = "HOST"
+  val BROKER = "HOST"
+  val ZOOKEEPER = "ZOOKEEPER"
   val SERIALIZER = "SERIALIZER"
 
   val DEFAULT_BROKER = "localhost:9092"
-
-  val MESSAGE_LIMIT = "MESSAGE_LIMIT"
+  val DEFAULT_ZOOKEEPER = "localhost:2181"
 }
 
 class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic: String) extends Buffer[T](pipeline) {
@@ -35,13 +35,14 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     val props = pipeline.bufferProperties
 
     val kafkaProp = new java.util.Properties()
-    kafkaProp.put("bootstrap.servers", "localhost:9092")
-    kafkaProp.put("zookeeper.connect", "localhost:2181")
-    kafkaProp.put("auto.offset.reset", "earliest")
-    kafkaProp.put("auto.commit.interval.ms", "100")
-    kafkaProp.put("enable.auto.commit", "true")
+    kafkaProp.put("bootstrap.servers", props.get[String](KafkaBuffer.BROKER).
+      getOrElse(KafkaBuffer.DEFAULT_BROKER))
+    kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
+      getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
 
-    val serde = Serializer.getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).getOrElse(Serializer.JSON))
+    val serde = Serializer.
+      getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).
+      getOrElse(Serializer.JSON))
 
     pipeline.environment.
       addSource(new FlinkKafkaConsumer011[T](topic, serde, kafkaProp))
@@ -50,11 +51,14 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
   override def getSink: SinkFunction[T] = {
     val props = pipeline.bufferProperties
 
-    val serde = Serializer.getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).getOrElse(Serializer.JSON))
+    val serde = Serializer.getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).
+      getOrElse(Serializer.JSON))
 
     val kafkaProp = new java.util.Properties()
-    kafkaProp.put("bootstrap.servers", "localhost:9092")
-    kafkaProp.put("zookeeper.connect", "localhost:2181")
+    kafkaProp.put("bootstrap.servers", props.get[String](KafkaBuffer.BROKER).
+      getOrElse(KafkaBuffer.DEFAULT_BROKER))
+    kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
+      getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
 
     new FlinkKafkaProducer011[T](topic, serde, kafkaProp)
   }
