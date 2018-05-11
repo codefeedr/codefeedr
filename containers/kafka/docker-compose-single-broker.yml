@@ -12,5 +12,6 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: 'org.codefeedr.testUtils.SimpleTransformPipelineObject:1:1,org.codefeedr.testUtils.SimpleSourcePipelineObject:1:1'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
