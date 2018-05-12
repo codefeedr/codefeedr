@@ -92,9 +92,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
     if (!hasMainSource) {
       throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
     }
-
-
-
+    
     val parentNode = pipeline.graph.getMainParent(this).get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
     println("Get source with subject", getSinkSubject, parentNode.getSinkSubject)
