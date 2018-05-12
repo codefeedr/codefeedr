@@ -172,13 +172,15 @@ abstract class PipelineObject2[In <: PipelineItem : ClassTag : Manifest : FromRe
 
 }
 
-abstract class PipelineObject3[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[In, Out] {
+abstract class PipelineObject3[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject2[In, In2, Out] {
 
-  override def transform(source: DataStream[In]): DataStream[Out] =
-    transform(source, getSource[In2](getParents(1)), getSource[In3](getParents(2)))
+  override def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[Out] =
+    transform(source, secondSource, getSource[In3](getParents(2)))
 
   override def verifyGraph(): Unit = {
-    if (typeOf[In] == typeOf[NoType] || typeOf[In2] == typeOf[NoType] || typeOf[In3] == typeOf[NoType]) {
+    super.verifyGraph()
+
+    if (typeOf[In3] == typeOf[NoType]) {
       throw new IllegalStateException("Cannot use NoType on pipeline objects with multiple input sources")
     }
 
@@ -191,13 +193,15 @@ abstract class PipelineObject3[In <: PipelineItem : ClassTag : Manifest : FromRe
 
 }
 
-abstract class PipelineObject4[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, In4 <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[In, Out] {
+abstract class PipelineObject4[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, In4 <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject3[In, In2, In3, Out] {
 
-  override def transform(source: DataStream[In]): DataStream[Out] =
-    transform(source, getSource[In2](getParents(1)), getSource[In3](getParents(2)), getSource[In4](getParents(3)))
+  override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[Out] =
+    transform(source, secondSource, thirdSource, getSource[In4](getParents(3)))
 
   override def verifyGraph(): Unit = {
-    if (typeOf[In] == typeOf[NoType] || typeOf[In2] == typeOf[NoType] || typeOf[In3] == typeOf[NoType] || typeOf[In4] == typeOf[NoType]) {
+    super.verifyGraph()
+
+    if (typeOf[In4] == typeOf[NoType]) {
       throw new IllegalStateException("Cannot use NoType on pipeline objects with multiple input sources")
     }
 
