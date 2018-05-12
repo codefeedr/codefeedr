@@ -57,6 +57,9 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
       getOrElse(KafkaBuffer.DEFAULT_BROKER))
     kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
       getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
+    kafkaProp.put("auto.offset.reset", "earliest")
+    kafkaProp.put("auto.commit.interval.ms", "100")
+    kafkaProp.put("enable.auto.commit", "true")
 
     val serde = Serializer.
       getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).
@@ -77,6 +80,9 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
       getOrElse(KafkaBuffer.DEFAULT_BROKER))
     kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
       getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
+    kafkaProp.put("auto.offset.reset", "earliest")
+    kafkaProp.put("auto.commit.interval.ms", "100")
+    kafkaProp.put("enable.auto.commit", "true")
 
     new FlinkKafkaProducer011[T](topic, serde, kafkaProp)
   }
