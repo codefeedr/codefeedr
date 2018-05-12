@@ -33,8 +33,12 @@ import org.codefeedr.pipeline.Pipeline
 import scala.reflect.Manifest
 
 object KafkaBuffer {
-  val HOST = "KAFKA_HOST"
+  val BROKER = "HOST"
+  val ZOOKEEPER = "ZOOKEEPER"
   val SERIALIZER = "SERIALIZER"
+
+  val DEFAULT_BROKER = "localhost:9092"
+  val DEFAULT_ZOOKEEPER = "localhost:2181"
 }
 
 class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic: String) extends Buffer[T](pipeline) {
@@ -48,20 +52,38 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
   override def getSource: DataStream[T] = {
     val props = pipeline.bufferProperties
 
-    val properties = new Properties()
-    properties.setProperty("bootstrap.servers", props.get(KafkaBuffer.HOST).get)
+    val kafkaProp = new java.util.Properties()
+    kafkaProp.put("bootstrap.servers", props.get[String](KafkaBuffer.BROKER).
+      getOrElse(KafkaBuffer.DEFAULT_BROKER))
+    kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
+      getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
+    kafkaProp.put("auto.offset.reset", "earliest")
+    kafkaProp.put("auto.commit.interval.ms", "100")
+    kafkaProp.put("enable.auto.commit", "true")
 
-    val serde = Serializer.getSerde[T](props.get(KafkaBuffer.SERIALIZER).get)
+    val serde = Serializer.
+      getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).
+      getOrElse(Serializer.JSON))
 
     pipeline.environment.
-      addSource(new FlinkKafkaConsumer011[T](topic, serde, properties))
+      addSource(new FlinkKafkaConsumer011[T](topic, serde, kafkaProp))
   }
 
   override def getSink: SinkFunction[T] = {
     val props = pipeline.bufferProperties
 
-    val serde = Serializer.getSerde[T](props.get(KafkaBuffer.SERIALIZER).get)
+    val serde = Serializer.getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).
+      getOrElse(Serializer.JSON))
 
-    new FlinkKafkaProducer011[T](props.get(KafkaBuffer.HOST).get, topic, serde)
+    val kafkaProp = new java.util.Properties()
+    kafkaProp.put("bootstrap.servers", props.get[String](KafkaBuffer.BROKER).
+      getOrElse(KafkaBuffer.DEFAULT_BROKER))
+    kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
+      getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
+    kafkaProp.put("auto.offset.reset", "earliest")
+    kafkaProp.put("auto.commit.interval.ms", "100")
+    kafkaProp.put("enable.auto.commit", "true")
+
+    new FlinkKafkaProducer011[T](topic, serde, kafkaProp)
   }
 }

@@ -18,7 +18,7 @@ cache:
     - $HOME/.sbt
 
 before_install:
-  - docker-compose -f "containers/kafka/docker-compose.yml" up -d
+  - docker-compose -f "containers/kafka/docker-compose-single-broker.yml" up -d
   - docker ps -a
 
 matrix:
