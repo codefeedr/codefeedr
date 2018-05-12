@@ -18,11 +18,15 @@
  */
 package org.codefeedr.pipeline
 
+import com.sksamuel.avro4s.FromRecord
+import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.{DirectedAcyclicGraph, Properties}
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.pipeline.buffer.BufferType
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
+
+import scala.reflect.ClassTag
 
 class PipelineBuilder() {
   /** Type of buffer used in the pipeline */
@@ -113,6 +117,22 @@ class PipelineBuilder() {
     lastObject = item
 
     this
+  }
+
+  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord, V <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => DataStream[V]) : PipelineBuilder = {
+    val pipelineItem = new PipelineObject[U, V]() {
+      override def transform(source: DataStream[U]): DataStream[V] = trans(source)
+    }
+
+    append(pipelineItem)
+  }
+
+  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => Any) : PipelineBuilder = {
+    val pipelineItem = new Job[U]() {
+      override def main(source: DataStream[U]): Unit = trans(source)
+    }
+
+    append(pipelineItem)
   }
 
   private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y], main: Boolean): Unit = {

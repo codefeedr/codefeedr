@@ -32,10 +32,7 @@ import org.apache.flink.api.java.typeutils.TypeExtractor
 
 import scala.reflect.{ClassTag, classTag}
 
-class AvroSerde[T: ClassTag](implicit val recordFrom: FromRecord[T]) extends AbstractDeserializationSchema[T] with SerializationSchema[T] {
-
-  //Get type of the class at run time
-  val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
+class AvroSerde[T: ClassTag](limit : Int = -1)(implicit val recordFrom: FromRecord[T]) extends AbstractSerde[T] {
 
   /**
     * Serializes a (generic) element into a binary format using the Avro serializer.
@@ -68,12 +65,4 @@ class AvroSerde[T: ClassTag](implicit val recordFrom: FromRecord[T]) extends Abs
 
     recordFrom(datumReader.read(null, decoder))
   }
-
-  /**
-    * Get type information of (de)serialized clss.
-    * @return the typeinformation of the generic class.
-    */
-  override def getProducedType: TypeInformation[T] =
-    TypeExtractor.getForClass(classTag[T].runtimeClass).asInstanceOf[TypeInformation[T]]
-
 }

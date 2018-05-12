@@ -1,13 +1,13 @@
 package org.codefeedr.pipeline.buffer
 
 import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.testUtils.{EmptySourcePipelineObject, EmptyTransformPipelineObject, StringType}
+import org.codefeedr.testUtils.{SimpleSourcePipelineObject, SimpleTransformPipelineObject, StringType}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class BufferFactoryTest extends FunSuite with BeforeAndAfter {
 
-  val nodeA = new EmptySourcePipelineObject()
-  val nodeB = new EmptyTransformPipelineObject()
+  val nodeA = new SimpleSourcePipelineObject()
+  val nodeB = new SimpleTransformPipelineObject()
 
   test("Should throw when creating a buffer with no buffertype") {
     val pipeline = new PipelineBuilder()

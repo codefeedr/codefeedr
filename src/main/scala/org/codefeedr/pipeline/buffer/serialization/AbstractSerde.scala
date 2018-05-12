@@ -18,38 +18,22 @@
  */
 package org.codefeedr.pipeline.buffer.serialization
 
-import com.sksamuel.avro4s.FromRecord
+import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
+import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.api.java.typeutils.TypeExtractor
 
-import scala.reflect.ClassTag
-/**
-  * Keeps track of all types of serde's and creates instances of serdes.
-  */
-object Serializer {
+import scala.reflect.{ClassTag, classTag}
 
-  /**
-    * AVRO serde support.
-    * See: https://avro.apache.org/
-    */
-  val AVRO = "AVRO"
+abstract class AbstractSerde[T : ClassTag] extends AbstractDeserializationSchema[T] with SerializationSchema[T] {
+
+  // Get type of class
+  val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
 
   /**
-    * JSON serde support.
-    * See: http://json4s.org/
+    * Get type information of (de)serialized clss.
+    * @return the typeinformation of the generic class.
     */
-  val JSON = "JSON"
-
-  /**
-    * Retrieve a serde.
-    *
-    * Default is JSONSerde.
-    * @param name the name of the serde, see values above for the options.
-    * @tparam T the type which has to be serialized/deserialized.
-    * @return the serde instance.
-    */
-  def getSerde[T <: AnyRef : ClassTag : FromRecord : Manifest](name: String) = name match {
-    case "AVRO" => new AvroSerde[T]
-    case "JSON" => new JSONSerde[T]
-    case _ => new JSONSerde[T] //default is JSON
+  override def getProducedType: TypeInformation[T] = {
+    TypeExtractor.createTypeInfo(inputClassType)
   }
-
 }
