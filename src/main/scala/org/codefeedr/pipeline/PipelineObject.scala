@@ -55,13 +55,6 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
   def transform(source: DataStream[In]): DataStream[Out]
 
   /**
-    * Removes the pipeline.
-    */
-  def tearDown(): Unit = {
-    this.pipeline = null
-  }
-
-  /**
     * Verify that the object is valid.
     *
     * Checks types of the input sources and whether the graph is configured correctly for the types.
