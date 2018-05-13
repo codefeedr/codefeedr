@@ -21,6 +21,9 @@ package org.codefeedr.pipeline.buffer
 import java.util.Properties
 
 import com.sksamuel.avro4s.{FromRecord, SchemaFor}
+import org.apache.avro.Schema
+import org.apache.avro.reflect.ReflectData
+import org.codefeedr.Properties._
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
 import org.codefeedr.pipeline.buffer.serialization._
@@ -30,18 +33,34 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, KafkaAdminClient, NewTopic}
 import org.codefeedr.pipeline.Pipeline
+import org.codefeedr.pipeline.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
 
 import scala.collection.JavaConverters._
-
 import scala.reflect.Manifest
 
 object KafkaBuffer {
+  /**
+    * PROPERTIES
+    */
   val BROKER = "HOST"
   val ZOOKEEPER = "ZOOKEEPER"
   val SERIALIZER = "SERIALIZER"
 
+  //SCHEMA EXPOSURE
+  val SCHEMA_EXPOSURE = "SCHEMA_EXPOSURE"
+  val SCHEMA_EXPOSURE_SERVICE = "SCHEMA_EXPOSURE_SERVICE"
+  val SCHEMA_EXPOSURE_HOST = "SCHEMA_EXPOSURE_HOST"
+
+  /**
+    * DEFAULT VALUES
+    */
   val DEFAULT_BROKER = "localhost:9092"
   val DEFAULT_ZOOKEEPER = "localhost:2181"
+
+  //SCHEMA EXPOSURE
+  val DEFAULT_SCHEMA_EXPOSURE = false
+  val DEFAULT_SCHEMA_EXPOSURE_SERVICE = "redis"
+  val DEFAULT_SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
 }
 
 class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic: String) extends Buffer[T](pipeline) {
@@ -55,26 +74,16 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
   override def getSource: DataStream[T] = {
     val props = pipeline.bufferProperties
 
-    //TODO make this configurable
-    val kafkaProp = new java.util.Properties()
-    val broker = props.get[String](KafkaBuffer.BROKER).
-      getOrElse(KafkaBuffer.DEFAULT_BROKER)
-    kafkaProp.put("bootstrap.servers", broker)
-    kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
-      getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
-    kafkaProp.put("auto.offset.reset", "earliest")
-    kafkaProp.put("auto.commit.interval.ms", "100")
-    kafkaProp.put("enable.auto.commit", "true")
-
     val serde = Serializer.
       getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).
       getOrElse(Serializer.JSON))
     
     //make sure the topic already exists
-    checkAndCreateSubject(topic, broker)
+    checkAndCreateSubject(topic, props.get[String](KafkaBuffer.BROKER).
+      getOrElse(KafkaBuffer.DEFAULT_BROKER))
 
     pipeline.environment.
-      addSource(new FlinkKafkaConsumer011[T](topic, serde, kafkaProp))
+      addSource(new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties()))
   }
 
   override def getSink: SinkFunction[T] = {
@@ -82,6 +91,22 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
 
     val serde = Serializer.getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).
       getOrElse(Serializer.JSON))
+
+    //check if a schema should be exposed
+    if (props.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE)
+      .getOrElse(KafkaBuffer.DEFAULT_SCHEMA_EXPOSURE)) {
+      exposeSchema()
+    }
+
+    new FlinkKafkaProducer011[T](topic, serde, getKafkaProperties())
+  }
+
+  /**
+    * Get all the kafka properties.
+    * @return a map with all the properties.
+    */
+  def getKafkaProperties() : java.util.Properties = {
+    val props = pipeline.bufferProperties
 
     val kafkaProp = new java.util.Properties()
     kafkaProp.put("bootstrap.servers", props.get[String](KafkaBuffer.BROKER).
@@ -92,7 +117,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     kafkaProp.put("auto.commit.interval.ms", "100")
     kafkaProp.put("enable.auto.commit", "true")
 
-    new FlinkKafkaProducer011[T](topic, serde, kafkaProp)
+    kafkaProp
   }
 
   /**
@@ -126,5 +151,33 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
         .all()
         .get() //this blocks the method until the topic is created
     }
+  }
+
+  /**
+    * Exposes the Avro schema to an external service (like redis/zookeeper).
+    */
+  def exposeSchema() = {
+    val props = pipeline.bufferProperties
+
+    val exposeName = props.
+      get[String](KafkaBuffer.SCHEMA_EXPOSURE_SERVICE).
+      getOrElse(KafkaBuffer.DEFAULT_SCHEMA_EXPOSURE_SERVICE)
+
+    val exposeHost = props.
+      get[String](KafkaBuffer.SCHEMA_EXPOSURE_HOST).
+      getOrElse(KafkaBuffer.DEFAULT_SCHEMA_EXPOSURE_HOST)
+
+    //get exposer
+    val exposer = exposeName match {
+      case "redis" => new RedisSchemaExposer(exposeHost)
+      case "zookeeper" => new ZookeeperSchemaExposer(exposeHost)
+      case _ => new RedisSchemaExposer(exposeHost) //default is redis
+    }
+
+    //get the schema
+    val schema = ReflectData.get().getSchema(inputClassType)
+
+    //expose the schema
+    exposer.putSchema(schema, topic)
   }
 }

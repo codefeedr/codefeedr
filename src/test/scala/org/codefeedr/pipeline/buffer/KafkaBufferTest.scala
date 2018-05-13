@@ -39,7 +39,7 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
     client = AdminClient.create(props)
 
     //setup simple kafkabuffer
-    kafkaBuffer = new KafkaBuffer[StringType](new PipelineBuilder().append(new SimpleSourcePipelineObject()).build(), "")
+    kafkaBuffer = new KafkaBuffer[StringType](new PipelineBuilder().append(new SimpleSourcePipelineObject()).build(), "test-subject")
   }
 
 
@@ -49,6 +49,10 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
     assert(!exists(uuid))
     kafkaBuffer.checkAndCreateSubject(uuid, "localhost:9092")
     assert(exists(uuid))
+  }
+
+  test ("A schema should correctly be exposed") {
+    assert(kafkaBuffer.exposeSchema())
   }
 
   /**

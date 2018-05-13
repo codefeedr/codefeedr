@@ -59,7 +59,7 @@ class AvroSerde[T: ClassTag](limit : Int = -1)(implicit val recordFrom: FromReco
     * @return a deserialized case class.
     */
   override def deserialize(message: Array[Byte]): T = {
-    val schema: Schema = ReflectData.get().getSchema(inputClassType);
+    val schema: Schema = ReflectData.get().getSchema(inputClassType)
     val datumReader = new GenericDatumReader[GenericRecord](schema)
     val decoder = DecoderFactory.get().binaryDecoder(message, null)
 
