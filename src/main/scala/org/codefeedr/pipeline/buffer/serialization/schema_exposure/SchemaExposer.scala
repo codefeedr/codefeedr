@@ -6,6 +6,7 @@ trait SchemaExposer {
 
   /**
     * Stores a schema bound to a subject.
+    *
     * @param schema the schema belonging to that topic.
     * @param subject the subject belonging to that schema.
     * @return true if correctly saved.
@@ -14,6 +15,7 @@ trait SchemaExposer {
 
   /**
     * Get a schema based on a subject.
+    *
     * @param subject the subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
@@ -21,6 +23,7 @@ trait SchemaExposer {
 
   /**
     * Deletes a Schema.
+    *
     * @param subject the subject the schema belongs to.
     * @return true if successfully deleted, otherwise false.
     */
@@ -33,6 +36,7 @@ trait SchemaExposer {
 
   /**
     * Tries to parse a String into a Schema.
+    *
     * @param schemaString the schema string.
     * @return an option of a Schema.
     */

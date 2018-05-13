@@ -23,6 +23,12 @@ import java.net.URI
 import com.redis.RedisClient
 import org.apache.avro.Schema
 
+/**
+  * Exposes (Avro) schema's to Redis.
+  * @param host the server host of Redis.
+  * @param root the root location of the schema's
+  *             DEFAULT: /codefeedr:schemas
+  */
 class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") extends SchemaExposer {
 
   private var connection: RedisClient = _
@@ -31,7 +37,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
   connect()
 
   /**
-    * Connect with the RedisClien.t
+    * Connect with the RedisClient.
     */
   private def connect() = {
     val uri = new URI(host)
@@ -40,6 +46,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
 
   /**
     * Stores a schema bound to a subject.
+    *
     * @param schema the schema belonging to that topic.
     * @param subject the subject belonging to that schema.
     * @return true if correctly saved
@@ -50,6 +57,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
 
   /**
     * Get a schema based on a subject.
+    *
     * @param subject the subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
@@ -66,6 +74,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
 
   /**
     * Deletes a schema.
+    *
     * @param subject the subject the schema belongs to.
     * @return true if successfully deleted, otherwise false.
     */

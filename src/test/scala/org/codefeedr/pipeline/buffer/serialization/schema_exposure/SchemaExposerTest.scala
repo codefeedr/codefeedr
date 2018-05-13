@@ -19,9 +19,7 @@
 package org.codefeedr.pipeline.buffer.serialization.schema_exposure
 
 import org.apache.avro.Schema
-import org.scalatest.{BeforeAndAfter, FunSuite}
-
-case class Person(name : String, age : Int)
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 
 abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
 
@@ -40,16 +38,38 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
                    ]
                  }"""
 
+  val differentSchema =  """{
+                   "type": "record",
+                   "name": "User2",
+                   "fields": [
+                     {
+                         "name": "full_name",
+                         "type": "string"
+                     },
+                     {
+                         "name": "age",
+                         "type": "int"
+                     }
+                   ]
+                 }"""
+
   var exposer : SchemaExposer = _
   var parsedSchema : Schema = _
+  var parsedSchema2 : Schema = _
+
   val subject = "testSubject"
 
   def getSchemaExposer() : SchemaExposer
 
   before {
     exposer = getSchemaExposer()
+
     parsedSchema = exposer
       .parseSchema(schema)
+      .get
+
+    parsedSchema2 = exposer
+      .parseSchema(differentSchema)
       .get
   }
 
@@ -63,7 +83,27 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
 
     //if I get the schema, it should be the same
     assert(exposer.getSchema(subject).get == parsedSchema)
+    assert(exposer.getSchema(subject).get != parsedSchema2)
   }
+
+  test("A simple schema should be correctly overwritten") {
+    //ensure schema's are not the same
+    assert(parsedSchema2 != parsedSchema)
+
+    //put the schema
+    exposer.putSchema(parsedSchema, subject)
+
+    //if I get the schema, it should be the same
+    assert(exposer.getSchema(subject).get == parsedSchema)
+
+    //put the different schema
+    exposer.putSchema(parsedSchema2, subject)
+
+    //if I get the schema, it should not be the same as the original
+    assert(exposer.getSchema(subject).get != parsedSchema)
+    assert(exposer.getSchema(subject).get == parsedSchema2)
+  }
+
 
   test("A simple schema should be correctly deleted") {
     //put the schema
@@ -84,6 +124,13 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
 
   test("An invalid schema should return None") {
     assert(exposer.parseSchema("iNVaLIdScHemA{}$%:)") == None)
+  }
+
+  test("All schema's should be properly deleted") {
+    //put the schema
+    assert(exposer.putSchema(parsedSchema, subject))
+    exposer.deleteAllSchemas()
+    assert(exposer.getSchema(subject) == None)
   }
 
 
