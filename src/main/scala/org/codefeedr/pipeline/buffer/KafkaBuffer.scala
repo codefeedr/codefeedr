@@ -169,7 +169,6 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
 
     //get exposer
     val exposer = exposeName match {
-      case "redis" => new RedisSchemaExposer(exposeHost)
       case "zookeeper" => new ZookeeperSchemaExposer(exposeHost)
       case _ => new RedisSchemaExposer(exposeHost) //default is redis
     }
