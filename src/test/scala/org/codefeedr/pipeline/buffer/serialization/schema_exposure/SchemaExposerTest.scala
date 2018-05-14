@@ -134,5 +134,13 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
     assert(exposer.getSchema(subject) == None)
   }
 
+  test("All schema's should be properly deleted even if called twice") {
+    //put the schema
+    assert(exposer.putSchema(parsedSchema, subject))
+    exposer.deleteAllSchemas()
+    exposer.deleteAllSchemas()
+    assert(exposer.getSchema(subject) == None)
+  }
+
 
 }
