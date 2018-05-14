@@ -7,7 +7,7 @@ Bachelor Project Codefeedr
 
 [![Build Status](https://travis-ci.org/joskuijpers/bep_codefeedr.svg?branch=develop)](https://travis-ci.org/joskuijpers/bep_codefeedr)
 [![BCH compliance](https://bettercodehub.com/edge/badge/joskuijpers/bep_codefeedr?branch=develop)](https://bettercodehub.com/)
-[![Coverage Status](https://coveralls.io/repos/github/joskuijpers/bep_codefeedr/badge.svg?branch=develop)](https://coveralls.io/github/joskuijpers/bep_codefeedr?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/joskuijpers/bep_codefeedr/badge.svg?branch=develop)](https://coveralls.io/github/joskuijpers/bep_codefeedr?branch=develop)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![University](https://img.shields.io/badge/university-tudelft-blue.svg)](http://swerl.tudelft.nl/bin/view/Main/WebHome)
 
