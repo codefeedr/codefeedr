@@ -50,7 +50,7 @@ class BufferFactory[U <: PipelineItem, V <: PipelineItem](pipeline: Pipeline, si
     }
 
     val subject = sinkObject.getSinkSubject
-
+    
     pipeline.bufferType match {
       case BufferType.None =>
         throw new IllegalStateException("Cannot instantiate buffer of type 'None'")

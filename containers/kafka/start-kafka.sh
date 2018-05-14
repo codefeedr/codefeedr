@@ -1,138 +1,143 @@
-#!/bin/bash
+#!/bin/bash -e
+
+# Store original IFS config, so we can restore it at various stages
+ORIG_IFS=$IFS
+
+if [[ -z "$KAFKA_ZOOKEEPER_CONNECT" ]]; then
+    echo "ERROR: missing mandatory config: KAFKA_ZOOKEEPER_CONNECT"
+    exit 1
+fi
 
 if [[ -z "$KAFKA_PORT" ]]; then
     export KAFKA_PORT=9092
 fi
 
 create-topics.sh &
+unset KAFKA_CREATE_TOPICS
 
+# DEPRECATED: but maintained for compatibility with older brokers pre 0.9.0 (https://issues.apache.org/jira/browse/KAFKA-1809)
 if [[ -z "$KAFKA_ADVERTISED_PORT" && \
   -z "$KAFKA_LISTENERS" && \
   -z "$KAFKA_ADVERTISED_LISTENERS" && \
   -S /var/run/docker.sock ]]; then
-    export KAFKA_ADVERTISED_PORT=$(docker port `hostname` $KAFKA_PORT | sed -r "s/.*:(.*)/\1/g")
+    KAFKA_ADVERTISED_PORT=$(docker port "$(hostname)" $KAFKA_PORT | sed -r 's/.*:(.*)/\1/g')
+    export KAFKA_ADVERTISED_PORT
 fi
+
 if [[ -z "$KAFKA_BROKER_ID" ]]; then
     if [[ -n "$BROKER_ID_COMMAND" ]]; then
-        export KAFKA_BROKER_ID=$(eval $BROKER_ID_COMMAND)
+        KAFKA_BROKER_ID=$(eval "$BROKER_ID_COMMAND")
+        export KAFKA_BROKER_ID
     else
         # By default auto allocate broker ID
         export KAFKA_BROKER_ID=-1
     fi
 fi
+
 if [[ -z "$KAFKA_LOG_DIRS" ]]; then
     export KAFKA_LOG_DIRS="/kafka/kafka-logs-$HOSTNAME"
 fi
-if [[ -z "$KAFKA_ZOOKEEPER_CONNECT" ]]; then
-    export KAFKA_ZOOKEEPER_CONNECT=$(env | grep ZK.*PORT_2181_TCP= | sed -e 's|.*tcp://||' | paste -sd ,)
-fi
 
 if [[ -n "$KAFKA_HEAP_OPTS" ]]; then
-    sed -r -i "s/(export KAFKA_HEAP_OPTS)=\"(.*)\"/\1=\"$KAFKA_HEAP_OPTS\"/g" $KAFKA_HOME/bin/kafka-server-start.sh
+    sed -r -i 's/(export KAFKA_HEAP_OPTS)="(.*)"/\1="'"$KAFKA_HEAP_OPTS"'"/g' "$KAFKA_HOME/bin/kafka-server-start.sh"
     unset KAFKA_HEAP_OPTS
 fi
 
-if [[ -z "$KAFKA_ADVERTISED_HOST_NAME" && -n "$HOSTNAME_COMMAND" ]]; then
-    export KAFKA_ADVERTISED_HOST_NAME=$(eval $HOSTNAME_COMMAND)
+if [[ -n "$HOSTNAME_COMMAND" ]]; then
+    HOSTNAME_VALUE=$(eval "$HOSTNAME_COMMAND")
+
+    # Replace any occurences of _{HOSTNAME_COMMAND} with the value
+    IFS=$'\n'
+    for VAR in $(env); do
+        if [[ $VAR =~ ^KAFKA_ && "$VAR" =~ "_{HOSTNAME_COMMAND}" ]]; then
+            eval "export ${VAR//_\{HOSTNAME_COMMAND\}/$HOSTNAME_VALUE}"
+        fi
+    done
+    IFS=$ORIG_IFS
 fi
 
-if [[ -n "$KAFKA_LISTENER_SECURITY_PROTOCOL_MAP" ]]; then
-  if [[ -n "$KAFKA_ADVERTISED_PORT" && -n "$KAFKA_ADVERTISED_PROTOCOL_NAME" ]]; then
-    export KAFKA_ADVERTISED_LISTENERS="${KAFKA_ADVERTISED_PROTOCOL_NAME}://${KAFKA_ADVERTISED_HOST_NAME-}:${KAFKA_ADVERTISED_PORT}"
-    export KAFKA_LISTENERS="$KAFKA_ADVERTISED_PROTOCOL_NAME://:$KAFKA_ADVERTISED_PORT"
-  fi
+if [[ -n "$PORT_COMMAND" ]]; then
+    PORT_VALUE=$(eval "$PORT_COMMAND")
 
-  if [[ -z "$KAFKA_PROTOCOL_NAME" ]]; then
-    export KAFKA_PROTOCOL_NAME="${KAFKA_ADVERTISED_PROTOCOL_NAME}"
-  fi
-
-  if [[ -n "$KAFKA_PORT" && -n "$KAFKA_PROTOCOL_NAME" ]]; then
-    export ADD_LISTENER="${KAFKA_PROTOCOL_NAME}://${KAFKA_HOST_NAME-}:${KAFKA_PORT}"
-  fi
-
-  if [[ -z "$KAFKA_INTER_BROKER_LISTENER_NAME" ]]; then
-    export KAFKA_INTER_BROKER_LISTENER_NAME=$KAFKA_PROTOCOL_NAME
-  fi
-else
-   #DEFAULT LISTENERS 
-   export KAFKA_ADVERTISED_LISTENERS="PLAINTEXT://${KAFKA_ADVERTISED_HOST_NAME-}:${KAFKA_ADVERTISED_PORT-$KAFKA_PORT}"
-   export KAFKA_LISTENERS="PLAINTEXT://${KAFKA_HOST_NAME-}:${KAFKA_PORT-9092}"
-fi
-
-if [[ -n "$ADD_LISTENER" && -n "$KAFKA_LISTENERS" ]]; then
-  export KAFKA_LISTENERS="${KAFKA_LISTENERS},${ADD_LISTENER}"
-fi
-
-if [[ -n "$ADD_LISTENER" && -z "$KAFKA_LISTENERS" ]]; then
-  export KAFKA_LISTENERS="${ADD_LISTENER}"
-fi
-
-if [[ -n "$ADD_LISTENER" && -n "$KAFKA_ADVERTISED_LISTENERS" ]]; then
-  export KAFKA_ADVERTISED_LISTENERS="${KAFKA_ADVERTISED_LISTENERS},${ADD_LISTENER}"
-fi
-
-if [[ -n "$ADD_LISTENER" && -z "$KAFKA_ADVERTISED_LISTENERS" ]]; then
-  export KAFKA_ADVERTISED_LISTENERS="${ADD_LISTENER}"
-fi
-
-if [[ -n "$KAFKA_INTER_BROKER_LISTENER_NAME" && ! "$KAFKA_INTER_BROKER_LISTENER_NAME"X = "$KAFKA_PROTOCOL_NAME"X ]]; then
-   if [[ -n "$KAFKA_INTER_BROKER_PORT" ]]; then
-      export KAFKA_INTER_BROKER_PORT=$(( $KAFKA_PORT + 1 ))
-   fi
-   export INTER_BROKER_LISTENER="${KAFKA_INTER_BROKER_LISTENER_NAME}://:${KAFKA_INTER_BROKER_PORT}"
-   export KAFKA_LISTENERS="${KAFKA_LISTENERS},${INTER_BROKER_LISTENER}"
-   export KAFKA_ADVERTISED_LISTENERS="${KAFKA_ADVERTISED_LISTENERS},${INTER_BROKER_LISTENER}"
-   unset KAFKA_INTER_BROKER_PORT
-   unset KAFKA_SECURITY_INTER_BROKER_PROTOCOL
-   unset INTER_BROKER_LISTENER
+    # Replace any occurences of _{PORT_COMMAND} with the value
+    IFS=$'\n'
+    for VAR in $(env); do
+        if [[ $VAR =~ ^KAFKA_ && "$VAR" =~ "_{PORT_COMMAND}" ]]; then
+	    eval "export ${VAR//_\{PORT_COMMAND\}/$PORT_VALUE}"
+        fi
+    done
+    IFS=$ORIG_IFS
 fi
 
 if [[ -n "$RACK_COMMAND" && -z "$KAFKA_BROKER_RACK" ]]; then
-    export KAFKA_BROKER_RACK=$(eval $RACK_COMMAND)
+    KAFKA_BROKER_RACK=$(eval "$RACK_COMMAND")
+    export KAFKA_BROKER_RACK
+fi
+
+# Try and configure minimal settings or exit with error if there isn't enough information
+if [[ -z "$KAFKA_ADVERTISED_HOST_NAME$KAFKA_LISTENERS" ]]; then
+    if [[ -n "$KAFKA_ADVERTISED_LISTENERS" ]]; then
+        echo "ERROR: Missing environment variable KAFKA_LISTENERS. Must be specified when using KAFKA_ADVERTISED_LISTENERS"
+        exit 1
+    elif [[ -z "$HOSTNAME_VALUE" ]]; then
+        echo "ERROR: No listener or advertised hostname configuration provided in environment."
+        echo "       Please define KAFKA_LISTENERS / (deprecated) KAFKA_ADVERTISED_HOST_NAME"
+        exit 1
+    fi
+
+    # Maintain existing behaviour
+    # If HOSTNAME_COMMAND is provided, set that to the advertised.host.name value if listeners are not defined.
+    export KAFKA_ADVERTISED_HOST_NAME="$HOSTNAME_VALUE"
 fi
 
 #Issue newline to config file in case there is not one already
-echo -e "\n" >> $KAFKA_HOME/config/server.properties
+echo "" >> "$KAFKA_HOME/config/server.properties"
 
-unset KAFKA_CREATE_TOPICS
-unset KAFKA_ADVERTISED_PROTOCOL_NAME
-unset KAFKA_PROTOCOL_NAME
+(
+    function updateConfig() {
+        key=$1
+        value=$2
+        file=$3
 
-if [[ -n "$KAFKA_ADVERTISED_LISTENERS" ]]; then
-  unset KAFKA_ADVERTISED_PORT
-  unset KAFKA_ADVERTISED_HOST_NAME
-fi
+        # Omit $value here, in case there is sensitive information
+        echo "[Configuring] '$key' in '$file'"
 
-if [[ -n "$KAFKA_LISTENERS" ]]; then
-  unset KAFKA_PORT
-  unset KAFKA_HOST_NAME
-fi
+        # If config exists in file, replace it. Otherwise, append to file.
+        if grep -E -q "^#?$key=" "$file"; then
+            sed -r -i "s@^#?$key=.*@$key=$value@g" "$file" #note that no config values may contain an '@' char
+        else
+            echo "$key=$value" >> "$file"
+        fi
+    }
 
-for VAR in `env`
-do
-  if [[ $VAR =~ ^KAFKA_ && ! $VAR =~ ^KAFKA_HOME ]]; then
-    kafka_name=`echo "$VAR" | sed -r "s/KAFKA_(.*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | tr _ .`
-    env_var=`echo "$VAR" | sed -r "s/(.*)=.*/\1/g"`
-    if egrep -q "(^|^#)$kafka_name=" $KAFKA_HOME/config/server.properties; then
-        sed -r -i "s@(^|^#)($kafka_name)=(.*)@\2=${!env_var}@g" $KAFKA_HOME/config/server.properties #note that no config values may contain an '@' char
-    else
-        echo "$kafka_name=${!env_var}" >> $KAFKA_HOME/config/server.properties
-    fi
-  fi
+    # Fixes #312
+    # KAFKA_VERSION + KAFKA_HOME + grep -rohe KAFKA[A-Z0-0_]* /opt/kafka/bin | sort | uniq | tr '\n' '|'
+    EXCLUSIONS="|KAFKA_VERSION|KAFKA_HOME|KAFKA_DEBUG|KAFKA_GC_LOG_OPTS|KAFKA_HEAP_OPTS|KAFKA_JMX_OPTS|KAFKA_JVM_PERFORMANCE_OPTS|KAFKA_LOG|KAFKA_OPTS|"
 
-  if [[ $VAR =~ ^LOG4J_ ]]; then
-    log4j_name=`echo "$VAR" | sed -r "s/(LOG4J_.*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | tr _ .`
-    log4j_env=`echo "$VAR" | sed -r "s/(.*)=.*/\1/g"`
-    if egrep -q "(^|^#)$log4j_name=" $KAFKA_HOME/config/log4j.properties; then
-        sed -r -i "s@(^|^#)($log4j_name)=(.*)@\2=${!log4j_env}@g" $KAFKA_HOME/config/log4j.properties #note that no config values may contain an '@' char
-    else
-        echo "$log4j_name=${!log4j_env}" >> $KAFKA_HOME/config/log4j.properties
-    fi
-  fi
-done
+    # Read in env as a new-line separated array. This handles the case of env variables have spaces and/or carriage returns. See #313
+    IFS=$'\n'
+    for VAR in $(env)
+    do
+        env_var=$(echo "$VAR" | cut -d= -f1)
+        if [[ "$EXCLUSIONS" = *"|$env_var|"* ]]; then
+            echo "Excluding $env_var from broker config"
+            continue
+        fi
+
+        if [[ $env_var =~ ^KAFKA_ ]]; then
+            kafka_name=$(echo "$env_var" | cut -d_ -f2- | tr '[:upper:]' '[:lower:]' | tr _ .)
+            updateConfig "$kafka_name" "${!env_var}" "$KAFKA_HOME/config/server.properties"
+        fi
+
+        if [[ $env_var =~ ^LOG4J_ ]]; then
+            log4j_name=$(echo "$env_var" | tr '[:upper:]' '[:lower:]' | tr _ .)
+            updateConfig "$log4j_name" "${!env_var}" "$KAFKA_HOME/config/log4j.properties"
+        fi
+    done
+)
 
 if [[ -n "$CUSTOM_INIT_SCRIPT" ]] ; then
-  eval $CUSTOM_INIT_SCRIPT
+  eval "$CUSTOM_INIT_SCRIPT"
 fi
 
-exec $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties
+exec "$KAFKA_HOME/bin/kafka-server-start.sh" "$KAFKA_HOME/config/server.properties"

@@ -28,13 +28,20 @@ import org.codefeedr.pipeline.buffer.serialization._
 import scala.reflect.classTag
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, KafkaAdminClient, NewTopic}
 import org.codefeedr.pipeline.Pipeline
+
+import scala.collection.JavaConverters._
 
 import scala.reflect.Manifest
 
 object KafkaBuffer {
-  val HOST = "KAFKA_HOST"
+  val BROKER = "HOST"
+  val ZOOKEEPER = "ZOOKEEPER"
   val SERIALIZER = "SERIALIZER"
+
+  val DEFAULT_BROKER = "localhost:9092"
+  val DEFAULT_ZOOKEEPER = "localhost:2181"
 }
 
 class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic: String) extends Buffer[T](pipeline) {
@@ -48,20 +55,76 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
   override def getSource: DataStream[T] = {
     val props = pipeline.bufferProperties
 
-    val properties = new Properties()
-    properties.setProperty("bootstrap.servers", props.get(KafkaBuffer.HOST).get)
+    //TODO make this configurable
+    val kafkaProp = new java.util.Properties()
+    val broker = props.get[String](KafkaBuffer.BROKER).
+      getOrElse(KafkaBuffer.DEFAULT_BROKER)
+    kafkaProp.put("bootstrap.servers", broker)
+    kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
+      getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
+    kafkaProp.put("auto.offset.reset", "earliest")
+    kafkaProp.put("auto.commit.interval.ms", "100")
+    kafkaProp.put("enable.auto.commit", "true")
 
-    val serde = Serializer.getSerde[T](props.get(KafkaBuffer.SERIALIZER).get)
+    val serde = Serializer.
+      getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).
+      getOrElse(Serializer.JSON))
+    
+    //make sure the topic already exists
+    checkAndCreateSubject(topic, broker)
 
     pipeline.environment.
-      addSource(new FlinkKafkaConsumer011[T](topic, serde, properties))
+      addSource(new FlinkKafkaConsumer011[T](topic, serde, kafkaProp))
   }
 
   override def getSink: SinkFunction[T] = {
     val props = pipeline.bufferProperties
 
-    val serde = Serializer.getSerde[T](props.get(KafkaBuffer.SERIALIZER).get)
+    val serde = Serializer.getSerde[T](props.get[String](KafkaBuffer.SERIALIZER).
+      getOrElse(Serializer.JSON))
 
-    new FlinkKafkaProducer011[T](props.get(KafkaBuffer.HOST).get, topic, serde)
+    val kafkaProp = new java.util.Properties()
+    kafkaProp.put("bootstrap.servers", props.get[String](KafkaBuffer.BROKER).
+      getOrElse(KafkaBuffer.DEFAULT_BROKER))
+    kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
+      getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
+    kafkaProp.put("auto.offset.reset", "earliest")
+    kafkaProp.put("auto.commit.interval.ms", "100")
+    kafkaProp.put("enable.auto.commit", "true")
+
+    new FlinkKafkaProducer011[T](topic, serde, kafkaProp)
+  }
+
+  /**
+    * Checks if a Kafka topic exists, if not it is created.
+    * @param topic the topic to create.
+    * @param connection the kafka broker to connect to.
+    */
+  def checkAndCreateSubject(topic : String, connection : String) = {
+    //set all the correct properties
+    val props = new Properties()
+    props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, connection)
+
+    //connect with Kafka
+    val adminClient = AdminClient.create(props)
+
+    //check if topic already exists
+    val alreadyCreated = adminClient
+      .listTopics()
+      .names()
+      .get()
+      .contains(topic)
+
+    //if topic doesnt exist yet, create it
+    if (!alreadyCreated) {
+      //the topic configuration will probably be overwritten by the producer
+      //TODO check this ^
+      println(s"Topic $topic doesn't exist yet, now creating it.")
+      val newTopic = new NewTopic(topic, 1, 1)
+      adminClient.
+        createTopics(List(newTopic).asJavaCollection)
+        .all()
+        .get() //this blocks the method until the topic is created
+    }
   }
 }

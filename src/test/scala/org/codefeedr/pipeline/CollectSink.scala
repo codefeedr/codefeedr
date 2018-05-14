@@ -16,21 +16,25 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins
+package org.codefeedr.pipeline
 
-import org.apache.flink.streaming.api.scala.{DataStream, _}
-import org.codefeedr.pipeline.{NoType, PipelineItem, PipelineObject}
+import java.util
 
-case class StringType(value: String) extends PipelineItem
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 
-class StringSource(str : String = "") extends PipelineObject[NoType, StringType] {
+case class WordCount(str : String, count : Int) extends PipelineItem
 
-  override def transform(source: DataStream[NoType]): DataStream[StringType] = {
-    val list = str.split("[ \n]")
+object CollectSink {
+  val result = new util.ArrayList[WordCount]() //mutable list
+}
 
-    pipeline.environment
-      .fromCollection(list).setParallelism(1)
-      .map { str => StringType(str) }.setParallelism(1)
+class CollectSink extends SinkFunction[WordCount] {
+
+  override def invoke(value: WordCount): Unit = {
+    synchronized {
+      CollectSink.result.add(value)
+    }
   }
 
 }
+
