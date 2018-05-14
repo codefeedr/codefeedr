@@ -25,7 +25,13 @@ import org.codefeedr.DirectedAcyclicGraph
 import scala.reflect.{ClassTag, Manifest}
 import scala.reflect.runtime.universe._
 
-
+/**
+  * A pipeline object with 2 sources and 1 output
+  *
+  * @tparam In  input type for this pipeline object.
+  * @tparam In2 second input type for this pipeline object.
+  * @tparam Out output type for this pipeline object.
+  */
 abstract class PipelineObject2[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[In, Out] {
 
   override def transform(source: DataStream[In]): DataStream[Out] =
@@ -41,10 +47,25 @@ abstract class PipelineObject2[In <: PipelineItem : ClassTag : Manifest : FromRe
     }
   }
 
+  /**
+    * Transform two input streams into a single output stream.
+    *
+    * @param source Source stream
+    * @param secondSource Second source stream
+    * @return An output stream
+    */
   def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[Out]
 
 }
 
+/**
+  * A pipeline object with 3 sources and 1 output
+  *
+  * @tparam In  input type for this pipeline object.
+  * @tparam In2 second input type for this pipeline object.
+  * @tparam In3 third input type of this pipeline object.
+  * @tparam Out output type for this pipeline object.
+  */
 abstract class PipelineObject3[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject2[In, In2, Out] {
 
   override def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[Out] =
@@ -62,10 +83,27 @@ abstract class PipelineObject3[In <: PipelineItem : ClassTag : Manifest : FromRe
     }
   }
 
+  /**
+    * Transform three input streams into a single output stream.
+    *
+    * @param source Source stream
+    * @param secondSource Second source stream
+    * @param thirdSource Third source stream
+    * @return An output stream
+    */
   def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[Out]
 
 }
 
+/**
+  * A pipeline object with 4 sources and 1 output
+  *
+  * @tparam In  input type for this pipeline object.
+  * @tparam In2 second input type for this pipeline object.
+  * @tparam In3 third input type of this pipeline object.
+  * @tparam In4 fourth input type of this pipeline object.
+  * @tparam Out output type for this pipeline object.
+  */
 abstract class PipelineObject4[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, In4 <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject3[In, In2, In3, Out] {
 
   override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[Out] =
@@ -83,6 +121,15 @@ abstract class PipelineObject4[In <: PipelineItem : ClassTag : Manifest : FromRe
     }
   }
 
+  /**
+    * Transform four input streams into a single output stream.
+    *
+    * @param source Source stream
+    * @param secondSource Second source stream
+    * @param thirdSource Third source stream
+    * @param fourthSource Fourth source stream
+    * @return An output stream
+    */
   def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3], fourthSource: DataStream[In4]): DataStream[Out]
 
 }
