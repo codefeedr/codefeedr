@@ -66,25 +66,25 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
     exposer = getSchemaExposer()
 
     parsedSchema = exposer
-      .parseSchema(schema)
+      .parse(schema)
       .get
 
     parsedSchema2 = exposer
-      .parseSchema(differentSchema)
+      .parse(differentSchema)
       .get
   }
 
   after {
-    exposer.deleteAllSchemas()
+    exposer.deleteAll()
   }
 
   test("A simple schema should be correctly saved") {
     //put the schema
-    exposer.putSchema(parsedSchema, subject)
+    exposer.put(parsedSchema, subject)
 
     //if I get the schema, it should be the same
-    assert(exposer.getSchema(subject).get == parsedSchema)
-    assert(exposer.getSchema(subject).get != parsedSchema2)
+    assert(exposer.get(subject).get == parsedSchema)
+    assert(exposer.get(subject).get != parsedSchema2)
   }
 
   test("A simple schema should be correctly overwritten") {
@@ -92,54 +92,54 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
     assert(parsedSchema2 != parsedSchema)
 
     //put the schema
-    exposer.putSchema(parsedSchema, subject)
+    exposer.put(parsedSchema, subject)
 
     //if I get the schema, it should be the same
-    assert(exposer.getSchema(subject).get == parsedSchema)
+    assert(exposer.get(subject).get == parsedSchema)
 
     //put the different schema
-    exposer.putSchema(parsedSchema2, subject)
+    exposer.put(parsedSchema2, subject)
 
     //if I get the schema, it should not be the same as the original
-    assert(exposer.getSchema(subject).get != parsedSchema)
-    assert(exposer.getSchema(subject).get == parsedSchema2)
+    assert(exposer.get(subject).get != parsedSchema)
+    assert(exposer.get(subject).get == parsedSchema2)
   }
 
 
   test("A simple schema should be correctly deleted") {
     //put the schema
-    assert(exposer.putSchema(parsedSchema, subject))
+    assert(exposer.put(parsedSchema, subject))
 
     //it should be properly deleted
-    assert(exposer.delSchema(subject))
+    assert(exposer.delete(subject))
   }
 
   test("A simple schema cannot be deleted if it is not there") {
     //it should be properly deleted
-    assert(!exposer.delSchema(subject))
+    assert(!exposer.delete(subject))
   }
 
   test("Get a schema on a non existent subject should return None") {
-    assert(exposer.getSchema("IDoNoTeXiSt") == None)
+    assert(exposer.get("IDoNoTeXiSt") == None)
   }
 
   test("An invalid schema should return None") {
-    assert(exposer.parseSchema("iNVaLIdScHemA{}$%:)") == None)
+    assert(exposer.parse("iNVaLIdScHemA{}$%:)") == None)
   }
 
   test("All schema's should be properly deleted") {
     //put the schema
-    assert(exposer.putSchema(parsedSchema, subject))
-    exposer.deleteAllSchemas()
-    assert(exposer.getSchema(subject) == None)
+    assert(exposer.put(parsedSchema, subject))
+    exposer.deleteAll()
+    assert(exposer.get(subject) == None)
   }
 
   test("All schema's should be properly deleted even if called twice") {
     //put the schema
-    assert(exposer.putSchema(parsedSchema, subject))
-    exposer.deleteAllSchemas()
-    exposer.deleteAllSchemas()
-    assert(exposer.getSchema(subject) == None)
+    assert(exposer.put(parsedSchema, subject))
+    exposer.deleteAll()
+    exposer.deleteAll()
+    assert(exposer.get(subject) == None)
   }
 
 

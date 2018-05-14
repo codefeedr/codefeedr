@@ -51,7 +51,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
     * @param subject the subject belonging to that schema.
     * @return true if correctly saved
     */
-  override def putSchema(schema: Schema, subject: String): Boolean = {
+  override def put(schema: Schema, subject: String): Boolean = {
     connection.set(s"$root:$subject", schema.toString(true))
   }
 
@@ -61,14 +61,14 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
     * @param subject the subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
-  override def getSchema(subject: String): Option[Schema] = {
+  override def get(subject: String): Option[Schema] = {
     val schemaString = connection.get[String](s"$root:$subject")
 
     //if no string is found, return None
     if (schemaString.isEmpty) return None
 
     //parse the string into a Schema
-    parseSchema(schemaString.get)
+    parse(schemaString.get)
   }
 
 
@@ -78,7 +78,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
     * @param subject the subject the schema belongs to.
     * @return true if successfully deleted, otherwise false.
     */
-  override def delSchema(subject: String): Boolean = {
+  override def delete(subject: String): Boolean = {
     val deleted = connection.del(s"$root:$subject")
 
     //if deleted doesnt return anything or less than 1 key is deleted, return false
@@ -92,7 +92,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
   /**
     * Deletes all schemas 'under' the root.
     */
-  override def deleteAllSchemas() = {
+  override def deleteAll() = {
     val keys = connection.keys(s"[$root]*")
 
     if (!keys.isEmpty) {

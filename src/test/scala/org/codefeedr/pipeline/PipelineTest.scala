@@ -76,7 +76,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
         .build()
 
     assertThrows[JobExecutionException] {
-      pipeline.start(Array("-runtime", "local"))
+      pipeline.startLocal()
     }
   }
 
@@ -88,13 +88,13 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .build()
 
     assertThrows[JobExecutionException] {
-      pipeline.start(Array("-runtime", "local"))
+      pipeline.startLocal()
     }
 
     val exposer = new RedisSchemaExposer("redis://localhost:6379")
 
-    val schema1 = exposer.getSchema("org.codefeedr.testUtils.SimpleSourcePipelineObject")
-    val schema2 = exposer.getSchema("org.codefeedr.testUtils.SimpleTransformPipelineObject")
+    val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
+    val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
 
     assert(!schema1.isEmpty)
     assert(!schema2.isEmpty)
@@ -109,7 +109,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .build()
 
     assertThrows[NoAvroSerdeException] {
-      pipeline.start(Array("-runtime", "local"))
+      pipeline.startLocal()
     }
   }
 
@@ -122,7 +122,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .build()
 
     assertThrows[JobExecutionException] {
-      pipeline.start(Array("-runtime", "local"))
+      pipeline.startLocal()
     }
   }
 
@@ -136,13 +136,13 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .build()
 
     assertThrows[JobExecutionException] {
-      pipeline.start(Array("-runtime", "local"))
+      pipeline.startLocal()
     }
 
     val exposer = new ZookeeperSchemaExposer("localhost:2181")
 
-    val schema1 = exposer.getSchema("org.codefeedr.testUtils.SimpleSourcePipelineObject")
-    val schema2 = exposer.getSchema("org.codefeedr.testUtils.SimpleTransformPipelineObject")
+    val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
+    val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
 
     assert(!schema1.isEmpty)
     assert(!schema2.isEmpty)

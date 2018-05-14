@@ -185,7 +185,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     val schema = ReflectData.get().getSchema(inputClassType)
 
     //expose the schema
-    exposer.putSchema(schema, topic)
+    exposer.put(schema, topic)
   }
 
   /**
@@ -196,7 +196,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     val exposer = getExposer()
 
     //get the schema corresponding to the topic
-    val schema = exposer.getSchema(subject)
+    val schema = exposer.get(subject)
 
     //if not found throw exception
     if (schema.isEmpty) throw new SchemaNotFoundException(s"Schema for topic $topic not found.")

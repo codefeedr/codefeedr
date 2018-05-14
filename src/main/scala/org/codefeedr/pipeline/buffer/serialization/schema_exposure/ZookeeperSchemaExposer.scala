@@ -65,7 +65,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     * @param subject the subject belonging to that schema.
     * @return true if correctly saved.
     */
-  override def putSchema(schema: Schema, subject: String): Boolean = {
+  override def put(schema: Schema, subject: String): Boolean = {
     val path = s"$root/$subject"
 
     //check if already exist, if so update data
@@ -90,13 +90,13 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     * @param subject the subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
-  override def getSchema(subject: String): Option[Schema] = {
+  override def get(subject: String): Option[Schema] = {
     try {
       //get the data from ZK
       val data = client.getData(s"$root/$subject", null, null)
 
       //parse the schema and return
-      parseSchema(new String(data))
+      parse(new String(data))
     } catch {
       case x: Throwable => return None //if path is not found
     }
@@ -108,7 +108,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     * @param subject the subject the schema belongs to.
     * @return true if successfully deleted, otherwise false.
     */
-  override def delSchema(subject: String): Boolean = {
+  override def delete(subject: String): Boolean = {
     try {
       client.delete(s"$root/$subject", -1)
     } catch {
@@ -122,7 +122,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
   /**
     * Deletes all schemas.
     */
-  override def deleteAllSchemas() : Unit = {
+  override def deleteAll() : Unit = {
     val exists = client.exists(s"$root", false)
 
     //if not exists then return

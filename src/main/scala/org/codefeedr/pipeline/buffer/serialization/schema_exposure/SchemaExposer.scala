@@ -11,7 +11,7 @@ trait SchemaExposer {
     * @param subject the subject belonging to that schema.
     * @return true if correctly saved.
     */
-  def putSchema(schema : Schema, subject : String) : Boolean
+  def put(schema : Schema, subject : String) : Boolean
 
   /**
     * Get a schema based on a subject.
@@ -19,7 +19,7 @@ trait SchemaExposer {
     * @param subject the subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
-  def getSchema(subject : String) : Option[Schema]
+  def get(subject : String) : Option[Schema]
 
   /**
     * Deletes a Schema.
@@ -27,12 +27,12 @@ trait SchemaExposer {
     * @param subject the subject the schema belongs to.
     * @return true if successfully deleted, otherwise false.
     */
-  def delSchema(subject : String) : Boolean
+  def delete(subject : String) : Boolean
 
   /**
     * Deletes all schemas.
     */
-  def deleteAllSchemas()
+  def deleteAll()
 
   /**
     * Tries to parse a String into a Schema.
@@ -40,7 +40,7 @@ trait SchemaExposer {
     * @param schemaString the schema string.
     * @return an option of a Schema.
     */
-  def parseSchema(schemaString: String) : Option[Schema] = {
+  def parse(schemaString: String) : Option[Schema] = {
     try {
       val schema = new Schema.Parser().parse(schemaString)
       Some(schema)
