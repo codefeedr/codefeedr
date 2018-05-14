@@ -1,7 +1,6 @@
-package org.codefeedr.rss
+package org.codefeedr.plugins.rss
 
 import org.apache.flink.streaming.api.functions.source.SourceFunction
-import org.codefeedr.plugins.rss.{RSSItem, RSSItemSource}
 import org.codefeedr.utilities.Http
 import org.scalamock.function.FunctionAdapter1
 import org.scalatest.{BeforeAndAfter, FunSuite}
@@ -10,7 +9,7 @@ import scalaj.http.HttpResponse
 
 import scala.io.Source
 
-class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter{
+class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 
 
   test("RSS source should poll maxNumberOfRuns times") {
