@@ -148,14 +148,14 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
     * @return List with this and other
     */
   def :+[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V]): PipelineObjectList =
-    toList.add(obj)
+    inList.add(obj)
 
   /**
     * Create a list witht his object
     *
     * @return List
     */
-  def toList: PipelineObjectList =
+  def inList: PipelineObjectList =
     new PipelineObjectList().add(this)
 }
 
