@@ -181,6 +181,7 @@ class PipelineBuilder() {
     * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
     * already configured as sequential, it will throw an illegal state exception.
     */
+  @deprecated
   def extraEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
     if (graph.getParents(to).isEmpty) {
       throw new IllegalArgumentException("Can't add extra edge to node with no main parent")
@@ -192,15 +193,42 @@ class PipelineBuilder() {
   }
 
   /**
+    * Set all parents of given node.
+    *
+    * @param obj Node
+    * @param parents All parents
+    * @tparam U Node In
+    * @tparam V Node Out
+    * @return Builder
+    */
+  def addParents[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V], parents: List[PipelineObject[PipelineItem, PipelineItem]]): PipelineBuilder = {
+    if (!graph.hasNode(obj)) {
+      graph = graph.addNode(obj)
+    }
+
+    for (item <- parents) {
+      if (!graph.hasNode(item)) {
+        graph = graph.addNode(item)
+      }
+
+      graph = graph.addEdge(item, obj)
+    }
+
+    this
+  }
+
+  /**
     * Build a pipeline from the builder configuration
     *
     * @throws EmptyPipelineException When no pipeline is defined
     * @return Pipeline
     */
   def build(): Pipeline = {
-    if (this.graph.isEmpty) {
+    if (graph.isEmpty) {
       throw EmptyPipelineException()
     }
+
+    graph.nodes.foreach(_.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].verifyGraph(graph))
 
     Pipeline(bufferType, bufferProperties, graph , properties, keyManager)
   }

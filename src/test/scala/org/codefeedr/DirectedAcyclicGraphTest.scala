@@ -60,7 +60,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeA, nodeC)
       .addEdge(nodeB, nodeC)
 
-    assert(dag.getParents(nodeC) == Set(nodeA, nodeB))
+    assert(dag.getParents(nodeC).toSet == Set(nodeA, nodeB))
   }
 
   test("Children are retrievable") {
@@ -71,8 +71,8 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeA, nodeC)
       .addEdge(nodeB, nodeC)
 
-    assert(dag.getChildren(nodeA) == Set(nodeC))
-    assert(dag.getChildren(nodeB) == Set(nodeC))
+    assert(dag.getChildren(nodeA).toSet == Set(nodeC))
+    assert(dag.getChildren(nodeB).toSet == Set(nodeC))
   }
 
   test("Adding an existing edge does not affect the graph") {
@@ -161,7 +161,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeA, nodeB)
       .addEdge(nodeA, nodeC)
 
-    assert(dag.withoutOrphans.nodes == Set(nodeA, nodeB, nodeC))
+    assert(dag.withoutOrphans.nodes.toSet == Set(nodeA, nodeB, nodeC))
   }
 
   test("Equality operator") {

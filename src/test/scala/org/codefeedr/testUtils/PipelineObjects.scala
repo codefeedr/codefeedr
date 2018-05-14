@@ -13,6 +13,8 @@ case class StringType(value: String) extends PipelineItem
 //This will be thrown after the print sink received x elements.
 final case class JobFinishedException() extends JobExecutionException(new JobID(), "Job is finished.")
 
+final case class CodeHitException() extends RuntimeException
+
 //a simple test source which generates some StringType messages
 class SimpleSourcePipelineObject() extends PipelineObject[NoType, StringType] {
   override def transform(source: DataStream[NoType]): DataStream[StringType] = {
