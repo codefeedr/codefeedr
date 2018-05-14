@@ -88,7 +88,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .build()
 
     assertThrows[JobExecutionException] {
-      pipeline.startLocal()
+      pipeline.start(Array("-runtime", "local"))
     }
 
     val exposer = new RedisSchemaExposer("redis://localhost:6379")
