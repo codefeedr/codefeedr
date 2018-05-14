@@ -34,6 +34,8 @@ import scala.reflect.{ClassTag, classTag}
 
 class AvroSerde[T: ClassTag](limit : Int = -1)(implicit val recordFrom: FromRecord[T]) extends AbstractSerde[T] {
 
+  private var exposedSchema : Schema = null
+
   /**
     * Serializes a (generic) element into a binary format using the Avro serializer.
     *
@@ -59,10 +61,27 @@ class AvroSerde[T: ClassTag](limit : Int = -1)(implicit val recordFrom: FromReco
     * @return a deserialized case class.
     */
   override def deserialize(message: Array[Byte]): T = {
-    val schema: Schema = ReflectData.get().getSchema(inputClassType)
+    var schema: Schema = null
+
+    //either generate a schema from the case class or get the exposed schema from the topic
+    if (exposedSchema == null) {
+      schema = ReflectData.get().getSchema(inputClassType)
+    } else {
+      schema = exposedSchema
+    }
+
     val datumReader = new GenericDatumReader[GenericRecord](schema)
     val decoder = DecoderFactory.get().binaryDecoder(message, null)
 
     recordFrom(datumReader.read(null, decoder))
   }
+
+  /**
+    * Set schema to deserialize from.
+    * @param schema schema to deserialize from.
+    */
+  def setSchema(schema : Schema) = {
+    this.exposedSchema = schema
+  }
+
 }

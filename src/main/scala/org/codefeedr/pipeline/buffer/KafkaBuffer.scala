@@ -50,17 +50,19 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE = "SCHEMA_EXPOSURE"
   val SCHEMA_EXPOSURE_SERVICE = "SCHEMA_EXPOSURE_SERVICE"
   val SCHEMA_EXPOSURE_HOST = "SCHEMA_EXPOSURE_HOST"
+}
 
+private object KafkaBufferDefaults {
   /**
     * DEFAULT VALUES
     */
-  val DEFAULT_BROKER = "localhost:9092"
-  val DEFAULT_ZOOKEEPER = "localhost:2181"
+  val BROKER = "localhost:9092"
+  val ZOOKEEPER = "localhost:2181"
 
   //SCHEMA EXPOSURE
-  val DEFAULT_SCHEMA_EXPOSURE = false
-  val DEFAULT_SCHEMA_EXPOSURE_SERVICE = "redis"
-  val DEFAULT_SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
+  val SCHEMA_EXPOSURE = false
+  val SCHEMA_EXPOSURE_SERVICE = "redis"
+  val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
 }
 
 class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic: String) extends Buffer[T](pipeline) {
@@ -80,7 +82,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     
     //make sure the topic already exists
     checkAndCreateSubject(topic, props.get[String](KafkaBuffer.BROKER).
-      getOrElse(KafkaBuffer.DEFAULT_BROKER))
+      getOrElse(KafkaBufferDefaults.BROKER))
 
     pipeline.environment.
       addSource(new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties()))
@@ -94,7 +96,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
 
     //check if a schema should be exposed
     if (props.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE)
-      .getOrElse(KafkaBuffer.DEFAULT_SCHEMA_EXPOSURE)) {
+      .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE)) {
       exposeSchema()
     }
 
@@ -110,9 +112,9 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
 
     val kafkaProp = new java.util.Properties()
     kafkaProp.put("bootstrap.servers", props.get[String](KafkaBuffer.BROKER).
-      getOrElse(KafkaBuffer.DEFAULT_BROKER))
+      getOrElse(KafkaBufferDefaults.BROKER))
     kafkaProp.put("zookeeper.connect", props.get[String](KafkaBuffer.ZOOKEEPER).
-      getOrElse(KafkaBuffer.DEFAULT_ZOOKEEPER))
+      getOrElse(KafkaBufferDefaults.ZOOKEEPER))
     kafkaProp.put("auto.offset.reset", "earliest")
     kafkaProp.put("auto.commit.interval.ms", "100")
     kafkaProp.put("enable.auto.commit", "true")
@@ -161,11 +163,11 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
 
     val exposeName = props.
       get[String](KafkaBuffer.SCHEMA_EXPOSURE_SERVICE).
-      getOrElse(KafkaBuffer.DEFAULT_SCHEMA_EXPOSURE_SERVICE)
+      getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_SERVICE)
 
     val exposeHost = props.
       get[String](KafkaBuffer.SCHEMA_EXPOSURE_HOST).
-      getOrElse(KafkaBuffer.DEFAULT_SCHEMA_EXPOSURE_HOST)
+      getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_HOST)
 
     //get exposer
     val exposer = exposeName match {
