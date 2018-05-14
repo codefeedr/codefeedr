@@ -224,7 +224,7 @@ class PipelineBuilder() {
     * @return
     */
   def addParents[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](obj: PipelineObject[U, V], parent: PipelineObject[X, Y]): PipelineBuilder =
-    addParents(obj, parent.toList)
+    addParents(obj, parent.inList)
 
   /**
     * Build a pipeline from the builder configuration
