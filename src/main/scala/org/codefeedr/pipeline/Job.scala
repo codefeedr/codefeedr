@@ -18,7 +18,7 @@
  */
 package org.codefeedr.pipeline
 
-import com.sksamuel.avro4s.{FromRecord, SchemaFor}
+import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
 
 import scala.reflect.{ClassTag, Manifest}
@@ -40,7 +40,61 @@ abstract class Job[In <: PipelineItem : ClassTag : Manifest : FromRecord] extend
   /**
     * Use the given datastream
     *
-    * @param source
+    * @param source Stream
     */
   def main(source: DataStream[In]): Unit
+}
+
+abstract class Job2[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject2[In, In2, NoType] {
+
+  override def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[NoType] = {
+    main(source, secondSource)
+
+    null
+  }
+
+  /**
+    * Use the given datastreams
+    *
+    * @param source
+    * @param secondSource Stream
+    */
+  def main(source: DataStream[In], secondSource: DataStream[In2]): Unit
+}
+
+abstract class Job3[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject3[In, In2, In3, NoType] {
+
+  override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[NoType] = {
+    main(source, secondSource, thirdSource)
+
+    null
+  }
+
+  /**
+    * Use the given datastreams
+    *
+    * @param source
+    * @param secondSource Stream
+    * @param thirdSource Stream
+    */
+  def main(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): Unit
+}
+
+abstract class Job4[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, In4 <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject4[In, In2, In3, In4, NoType] {
+
+  override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3], fourthSource: DataStream[In4]): DataStream[NoType] = {
+    main(source, secondSource, thirdSource, fourthSource)
+
+    null
+  }
+
+  /**
+    * Use the given datastreams
+    *
+    * @param source Stream
+    * @param secondSource Stream
+    * @param thirdSource Stream
+    * @param fourthSource Stream
+    */
+  def main(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3], fourthSource: DataStream[In4]): Unit
 }

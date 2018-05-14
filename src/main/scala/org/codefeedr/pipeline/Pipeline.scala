@@ -67,7 +67,7 @@ case class Pipeline(bufferType: BufferType,
       throw new IllegalStateException("Mock runtime can't run non-sequential pipelines")
     }
 
-    val objects = graph.nodes.asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
+    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
 
     // Run all setups
     for (obj <- objects) {
@@ -85,7 +85,7 @@ case class Pipeline(bufferType: BufferType,
 
   // With buffers, all in same program
   def startLocal(): Unit = {
-    val objects = graph.nodes.asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
+    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
 
     // Run all setups
     for (obj <- objects) {
