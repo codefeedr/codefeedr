@@ -37,7 +37,7 @@ class ApacheLogFileSource(absolutePath: String) extends Source[ApacheAccessLogIt
         toReturn = ApacheAccessLogItem(ipAddress, date, request, status, amountOfBytes, referer, userAgent)
 
       } catch {
-        case  _=>
+        case  _: Throwable =>
       }
 
       toReturn
