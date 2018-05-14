@@ -181,7 +181,6 @@ class PipelineBuilder() {
     * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
     * already configured as sequential, it will throw an illegal state exception.
     */
-  @deprecated
   def extraEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
     if (graph.getParents(to).isEmpty) {
       throw new IllegalArgumentException("Can't add extra edge to node with no main parent")
@@ -193,10 +192,10 @@ class PipelineBuilder() {
   }
 
   /**
-    * Set all parents of given node.
+    * Add multiple parents in given ordered list.
     *
     * @param obj Node
-    * @param parents All parents
+    * @param parents Parents
     * @tparam U Node In
     * @tparam V Node Out
     * @return Builder
@@ -222,6 +221,16 @@ class PipelineBuilder() {
 
     this
   }
+
+  /**
+    * Add a parent.
+    *
+    * @param obj Node
+    * @param parent Parent
+    * @return
+    */
+  def addParents[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](obj: PipelineObject[U, V], parent: PipelineObject[X, Y]): PipelineBuilder =
+    addParents(obj, parent.toList)
 
   /**
     * Build a pipeline from the builder configuration

@@ -93,9 +93,7 @@ class PipelineObjectTest extends FunSuite {
 
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b)
       .build()
 
     assertThrows[CodeHitException] {
@@ -111,10 +109,7 @@ class PipelineObjectTest extends FunSuite {
 
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c)
       .build()
 
     assertThrows[CodeHitException] {
@@ -131,11 +126,7 @@ class PipelineObjectTest extends FunSuite {
 
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      .extraEdge(d, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c :+ d)
       .build()
 
     assertThrows[CodeHitException] {
@@ -149,8 +140,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -164,9 +154,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -181,10 +169,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -201,12 +186,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      .extraEdge(d, job)
-      .extraEdge(e, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c :+ d :+ e)
 
     assertThrows[CodeHitException] {
       builder.build().startLocal()
@@ -220,9 +200,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-    //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -237,10 +215,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-    //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -256,11 +231,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      .extraEdge(d, job)
-    //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c :+ d)
 
     assertThrows[IllegalStateException] {
       builder.build()
