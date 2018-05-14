@@ -33,7 +33,7 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, KafkaAdminClient, NewTopic}
 import org.codefeedr.pipeline.Pipeline
-import org.codefeedr.pipeline.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
+import org.codefeedr.pipeline.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
 
 import scala.collection.JavaConverters._
 import scala.reflect.Manifest
@@ -50,6 +50,7 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE = "SCHEMA_EXPOSURE"
   val SCHEMA_EXPOSURE_SERVICE = "SCHEMA_EXPOSURE_SERVICE"
   val SCHEMA_EXPOSURE_HOST = "SCHEMA_EXPOSURE_HOST"
+  val SCHEMA_EXPOSURE_DESERIALIZATION = "SCHEMA_EXPOSURE_SERIALIZATION"
 }
 
 private object KafkaBufferDefaults {
@@ -63,6 +64,7 @@ private object KafkaBufferDefaults {
   val SCHEMA_EXPOSURE = false
   val SCHEMA_EXPOSURE_SERVICE = "redis"
   val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
+  val SCHEMA_EXPOSURE_DESERIALIZATION = false
 }
 
 class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic: String) extends Buffer[T](pipeline) {
@@ -84,6 +86,23 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     checkAndCreateSubject(topic, props.get[String](KafkaBuffer.BROKER).
       getOrElse(KafkaBufferDefaults.BROKER))
 
+    //check if a schema should be used for deserialization
+    if (props.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION)
+      .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_DESERIALIZATION)) {
+
+      //get the schema
+      val schema = getSchema(topic)
+
+      //set serde if avro
+      if (serde.isInstanceOf[AvroSerde[T]]) {
+        serde
+          .asInstanceOf[AvroSerde[T]]
+          .setSchema(getSchema(topic).toString) //TODO find a better workaround for this
+      } else {
+        throw new NoAvroSerdeException("You can't use an Avro schema for deserialization if Avro isn't the serde type.")
+      }
+    }
+
     pipeline.environment.
       addSource(new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties()))
   }
@@ -97,6 +116,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     //check if a schema should be exposed
     if (props.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE)
       .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE)) {
+
       exposeSchema()
     }
 
@@ -159,6 +179,36 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     * Exposes the Avro schema to an external service (like redis/zookeeper).
     */
   def exposeSchema() = {
+    val exposer = getExposer()
+
+    //get the schema
+    val schema = ReflectData.get().getSchema(inputClassType)
+
+    //expose the schema
+    exposer.putSchema(schema, topic)
+  }
+
+  /**
+    * Get Schema of the subject.
+    * @return the schema.
+    */
+  def getSchema(subject : String) : Schema = {
+    val exposer = getExposer()
+
+    //get the schema corresponding to the topic
+    val schema = exposer.getSchema(subject)
+
+    //if not found throw exception
+    if (schema.isEmpty) throw new SchemaNotFoundException(s"Schema for topic $topic not found.")
+
+    schema.get
+  }
+
+  /**
+    * Get schema exposer based on configuration.
+    * @return a schema exposer.
+    */
+  def getExposer() : SchemaExposer = {
     val props = pipeline.bufferProperties
 
     val exposeName = props.
@@ -175,10 +225,6 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
       case _ => new RedisSchemaExposer(exposeHost) //default is redis
     }
 
-    //get the schema
-    val schema = ReflectData.get().getSchema(inputClassType)
-
-    //expose the schema
-    exposer.putSchema(schema, topic)
+    exposer
   }
 }

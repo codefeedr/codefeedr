@@ -45,11 +45,16 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     })//we don't care about the watchevent
 
 
-    //create parent node
-    client.create(root,
-      Array(),
-      ZooDefs.Ids.OPEN_ACL_UNSAFE,
-      CreateMode.PERSISTENT)
+    //if parent doesn't exist create it
+    val exists = client.exists(root, false)
+
+    if (exists == null) {
+      //create parent node
+      client.create(root,
+        Array(),
+        ZooDefs.Ids.OPEN_ACL_UNSAFE,
+        CreateMode.PERSISTENT)
+    }
   }
 
 

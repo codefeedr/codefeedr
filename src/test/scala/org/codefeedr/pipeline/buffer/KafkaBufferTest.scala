@@ -51,6 +51,12 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
     assert(exists(uuid))
   }
 
+  test ("A non-existent schema should throw an exception") {
+    assertThrows[SchemaNotFoundException] {
+      kafkaBuffer.getSchema("nOnExistent")
+    }
+  }
+
   test ("A schema should correctly be exposed") {
     assert(kafkaBuffer.exposeSchema())
   }

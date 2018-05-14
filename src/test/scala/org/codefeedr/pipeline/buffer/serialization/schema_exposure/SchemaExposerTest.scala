@@ -21,6 +21,7 @@ package org.codefeedr.pipeline.buffer.serialization.schema_exposure
 import org.apache.avro.Schema
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 
+
 abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
 
   val schema = """{
