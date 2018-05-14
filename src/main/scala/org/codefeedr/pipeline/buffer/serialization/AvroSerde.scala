@@ -29,10 +29,18 @@ import org.apache.avro.specific.{SpecificDatumWriter, SpecificRecordBase}
 import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
+import org.codefeedr.pipeline.buffer.serialization.schema_exposure.SchemaExposer
 
 import scala.reflect.{ClassTag, classTag}
 
 class AvroSerde[T: ClassTag](limit : Int = -1)(implicit val recordFrom: FromRecord[T]) extends AbstractSerde[T] {
+
+  //work around for serialization
+  var schemaString = ""
+  var schemaSet = false
+
+  @transient
+  lazy val exposedSchema : Schema = new Schema.Parser().parse(schemaString)
 
   /**
     * Serializes a (generic) element into a binary format using the Avro serializer.
@@ -59,10 +67,24 @@ class AvroSerde[T: ClassTag](limit : Int = -1)(implicit val recordFrom: FromReco
     * @return a deserialized case class.
     */
   override def deserialize(message: Array[Byte]): T = {
-    val schema: Schema = ReflectData.get().getSchema(inputClassType);
+    var schema: Schema = null
+
+    //either generate a schema from the case class or get the exposed schema from the topic
+    if (!schemaSet) {
+      schema = ReflectData.get().getSchema(inputClassType)
+    } else {
+      schema = exposedSchema
+    }
+
     val datumReader = new GenericDatumReader[GenericRecord](schema)
     val decoder = DecoderFactory.get().binaryDecoder(message, null)
 
     recordFrom(datumReader.read(null, decoder))
   }
+
+  def setSchema(schema : String) = {
+    this.schemaString = schema
+    this.schemaSet = true
+  }
+
 }
