@@ -201,18 +201,24 @@ class PipelineBuilder() {
     * @tparam V Node Out
     * @return Builder
     */
-  def addParents[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V], parents: List[PipelineObject[PipelineItem, PipelineItem]]): PipelineBuilder = {
+  def addParents[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V], parents: PipelineObjectList): PipelineBuilder = {
     if (!graph.hasNode(obj)) {
+      println("Add obj")
       graph = graph.addNode(obj)
     }
 
     for (item <- parents) {
+      println("Set parent", item)
+
       if (!graph.hasNode(item)) {
+        println("Add parent", item)
         graph = graph.addNode(item)
       }
 
       graph = graph.addEdge(item, obj)
     }
+
+    println("Parents", graph.getParents(obj))
 
     this
   }

@@ -141,6 +141,22 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
 
   def getStorageSink[T](collection: String): DataSink[T] = ???
 
+  /**
+    * Create a list of object by appending another object
+    *
+    * @param obj Other object
+    * @return List with this and other
+    */
+  def :+[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V]): PipelineObjectList =
+    toList.add(obj)
+
+  /**
+    * Create a list witht his object
+    *
+    * @return List
+    */
+  def toList: PipelineObjectList =
+    new PipelineObjectList().add(this)
 }
 
 abstract class PipelineObject2[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[In, Out] {

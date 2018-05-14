@@ -28,7 +28,7 @@ package org.codefeedr
   * @param nodes List of nodes
   * @param edges List of edges
   */
-class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges: Vector[DirectedAcyclicGraph.Edge] = Vector()) {
+final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges: Vector[DirectedAcyclicGraph.Edge] = Vector()) {
 
   /**
     * Get whether the collection is empty

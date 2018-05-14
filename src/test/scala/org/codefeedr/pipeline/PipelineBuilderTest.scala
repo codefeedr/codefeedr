@@ -200,4 +200,17 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     pipeline.graph.nodes.head shouldBe an[SimpleSourcePipelineObject]
     pipeline.graph.nodes.last shouldBe an[Job[StringType]]
   }
+
+  test("Should add parents when using addParents") {
+    val a = new SimpleSourcePipelineObject()
+    val b = new SimpleTransformPipelineObject()
+    val c = new SimpleTransformPipelineObject()
+
+    val pipeline = builder
+      .addParents(c, a :+ b)
+      .build()
+
+    pipeline.graph.getParents(c)(0) shouldBe an[SimpleSourcePipelineObject]
+    pipeline.graph.getParents(c)(1) shouldBe an[SimpleTransformPipelineObject]
+  }
 }
