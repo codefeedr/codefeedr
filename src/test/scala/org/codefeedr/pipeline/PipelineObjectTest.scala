@@ -26,8 +26,10 @@ import org.scalatest.FunSuite
 
 class PipelineObjectTest extends FunSuite {
 
-  class MyObject2 extends PipelineObject2[StringType, StringType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType]): DataStream[StringType] = {
+  class MyObject2 extends PipelineObject2[StringType, StringType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType]): DataStream[NoType] = {
+      println("TRANSFORM", source, secondSource)
+
       if (source != null && secondSource != null) {
         throw CodeHitException()
       }
@@ -36,8 +38,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyBadObject2 extends PipelineObject2[StringType, NoType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[NoType]): DataStream[StringType] = {
+  class MyBadObject2 extends PipelineObject2[StringType, NoType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[NoType]): DataStream[NoType] = {
       if (source != null && secondSource != null) {
         throw CodeHitException()
       }
@@ -46,8 +48,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyObject3 extends PipelineObject3[StringType, StringType, StringType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType]): DataStream[StringType] = {
+  class MyObject3 extends PipelineObject3[StringType, StringType, StringType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null) {
         throw CodeHitException()
       }
@@ -56,8 +58,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyBadObject3 extends PipelineObject3[StringType, StringType, NoType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[NoType]): DataStream[StringType] = {
+  class MyBadObject3 extends PipelineObject3[StringType, StringType, NoType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[NoType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null) {
         throw CodeHitException()
       }
@@ -66,8 +68,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyObject4 extends PipelineObject4[StringType, StringType, StringType, StringType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[StringType]): DataStream[StringType] = {
+  class MyObject4 extends PipelineObject4[StringType, StringType, StringType, StringType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[StringType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null && fourthSource != null) {
         throw CodeHitException()
       }
@@ -76,8 +78,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyBadObject4 extends PipelineObject4[StringType, StringType, StringType, NoType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[NoType]): DataStream[StringType] = {
+  class MyBadObject4 extends PipelineObject4[StringType, StringType, StringType, NoType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[NoType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null && fourthSource != null) {
         throw CodeHitException()
       }
@@ -93,9 +95,7 @@ class PipelineObjectTest extends FunSuite {
 
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b)
       .build()
 
     assertThrows[CodeHitException] {
@@ -111,10 +111,7 @@ class PipelineObjectTest extends FunSuite {
 
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c)
       .build()
 
     assertThrows[CodeHitException] {
@@ -131,11 +128,7 @@ class PipelineObjectTest extends FunSuite {
 
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      .extraEdge(d, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c :+ d)
       .build()
 
     assertThrows[CodeHitException] {
@@ -149,8 +142,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -164,9 +156,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -181,10 +171,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -201,12 +188,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      .extraEdge(d, job)
-      .extraEdge(e, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c :+ d :+ e)
 
     assertThrows[CodeHitException] {
       builder.build().startLocal()
@@ -220,9 +202,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-    //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -237,10 +217,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-    //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c)
 
     assertThrows[IllegalStateException] {
       builder.build()
@@ -256,11 +233,7 @@ class PipelineObjectTest extends FunSuite {
 
     val builder = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      .extraEdge(d, job)
-    //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b :+ c :+ d)
 
     assertThrows[IllegalStateException] {
       builder.build()

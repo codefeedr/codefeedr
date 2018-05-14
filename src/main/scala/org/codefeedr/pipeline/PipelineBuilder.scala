@@ -112,7 +112,7 @@ class PipelineBuilder() {
     graph = graph.addNode(item)
 
     if (lastObject != null) {
-      graph = graph.addEdge(lastObject, item, true)
+      graph = graph.addEdge(lastObject, item)
     }
     lastObject = item
 
@@ -135,7 +135,7 @@ class PipelineBuilder() {
     append(pipelineItem)
   }
 
-  private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y], main: Boolean): Unit = {
+  private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): Unit = {
     if (pipelineType != PipelineType.DAG) {
       if (!graph.isEmpty) {
         throw new IllegalStateException("Can't append node to non-sequential pipeline")
@@ -156,7 +156,7 @@ class PipelineBuilder() {
       throw new IllegalArgumentException("Edge in graph already exists")
     }
 
-    graph = graph.addEdge(from, to, main)
+    graph = graph.addEdge(from, to)
   }
 
   /**
@@ -170,7 +170,7 @@ class PipelineBuilder() {
       throw new IllegalArgumentException("Can't add main edge to node with already any parent")
     }
 
-    makeEdge(from, to, main = true)
+    makeEdge(from, to)
 
     this
   }
@@ -181,27 +181,26 @@ class PipelineBuilder() {
     * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
     * already configured as sequential, it will throw an illegal state exception.
     */
-  @deprecated
   def extraEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
     if (graph.getParents(to).isEmpty) {
       throw new IllegalArgumentException("Can't add extra edge to node with no main parent")
     }
 
-    makeEdge(from, to, main = false)
+    makeEdge(from, to)
 
     this
   }
 
   /**
-    * Set all parents of given node.
+    * Add multiple parents in given ordered list.
     *
     * @param obj Node
-    * @param parents All parents
+    * @param parents Parents
     * @tparam U Node In
     * @tparam V Node Out
     * @return Builder
     */
-  def addParents[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V], parents: List[PipelineObject[PipelineItem, PipelineItem]]): PipelineBuilder = {
+  def addParents[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V], parents: PipelineObjectList): PipelineBuilder = {
     if (!graph.hasNode(obj)) {
       graph = graph.addNode(obj)
     }
@@ -216,6 +215,16 @@ class PipelineBuilder() {
 
     this
   }
+
+  /**
+    * Add a parent.
+    *
+    * @param obj Node
+    * @param parent Parent
+    * @return
+    */
+  def addParents[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](obj: PipelineObject[U, V], parent: PipelineObject[X, Y]): PipelineBuilder =
+    addParents(obj, parent.inList)
 
   /**
     * Build a pipeline from the builder configuration

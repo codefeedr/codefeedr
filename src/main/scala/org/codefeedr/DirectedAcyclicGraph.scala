@@ -28,7 +28,7 @@ package org.codefeedr
   * @param nodes List of nodes
   * @param edges List of edges
   */
-class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges: Vector[DirectedAcyclicGraph.Edge] = Vector()) {
+final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges: Vector[DirectedAcyclicGraph.Edge] = Vector()) {
 
   /**
     * Get whether the collection is empty
@@ -68,13 +68,9 @@ class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges: Vect
     * @throws IllegalArgumentException When either node is not in the graph or when the given edge causes a cycle.
     * @return A new graph with the edge included
     */
-  def addEdge(from: AnyRef, to: AnyRef, main: Boolean = false): DirectedAcyclicGraph = {
+  def addEdge(from: AnyRef, to: AnyRef): DirectedAcyclicGraph = {
     if (!hasNode(from) || !hasNode(to)) {
       throw new IllegalArgumentException("One or more nodes for edge do not exist")
-    }
-
-    if (main && getMainParent(to).isDefined) {
-      throw new IllegalArgumentException("Can't add second main parent to node")
     }
 
     // If to can reach from already adding this edge will cause a cycle
@@ -82,25 +78,11 @@ class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges: Vect
       throw new IllegalArgumentException("Given edge causes a cycle in the DAG")
     }
 
-    val edge = DirectedAcyclicGraph.Edge(from, to, main)
+    val edge = DirectedAcyclicGraph.Edge(from, to)
     if (edges.contains(edge))
       this
     else
       new DirectedAcyclicGraph(nodes, edges :+ edge)
-  }
-
-  /**
-    * Get the value at the given edge, if any.
-    *
-    * @param from From node
-    * @param to To node
-    * @return Optional value
-    */
-  def getEdge(from: AnyRef, to: AnyRef): Option[Boolean] = {
-    edges.find(edge => edge.from == from && edge.to == to) match {
-      case Some(e: DirectedAcyclicGraph.Edge) => Some(e.main)
-      case _ => None
-    }
   }
 
   /**
@@ -149,13 +131,21 @@ class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges: Vect
     nodes.filter(n => hasEdge(n, node))
 
   /**
-    * Get the parent that is designated as main parent.
+    * Get the parent that is designated as first parent.
     *
     * @param node Node
     * @return Optional parent
     */
-  def getMainParent(node: AnyRef): Option[AnyRef] =
-    nodes.filter(n => getEdge(n, node) getOrElse false).lastOption
+  def getFirstParent(node: AnyRef): Option[AnyRef] = {
+    val parents = getParents(node)
+
+    if (parents.nonEmpty) {
+      return Some(parents(0))
+    }
+
+    None
+  }
+
 
   /**
     * Get a set of children for given node
@@ -217,5 +207,5 @@ object DirectedAcyclicGraph {
     * @param from Node
     * @param to Node
     */
-  case class Edge(from: AnyRef, to: AnyRef, main: Boolean)
+  case class Edge(from: AnyRef, to: AnyRef)
 }

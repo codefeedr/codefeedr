@@ -186,29 +186,27 @@ class DirectedAcyclicGraphTest extends FunSuite {
     assert(dag.lastInSequence.isEmpty)
   }
 
-  test("Should find main parent") {
+  test("Edges are ordered") {
     val dag = new DirectedAcyclicGraph()
       .addNode(nodeA)
       .addNode(nodeB)
       .addNode(nodeC)
-      .addEdge(nodeA, nodeB, true)
-      .addEdge(nodeC, nodeB, false)
+      .addEdge(nodeA, nodeB)
+      .addEdge(nodeC, nodeB)
 
-    val main = dag.getMainParent(nodeB)
+    val parents = dag.getParents(nodeB)
+    val firstParent = dag.getFirstParent(nodeB)
 
-    assert(main.isDefined)
-    assert(main.get == nodeA)
+    assert(firstParent.isDefined)
+    assert(firstParent.get == nodeA)
+    assert(parents.size == 2)
+    assert(parents(0) == nodeA)
+    assert(parents(1) == nodeC)
   }
 
-  test("Should disallow multiple main parents") {
+  test("Getting first parent of empty dag gives None") {
     val dag = new DirectedAcyclicGraph()
-      .addNode(nodeA)
-      .addNode(nodeB)
-      .addNode(nodeC)
-      .addEdge(nodeA, nodeB, true)
 
-    assertThrows[IllegalArgumentException] {
-      dag.addEdge(nodeC, nodeB, true)
-    }
+    assert(dag.getFirstParent(null).isEmpty)
   }
 }
