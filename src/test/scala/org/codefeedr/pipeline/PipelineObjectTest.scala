@@ -26,8 +26,10 @@ import org.scalatest.FunSuite
 
 class PipelineObjectTest extends FunSuite {
 
-  class MyObject2 extends PipelineObject2[StringType, StringType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType]): DataStream[StringType] = {
+  class MyObject2 extends PipelineObject2[StringType, StringType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType]): DataStream[NoType] = {
+      println("TRANSFORM", source, secondSource)
+
       if (source != null && secondSource != null) {
         throw CodeHitException()
       }
@@ -36,8 +38,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyBadObject2 extends PipelineObject2[StringType, NoType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[NoType]): DataStream[StringType] = {
+  class MyBadObject2 extends PipelineObject2[StringType, NoType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[NoType]): DataStream[NoType] = {
       if (source != null && secondSource != null) {
         throw CodeHitException()
       }
@@ -46,8 +48,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyObject3 extends PipelineObject3[StringType, StringType, StringType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType]): DataStream[StringType] = {
+  class MyObject3 extends PipelineObject3[StringType, StringType, StringType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null) {
         throw CodeHitException()
       }
@@ -56,8 +58,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyBadObject3 extends PipelineObject3[StringType, StringType, NoType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[NoType]): DataStream[StringType] = {
+  class MyBadObject3 extends PipelineObject3[StringType, StringType, NoType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[NoType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null) {
         throw CodeHitException()
       }
@@ -66,8 +68,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyObject4 extends PipelineObject4[StringType, StringType, StringType, StringType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[StringType]): DataStream[StringType] = {
+  class MyObject4 extends PipelineObject4[StringType, StringType, StringType, StringType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[StringType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null && fourthSource != null) {
         throw CodeHitException()
       }
@@ -76,8 +78,8 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class MyBadObject4 extends PipelineObject4[StringType, StringType, StringType, NoType, StringType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[NoType]): DataStream[StringType] = {
+  class MyBadObject4 extends PipelineObject4[StringType, StringType, StringType, NoType, NoType] {
+    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[NoType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null && fourthSource != null) {
         throw CodeHitException()
       }

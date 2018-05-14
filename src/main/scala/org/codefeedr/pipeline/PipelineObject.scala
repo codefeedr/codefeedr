@@ -75,7 +75,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
     * @return if this object has a (buffer) source.
     */
   def hasMainSource: Boolean =
-    typeOf[In] != typeOf[NoType] && pipeline.graph.getMainParent(this).isDefined
+    typeOf[In] != typeOf[NoType] && pipeline.graph.getFirstParent(this).isDefined
 
   /**
     * Check if this pipeline object is sinked to a Buffer.
@@ -94,7 +94,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
       throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
     }
 
-    val parentNode = pipeline.graph.getMainParent(this).get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
+    val parentNode = getParents(0)
 
     val factory = new BufferFactory(pipeline, parentNode)
     val buffer = factory.create[In]()

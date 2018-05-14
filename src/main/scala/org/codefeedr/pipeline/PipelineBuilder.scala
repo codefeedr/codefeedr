@@ -112,7 +112,7 @@ class PipelineBuilder() {
     graph = graph.addNode(item)
 
     if (lastObject != null) {
-      graph = graph.addEdge(lastObject, item, true)
+      graph = graph.addEdge(lastObject, item)
     }
     lastObject = item
 
@@ -135,7 +135,7 @@ class PipelineBuilder() {
     append(pipelineItem)
   }
 
-  private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y], main: Boolean): Unit = {
+  private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): Unit = {
     if (pipelineType != PipelineType.DAG) {
       if (!graph.isEmpty) {
         throw new IllegalStateException("Can't append node to non-sequential pipeline")
@@ -156,7 +156,7 @@ class PipelineBuilder() {
       throw new IllegalArgumentException("Edge in graph already exists")
     }
 
-    graph = graph.addEdge(from, to, main)
+    graph = graph.addEdge(from, to)
   }
 
   /**
@@ -170,7 +170,7 @@ class PipelineBuilder() {
       throw new IllegalArgumentException("Can't add main edge to node with already any parent")
     }
 
-    makeEdge(from, to, main = true)
+    makeEdge(from, to)
 
     this
   }
@@ -186,7 +186,7 @@ class PipelineBuilder() {
       throw new IllegalArgumentException("Can't add extra edge to node with no main parent")
     }
 
-    makeEdge(from, to, main = false)
+    makeEdge(from, to)
 
     this
   }
@@ -202,22 +202,16 @@ class PipelineBuilder() {
     */
   def addParents[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V], parents: PipelineObjectList): PipelineBuilder = {
     if (!graph.hasNode(obj)) {
-      println("Add obj")
       graph = graph.addNode(obj)
     }
 
     for (item <- parents) {
-      println("Set parent", item)
-
       if (!graph.hasNode(item)) {
-        println("Add parent", item)
         graph = graph.addNode(item)
       }
 
       graph = graph.addEdge(item, obj)
     }
-
-    println("Parents", graph.getParents(obj))
 
     this
   }
