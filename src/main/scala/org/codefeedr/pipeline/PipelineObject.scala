@@ -22,6 +22,7 @@ import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.DirectedAcyclicGraph
 import org.codefeedr.pipeline.buffer.BufferFactory
 
 import scala.reflect.{ClassTag, Manifest}
@@ -59,7 +60,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
     *
     * Checks types of the input sources and whether the graph is configured correctly for the types.
     */
-  protected[pipeline] def verifyGraph(): Unit = {}
+  protected[pipeline] def verifyGraph(graph: DirectedAcyclicGraph): Unit = {}
 
   /**
     * Get all parents for this object
@@ -92,10 +93,8 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
     if (!hasMainSource) {
       throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
     }
-    
-    val parentNode = pipeline.graph.getMainParent(this).get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
-    println("Get source with subject", getSinkSubject, parentNode.getSinkSubject)
+    val parentNode = pipeline.graph.getMainParent(this).get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
     val factory = new BufferFactory(pipeline, parentNode)
     val buffer = factory.create[In]()
@@ -149,12 +148,12 @@ abstract class PipelineObject2[In <: PipelineItem : ClassTag : Manifest : FromRe
   override def transform(source: DataStream[In]): DataStream[Out] =
     transform(source, getSource[In2](getParents(1)))
 
-  override def verifyGraph(): Unit = {
+  override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     if (typeOf[In] == typeOf[NoType] || typeOf[In2] == typeOf[NoType]) {
       throw new IllegalStateException("Cannot use NoType on pipeline objects with multiple input sources")
     }
 
-    if (getParents.size < 2) {
+    if (graph.getParents(this).size < 2) {
       throw new IllegalStateException(s"Parents of multi-source object should all be configured in pipeline graph. Missing parents for ${getClass.getName}")
     }
   }
@@ -168,14 +167,14 @@ abstract class PipelineObject3[In <: PipelineItem : ClassTag : Manifest : FromRe
   override def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[Out] =
     transform(source, secondSource, getSource[In3](getParents(2)))
 
-  override def verifyGraph(): Unit = {
-    super.verifyGraph()
+  override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
+    super.verifyGraph(graph)
 
     if (typeOf[In3] == typeOf[NoType]) {
       throw new IllegalStateException("Cannot use NoType on pipeline objects with multiple input sources")
     }
 
-    if (getParents.size < 3) {
+    if (graph.getParents(this).size < 3) {
       throw new IllegalStateException(s"Parents of multi-source object should all be configured in pipeline graph. Missing parents for ${getClass.getName}")
     }
   }
@@ -189,14 +188,14 @@ abstract class PipelineObject4[In <: PipelineItem : ClassTag : Manifest : FromRe
   override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[Out] =
     transform(source, secondSource, thirdSource, getSource[In4](getParents(3)))
 
-  override def verifyGraph(): Unit = {
-    super.verifyGraph()
+  override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
+    super.verifyGraph(graph)
 
     if (typeOf[In4] == typeOf[NoType]) {
       throw new IllegalStateException("Cannot use NoType on pipeline objects with multiple input sources")
     }
 
-    if (getParents.size < 4) {
+    if (graph.getParents(this).size < 4) {
       throw new IllegalStateException(s"Parents of multi-source object should all be configured in pipeline graph. Missing parents for ${getClass.getName}")
     }
   }

@@ -228,7 +228,7 @@ class PipelineBuilder() {
       throw EmptyPipelineException()
     }
 
-    graph.nodes.foreach(_.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].verifyGraph())
+    graph.nodes.foreach(_.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].verifyGraph(graph))
 
     Pipeline(bufferType, bufferProperties, graph , properties, keyManager)
   }
