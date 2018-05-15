@@ -20,7 +20,7 @@ package org.codefeedr.pipeline
 
 import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.{DirectedAcyclicGraph, Properties}
+import org.codefeedr.Properties
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.pipeline.buffer.BufferType
