@@ -39,7 +39,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
   /**
     * Connect with ZK server.
     */
-  private def connect() = {
+  private def connect(): Unit = {
     client = new ZooKeeper(host, 5000, new Watcher {
       override def process(event: WatchedEvent): Unit = {}
     })//we don't care about the watchevent
@@ -98,7 +98,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
       //parse the schema and return
       parse(new String(data))
     } catch {
-      case x: Throwable => return None //if path is not found
+      case x: Throwable => None //if path is not found
     }
   }
 
@@ -114,7 +114,6 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     } catch {
       case x: Throwable => return false //if path doesn't exist or there is no data
     }
-
 
     true
   }
