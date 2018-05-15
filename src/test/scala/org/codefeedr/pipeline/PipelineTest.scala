@@ -1,16 +1,11 @@
 package org.codefeedr.pipeline
 
-import java.util.Properties
-
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer, NoAvroSerdeException}
 import org.codefeedr.plugins.{StringSource, StringType}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
-import org.apache.flink.runtime.messages.JobManagerMessages.JobResultSuccess
-import org.apache.flink.streaming.api.functions.sink.SinkFunction
-import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, KafkaAdminClient}
 import org.codefeedr.pipeline.buffer.serialization.Serializer
 import org.codefeedr.pipeline.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
 import org.codefeedr.testUtils._
@@ -96,8 +91,8 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
     val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
 
-    assert(!schema1.isEmpty)
-    assert(!schema2.isEmpty)
+    assert(schema1.nonEmpty)
+    assert(schema2.nonEmpty)
   }
 
   test("Simple pipeline schema exposure and deserialization test with JSON (redis)") {
@@ -144,8 +139,8 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
     val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
 
-    assert(!schema1.isEmpty)
-    assert(!schema2.isEmpty)
+    assert(schema1.nonEmpty)
+    assert(schema2.nonEmpty)
   }
 
   /**
@@ -169,4 +164,33 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
   }
 
 
+  /***************** CLUSTER *********************/
+
+  test("Cluster runtime starts the correct object") {
+    val source = new HitObjectTest()
+    val sink = new SimpleSinkPipelineObject(1)
+
+    val pipeline = builder
+      .setBufferType(BufferType.Kafka)
+      .edge(source, sink)
+      .build()
+
+    assertThrows[CodeHitException] {
+      pipeline.start(Array("-runtime", "cluster", "-stage", "org.codefeedr.testUtils.HitObjectTest"))
+    }
+  }
+
+  test("Should throw when trying to start an unknown cluster object") {
+    val source = new HitObjectTest()
+    val sink = new SimpleSinkPipelineObject(1)
+
+    val pipeline = builder
+      .setBufferType(BufferType.Kafka)
+      .edge(source, sink)
+      .build()
+
+    assertThrows[StageNotFoundException] {
+      pipeline.start(Array("-runtime", "cluster", "-stage", "org.codefeedr.testUtils.DOesNotExtst"))
+    }
+  }
 }

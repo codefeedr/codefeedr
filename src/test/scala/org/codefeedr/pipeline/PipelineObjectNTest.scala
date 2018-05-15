@@ -24,7 +24,7 @@ import org.codefeedr.plugins.StringSource
 import org.codefeedr.testUtils.{CodeHitException, StringType}
 import org.scalatest.FunSuite
 
-class PipelineObjectTest extends FunSuite {
+class PipelineObjectNTest extends FunSuite {
 
   class MyObject2 extends PipelineObject2[StringType, StringType, NoType] {
     override def transform(source: DataStream[StringType], secondSource: DataStream[StringType]): DataStream[NoType] = {

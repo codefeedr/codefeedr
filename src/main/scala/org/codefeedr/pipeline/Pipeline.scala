@@ -20,7 +20,7 @@ package org.codefeedr.pipeline
 
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import org.codefeedr.{DirectedAcyclicGraph, Properties}
+import org.codefeedr.Properties
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
 import org.codefeedr.pipeline.RuntimeType.RuntimeType
@@ -102,8 +102,13 @@ case class Pipeline(bufferType: BufferType,
 
   // With buffers, running just one PO
   def startClustered(stage: String): Unit = {
-    // TODO: find that PO
-    val obj = graph.nodes.head.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
+    val optObj = graph.nodes.find(node => node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id == stage)
+
+    if (optObj.isEmpty) {
+      throw StageNotFoundException()
+    }
+
+    val obj = optObj.get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
     obj.setUp(this)
     runObject(obj)
