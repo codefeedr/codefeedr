@@ -18,15 +18,19 @@
  */
 package org.codefeedr.plugins.rss
 
+import java.lang.Exception
+
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
 import org.codefeedr.utilities.Http
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import scala.util.control.Breaks._
 
 import scala.xml.{Elem, XML}
 
 class RSSItemSource(url: String,
+                    dateFormat: String,
                     pollingInterval: Int = 1000,
                     maxNumberOfRuns: Int = -1,
                     http: Http = new Http) extends RichSourceFunction[RSSItem] {
@@ -45,30 +49,55 @@ class RSSItemSource(url: String,
     var lastItem: Option[RSSItem] = None
     var numRunsRemaining = maxNumberOfRuns
 
+    var failedTries = 0
+
     while (isRunning && numRunsRemaining != 0) {
-      if (numRunsRemaining > 0) {
-        numRunsRemaining -= 1
+      breakable {
+        var items: Seq[RSSItem] = null
+
+        try {
+          val nodes = getXMLFromUrl(url) \\ "item"
+
+          items = for (t <- nodes) yield xmlToRSSItem(t)
+
+          if (numRunsRemaining > 0) {
+            numRunsRemaining -= 1
+          }
+          if (failedTries > 0) {
+            println("Succeeded again. Resetting amount of fails.")
+            failedTries = 0
+          }
+
+        } catch {
+          case e: Throwable =>
+            failedTries += 1
+            println("Failed to get RSS item from url " + failedTries + " time(s)")
+            if (failedTries % 3 == 0) {
+              val sleepTime = failedTries / 3 * pollingInterval
+              println("\t now sleeping for " + sleepTime + " milliseconds")
+              Thread.sleep(sleepTime)
+            }
+            break
+        }
+
+        val sortedItems = items.sortWith((x: RSSItem, y: RSSItem) => x.pubDate.isBefore(y.pubDate))
+        sortedItems.dropWhile((x: RSSItem) => {
+          if (lastItem.isDefined)
+            x.pubDate.isBefore(lastItem.get.pubDate) || lastItem.get.guid == x.guid
+          else
+            false
+        })
+          .foreach(ctx.collect)
+
+        lastItem = Some(sortedItems.last)
+
+        Thread.sleep(pollingInterval)
       }
-
-      val nodes = getXMLFromUrl(url) \\ "item"
-      val items = for (t <- nodes) yield xmlToRSSItem(t)
-      val sortedItems = items.sortWith((x: RSSItem, y: RSSItem) => x.pubDate.isBefore(y.pubDate))
-      sortedItems.dropWhile((x: RSSItem) => {
-        if (lastItem.isDefined)
-          x.pubDate.isBefore(lastItem.get.pubDate) || lastItem.get.guid == x.guid
-        else
-          false
-      })
-        .foreach(ctx.collect)
-
-      lastItem = Some(sortedItems.last)
-
-      Thread.sleep(pollingInterval)
     }
   }
 
   def getXMLFromUrl(url: String) : Elem = {
-    XML.loadString(http.getResponse(url).body)
+      XML.loadString(http.getResponse(url).body)
   }
 
   def xmlToRSSItem(node: scala.xml.Node): RSSItem = {
@@ -77,8 +106,10 @@ class RSSItemSource(url: String,
     val link = (node \ "link").text
     val guid = (node \ "guid").text
 
-    //Tue, 08 May 2018 08:59:00 GMT
-    val formatter = DateTimeFormatter.RFC_1123_DATE_TIME //.ofPattern("EEE, dd MMMMM yyyy HH:mm:ss z")
+//    val formatter = DateTimeFormatter.ofPattern("EEE, dd MMMM yyyy HH:mm:ss z")
+//    val formatter = DateTimeFormatter.RFC_1123_DATE_TIME
+    val formatter = DateTimeFormatter.ofPattern(dateFormat)
+
     val pubDate = LocalDateTime.parse((node \ "pubDate").text, formatter)
 
     RSSItem(title, description, link, pubDate, guid)
