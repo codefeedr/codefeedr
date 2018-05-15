@@ -27,21 +27,58 @@ package org.codefeedr.pipeline
   */
 class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serializable {
 
+  /**
+    * Add an object to the list. Returns a new list.
+    *
+    * @param obj Object to add
+    * @return List with the object included at the end
+    */
   def add[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V]): PipelineObjectList =
     new PipelineObjectList(list :+ obj)
 
+  /**
+    * Selects the first element of this $coll.
+    * $orderDependent
+    * @return  the first element of this list.
+    * @throws NoSuchElementException if the list is empty.
+    */
   def head: PipelineObject[PipelineItem, PipelineItem] =
     list.head.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
+  /**
+    * Selects the last element.
+    * $orderDependent
+    * @return The last element of this list.
+    * @throws NoSuchElementException If the list is empty.
+    */
   def last: PipelineObject[PipelineItem, PipelineItem] =
     list.last.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
+  /**
+    * Selects all elements except the first.
+    * $orderDependent
+    * @return  a list consisting of all elements of this list
+    *          except the first one.
+    * @throws UnsupportedOperationException if the list is empty.
+    */
   def tail: PipelineObjectList = new PipelineObjectList(list.tail)
 
+  /**
+    * Get the size of the list
+    * @return Size
+    */
   def size: Int = list.size
 
+  /**
+    * Get whether the list is empty
+    * @return True when empty
+    */
   def isEmpty: Boolean = list.isEmpty
 
+  /**
+    * Get whether the list is not empty
+    * @return True when not empty
+    */
   def nonEmpty: Boolean = list.nonEmpty
 
   def foreach(f: PipelineObject[PipelineItem, PipelineItem] ⇒ Unit): Unit = {
@@ -55,9 +92,20 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     case _ => false
   }
 
+  /**
+    * Add an element to a copy of the list.
+    *
+    * @param obj Element
+    * @return New list with element appended
+    */
   def :+[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V]): PipelineObjectList =
     add(obj)
 
+  /**
+    * Adds all elements of the given list.
+    * @param other List
+    * @return New list with elements from other list appended
+   */
   def :+(other: PipelineObjectList): PipelineObjectList =
     new PipelineObjectList(list ::: other.list)
 
