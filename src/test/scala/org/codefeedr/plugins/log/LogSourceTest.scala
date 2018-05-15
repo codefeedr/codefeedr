@@ -21,7 +21,7 @@ class LogSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
         x.addSink(new StringCollectSink)
       }
       .build()
-      .startMock()
+//      .startMock()
 
     val res = StringCollectSink.result
 

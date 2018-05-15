@@ -83,4 +83,13 @@ class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
     assert(rssItemList.equals(orderedRSSItemList))
   }
 
+  test("Cancel should turn make isRunning false") {
+    val source = new RSSItemSource("", 0)
+    assert(!source.isRunning)
+    source.open(null)
+    assert(source.isRunning)
+    source.cancel()
+    assert(!source.isRunning)
+  }
+
 }
