@@ -190,7 +190,21 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .build()
 
     assertThrows[StageNotFoundException] {
-      pipeline.start(Array("-runtime", "cluster", "-stage", "org.codefeedr.testUtils.DOesNotExtst"))
+      pipeline.startClustered("org.codefeedr.testUtils.DOesNotExtst")
+    }
+  }
+
+  test("Should execute flink code when starting cluster object") {
+    val source = new FlinkCrashObjectTest()
+    val sink = new SimpleSinkPipelineObject(1)
+
+    val pipeline = builder
+      .setBufferType(BufferType.Kafka)
+      .edge(source, sink)
+      .build()
+
+    assertThrows[JobExecutionException] {
+      pipeline.startClustered("org.codefeedr.testUtils.FlinkCrashObjectTest")
     }
   }
 }
