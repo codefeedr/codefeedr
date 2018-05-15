@@ -50,11 +50,11 @@ private class LogMapper extends FlatMapFunction[String, ApacheAccessLogItem] {
   def flatMap(line: String, out: Collector[ApacheAccessLogItem]): Unit = line match {
     case pattern(ipAddress, dateString, request, status, amountOfBytes, referer, userAgent, _*) => {
       val date = LocalDateTime.parse(dateString, dateFormatter)
+      val amountOfBytesInt = if (amountOfBytes != "-") amountOfBytes.toInt else -1
 
-      val item = ApacheAccessLogItem(ipAddress, date, request, status.toInt, amountOfBytes.toInt, referer, userAgent)
-      out.collect(item)
+      out.collect(ApacheAccessLogItem(ipAddress, date, request, status.toInt, amountOfBytesInt, referer, userAgent))
     }
-    case _ => println("mismatch")
+    case _ =>
   }
 
 }
