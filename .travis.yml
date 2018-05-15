@@ -18,6 +18,9 @@ cache:
     - $HOME/.sbt
 
 before_install:
+  - mkdir containers
+  - git clone https://github.com/wurstmeister/kafka-docker.git containers/kafka
+  - sed -i docker-compose-single-broker.yml "KAFKA_ADVERTISED_HOST_NAME: localhost"
   - docker-compose -f "containers/kafka/docker-compose-single-broker.yml" up -d
   - docker ps -a
 
