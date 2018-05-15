@@ -36,6 +36,7 @@ import scala.reflect.runtime.universe._
 abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] {
 
   var pipeline: Pipeline = _
+  val id: String = getClass.getName
 
   /**
     * Setups the pipeline object with a pipeline.

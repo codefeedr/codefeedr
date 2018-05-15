@@ -102,8 +102,13 @@ case class Pipeline(bufferType: BufferType,
 
   // With buffers, running just one PO
   def startClustered(stage: String): Unit = {
-    // TODO: find that PO
-    val obj = graph.nodes.head.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
+    val optObj = graph.nodes.find(node => node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id == stage)
+
+    if (optObj.isEmpty) {
+      throw StageNotFoundException()
+    }
+
+    val obj = optObj.get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
     obj.setUp(this)
     runObject(obj)
