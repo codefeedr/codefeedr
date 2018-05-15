@@ -60,7 +60,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeA, nodeC)
       .addEdge(nodeB, nodeC)
 
-    assert(dag.getParents(nodeC) == Set(nodeA, nodeB))
+    assert(dag.getParents(nodeC).toSet == Set(nodeA, nodeB))
   }
 
   test("Children are retrievable") {
@@ -71,8 +71,8 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeA, nodeC)
       .addEdge(nodeB, nodeC)
 
-    assert(dag.getChildren(nodeA) == Set(nodeC))
-    assert(dag.getChildren(nodeB) == Set(nodeC))
+    assert(dag.getChildren(nodeA).toSet == Set(nodeC))
+    assert(dag.getChildren(nodeB).toSet == Set(nodeC))
   }
 
   test("Adding an existing edge does not affect the graph") {
@@ -161,7 +161,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(nodeA, nodeB)
       .addEdge(nodeA, nodeC)
 
-    assert(dag.withoutOrphans.nodes == Set(nodeA, nodeB, nodeC))
+    assert(dag.withoutOrphans.nodes.toSet == Set(nodeA, nodeB, nodeC))
   }
 
   test("Equality operator") {
@@ -186,29 +186,27 @@ class DirectedAcyclicGraphTest extends FunSuite {
     assert(dag.lastInSequence.isEmpty)
   }
 
-  test("Should find main parent") {
+  test("Edges are ordered") {
     val dag = new DirectedAcyclicGraph()
       .addNode(nodeA)
       .addNode(nodeB)
       .addNode(nodeC)
-      .addEdge(nodeA, nodeB, true)
-      .addEdge(nodeC, nodeB, false)
+      .addEdge(nodeA, nodeB)
+      .addEdge(nodeC, nodeB)
 
-    val main = dag.getMainParent(nodeB)
+    val parents = dag.getParents(nodeB)
+    val firstParent = dag.getFirstParent(nodeB)
 
-    assert(main.isDefined)
-    assert(main.get == nodeA)
+    assert(firstParent.isDefined)
+    assert(firstParent.get == nodeA)
+    assert(parents.size == 2)
+    assert(parents(0) == nodeA)
+    assert(parents(1) == nodeC)
   }
 
-  test("Should disallow multiple main parents") {
+  test("Getting first parent of empty dag gives None") {
     val dag = new DirectedAcyclicGraph()
-      .addNode(nodeA)
-      .addNode(nodeB)
-      .addNode(nodeC)
-      .addEdge(nodeA, nodeB, true)
 
-    assertThrows[IllegalArgumentException] {
-      dag.addEdge(nodeC, nodeB, true)
-    }
+    assert(dag.getFirstParent(null).isEmpty)
   }
 }

@@ -1,16 +1,34 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package org.codefeedr.pipeline
 
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-import org.codefeedr.{DirectedAcyclicGraph, ImmutableProperties}
+import org.codefeedr.{DirectedAcyclicGraph, Properties}
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
 import org.codefeedr.pipeline.RuntimeType.RuntimeType
 
 case class Pipeline(bufferType: BufferType,
-                    bufferProperties: ImmutableProperties,
+                    bufferProperties: Properties,
                     graph: DirectedAcyclicGraph,
-                    properties: ImmutableProperties,
+                    properties: Properties,
                     keyManager: KeyManager) {
   val environment: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
@@ -49,7 +67,7 @@ case class Pipeline(bufferType: BufferType,
       throw new IllegalStateException("Mock runtime can't run non-sequential pipelines")
     }
 
-    val objects = graph.nodes.asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
+    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
 
     // Run all setups
     for (obj <- objects) {
@@ -67,7 +85,7 @@ case class Pipeline(bufferType: BufferType,
 
   // With buffers, all in same program
   def startLocal(): Unit = {
-    val objects = graph.nodes.asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
+    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
 
     // Run all setups
     for (obj <- objects) {
@@ -101,7 +119,6 @@ case class Pipeline(bufferType: BufferType,
     */
   private def runObject(obj: PipelineObject[PipelineItem, PipelineItem]): Unit = {
     lazy val source = if (obj.hasMainSource) obj.getMainSource else null
-
     lazy val sink = if (obj.hasSink) obj.getSink else null
 
     val transformed = obj.transform(source)

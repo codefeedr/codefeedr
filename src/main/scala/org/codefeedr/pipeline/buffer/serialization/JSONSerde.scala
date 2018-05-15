@@ -19,19 +19,20 @@
 package org.codefeedr.pipeline.buffer.serialization
 
 import java.nio.charset.StandardCharsets
+import java.util.Properties
 
 import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
+import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.json4s.NoTypeHints
 import org.json4s.jackson.Serialization
 
+import scala.collection.JavaConverters._
 import scala.reflect.{ClassTag, classTag}
 
-class JSONSerde[T <: AnyRef : Manifest : ClassTag] extends AbstractDeserializationSchema[T] with SerializationSchema[T] {
+class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends AbstractSerde[T] {
 
-  // Get type of class
-  val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
 
   //implicit serialization format
   implicit lazy val formats = Serialization.formats(NoTypeHints)
@@ -55,13 +56,5 @@ class JSONSerde[T <: AnyRef : Manifest : ClassTag] extends AbstractDeserializati
     */
   override def deserialize(message: Array[Byte]): T = {
     Serialization.read[T](new String(message, StandardCharsets.UTF_8))
-  }
-
-  /**
-    * Get type information of (de)serialized clss.
-    * @return the typeinformation of the generic class.
-    */
-  override def getProducedType: TypeInformation[T] = {
-    TypeExtractor.createTypeInfo(inputClassType)
   }
 }

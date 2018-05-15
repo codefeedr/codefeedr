@@ -29,13 +29,18 @@ import org.apache.avro.specific.{SpecificDatumWriter, SpecificRecordBase}
 import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
+import org.codefeedr.pipeline.buffer.serialization.schema_exposure.SchemaExposer
 
 import scala.reflect.{ClassTag, classTag}
 
-class AvroSerde[T: ClassTag](implicit val recordFrom: FromRecord[T]) extends AbstractDeserializationSchema[T] with SerializationSchema[T] {
+class AvroSerde[T: ClassTag](limit : Int = -1)(implicit val recordFrom: FromRecord[T]) extends AbstractSerde[T] {
 
-  //Get type of the class at run time
-  val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
+  //work around for serialization
+  var schemaString = ""
+  var schemaSet = false
+
+  @transient
+  lazy val exposedSchema : Schema = new Schema.Parser().parse(schemaString)
 
   /**
     * Serializes a (generic) element into a binary format using the Avro serializer.
@@ -62,18 +67,24 @@ class AvroSerde[T: ClassTag](implicit val recordFrom: FromRecord[T]) extends Abs
     * @return a deserialized case class.
     */
   override def deserialize(message: Array[Byte]): T = {
-    val schema: Schema = ReflectData.get().getSchema(inputClassType);
+    var schema: Schema = null
+
+    //either generate a schema from the case class or get the exposed schema from the topic
+    if (!schemaSet) {
+      schema = ReflectData.get().getSchema(inputClassType)
+    } else {
+      schema = exposedSchema
+    }
+
     val datumReader = new GenericDatumReader[GenericRecord](schema)
     val decoder = DecoderFactory.get().binaryDecoder(message, null)
 
     recordFrom(datumReader.read(null, decoder))
   }
 
-  /**
-    * Get type information of (de)serialized clss.
-    * @return the typeinformation of the generic class.
-    */
-  override def getProducedType: TypeInformation[T] =
-    TypeExtractor.getForClass(classTag[T].runtimeClass).asInstanceOf[TypeInformation[T]]
+  def setSchema(schema : String) = {
+    this.schemaString = schema
+    this.schemaSet = true
+  }
 
 }

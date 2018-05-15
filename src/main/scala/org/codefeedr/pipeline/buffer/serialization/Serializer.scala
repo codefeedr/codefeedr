@@ -47,9 +47,9 @@ object Serializer {
     * @return the serde instance.
     */
   def getSerde[T <: AnyRef : ClassTag : FromRecord : Manifest](name: String) = name match {
-    case "AVRO" => new AvroSerde[T]()
-    case "JSON" => new JSONSerde[T]()
-    case _ => new JSONSerde[T]() //default is JSON
+    case "AVRO" => new AvroSerde[T]
+    case "JSON" => new JSONSerde[T]
+    case _ => new JSONSerde[T] //default is JSON
   }
 
 }

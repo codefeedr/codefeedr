@@ -1,54 +1,48 @@
 package org.codefeedr
 
 import org.scalatest.FunSuite
+import Properties._
 
 class PropertiesTest extends FunSuite {
 
   test("An empty properties should have no keys") {
     val props = new Properties()
+
     assert(props.keys().isEmpty)
   }
 
   test("An added value should show up in the keys list") {
     val props = new Properties()
-    props.set("key", "value")
+      .set("key", "value")
+
     assert(props.keys().contains("key"))
   }
 
   test("Setting multiple keys is supported") {
     val props = new Properties()
-    props.set("keyOne", "one")
-    props.set("two", "another")
+      .set("keyOne", "one")
+      .set("two", "another")
 
-    assert(props.get("keyOne") == "one")
-    assert(props.get("two") == "another")
+    assert(props.get("keyOne").get == "one")
+    assert(props.get("two").get == "another")
   }
 
   test("An added value should be retrievable again") {
     val props = new Properties()
-    props.set("key", "value")
-    assert(props.get("key") == "value")
-  }
+      .set("key", "value")
 
-  test("Getting with a default value should work on empty items") {
-    val props = new Properties()
-    assert(props.get("doesNotExist", "default") == "default")
-  }
-
-  test("Getting with a default value on an existing item should return the value") {
-    val props = new Properties()
-    props.set("key", "value")
-    assert(props.get("key", "default") == "value")
+    assert(props.get("key").get == "value")
   }
 
   test("When no default is given, a non-existing key should return null") {
     val props = new Properties()
-    assert(props.get("key") == null)
+
+    assert(props.get("key").isEmpty)
   }
 
   test("A Java properties list created from the properties should be comparable in content") {
     val props = new Properties()
-    props.set("key", "value")
+      .set("key", "value")
 
     val jProps = props.toJavaProperties
 
@@ -58,55 +52,35 @@ class PropertiesTest extends FunSuite {
     assert(propsSet == jPropsSet)
   }
 
-  test("An ImmutableProperties created from the properties should be comparable in content") {
-    val props = new Properties()
-    props.set("key", "value")
-
-    val iProps = props.toImmutable
-
-    val propsSet = props.keys().toSet
-    val iPropsSet = iProps.keys().toSet
-
-    assert(propsSet == iPropsSet)
-    assert(props.keys() == iProps.keys())
-  }
-
-  test("An ImmutableProperties should not allow setting values") {
-    val props = new Properties()
-    props.set("key", "value")
-
-    val iProps = props.toImmutable
-
-    assertThrows[NotImplementedError] {
-      iProps.set("key", "newValue")
-    }
-  }
-
-  test("Building ImmutableProperties with Properties renders a copy") {
-    val props = new Properties()
-    props.set("key", "value")
-
-    val iProps = new ImmutableProperties(props)
-
-    val propsSet = props.keys().toSet
-    val iPropsSet = iProps.keys().toSet
-
-    assert(propsSet == iPropsSet)
-  }
-
-  test("Making an ImmutableProperties immutable makes no change") {
-    val props = new Properties()
-    props.set("key", "value")
-
-    val iProps = props.toImmutable
-
-    assert(iProps.toImmutable == iProps)
-  }
-
   test("Comparing to non-Properties gives non-equality") {
     val props = new Properties()
 
     //noinspection ComparingUnrelatedTypes
     assert(props != 5)
+  }
+
+  test("Comparing two non-equal properties should result in inequality") {
+    val props = new Properties()
+    val props2 = new Properties()
+      .set("a", "b")
+
+    assert(props != props2)
+  }
+
+  test("Comparing two equal properties should result in equality") {
+    val props = new Properties()
+      .set("a", "b")
+    val props2 = new Properties()
+      .set("a", "b")
+
+    assert(props == props2)
+  }
+
+  test("Types should be converted automatically to and from") {
+    val props = new Properties()
+      .set[Boolean]("bool", true)
+
+    assert(props.get("bool").get == "true")
+    assert(props.get[Boolean]("bool").get)
   }
 }

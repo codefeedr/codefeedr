@@ -1,10 +1,32 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package org.codefeedr.pipeline
 
+import com.sksamuel.avro4s.FromRecord
+import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.{DirectedAcyclicGraph, Properties}
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.pipeline.buffer.BufferType
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
+
+import scala.reflect.ClassTag
 
 class PipelineBuilder() {
   /** Type of buffer used in the pipeline */
@@ -14,10 +36,10 @@ class PipelineBuilder() {
   protected var pipelineType: PipelineType = PipelineType.Sequential
 
   /** Properties of the buffer */
-  val bufferProperties = new Properties()
+  var bufferProperties = new Properties()
 
   /** Pipeline properties */
-  val properties = new Properties()
+  var properties = new Properties()
 
   /** Key manager */
   protected var keyManager: KeyManager = _
@@ -58,13 +80,13 @@ class PipelineBuilder() {
   }
 
   def setProperty(key: String, value: String): PipelineBuilder = {
-    properties.set(key, value)
+    properties = properties.set(key, value)
 
     this
   }
 
   def setBufferProperty(key: String, value: String): PipelineBuilder = {
-    bufferProperties.set(key, value)
+    bufferProperties = bufferProperties.set(key, value)
 
     this
   }
@@ -90,14 +112,30 @@ class PipelineBuilder() {
     graph = graph.addNode(item)
 
     if (lastObject != null) {
-      graph = graph.addEdge(lastObject, item, true)
+      graph = graph.addEdge(lastObject, item)
     }
     lastObject = item
 
     this
   }
 
-  private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y], main: Boolean): Unit = {
+  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord, V <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => DataStream[V]) : PipelineBuilder = {
+    val pipelineItem = new PipelineObject[U, V]() {
+      override def transform(source: DataStream[U]): DataStream[V] = trans(source)
+    }
+
+    append(pipelineItem)
+  }
+
+  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => Any) : PipelineBuilder = {
+    val pipelineItem = new Job[U]() {
+      override def main(source: DataStream[U]): Unit = trans(source)
+    }
+
+    append(pipelineItem)
+  }
+
+  private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): Unit = {
     if (pipelineType != PipelineType.DAG) {
       if (!graph.isEmpty) {
         throw new IllegalStateException("Can't append node to non-sequential pipeline")
@@ -118,7 +156,7 @@ class PipelineBuilder() {
       throw new IllegalArgumentException("Edge in graph already exists")
     }
 
-    graph = graph.addEdge(from, to, main)
+    graph = graph.addEdge(from, to)
   }
 
   /**
@@ -132,7 +170,7 @@ class PipelineBuilder() {
       throw new IllegalArgumentException("Can't add main edge to node with already any parent")
     }
 
-    makeEdge(from, to, main = true)
+    makeEdge(from, to)
 
     this
   }
@@ -148,10 +186,45 @@ class PipelineBuilder() {
       throw new IllegalArgumentException("Can't add extra edge to node with no main parent")
     }
 
-    makeEdge(from, to, main = false)
+    makeEdge(from, to)
 
     this
   }
+
+  /**
+    * Add multiple parents in given ordered list.
+    *
+    * @param obj Node
+    * @param parents Parents
+    * @tparam U Node In
+    * @tparam V Node Out
+    * @return Builder
+    */
+  def addParents[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V], parents: PipelineObjectList): PipelineBuilder = {
+    if (!graph.hasNode(obj)) {
+      graph = graph.addNode(obj)
+    }
+
+    for (item <- parents) {
+      if (!graph.hasNode(item)) {
+        graph = graph.addNode(item)
+      }
+
+      graph = graph.addEdge(item, obj)
+    }
+
+    this
+  }
+
+  /**
+    * Add a parent.
+    *
+    * @param obj Node
+    * @param parent Parent
+    * @return
+    */
+  def addParents[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](obj: PipelineObject[U, V], parent: PipelineObject[X, Y]): PipelineBuilder =
+    addParents(obj, parent.inList)
 
   /**
     * Build a pipeline from the builder configuration
@@ -160,10 +233,12 @@ class PipelineBuilder() {
     * @return Pipeline
     */
   def build(): Pipeline = {
-    if (this.graph.isEmpty) {
+    if (graph.isEmpty) {
       throw EmptyPipelineException()
     }
 
-    Pipeline(bufferType, bufferProperties.toImmutable, graph , properties.toImmutable, keyManager)
+    graph.nodes.foreach(_.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].verifyGraph(graph))
+
+    Pipeline(bufferType, bufferProperties, graph , properties, keyManager)
   }
 }

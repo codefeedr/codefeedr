@@ -1,9 +1,28 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package org.codefeedr.pipeline
 
-import com.sksamuel.avro4s.{FromRecord, SchemaFor}
+import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.DirectedAcyclicGraph
 import org.codefeedr.pipeline.buffer.BufferFactory
 
 import scala.reflect.{ClassTag, Manifest}
@@ -37,27 +56,26 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
   def transform(source: DataStream[In]): DataStream[Out]
 
   /**
-    * Removes the pipeline.
+    * Verify that the object is valid.
+    *
+    * Checks types of the input sources and whether the graph is configured correctly for the types.
     */
-  def tearDown(): Unit = {
-    this.pipeline = null
-  }
+  protected[pipeline] def verifyGraph(graph: DirectedAcyclicGraph): Unit = {}
 
   /**
     * Get all parents for this object
     *
     * @return set of parents. Can be empty
     */
-  def getParents: Set[PipelineObject[PipelineItem, PipelineItem]] = {
-    pipeline.graph.getParents(this).asInstanceOf[Set[PipelineObject[PipelineItem, PipelineItem]]]
-  }
+  def getParents: Vector[PipelineObject[PipelineItem, PipelineItem]] =
+    pipeline.graph.getParents(this).asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
 
   /**
     * Check if this pipeline object is sourced from a Buffer.
     * @return if this object has a (buffer) source.
     */
   def hasMainSource: Boolean =
-    typeOf[In] != typeOf[NoType] && pipeline.graph.getMainParent(this).isDefined
+    typeOf[In] != typeOf[NoType] && pipeline.graph.getFirstParent(this).isDefined
 
   /**
     * Check if this pipeline object is sinked to a Buffer.
@@ -76,7 +94,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
       throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
     }
 
-    val parentNode = pipeline.graph.getMainParent(this).get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
+    val parentNode = getParents(0)
 
     val factory = new BufferFactory(pipeline, parentNode)
     val buffer = factory.create[In]()
@@ -110,21 +128,33 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
     */
   def getSinkSubject: String = this.getClass.getName
 
-  def getStorageSource[T](typ: String, collection: String): DataStream[T] = ???
+  def getSource[T <: AnyRef : Manifest : FromRecord](parentNode: PipelineObject[PipelineItem, PipelineItem]): DataStream[T] = {
+    assert(parentNode != null)
 
-  def getStorageSink[T](typ: String, collection: String): DataSink[T] = ???
+    val factory = new BufferFactory(pipeline, parentNode)
+    val buffer = factory.create[T]()
+
+    buffer.getSource
+  }
+
+  def getStorageSource[T](collection: String): DataStream[T] = ???
+
+  def getStorageSink[T](collection: String): DataSink[T] = ???
 
   /**
-    * Get a source for given parent object.
+    * Create a list of object by appending another object
     *
-    * @param objectClass
-    * @tparam T
-    * @return
+    * @param obj Other object
+    * @return List with this and other
     */
-//  def getSource[T](objectClass: Class): DataStream[T] = {
-//
-//    val parents = pipeline.graph.getParents(this)
-//
-//    null
-//  }
+  def :+[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V]): PipelineObjectList =
+    inList.add(obj)
+
+  /**
+    * Create a list witht his object
+    *
+    * @return List
+    */
+  def inList: PipelineObjectList =
+    new PipelineObjectList().add(this)
 }
