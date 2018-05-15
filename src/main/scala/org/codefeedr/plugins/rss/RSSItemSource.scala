@@ -70,7 +70,6 @@ class RSSItemSource(url: String,
 
         } catch {
           case e: Throwable =>
-            println(e.toString)
             failedTries += 1
             println("Failed to get RSS item from url " + failedTries + " time(s)")
             if (failedTries % 3 == 0) {
