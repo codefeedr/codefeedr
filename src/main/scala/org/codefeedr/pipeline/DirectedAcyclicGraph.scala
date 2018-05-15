@@ -194,19 +194,7 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges
       return None
     }
 
-    var node = nodes.head
-    var lastNode: AnyRef = null
-
-    do {
-      val edge = edges.find(edge => edge.from == node)
-      if (edge.isEmpty) {
-        lastNode = node
-      } else {
-        node = edge.get.to
-      }
-    } while (lastNode == null)
-
-    Option(lastNode)
+    nodes.find(node => !nodes.exists(toNode => hasEdge(node, toNode)))
   }
 
   override def equals(obj: scala.Any): Boolean = {
