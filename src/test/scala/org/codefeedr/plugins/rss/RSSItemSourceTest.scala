@@ -1,5 +1,7 @@
 package org.codefeedr.plugins.rss
 
+import java.time.format.DateTimeFormatter
+
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.codefeedr.utilities.Http
 import org.scalamock.function.FunctionAdapter1
@@ -13,9 +15,10 @@ class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 
 
   test("RSS source should poll maxNumberOfRuns times") {
+
     val httpMock = mock[Http]
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSItemSource(fakeUrl, 2000, 2, httpMock)
+    val rssItemSource = new RSSItemSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 2000, 2, httpMock)
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -37,7 +40,7 @@ class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
   test("RSS source should collect all RSS items"){
     val httpMock = mock[Http]
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSItemSource(fakeUrl, 2000, 2, httpMock)
+    val rssItemSource = new RSSItemSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",2000, 2, httpMock)
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -59,7 +62,7 @@ class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
   test("RSS source should collect RSS items in order"){
     val httpMock = mock[Http]
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSItemSource(fakeUrl, 2000, 2, httpMock)
+    val rssItemSource = new RSSItemSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 2000, 2, httpMock)
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -84,7 +87,7 @@ class RSSItemSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
   }
 
   test("Cancel should turn make isRunning false") {
-    val source = new RSSItemSource("", 0)
+    val source = new RSSItemSource("", "EEE, dd MMMM yyyy HH:mm:ss z",0)
     assert(!source.isRunning)
     source.open(null)
     assert(source.isRunning)
