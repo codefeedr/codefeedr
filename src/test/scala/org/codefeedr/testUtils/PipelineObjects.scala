@@ -66,3 +66,12 @@ class HitObjectTest extends PipelineObject[NoType, NoType] {
     throw CodeHitException()
   }
 }
+
+class FlinkCrashObjectTest extends PipelineObject[NoType, NoType] {
+  override def transform(source: DataStream[NoType]): DataStream[NoType] = {
+    pipeline.environment.fromCollection[String](Seq("a", "b"))
+      .map { a => throw CodeHitException() }
+  }
+}
+
+

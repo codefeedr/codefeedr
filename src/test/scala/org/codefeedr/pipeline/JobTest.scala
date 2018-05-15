@@ -62,7 +62,6 @@ class JobTest extends FunSuite {
     val pipeline = new PipelineBuilder()
       .append(new StringSource())
       .append(new MyJob1())
-      //      .addParents(job, List(a))
       .build()
 
     pipeline.startMock()
@@ -75,9 +74,7 @@ class JobTest extends FunSuite {
 
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      //      .addParents(job, List(a, b))
+      .addParents(job, a :+ b)
       .build()
 
     pipeline.startLocal()
@@ -91,10 +88,7 @@ class JobTest extends FunSuite {
 
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      //      .addParents(job, List(a, b, c))
+      .addParents(job, a :+ b :+ c)
       .build()
 
     pipeline.startLocal()
@@ -109,11 +103,7 @@ class JobTest extends FunSuite {
 
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
-      .edge(a, job)
-      .extraEdge(b, job)
-      .extraEdge(c, job)
-      .extraEdge(d, job)
-      //      .addParents(job, List(a, b, c, d))
+      .addParents(job, a :+ b :+ c :+ d)
       .build()
 
     pipeline.startLocal()

@@ -213,4 +213,19 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     pipeline.graph.getParents(c)(0) shouldBe an[SimpleSourcePipelineObject]
     pipeline.graph.getParents(c)(1) shouldBe an[SimpleTransformPipelineObject]
   }
+
+  test("Using add parents when objects already exists only adds edges") {
+    val a = new SimpleSourcePipelineObject()
+    val b = new SimpleTransformPipelineObject()
+    val c = new SimpleTransformPipelineObject()
+
+    val pipeline = builder
+      .addParents(c, a :+ b)
+      .addParents(c, a)
+      .build()
+
+    pipeline.graph.getParents(c)(0) shouldBe an[SimpleSourcePipelineObject]
+    pipeline.graph.getParents(c)(1) shouldBe an[SimpleTransformPipelineObject]
+    assert(pipeline.graph.getParents(c).size == 2)
+  }
 }

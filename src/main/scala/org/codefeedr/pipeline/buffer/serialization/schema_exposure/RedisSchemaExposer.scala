@@ -39,7 +39,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
   /**
     * Connect with the RedisClient.
     */
-  private def connect() = {
+  private def connect(): Unit = {
     val uri = new URI(host)
     connection = new RedisClient(uri)
   }
@@ -92,14 +92,12 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
   /**
     * Deletes all schemas 'under' the root.
     */
-  override def deleteAll() = {
+  override def deleteAll(): Unit = {
     val keys = connection.keys(s"[$root]*")
 
-    if (!keys.isEmpty) {
-      keys
-        .get
-        .map(_.get)
-        .foreach(connection.del(_))
-    }
+    keys
+      .get
+      .map(_.get)
+      .foreach(connection.del(_))
   }
 }
