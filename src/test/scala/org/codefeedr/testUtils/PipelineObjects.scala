@@ -60,3 +60,9 @@ class PrintSinkElements(elements : Int) extends PrintSinkFunction[StringType] {
     }
   }
 }
+
+class HitObjectTest extends PipelineObject[NoType, NoType] {
+  override def transform(source: DataStream[NoType]): DataStream[NoType] = {
+    throw CodeHitException()
+  }
+}
