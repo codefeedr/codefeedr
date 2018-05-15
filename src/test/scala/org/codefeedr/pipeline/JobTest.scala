@@ -60,7 +60,8 @@ class JobTest extends FunSuite {
 
   test("Job with single source") {
     val pipeline = new PipelineBuilder()
-      .addParents(new MyJob1(), new StringSource())
+      .append(new StringSource())
+      .append(new MyJob1())
       .build()
 
     pipeline.startMock()
