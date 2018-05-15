@@ -18,7 +18,7 @@
  */
 package org.codefeedr.plugins.log
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
 
 import org.apache.flink.api.common.functions.FlatMapFunction
@@ -38,6 +38,7 @@ class ApacheLogFileSource(absolutePath: String) extends Source[ApacheAccessLogIt
       .readTextFile(absolutePath)
       .flatMap(_.split('\n'))
       .flatMap(new LogMapper())
+      .assignAscendingTimestamps(line => line.date.atZone(ZoneId.systemDefault()).toEpochSecond)
   }
 
 }
