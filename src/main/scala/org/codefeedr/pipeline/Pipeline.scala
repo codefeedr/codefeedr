@@ -128,7 +128,7 @@ case class Pipeline(bufferType: BufferType,
 
     val transformed = obj.transform(source)
 
-    if (obj.hasSink) {
+    if (sink != null) {
       transformed.addSink(sink)
     }
   }
