@@ -137,10 +137,6 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
     buffer.getSource
   }
 
-  def getStorageSource[T](collection: String): DataStream[T] = ???
-
-  def getStorageSink[T](collection: String): DataSink[T] = ???
-
   /**
     * Create a list of object by appending another object
     *
