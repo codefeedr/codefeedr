@@ -19,7 +19,6 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.api.java.utils.ParameterTool
-import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.codefeedr.Properties
 import org.codefeedr.keymanager.KeyManager
@@ -44,12 +43,13 @@ case class Pipeline(bufferType: BufferType,
     }
 
     // Override runtime with runtime parameter
-    runtime = params.get("runtime") match {
-      case "mock" => RuntimeType.Mock
-      case "local" => RuntimeType.Local
-      case "cluster" => RuntimeType.Cluster
-      case _ => runtime
-    }
+    val mapping = Map(
+      "mock" -> RuntimeType.Mock,
+      "local" -> RuntimeType.Local,
+      "cluster" -> RuntimeType.Cluster
+    )
+
+    runtime = mapping.getOrElse(params.get("runtime"), runtime)
 
     start(runtime, stage)
   }
