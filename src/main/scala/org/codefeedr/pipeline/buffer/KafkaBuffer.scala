@@ -99,7 +99,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
           .asInstanceOf[AvroSerde[T]]
           .setSchema(getSchema(topic).toString) //TODO find a better workaround for this
       } else {
-        throw NoAvroSerdeException("You can't use an Avro schema for deserialization if Avro isn't the serde type.")
+        throw new NoAvroSerdeException("You can't use an Avro schema for deserialization if Avro isn't the serde type.")
       }
     }
 
@@ -127,7 +127,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     * Get all the kafka properties.
     * @return a map with all the properties.
     */
-  def getKafkaProperties: java.util.Properties = {
+  def getKafkaProperties() : java.util.Properties = {
     val props = pipeline.bufferProperties
 
     val kafkaProp = new java.util.Properties()
@@ -147,7 +147,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     * @param topic the topic to create.
     * @param connection the kafka broker to connect to.
     */
-  def checkAndCreateSubject(topic : String, connection : String): Unit = {
+  def checkAndCreateSubject(topic : String, connection : String) = {
     //set all the correct properties
     val props = new Properties()
     props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, connection)
@@ -156,17 +156,21 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     val adminClient = AdminClient.create(props)
 
     //check if topic already exists
-    val alreadyCreated = adminClient.listTopics().names().get().contains(topic)
+    val alreadyCreated = adminClient
+      .listTopics()
+      .names()
+      .get()
+      .contains(topic)
 
     //if topic doesnt exist yet, create it
     if (!alreadyCreated) {
       //the topic configuration will probably be overwritten by the producer
       //TODO check this ^
       println(s"Topic $topic doesn't exist yet, now creating it.")
-
       val newTopic = new NewTopic(topic, 1, 1)
-
-      adminClient.createTopics(List(newTopic).asJavaCollection).all()
+      adminClient.
+        createTopics(List(newTopic).asJavaCollection)
+        .all()
         .get() //this blocks the method until the topic is created
     }
   }
@@ -174,8 +178,8 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
   /**
     * Exposes the Avro schema to an external service (like redis/zookeeper).
     */
-  def exposeSchema(): Boolean = {
-    val exposer = getExposer
+  def exposeSchema() = {
+    val exposer = getExposer()
 
     //get the schema
     val schema = ReflectData.get().getSchema(inputClassType)
@@ -189,14 +193,13 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     * @return the schema.
     */
   def getSchema(subject : String) : Schema = {
-    val exposer = getExposer
+    val exposer = getExposer()
 
     //get the schema corresponding to the topic
     val schema = exposer.get(subject)
 
     //if not found throw exception
-    if (schema.isEmpty)
-      throw SchemaNotFoundException(s"Schema for topic $topic not found.")
+    if (schema.isEmpty) throw new SchemaNotFoundException(s"Schema for topic $topic not found.")
 
     schema.get
   }
@@ -205,7 +208,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, topic
     * Get schema exposer based on configuration.
     * @return a schema exposer.
     */
-  def getExposer: SchemaExposer = {
+  def getExposer() : SchemaExposer = {
     val props = pipeline.bufferProperties
 
     val exposeName = props.
