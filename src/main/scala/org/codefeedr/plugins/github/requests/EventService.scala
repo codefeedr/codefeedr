@@ -19,11 +19,12 @@
 package org.codefeedr.plugins.github.requests
 
 import org.json4s._
+
 import util.control.Breaks._
 import org.json4s.jackson.JsonMethods._
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.plugins.github.GitHubProtocol.Event
-import org.codefeedr.plugins.github.util.FiniteQueue.FiniteQueue
+import org.codefeedr.plugins.github.util.FiniteQueue
 
 import scala.collection.mutable.Queue
 /**
@@ -37,7 +38,7 @@ case class Page(page: Int, rel: String)
 
 class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000) {
 
-  var queue : Queue[String] = Queue[String]()
+  var queue : FiniteQueue[String] = new FiniteQueue[String]()
 
   var requestHeaders: List[Header] = List()
 
