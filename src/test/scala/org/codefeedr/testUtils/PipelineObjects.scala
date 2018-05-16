@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.{PrintSinkFunction, RichSinkFunction, SinkFunction}
-import org.codefeedr.pipeline.{Job, NoType, PipelineItem, PipelineObject}
+import org.codefeedr.pipeline.{OutputStage, NoType, PipelineItem, PipelineObject}
 
 case class StringType(value: String) extends PipelineItem
 
@@ -41,7 +41,7 @@ class SimpleTransformPipelineObject extends PipelineObject[StringType, StringTyp
 
 
 //simple sink which prints the elements and stops after #elements
-class SimpleSinkPipelineObject(elements : Int = -1) extends Job[StringType] {
+class SimpleSinkPipelineObject(elements : Int = -1) extends OutputStage[StringType] {
   override def main(source: DataStream[StringType]): Unit = {
     source.addSink(new PrintSinkElements(elements)).setParallelism(1)
   }

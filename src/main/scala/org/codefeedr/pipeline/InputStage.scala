@@ -14,30 +14,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-
 package org.codefeedr.pipeline
 
+import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.plugins.StringType
-import org.codefeedr.testUtils.CodeHitException
-import org.scalatest.FunSuite
 
-class SourceTest extends FunSuite {
+import scala.reflect.{ClassTag, Manifest}
 
-  class MySource extends Source[StringType] {
-    override def main(): DataStream[StringType] = {
-      throw CodeHitException()
-    }
+
+/**
+  * The InputStage class represents the start of a pipeline.
+  * It has an input type but no specific output type since it will not be connected to the buffer.
+  *
+  * @tparam Out the output type of the job.
+  */
+abstract class InputStage[Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[NoType, Out] {
+
+  override def transform(source: DataStream[NoType]): DataStream[Out] = {
+    main()
   }
 
-  test("Source calls main") {
-    val pipeline = new PipelineBuilder()
-      .append(new MySource)
-      .build()
-
-    assertThrows[CodeHitException] {
-      pipeline.startMock()
-    }
-  }
+  /**
+    * Create a new datastream
+    *
+    * @return Stream
+    */
+  def main(): DataStream[Out]
 }

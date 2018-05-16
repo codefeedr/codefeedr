@@ -26,7 +26,7 @@ import org.scalatest.FunSuite
 
 class JobTest extends FunSuite {
 
-  class MyJob1 extends Job[StringType] {
+  class MyJob1 extends OutputStage[StringType] {
     override def main(source: DataStream[StringType]): Unit = {
       if (source == null) {
         throw CodeHitException()
@@ -34,7 +34,7 @@ class JobTest extends FunSuite {
     }
   }
 
-  class MyJob2 extends Job2[StringType, StringType] {
+  class MyJob2 extends OutputStage2[StringType, StringType] {
     override def main(source: DataStream[StringType], secondSource: DataStream[StringType]): Unit = {
       if (source == null || secondSource == null) {
         throw CodeHitException()
@@ -42,7 +42,7 @@ class JobTest extends FunSuite {
     }
   }
 
-  class MyJob3 extends Job3[StringType, StringType, StringType] {
+  class MyJob3 extends OutputStage3[StringType, StringType, StringType] {
     override def main(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType]): Unit = {
       if (source == null || secondSource == null || thirdSource == null) {
         throw CodeHitException()
@@ -50,7 +50,7 @@ class JobTest extends FunSuite {
     }
   }
 
-  class MyJob4 extends Job4[StringType, StringType, StringType, StringType] {
+  class MyJob4 extends OutputStage4[StringType, StringType, StringType, StringType] {
     override def main(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[StringType]): Unit = {
       if (source == null || secondSource == null || thirdSource == null || fourthSource == null) {
         throw CodeHitException()

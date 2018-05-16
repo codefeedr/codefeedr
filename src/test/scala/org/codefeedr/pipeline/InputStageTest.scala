@@ -14,17 +14,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-package org.codefeedr.plugins.rss
 
-import org.codefeedr.pipeline.{NoType, PipelineObject, Source}
-import org.apache.flink.streaming.api.scala.{DataStream, _}
+package org.codefeedr.pipeline
 
-class RSSSource(url: String, dateFormat: String, pollingInterval: Int) extends Source[RSSItem] {
+import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.plugins.StringType
+import org.codefeedr.testUtils.CodeHitException
+import org.scalatest.FunSuite
 
-  override def main(): DataStream[RSSItem] = {
-    pipeline.environment.addSource(new RSSItemSource(url, dateFormat, pollingInterval))
+class InputStageTest extends FunSuite {
+
+  class MyInputStage extends InputStage[StringType] {
+    override def main(): DataStream[StringType] = {
+      throw CodeHitException()
+    }
   }
 
+  test("Source calls main") {
+    val pipeline = new PipelineBuilder()
+      .append(new MyInputStage)
+      .build()
+
+    assertThrows[CodeHitException] {
+      pipeline.startMock()
+    }
+  }
 }
