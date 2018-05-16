@@ -128,7 +128,7 @@ class PipelineBuilder() {
   }
 
   def append[U <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => Any) : PipelineBuilder = {
-    val pipelineItem = new Job[U]() {
+    val pipelineItem = new OutputStage[U]() {
       override def main(source: DataStream[U]): Unit = trans(source)
     }
 

@@ -1,19 +1,17 @@
 package org.codefeedr.plugins.rss
 
-import java.time.format.DateTimeFormatter
-
 import org.apache.flink.runtime.client.JobExecutionException
-import org.apache.flink.streaming.api.functions.sink.{PrintSinkFunction, SinkFunction}
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala._
-import org.codefeedr.pipeline.{Job, PipelineBuilder}
-import org.codefeedr.testUtils.{JobFinishedException, SimpleSinkPipelineObject}
+import org.codefeedr.pipeline.{OutputStage, PipelineBuilder}
+import org.codefeedr.testUtils.JobFinishedException
 import org.scalatest.FunSuite
 
-class RSSSourceTest extends FunSuite {
+class RSSInputStageTest extends FunSuite {
 
   test("RSS source end-to-end test") {
     val rssURL = "http://lorem-rss.herokuapp.com/feed?unit=second"
-    val source = new RSSSource(rssURL, "EEE, dd MMMM yyyy HH:mm:ss z", 1000)
+    val source = new RSSInputStage(rssURL, "EEE, dd MMMM yyyy HH:mm:ss z", 1000)
     val sink = new LimitingSinkPipelineObject(12)
 
     val pipeline = new PipelineBuilder()
@@ -33,7 +31,7 @@ class RSSSourceTest extends FunSuite {
 
 // Simple Sink Pipeline Object that limits the output to a certain number
 // and is able to get a list of all the items that were received in the sink
-class LimitingSinkPipelineObject(elements: Int = -1) extends Job[RSSItem] with Serializable {
+class LimitingSinkPipelineObject(elements: Int = -1) extends OutputStage[RSSItem] with Serializable {
   var sink: LimitingSink = _
 
   override def main(source: DataStream[RSSItem]): Unit = {

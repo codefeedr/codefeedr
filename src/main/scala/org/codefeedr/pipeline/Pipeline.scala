@@ -19,6 +19,7 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.api.java.utils.ParameterTool
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.codefeedr.Properties
 import org.codefeedr.keymanager.KeyManager
@@ -49,6 +50,8 @@ case class Pipeline(bufferType: BufferType,
       case "cluster" => RuntimeType.Cluster
       case _ => runtime
     }
+
+    environment.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime)
 
     start(runtime, stage)
   }

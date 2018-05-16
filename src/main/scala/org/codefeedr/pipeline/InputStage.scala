@@ -16,15 +16,30 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.rss
+package org.codefeedr.pipeline
 
-import org.codefeedr.pipeline.{NoType, PipelineObject, Source}
-import org.apache.flink.streaming.api.scala.{DataStream, _}
+import com.sksamuel.avro4s.FromRecord
+import org.apache.flink.streaming.api.scala.DataStream
 
-class RSSSource(url: String, dateFormat: String, pollingInterval: Int) extends Source[RSSItem] {
+import scala.reflect.{ClassTag, Manifest}
 
-  override def main(): DataStream[RSSItem] = {
-    pipeline.environment.addSource(new RSSItemSource(url, dateFormat, pollingInterval))
+
+/**
+  * The InputStage class represents the start of a pipeline.
+  * It has an input type but no specific output type since it will not be connected to the buffer.
+  *
+  * @tparam Out the output type of the job.
+  */
+abstract class InputStage[Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[NoType, Out] {
+
+  override def transform(source: DataStream[NoType]): DataStream[Out] = {
+    main()
   }
 
+  /**
+    * Create a new datastream
+    *
+    * @return Stream
+    */
+  def main(): DataStream[Out]
 }
