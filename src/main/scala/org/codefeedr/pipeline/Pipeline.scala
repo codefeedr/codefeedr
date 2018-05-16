@@ -51,8 +51,6 @@ case class Pipeline(bufferType: BufferType,
       case _ => runtime
     }
 
-    environment.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime)
-
     start(runtime, stage)
   }
 
