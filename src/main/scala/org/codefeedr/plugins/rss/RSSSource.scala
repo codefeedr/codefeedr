@@ -29,11 +29,11 @@ import scala.util.control.Breaks._
 
 import scala.xml.{Elem, XML}
 
-class RSSItemSource(url: String,
-                    dateFormat: String,
-                    pollingInterval: Int = 1000,
-                    maxNumberOfRuns: Int = -1,
-                    http: Http = new Http) extends RichSourceFunction[RSSItem] {
+class RSSSource(url: String,
+                dateFormat: String,
+                pollingInterval: Int = 1000,
+                maxNumberOfRuns: Int = -1,
+                http: Http = new Http) extends RichSourceFunction[RSSItem] {
 
   private var isRunning = false
   private var runsLeft = 0
@@ -67,8 +67,6 @@ class RSSItemSource(url: String,
       if (validSortedItems.nonEmpty) {
         lastItem = Some(validSortedItems.last)
       }
-
-      print(lastItem)
 
       // Wait until the next poll
       waitPollingInterval()

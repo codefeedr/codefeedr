@@ -18,7 +18,7 @@ class RSSItemInputStageTest extends FunSuite with MockFactory with BeforeAndAfte
 
     val httpMock = mock[Http]
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSItemSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 2000, 2, httpMock)
+    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 2000, 2, httpMock)
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -40,7 +40,7 @@ class RSSItemInputStageTest extends FunSuite with MockFactory with BeforeAndAfte
   test("RSS source should collect all RSS items"){
     val httpMock = mock[Http]
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSItemSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",2000, 2, httpMock)
+    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",2000, 2, httpMock)
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -62,7 +62,7 @@ class RSSItemInputStageTest extends FunSuite with MockFactory with BeforeAndAfte
   test("RSS source should collect RSS items in order"){
     val httpMock = mock[Http]
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSItemSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 2000, 2, httpMock)
+    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 2000, 2, httpMock)
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -89,7 +89,7 @@ class RSSItemInputStageTest extends FunSuite with MockFactory with BeforeAndAfte
   test("RSS source should continue when recieving wrong xml"){
     val httpMock = mock[Http]
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSItemSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",2000, 5, httpMock)
+    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",2000, 5, httpMock)
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -109,7 +109,7 @@ class RSSItemInputStageTest extends FunSuite with MockFactory with BeforeAndAfte
   }
 
   test("Cancel should turn make isRunning false") {
-    val source = new RSSItemSource("", "EEE, dd MMMM yyyy HH:mm:ss z",0)
+    val source = new RSSSource("", "EEE, dd MMMM yyyy HH:mm:ss z",0)
     assert(!source.getIsRunning)
     source.open(null)
     assert(source.getIsRunning)
