@@ -14,32 +14,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 package org.codefeedr.pipeline
 
 import com.sksamuel.avro4s.FromRecord
-import org.apache.flink.streaming.api.scala.DataStream
 
 import scala.reflect.{ClassTag, Manifest}
 
-
-/**
-  * The Source class represents the start of a pipeline.
-  * It has an input type but no specific output type since it will not be connected to the buffer.
-  *
-  * @tparam Out the output type of the job.
-  */
-abstract class Source[Out <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[NoType, Out] {
-
-  override def transform(source: DataStream[NoType]): DataStream[Out] = {
-    main()
-  }
-
-  /**
-    * Create a new datastream
-    *
-    * @return Stream
-    */
-  def main(): DataStream[Out]
-}
+abstract class TransformStage[In <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[In, NoType]
+abstract class TransformStage2[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject2[In, In2, NoType]
+abstract class TransformStage3[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject3[In, In2, In3, NoType]
+abstract class TransformStage4[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, In4 <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject4[In, In2, In3, In4, NoType]

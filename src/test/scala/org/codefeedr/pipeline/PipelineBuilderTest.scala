@@ -198,7 +198,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assert(pipeline.graph.nodes.size == 2)
 
     pipeline.graph.nodes.head shouldBe an[SimpleSourcePipelineObject]
-    pipeline.graph.nodes.last shouldBe an[Job[StringType]]
+    pipeline.graph.nodes.last shouldBe an[OutputStage[StringType]]
   }
 
   test("Should add parents when using addParents") {
