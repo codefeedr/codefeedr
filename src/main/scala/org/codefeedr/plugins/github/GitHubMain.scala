@@ -23,9 +23,8 @@ import org.codefeedr.plugins.github.requests.EventService
 object GitHubMain {
 
   def main(args : Array[String]) = {
-    val service = new EventService(false)
-
-    print(service .getLatestEvents().size)
+    val service = new EventService(true)
+    val events = service.getLatestEvents()
   }
 
 }

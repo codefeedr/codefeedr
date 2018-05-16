@@ -31,7 +31,7 @@ object GitHubProtocol {
                    actor: Actor,
                    repo: Repo,
                    organization: Option[Organization],
-                   payload: Either[String, Payload],
+                   payload: String,
                    public: Boolean,
                    created_at: String) extends PipelineItem
 

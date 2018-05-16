@@ -19,6 +19,7 @@
 package org.codefeedr.plugins.github.requests
 
 import org.json4s._
+import util.control.Breaks._
 import org.json4s.jackson.JsonMethods._
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.plugins.github.GitHubProtocol.Event
@@ -47,20 +48,25 @@ class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000)
     var events: List[Event] = List()
     var status = 200
 
-    while (status == 200 && nextPage < lastPage) {
-      val response = doPagedRequest(nextPage)
+    breakable {
+      while (status == 200 && nextPage <= lastPage) {
+        val response = doPagedRequest(nextPage)
 
-      //update status and new request headers
-      status = response.status
-      updateRequestHeaders(response.headers)
+        //update status and new request headers
+        status = response.status
+        updateRequestHeaders(response.headers)
 
-      //add new events
-      events = parseEvents(response.body) ::: events
+        //add new events
+        val newEvents = parseEvents(response.body)
+        events = newEvents ::: events
 
-      //update pages to keep retrieving the events
-      val pages = parseNextAndLastPage(response.headers.find(_.key == "Link").get)
-      nextPage = pages._1
-      lastPage = pages._2
+        if (nextPage == lastPage) break
+
+        //update pages to keep retrieving the events
+        val pages = parseNextAndLastPage(response.headers.find(_.key == "Link").get)
+        nextPage = pages._1
+        lastPage = pages._2
+      }
     }
 
     //remove duplicates if enabled
@@ -87,11 +93,12 @@ class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000)
     * @return the list of events.
     */
   def parseEvents(body: String): List[Event] = {
-    val json = parse(body)
+    implicit val defaultFormats = DefaultFormats
 
-    json
-      .children
-      .map(_.extract[Event])
+    val json = parse(body)
+    json.transformField {
+      case JField("payload", list : JObject) => ("payload", JString(compact(render(list))))
+    }.extract[List[Event]]
   }
 
   /**

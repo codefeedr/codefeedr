@@ -36,7 +36,6 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     */
   def request(): GitHubResponse = {
     val request = buildUrl().asString
-    println(buildUrl().headers)
     val response = parseResponse(request)
 
     //handle invalid status codes
@@ -78,9 +77,6 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     val headers = requestHeaders
       .map(h => (h.key, h.value.reduce(_ + "," + _)))
       .toMap + ACCEPT_HEADER
-
-    println(headers)
-
 
     val http = Http(URL + endpoint)
       .headers(headers)
