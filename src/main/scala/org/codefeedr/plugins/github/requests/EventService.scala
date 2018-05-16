@@ -18,67 +18,153 @@
  */
 package org.codefeedr.plugins.github.requests
 
-import java.util.UUID
-
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.plugins.github.GitHubProtocol.Event
+import org.codefeedr.plugins.github.util.FiniteQueue.FiniteQueue
 
-case class Link(page : Int, rel : String)
-class EventService {
+import scala.collection.mutable.Queue
+/**
+  * Represents a link header from the GitHub API.
+  * This shows the previous/next/last page you can retrieve from.
+  *
+  * @param page the page id.
+  * @param rel  the previous/next/last page.
+  */
+case class Page(page: Int, rel: String)
 
-  var requestHeaders : List[Header] = List()
+class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000) {
 
-  def getLatestEvents() : List[Event] = {
-    var lastPage = 10
-    var currentPage = 1
+  var queue : Queue[String] = Queue[String]()
 
-    var eventsSize = 0
+  var requestHeaders: List[Header] = List()
 
-    while (currentPage < lastPage) {
-      println("Now retrieving page " + currentPage)
-      val firstResponse = new GitHubRequest(GitHubEndpoints.EVENTS + s"?page=$currentPage", requestHeaders).request()
+  def getLatestEvents(): List[Event] = {
+    var lastPage = Int.MaxValue
+    var nextPage = 1
 
-      println(firstResponse.body)
-      println(firstResponse.status)
-      firstResponse.headers.foreach(x => println(s"${x.key}: ${x.value.mkString(",")}"))
-      updateRequestHeaders(firstResponse.headers)
+    var events: List[Event] = List()
+    var status = 200
 
-      eventsSize += 30
+    while (status == 200 && nextPage < lastPage) {
+      val response = doPagedRequest(nextPage)
 
-      val links = parseLink(firstResponse.headers.find(_.key == "Link").get.value(0))
-      currentPage = links.find(_.rel == "next").get.page
-      lastPage = links.find(_.rel == "last").get.page
+      //update status and new request headers
+      status = response.status
+      updateRequestHeaders(response.headers)
+
+      //add new events
+      events = parseEvents(response.body) ::: events
+
+      //update pages to keep retrieving the events
+      val pages = parseNextAndLastPage(response.headers.find(_.key == "Link").get)
+      nextPage = pages._1
+      lastPage = pages._2
     }
 
-    println(eventsSize)
-
-    //val secondResponse = new GitHubRequest(GitHubEndpoints.EVENTS, requestHeaders).request()
-    //println(secondResponse.body)
-    //println(secondResponse.status)
-    //secondResponse.headers.foreach(x => println(s"${x.key}: ${x.value.mkString(",")}"))
-
-    List()
+    //remove duplicates if enabled
+    if (duplicateFilter) duplicateCheck(events) else events
   }
 
-  def parseLink(url: String): List[Link] = {
+  /**
+    * Checks for duplicates.
+    * @param events events to check.
+    * @return non-duplicated events.
+    */
+  def duplicateCheck(events : List[Event]) : List[Event] = {
+    events
+      .filter(x => !queue.contains(x.id))
+      .map { x =>
+        queue.enqueueFinite(x.id, duplicateCheckSize)
+        x
+      }
+  }
+
+  /**
+    * Parse all JSON events into an Event case class.
+    * @param body the body to parse.
+    * @return the list of events.
+    */
+  def parseEvents(body: String): List[Event] = {
+    val json = parse(body)
+
+    json
+      .children
+      .map(_.extract[Event])
+  }
+
+  /**
+    * Parses the next and last page based on the link header.
+    *
+    * @param linkHeader the lnkheader to parse from.
+    * @return a tuple containing the next and last page id.
+    */
+  def parseNextAndLastPage(linkHeader: Header): (Int, Int) = {
+    val pages = parsePages(linkHeader.value(0))
+
+    //get current and last page
+    val nextPage = pages
+      .find(_.rel == "next").get.page
+    val lastPage = pages
+      .find(_.rel == "last").get.page
+
+    (nextPage, lastPage)
+  }
+
+  /**
+    * Do a request for a certain page.
+    *
+    * @param page the page id.
+    * @return a github response.
+    */
+  def doPagedRequest(page: Int): GitHubResponse = {
+    new GitHubRequest(s"${GitHubEndpoints.EVENTS}${GitHubEndpoints.EVENTS_PAGE}$page", requestHeaders)
+      .request()
+  }
+
+  /**
+    * Parses the link header into 'pages'.
+    *
+    * @param url the full header value.
+    * @return a list of pages.
+    */
+  def parsePages(url: String): List[Page] = {
     url
       .split(",")
       .map { x =>
         val digitRegex = "(\\d+)".r
         val wordRegex = "\"(\\w+)\"".r
-        Link(digitRegex.findFirstIn(x).get.toInt, wordRegex.findFirstIn(x).get.replace("\"", ""))
+        Page(digitRegex.findFirstIn(x).get.toInt, wordRegex.findFirstIn(x).get.replace("\"", ""))
       }
       .toList
   }
 
-  def updateRequestHeaders(newHeaders : List[Header]) =  {
-    if (newHeaders.exists(_.key == "ETag")) {
-      updateOrAddHeader("If-None-Match", newHeaders.filter(_.key == "ETag").head.value)
+
+  /**
+    * Update all the request headers based on the response headers.
+    *
+    * @param reponseHeaders the response headers.
+    */
+  def updateRequestHeaders(reponseHeaders: List[Header]) = {
+    if (reponseHeaders.exists(_.key == "ETag")) {
+      updateOrAddHeader("If-None-Match", reponseHeaders.filter(_.key == "ETag").head.value)
     }
   }
 
-  def updateOrAddHeader(header : Header) : Unit = updateOrAddHeader(header.key, header.value)
+  /**
+    * Updates or adds a header.
+    *
+    * @param header the header to add or update.
+    */
+  def updateOrAddHeader(header: Header): Unit = updateOrAddHeader(header.key, header.value)
 
+  /**
+    * Updates or adds a request header.
+    *
+    * @param key   the header key.
+    * @param value the header value.
+    */
   def updateOrAddHeader(key: String, value: Array[String]) = {
     if (requestHeaders.exists(_.key == key)) {
       requestHeaders = requestHeaders.filter(_.key != key)
@@ -87,7 +173,13 @@ class EventService {
     requestHeaders = Header(key, value) :: requestHeaders
   }
 
+  /**
+    * Set the API key of the event-service.
+    *
+    * @param apiKey the API key to use.
+    */
   def setKey(apiKey: String) = {
     updateOrAddHeader("Authorization", Array(s"token $apiKey"))
   }
+
 }

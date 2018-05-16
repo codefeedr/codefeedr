@@ -16,14 +16,23 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.github
+package org.codefeedr.plugins.github.util
 
-object GitHubEndpoints {
+import scala.collection.mutable
 
-  /**
-    * EVENTS
-    */
-  val EVENTS = "/events"
-  val EVENTS_PAGE = "?page="
+/**
+  * MutableFiniteQueue
+  * Code from: https://stackoverflow.com/questions/6918731/maximum-length-for-scala-queue
+  */
+object FiniteQueue {
+
+  implicit class FiniteQueue[A](q: mutable.Queue[A]) {
+    def enqueueFinite(elem: A, maxSize: Int): Unit = {
+      q.enqueue(elem)
+      while (q.size > maxSize) {
+        q.dequeue()
+      }
+    }
+  }
 
 }

@@ -19,8 +19,6 @@
 package org.codefeedr.plugins.github.requests
 
 import scalaj.http.{Http, HttpRequest, HttpResponse}
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 
 final case class GitHubRequestException(private val message: String = "",
                                         private val cause: Throwable = None.orNull)
@@ -29,7 +27,6 @@ final case class GitHubRequestException(private val message: String = "",
 class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
 
   val URL = "https://api.github.com"
-
   val ACCEPT_HEADER = ("Accept", "application/vnd.github.v3+json")
 
 
