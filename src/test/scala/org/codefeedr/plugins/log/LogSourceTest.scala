@@ -1,7 +1,5 @@
 package org.codefeedr.plugins.log
 
-import java.io.File
-
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.pipeline._
 import org.codefeedr.pipeline.buffer.BufferType
