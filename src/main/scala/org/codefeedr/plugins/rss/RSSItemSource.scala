@@ -35,84 +35,143 @@ class RSSItemSource(url: String,
                     maxNumberOfRuns: Int = -1,
                     http: Http = new Http) extends RichSourceFunction[RSSItem] {
 
-  var isRunning = false
+  private var isRunning = false
+  private var runsLeft = 0
+  private var lastItem: Option[RSSItem] = None
+
+  def getIsRunning: Boolean = isRunning
 
   override def open(parameters: Configuration): Unit = {
     isRunning = true
+    runsLeft = maxNumberOfRuns
   }
 
   override def cancel(): Unit = {
     isRunning = false
+
   }
 
   override def run(ctx: SourceFunction.SourceContext[RSSItem]): Unit = {
-    var lastItem: Option[RSSItem] = None
-    var numRunsRemaining = maxNumberOfRuns
+    while (isRunning && runsLeft != 0) {
+      // Polls the RSS feed
+      val rssAsString = getRSSAsString
 
-    var failedTries = 0
+      // Parses the received rss items
+      val items: Seq[RSSItem] = parseRSSString(rssAsString)
 
-    while (isRunning && numRunsRemaining != 0) {
-      breakable {
-        var items: Seq[RSSItem] = null
+      decreaseRunsLeft()
 
-        try {
-          val nodes = getXMLFromUrl(url) \\ "item"
-
-          items = for (t <- nodes) yield xmlToRSSItem(t)
-
-          if (numRunsRemaining > 0) {
-            numRunsRemaining -= 1
-          }
-          if (failedTries > 0) {
-            println("Succeeded again. Resetting amount of fails.")
-            failedTries = 0
-          }
-
-        } catch {
-          case e: Throwable =>
-            failedTries += 1
-            println("Failed to get RSS item from url " + failedTries + " time(s)")
-            if (failedTries % 3 == 0) {
-              val sleepTime = failedTries / 3 * pollingInterval
-              println("\t now sleeping for " + sleepTime + " milliseconds")
-              Thread.sleep(sleepTime)
-            }
-            break
-        }
-
-        val sortedItems = items.sortWith((x: RSSItem, y: RSSItem) => x.pubDate.isBefore(y.pubDate))
-        sortedItems.dropWhile((x: RSSItem) => {
-          if (lastItem.isDefined)
-            x.pubDate.isBefore(lastItem.get.pubDate) || lastItem.get.guid == x.guid
-          else
-            false
-        })
-          .foreach(ctx.collect)
-
-        lastItem = Some(sortedItems.last)
-
-        Thread.sleep(pollingInterval)
+      // Collect right items and update last item
+      val validSortedItems = sortAndDropDuplicates(items)
+      validSortedItems.foreach(ctx.collect)
+      if (validSortedItems.nonEmpty) {
+        lastItem = Some(validSortedItems.last)
       }
+
+      print(lastItem)
+
+      // Wait until the next poll
+      waitPollingInterval()
     }
   }
 
-  def getXMLFromUrl(url: String) : Elem = {
-      XML.loadString(http.getResponse(url).body)
+  /**
+    * Drops items that already have been collected and sorts them based on times
+    * @param items Potential items to be collected
+    * @return Valid sorted items
+    */
+  def sortAndDropDuplicates(items: Seq[RSSItem]): Seq[RSSItem] = {
+    items
+      .filter((x: RSSItem) => {
+        if (lastItem.isDefined)
+          lastItem.get.pubDate.isBefore(x.pubDate) && lastItem.get.guid != x.guid
+        else
+          true
+      }).sortWith((x: RSSItem, y: RSSItem) => x.pubDate.isBefore(y.pubDate))
   }
 
+  /**
+    * Requests the RSS feed and returns its body as a string.
+    * Will keep trying with increasing intervals if it doesn't succeed
+    * @return Body of requested RSS feed
+    */
+  def getRSSAsString: String = {
+    var failedTries = 0
+
+     while(isRunning) {
+      try {
+        val rss = http.getResponse(url).body
+
+        if (failedTries > 0) {
+          println("Succeeded again. Resetting amount of fails.")
+          failedTries = 0
+        }
+        return rss
+      }
+      catch {
+        case e: Throwable =>
+          e.printStackTrace()
+          failedTries += 1
+          println("Failed to get RSS feed", failedTries, "time(s)")
+          if (failedTries % 3 == 0) {
+            val amountOfIntervals = failedTries / 3
+            println("now sleeping for " + amountOfIntervals * pollingInterval + " milliseconds")
+            waitPollingInterval(amountOfIntervals)
+          }
+      }
+    }
+    //Can only happen if the source is cancelled
+    null
+  }
+
+  /**
+    * Parses a string that contains xml with RSS items
+    * @param rssString XML string with RSS items
+    * @return Sequence of RSS items
+    */
+  def parseRSSString(rssString: String): Seq[RSSItem] = {
+    try {
+      val xml = XML.loadString(rssString)
+      val nodes = xml \\ "item"
+      for (t <- nodes) yield xmlToRSSItem(t)
+    } catch {
+      // If the string cannot be parsed return an empty list
+      case _: Throwable => Nil
+    }
+  }
+
+  /**
+    * Parses a xml node to a RSS item
+    * @param node XML node
+    * @return RSS item
+    */
   def xmlToRSSItem(node: scala.xml.Node): RSSItem = {
     val title = (node \ "title").text
     val description = (node \ "description").text
     val link = (node \ "link").text
     val guid = (node \ "guid").text
 
-//    val formatter = DateTimeFormatter.ofPattern("EEE, dd MMMM yyyy HH:mm:ss z")
-//    val formatter = DateTimeFormatter.RFC_1123_DATE_TIME
     val formatter = DateTimeFormatter.ofPattern(dateFormat)
-
     val pubDate = LocalDateTime.parse((node \ "pubDate").text, formatter)
 
     RSSItem(title, description, link, pubDate, guid)
+  }
+
+  /**
+    * If there is a limit to the amount of runs decrease by 1
+    */
+  def decreaseRunsLeft(): Unit = {
+    if (runsLeft > 0) {
+      runsLeft -= 1
+    }
+  }
+
+  /**
+    * Wait a certain amount of times the polling interval
+    * @param times Times the polling interval should be waited
+    */
+  def waitPollingInterval(times: Int = 1) = {
+    Thread.sleep(times * pollingInterval)
   }
 
 
