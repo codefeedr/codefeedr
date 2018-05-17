@@ -18,13 +18,13 @@
  */
 package org.codefeedr.plugins.rss
 
-import org.codefeedr.pipeline.{NoType, PipelineObject, InputStage}
+import org.codefeedr.pipeline.InputStage
 import org.apache.flink.streaming.api.scala.{DataStream, _}
 
 class RSSInputStage(url: String, dateFormat: String, pollingInterval: Int) extends InputStage[RSSItem] {
 
   override def main(): DataStream[RSSItem] = {
-    pipeline.environment.addSource(new RSSItemSource(url, dateFormat, pollingInterval))
+    pipeline.environment.addSource(new RSSSource(url, dateFormat, pollingInterval))
   }
 
 }
