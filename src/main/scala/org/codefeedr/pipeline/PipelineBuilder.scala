@@ -157,7 +157,13 @@ class PipelineBuilder() {
     this
   }
 
-  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord, V <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => DataStream[V]) : PipelineBuilder = {
+  /**
+    * Append a node created from a transform function
+    *
+    * @param trans Function
+    * @return Builder
+    */
+  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord, V <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => DataStream[V]): PipelineBuilder = {
     val pipelineItem = new PipelineObject[U, V](null) {
       override def transform(source: DataStream[U]): DataStream[V] = trans(source)
     }
@@ -165,7 +171,13 @@ class PipelineBuilder() {
     append(pipelineItem)
   }
 
-  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => Any) : PipelineBuilder = {
+  /**
+    * Append a node created from an output function
+    *
+    * @param trans Function
+    * @return Builder
+    */
+  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => Any): PipelineBuilder = {
     val pipelineItem = new OutputStage[U](null) {
       override def main(source: DataStream[U]): Unit = trans(source)
     }
