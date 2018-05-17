@@ -7,13 +7,13 @@ import org.codefeedr.plugins.{StringCollectSink, StringType}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class LogSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
+class LogInputStageTest extends FunSuite with MockFactory with BeforeAndAfter {
 
   test("LogSource integration test") {
 
     new PipelineBuilder()
       .setBufferType(BufferType.None)
-      .append(new ApacheLogFileSource(getClass.getResource("/access.log").getPath))
+      .append(new ApacheLogFileInputStage(getClass.getResource("/access.log").getPath))
       .append(new MyPipelineObject)
       .append { x: DataStream[StringType] =>
         x.addSink(new StringCollectSink)
