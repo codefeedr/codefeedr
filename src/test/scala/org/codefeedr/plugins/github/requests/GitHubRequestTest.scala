@@ -35,7 +35,7 @@ class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   var defaultRequest : GitHubRequest = _
 
   before {
-    defaultRequest = new GitHubRequest("/test", List(Header("test", Array("test"))))
+    defaultRequest = new GitHubRequest("/test", List(Header("test", Array("test")), Header("test2", Array("test", "test2"))))
   }
 
   test("200 status should be properly forwarded") {
@@ -76,6 +76,15 @@ class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     val request = defaultRequest.buildRequest()
 
     assert(request.headers.contains(("test", "test")))
+    assert(request.url == GitHubEndpoints.DEFAULT_URL + "/test")
+    assert(request.headers.contains(("Accept", "application/vnd.github.v3+json")))
+  }
+
+  test("A HTTP Request should be properly build (complex)") {
+    val request = defaultRequest.buildRequest()
+
+    assert(request.headers.contains(("test", "test")))
+    assert(request.headers.contains("test2", "test,test2"))
     assert(request.url == GitHubEndpoints.DEFAULT_URL + "/test")
     assert(request.headers.contains(("Accept", "application/vnd.github.v3+json")))
   }
