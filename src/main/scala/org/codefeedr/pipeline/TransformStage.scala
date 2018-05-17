@@ -21,7 +21,7 @@ import com.sksamuel.avro4s.FromRecord
 
 import scala.reflect.{ClassTag, Manifest}
 
-abstract class TransformStage[In <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject[In, NoType]
-abstract class TransformStage2[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject2[In, In2, NoType]
-abstract class TransformStage3[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject3[In, In2, In3, NoType]
-abstract class TransformStage4[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, In4 <: PipelineItem : ClassTag : Manifest : FromRecord] extends PipelineObject4[In, In2, In3, In4, NoType]
+abstract class TransformStage[In <: PipelineItem : ClassTag : Manifest : FromRecord](stageAttributes: StageAttributes = StageAttributes()) extends PipelineObject[In, NoType](stageAttributes)
+abstract class TransformStage2[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord](stageAttributes: StageAttributes = StageAttributes()) extends PipelineObject2[In, In2, NoType](stageAttributes)
+abstract class TransformStage3[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord](stageAttributes: StageAttributes = StageAttributes()) extends PipelineObject3[In, In2, In3, NoType](stageAttributes)
+abstract class TransformStage4[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, In4 <: PipelineItem : ClassTag : Manifest : FromRecord](stageAttributes: StageAttributes = StageAttributes()) extends PipelineObject4[In, In2, In3, In4, NoType](stageAttributes)

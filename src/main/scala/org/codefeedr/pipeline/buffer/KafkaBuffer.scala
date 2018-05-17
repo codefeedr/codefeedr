@@ -32,7 +32,7 @@ import scala.reflect.classTag
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
-import org.codefeedr.pipeline.Pipeline
+import org.codefeedr.pipeline.{Pipeline, PipelineItem, PipelineObject, StageAttributes}
 import org.codefeedr.pipeline.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
 
 import scala.collection.JavaConverters._
@@ -67,7 +67,7 @@ private object KafkaBufferDefaults {
   val SCHEMA_EXPOSURE_DESERIALIZATION = false
 }
 
-class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, properties: org.codefeedr.Properties, topic: String) extends Buffer[T](pipeline) {
+class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String) extends Buffer[T](pipeline) {
 
   //Get type of the class at run time
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]

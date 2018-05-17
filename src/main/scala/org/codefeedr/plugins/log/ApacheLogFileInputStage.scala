@@ -24,14 +24,31 @@ import java.time.format.DateTimeFormatter
 import org.apache.flink.api.common.functions.FlatMapFunction
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector
-import org.codefeedr.pipeline.InputStage
+import org.codefeedr.pipeline.{InputStage, StageAttributes}
 
 /**
   * Source that streams Apache log files
   *
   * @param absolutePath Absolute file path to the log
   */
-class ApacheLogFileInputStage(absolutePath: String) extends InputStage[ApacheAccessLogItem] with Serializable {
+class ApacheLogFileInputStage(absolutePath: String, stageAttributes: StageAttributes = StageAttributes()) extends InputStage[ApacheAccessLogItem](stageAttributes) with Serializable {
+
+  private class LogMapper extends FlatMapFunction[String, ApacheAccessLogItem] {
+
+    lazy val dateFormatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z")
+    lazy val pattern = """^(\S+) \S+ \S+ \[([\w:\/]+\s[+\-]\d{4})\] "(\S+\s*\S+\s*\S+)?\s*" (\d{3}) (\S+) ("[^"]*") ("[^"]*") ("[^"]*")""".r
+
+    def flatMap(line: String, out: Collector[ApacheAccessLogItem]): Unit = line match {
+      case pattern(ipAddress, dateString, request, status, amountOfBytes, referer, userAgent, _*) => {
+        val date = LocalDateTime.parse(dateString, dateFormatter)
+        val amountOfBytesInt = if (amountOfBytes != "-") amountOfBytes.toInt else -1
+
+        out.collect(ApacheAccessLogItem(ipAddress, date, request, status.toInt, amountOfBytesInt, referer, userAgent))
+      }
+      case _ =>
+    }
+
+  }
 
   override def main(): DataStream[ApacheAccessLogItem] = {
     pipeline.environment
@@ -39,23 +56,6 @@ class ApacheLogFileInputStage(absolutePath: String) extends InputStage[ApacheAcc
       .flatMap(_.split('\n'))
       .flatMap(new LogMapper())
       .assignAscendingTimestamps(line => line.date.atZone(ZoneId.systemDefault()).toEpochSecond)
-  }
-
-}
-
-private class LogMapper extends FlatMapFunction[String, ApacheAccessLogItem] {
-
-  lazy val dateFormatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z")
-  lazy val pattern = """^(\S+) \S+ \S+ \[([\w:\/]+\s[+\-]\d{4})\] "(\S+\s*\S+\s*\S+)?\s*" (\d{3}) (\S+) ("[^"]*") ("[^"]*") ("[^"]*")""".r
-
-  def flatMap(line: String, out: Collector[ApacheAccessLogItem]): Unit = line match {
-    case pattern(ipAddress, dateString, request, status, amountOfBytes, referer, userAgent, _*) => {
-      val date = LocalDateTime.parse(dateString, dateFormatter)
-      val amountOfBytesInt = if (amountOfBytes != "-") amountOfBytes.toInt else -1
-
-      out.collect(ApacheAccessLogItem(ipAddress, date, request, status.toInt, amountOfBytesInt, referer, userAgent))
-    }
-    case _ =>
   }
 
 }
