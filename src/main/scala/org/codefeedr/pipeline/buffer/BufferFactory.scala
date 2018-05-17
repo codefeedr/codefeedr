@@ -55,7 +55,7 @@ class BufferFactory[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <
       case BufferType.None =>
         throw new IllegalStateException("Cannot instantiate buffer of type 'None'")
       case BufferType.Kafka =>
-        new KafkaBuffer[T](pipeline, pipeline.bufferProperties, stage.stageAttributes, subject)
+        new KafkaBuffer[T](pipeline, pipeline.bufferProperties, stage.attributes, subject)
     }
   }
 }

@@ -33,11 +33,11 @@ import scala.reflect.runtime.universe._
   * @tparam In  input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord](val stageAttributes: StageAttributes = StageAttributes()) {
+abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord](val attributes: StageAttributes = StageAttributes()) {
 
   var pipeline: Pipeline = _
 
-  def id: String = stageAttributes.id.getOrElse(getClass.getName)
+  def id: String = attributes.id.getOrElse(getClass.getName)
 
   /**
     * Stage properties
