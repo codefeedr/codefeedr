@@ -37,7 +37,7 @@ class PipelineBuilder() {
   protected var pipelineType: PipelineType = PipelineType.Sequential
 
   /** Properties of the buffer */
-  var bufferProperties = new Properties()
+  protected[pipeline] var bufferProperties = new Properties()
 
   /** Stage properties */
   protected val stageProperties = new mutable.HashMap[String, Properties]()
