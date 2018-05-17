@@ -233,4 +233,8 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     pipeline.graph.getParents(c)(1) shouldBe an[SimpleTransformPipelineObject]
     assert(pipeline.graph.getParents(c).size == 2)
   }
+
+//  test("") {
+//
+//  }
 }

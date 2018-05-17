@@ -209,6 +209,15 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Should throw when propertiesOf stage is null") {
+    val sink = new SimpleSinkPipelineObject(1)
+    val source = new FlinkCrashObjectTest()
 
+    val pipeline = builder
+      .edge(source, sink)
+      .build()
+
+    assertThrows[IllegalArgumentException] {
+      pipeline.propertiesOf(null)
+    }
   }
 }
