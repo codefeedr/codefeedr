@@ -58,7 +58,7 @@ class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000)
 
         //add new events
         val newEvents = parseEvents(response.body)
-        events = newEvents ::: events
+        events = (if (duplicateFilter) duplicateCheck(newEvents) else newEvents) ::: events
 
         if (nextPage == lastPage) break
 
@@ -69,8 +69,7 @@ class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000)
       }
     }
 
-    //remove duplicates if enabled
-    if (duplicateFilter) duplicateCheck(events) else events
+    events
   }
 
   /**

@@ -20,11 +20,14 @@ package org.codefeedr.plugins.github.requests
 
 import java.io.InputStream
 
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.mockito.Mockito._
+import org.mockito.Matchers.any
 
 import scala.io.Source
 
-class EventServiceTest extends FunSuite with BeforeAndAfter {
+class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
 
   val stream : InputStream = getClass.getResourceAsStream("/sample_events.json")
   val sampleEvents : String = Source.fromInputStream(stream).getLines.mkString
@@ -127,6 +130,40 @@ class EventServiceTest extends FunSuite with BeforeAndAfter {
     assert(nonDuplicates.size == 4)
     assert(nonDuplicates.filter(_ == "7688205331").size == 2)
     assert(nonDuplicates.filter(_ == "7688205336").size == 2)
+  }
+
+  test ("Get latest events should return the latest events") {
+   val eventService = spy(new EventService(false))
+
+    when(eventService.doPagedRequest(any(classOf[Int])))
+      .thenReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
+
+    //should stop after one run
+    doReturn((1, 0))
+      .when(eventService)
+      .parseNextAndLastPage(any(classOf[Header]))
+
+
+    val events = eventService.getLatestEvents()
+
+    assert(events.size == 2)
+  }
+
+  test ("Get latest events should return the latest events without duplicates") {
+    val eventService = spy(new EventService(true))
+
+    when(eventService.doPagedRequest(any(classOf[Int])))
+      .thenReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
+
+    //should stop after two runs
+    doReturn((0, 0))
+      .when(eventService)
+      .parseNextAndLastPage(any(classOf[Header]))
+
+
+    val events = eventService.getLatestEvents()
+
+    assert(events.size == 2)
   }
 
 
