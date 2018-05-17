@@ -40,7 +40,7 @@ class PipelineBuilder() {
   var bufferProperties = new Properties()
 
   /** Stage properties */
-  protected val objectProperties = new mutable.HashMap[String, Properties]()
+  protected val stageProperties = new mutable.HashMap[String, Properties]()
 
   /** Key manager */
   protected var keyManager: KeyManager = _
@@ -114,9 +114,9 @@ class PipelineBuilder() {
   }
 
   def setStageProperty(id: String, key: String, value: String): PipelineBuilder = {
-    val properties = objectProperties.getOrElse(id, new Properties())
+    val properties = stageProperties.getOrElse(id, new Properties())
 
-    objectProperties.put(id, properties.set(key, value))
+    stageProperties.put(id, properties.set(key, value))
 
     this
   }
@@ -277,6 +277,6 @@ class PipelineBuilder() {
 
     graph.nodes.foreach(_.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].verifyGraph(graph))
 
-    Pipeline(bufferType, bufferProperties, graph, keyManager, objectProperties.toMap)
+    Pipeline(bufferType, bufferProperties, graph, keyManager, stageProperties.toMap)
   }
 }
