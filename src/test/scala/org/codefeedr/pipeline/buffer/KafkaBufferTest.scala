@@ -39,7 +39,8 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
     client = AdminClient.create(props)
 
     //setup simple kafkabuffer
-    kafkaBuffer = new KafkaBuffer[StringType](new PipelineBuilder().append(new SimpleSourcePipelineObject()).build(), "test-subject")
+    val pipeline = new PipelineBuilder().append(new SimpleSourcePipelineObject()).build()
+    kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, "test-subject")
   }
 
 
