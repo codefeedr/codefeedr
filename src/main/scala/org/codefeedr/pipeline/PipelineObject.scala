@@ -21,6 +21,7 @@ package org.codefeedr.pipeline
 import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.Properties
 import org.codefeedr.pipeline.buffer.BufferFactory
 
 import scala.reflect.{ClassTag, Manifest}
@@ -35,7 +36,16 @@ import scala.reflect.runtime.universe._
 abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord] {
 
   var pipeline: Pipeline = _
-  val id: String = getClass.getName
+
+  def id: String = getClass.getName
+
+  /**
+    * Stage properties
+    *
+    * @return Properties
+    */
+  def properties: Properties =
+    pipeline.propertiesOf(this)
 
   /**
     * Setups the pipeline object with a pipeline.

@@ -173,7 +173,7 @@ class PipelineBuilder() {
     append(pipelineItem)
   }
 
-  private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): Unit = {
+  private def makeEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y], checkEdge: Boolean = true): Unit = {
     if (pipelineType != PipelineType.DAG) {
       if (!graph.isEmpty) {
         throw new IllegalStateException("Can't append node to non-sequential pipeline")
@@ -190,7 +190,7 @@ class PipelineBuilder() {
       graph = graph.addNode(to)
     }
 
-    if (graph.hasEdge(from, to)) {
+    if (checkEdge && graph.hasEdge(from, to)) {
       throw new IllegalArgumentException("Edge in graph already exists")
     }
 
@@ -204,26 +204,6 @@ class PipelineBuilder() {
     * already configured as sequential, it will throw an illegal state exception.
     */
   def edge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
-    if (graph.getParents(to).nonEmpty) {
-      throw new IllegalArgumentException("Can't add main edge to node with already any parent")
-    }
-
-    makeEdge(from, to)
-
-    this
-  }
-
-  /**
-    * Create an edge between two sources in a DAG pipeline. The 'to' can already have a parent.
-    *
-    * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
-    * already configured as sequential, it will throw an illegal state exception.
-    */
-  def extraEdge[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
-    if (graph.getParents(to).isEmpty) {
-      throw new IllegalArgumentException("Can't add extra edge to node with no main parent")
-    }
-
     makeEdge(from, to)
 
     this
@@ -239,16 +219,8 @@ class PipelineBuilder() {
     * @return Builder
     */
   def addParents[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V], parents: PipelineObjectList): PipelineBuilder = {
-    if (!graph.hasNode(obj)) {
-      graph = graph.addNode(obj)
-    }
-
     for (item <- parents) {
-      if (!graph.hasNode(item)) {
-        graph = graph.addNode(item)
-      }
-
-      graph = graph.addEdge(item, obj)
+      makeEdge(item, obj, checkEdge = false)
     }
 
     this

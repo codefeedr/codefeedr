@@ -160,7 +160,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .edge(source, a)
       .edge(source, b)
       .edge(a, sink)
-      .extraEdge(b, sink)
+      .edge(b, sink)
   }
 
 
@@ -210,7 +210,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
   test("Should throw when propertiesOf stage is null") {
     val sink = new SimpleSinkPipelineObject(1)
-    val source = new FlinkCrashObjectTest()
+    val source = new SimpleSourcePipelineObject()
 
     val pipeline = builder
       .edge(source, sink)
