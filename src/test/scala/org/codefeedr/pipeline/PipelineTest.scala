@@ -207,4 +207,8 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       pipeline.startClustered("org.codefeedr.testUtils.FlinkCrashObjectTest")
     }
   }
+
+  test("Should throw when propertiesOf stage is null") {
+
+  }
 }

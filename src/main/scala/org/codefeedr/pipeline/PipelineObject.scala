@@ -19,7 +19,6 @@
 package org.codefeedr.pipeline
 
 import com.sksamuel.avro4s.FromRecord
-import org.apache.flink.api.java.operators.DataSink
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.buffer.BufferFactory

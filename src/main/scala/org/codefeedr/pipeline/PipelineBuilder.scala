@@ -26,6 +26,7 @@ import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.pipeline.buffer.BufferType
 import org.codefeedr.pipeline.buffer.BufferType.BufferType
 
+import scala.collection.mutable
 import scala.reflect.ClassTag
 
 class PipelineBuilder() {
@@ -38,8 +39,8 @@ class PipelineBuilder() {
   /** Properties of the buffer */
   var bufferProperties = new Properties()
 
-  /** Pipeline properties */
-  var properties = new Properties()
+  /** Stage properties */
+  protected val objectProperties = new mutable.HashMap[String, Properties]()
 
   /** Key manager */
   protected var keyManager: KeyManager = _
@@ -50,21 +51,39 @@ class PipelineBuilder() {
   /** Last inserted pipeline obejct, used to convert sequential to dag. */
   private var lastObject: AnyRef = _
 
-
+  /**
+    * Get the type of the buffer
+    * @return buffer type
+    */
   def getBufferType: BufferType = {
     bufferType
   }
 
+  /**
+    * Set the type of the buffer
+    *
+    * @param bufferType New type
+    * @return This builder
+    */
   def setBufferType(bufferType: BufferType): PipelineBuilder = {
     this.bufferType = bufferType
 
     this
   }
 
+  /**
+    * Get the type of the pipeline
+    * @return Type of pipeline
+    */
   def getPipelineType: PipelineType= {
     pipelineType
   }
 
+  /**
+    * Set the type of the pipeline
+    * @param pipelineType Type of the pipeline
+    * @return This builder
+    */
   def setPipelineType(pipelineType: PipelineType): PipelineBuilder = {
     if (pipelineType == PipelineType.Sequential && this.pipelineType == PipelineType.DAG) {
       if (!graph.isSequential) {
@@ -79,18 +98,37 @@ class PipelineBuilder() {
     this
   }
 
-  def setProperty(key: String, value: String): PipelineBuilder = {
-    properties = properties.set(key, value)
-
-    this
-  }
-
+  /**
+    * Set a buffer property
+    *
+    * A buffer property is generic for all buffers
+    *
+    * @param key Key
+    * @param value Value
+    * @return
+    */
   def setBufferProperty(key: String, value: String): PipelineBuilder = {
     bufferProperties = bufferProperties.set(key, value)
 
     this
   }
 
+  def setStageProperty(id: String, key: String, value: String): PipelineBuilder = {
+    val properties = objectProperties.getOrElse(id, new Properties())
+
+    objectProperties.put(id, properties.set(key, value))
+
+    this
+  }
+
+  /**
+    * Set a key manager.
+    *
+    * A key manager handles API key management for sources.
+    *
+    * @param km Key manager
+    * @return This builder
+    */
   def setKeyManager(km: KeyManager): PipelineBuilder = {
     keyManager = km
 
@@ -239,6 +277,6 @@ class PipelineBuilder() {
 
     graph.nodes.foreach(_.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].verifyGraph(graph))
 
-    Pipeline(bufferType, bufferProperties, graph , properties, keyManager)
+    Pipeline(bufferType, bufferProperties, graph, keyManager, objectProperties.toMap)
   }
 }

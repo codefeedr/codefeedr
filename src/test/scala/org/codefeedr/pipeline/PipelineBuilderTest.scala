@@ -50,23 +50,28 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     pipeline.graph.nodes.last shouldBe an[SimpleTransformPipelineObject]
   }
 
-  test("Set properties should be available in pipeline properties") {
+  test("Set properties should be available in stage properties") {
+    val stage = new SimpleSourcePipelineObject()
+    val stage2 = new SimpleTransformPipelineObject()
+
     val pipeline = builder
-      .append(new SimpleSourcePipelineObject())
-      .setProperty("key", "value")
+      .append(stage)
+      .setStageProperty(stage.id, "key", "value")
+      .setStageProperty(stage.id, "anotherKey", "true")
       .build()
 
-    assert(pipeline.properties.get("key").get == "value")
+    assert(pipeline.propertiesOf(stage).get("key").get == "value")
+    assert(pipeline.propertiesOf(stage2).get("key").isEmpty)
   }
 
   test("Set buffer properties should be available in pipeline buffer properties") {
+    val stage = new SimpleSourcePipelineObject()
     val pipeline = builder
-      .append(new SimpleSourcePipelineObject())
+      .append(stage)
       .setBufferProperty("key", "value")
       .build()
 
     assert(pipeline.bufferProperties.get("key").get == "value")
-    assert(pipeline.properties.get("key").isEmpty)
   }
 
   test("A set keymanager should be forwarded to the pipeline") {
