@@ -209,7 +209,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("Next level") {
-    val a = new SimpleSourcePipelineObject()
+    val a = new SimpleSourcePipelineObject(StageAttributes(id = Some("testId")))
     val b = new SimpleTransformPipelineObject()
 
     val pipeline = builder
@@ -220,5 +220,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 //      .setProperty("hello", "world")
 
       .build()
+
+    assert(a.id == "testId")
   }
 }
