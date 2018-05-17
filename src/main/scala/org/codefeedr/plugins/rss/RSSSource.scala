@@ -95,20 +95,20 @@ class RSSSource(url: String,
     */
   def getRSSAsString: String = {
     var failedTries = 0
+    var rssBody: String = null
 
-     while(isRunning) {
+     while(rssBody == null) {
       try {
-        val rss = http.getResponse(url).body
+        rssBody = http.getResponse(url).body
 
         if (failedTries > 0) {
           println("Succeeded again. Resetting amount of fails.")
           failedTries = 0
         }
-        return rss
       }
       catch {
         case e: Throwable =>
-          e.printStackTrace()
+//          e.printStackTrace()
           failedTries += 1
           println("Failed to get RSS feed", failedTries, "time(s)")
           if (failedTries % 3 == 0) {
@@ -118,8 +118,7 @@ class RSSSource(url: String,
           }
       }
     }
-    //Can only happen if the source is cancelled
-    null
+    rssBody
   }
 
   /**

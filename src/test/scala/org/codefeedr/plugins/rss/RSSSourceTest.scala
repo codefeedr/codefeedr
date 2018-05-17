@@ -11,7 +11,7 @@ import scalaj.http.HttpResponse
 
 import scala.io.Source
 
-class RSSItemInputStageTest extends FunSuite with MockFactory with BeforeAndAfter {
+class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 
 
   test("RSS source should poll maxNumberOfRuns times") {
@@ -95,6 +95,31 @@ class RSSItemInputStageTest extends FunSuite with MockFactory with BeforeAndAfte
 
     val rssResponsesName = "/RSSItemSourceTestResponsesWithFailedXML"
     val lines = Source.fromURL(getClass.getResource(rssResponsesName)).getLines
+
+    for (line <- lines) {
+      val response = HttpResponse[String](line, 0, null)
+      (httpMock.getResponse _).expects(*).returning(response).noMoreThanOnce()
+    }
+
+    //Exactly 15 RSS items should be collected, because thats how many unique ones there are
+    (ctxMock.collect _).expects(*).repeated(15)
+
+    rssItemSource.open(null)
+    rssItemSource.run(ctxMock)
+  }
+
+  test("RSS source should collect all RSS items even when not receiving http responses"){
+    val httpMock = mock[Http]
+    val fakeUrl = "http://www.example.com"
+    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",2000, 2, httpMock)
+
+    val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
+
+    val rssResponsesName = "/RSSItemSourceTestResponses"
+    val lines = Source.fromURL(getClass.getResource(rssResponsesName)).getLines
+
+
+    (httpMock.getResponse _).expects(*).throwing(null).repeated(3)
 
     for (line <- lines) {
       val response = HttpResponse[String](line, 0, null)
