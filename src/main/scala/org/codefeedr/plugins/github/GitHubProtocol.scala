@@ -55,6 +55,7 @@ object GitHubProtocol {
   /**
     * START PushEvents
     */
+
   case class PushPayload(push_id: Long,
                          size: Int,
                          distinct_size: Int,

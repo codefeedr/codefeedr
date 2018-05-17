@@ -21,6 +21,13 @@ package org.codefeedr.plugins.github.util
 import scala.collection.mutable.Queue
 
 class FiniteQueue[A] extends Queue[A] {
+
+  /**
+    * Enqueues with a finite size.
+    * Dequeues according to the FIFO principle.
+    * @param elem the element to add.
+    * @param maxSize the maximum size.
+    */
   def enqueueFinite(elem: A, maxSize: Int): Unit = {
     this.enqueue(elem)
     while (this.size > maxSize) {

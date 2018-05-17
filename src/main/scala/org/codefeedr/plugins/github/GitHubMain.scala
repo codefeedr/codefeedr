@@ -20,6 +20,9 @@ import org.codefeedr.plugins.github.requests.EventService
  * limitations under the License.
  *
  */
+/**
+  * Just a test class to play around.
+ */
 object GitHubMain {
 
   def main(args : Array[String]) = {

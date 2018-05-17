@@ -20,10 +20,12 @@ package org.codefeedr.plugins.github
 
 object GitHubEndpoints {
 
+  val DEFAULT_URL = "https://api.github.com"
+
   /**
     * EVENTS
     */
   val EVENTS = "/events"
-  val EVENTS_PAGE = "?page="
+  val EVENTS_PAGE_SEGMENT = "?page="
 
 }

@@ -18,24 +18,36 @@
  */
 package org.codefeedr.plugins.github.requests
 
+import org.codefeedr.plugins.github.GitHubEndpoints
+
 import scalaj.http.{Http, HttpRequest, HttpResponse}
 
+/**
+  * Exception thrown when something goes wrong during a request to the GitHub API.
+  * @param message the exception message.
+  * @param cause the exception cause.
+  */
 final case class GitHubRequestException(private val message: String = "",
                                         private val cause: Throwable = None.orNull)
   extends Exception(message, cause)
 
+/**
+  * Handles a GitHubRequest.
+  * @param endpoint the request endpoint.
+  * @param requestHeaders the request headers.
+  */
 class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
 
-  val URL = "https://api.github.com"
+  //default accept header
   val ACCEPT_HEADER = ("Accept", "application/vnd.github.v3+json")
-
 
   /**
     * Request the data and parse the response.
+    *
     * @return a GitHubResponse object.
     */
   def request(): GitHubResponse = {
-    val request = buildUrl().asString
+    val request = buildRequest().asString
     val response = parseResponse(request)
 
     //handle invalid status codes
@@ -47,6 +59,7 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
   /**
     * Handle error codes.
     * Forwards only 200 and 304 status codes, otherwise it throws and exception.
+    *
     * @param response the GitHub response to handle.
     */
   def handleErrorCodes(response: GitHubResponse) : GitHubResponse = response.status match {
@@ -56,6 +69,7 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
 
   /**
     * Parses the HttpResponse into a GitHubResponse.
+    *
     * @param response the HttpResponse to parse.
     * @return a GitHubResponse.
     */
@@ -71,14 +85,15 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
 
   /**
     * Build an URL using predefined headers.
+    *
     * @return the HttpRequest
     */
-  def buildUrl() : HttpRequest = {
+  def buildRequest() : HttpRequest = {
     val headers = requestHeaders
       .map(h => (h.key, h.value.reduce(_ + "," + _)))
       .toMap + ACCEPT_HEADER
 
-    val http = Http(URL + endpoint)
+    val http = Http(GitHubEndpoints.DEFAULT_URL + endpoint)
       .headers(headers)
 
     http

@@ -21,6 +21,7 @@ package org.codefeedr.plugins.github.events
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
 import org.codefeedr.plugins.github.GitHubProtocol.Event
+import org.codefeedr.plugins.github.requests.EventService
 
 class EventSource(numOfPolls : Int = -1) extends RichSourceFunction[Event] {
 
@@ -37,12 +38,16 @@ class EventSource(numOfPolls : Int = -1) extends RichSourceFunction[Event] {
   }
 
   override def run(ctx: SourceFunction.SourceContext[Event]): Unit = {
+    val eventService = new EventService(false)
+
     while (isRunning && numOfPollsRemaining != 0) {
       if (numOfPollsRemaining > 0) {
         numOfPollsRemaining -= 1
       }
 
-
+      eventService
+        .getLatestEvents()
+        .foreach(ctx.collect)
     }
   }
 }

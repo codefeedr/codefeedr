@@ -39,7 +39,6 @@ case class Page(page: Int, rel: String)
 class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000) {
 
   var queue : FiniteQueue[String] = new FiniteQueue[String]()
-
   var requestHeaders: List[Header] = List()
 
   def getLatestEvents(): List[Event] = {
@@ -75,7 +74,7 @@ class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000)
   }
 
   /**
-    * Checks for duplicates.
+    * Checks for duplicates. Assumes the event list doesn't contain any duplicates!
     * @param events events to check.
     * @return non-duplicated events.
     */
@@ -127,7 +126,7 @@ class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000)
     * @return a github response.
     */
   def doPagedRequest(page: Int): GitHubResponse = {
-    new GitHubRequest(s"${GitHubEndpoints.EVENTS}${GitHubEndpoints.EVENTS_PAGE}$page", requestHeaders)
+    new GitHubRequest(s"${GitHubEndpoints.EVENTS}${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$page", requestHeaders)
       .request()
   }
 
