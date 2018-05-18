@@ -18,6 +18,7 @@
  */
 package org.codefeedr.plugins.github.requests
 
+import org.codefeedr.keymanager.{KeyManager, ManagedKey}
 import org.json4s._
 
 import util.control.Breaks._
@@ -25,6 +26,9 @@ import org.json4s.jackson.JsonMethods._
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.util.FiniteQueue
+import org.codehaus.jackson.map.ext.JodaSerializers
+import org.codehaus.jackson.map.ext.JodaSerializers.LocalDateTimeSerializer
+import org.json4s.ext.JavaTimeSerializers
 
 import scala.collection.mutable.Queue
 /**
@@ -36,7 +40,9 @@ import scala.collection.mutable.Queue
   */
 case class Page(page: Int, rel: String)
 
-class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000) {
+class EventService(duplicateFilter: Boolean,
+                   keyManager : KeyManager,
+                   duplicateCheckSize : Int = 1000000) {
 
   var queue : FiniteQueue[String] = new FiniteQueue[String]()
   var requestHeaders: List[Header] = List()
@@ -50,6 +56,11 @@ class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000)
 
     breakable {
       while (status == 200 && nextPage <= lastPage) {
+        //before each request, request a key
+        if (keyManager != null) {
+          setKey(keyManager.request("events_source").getOrElse(ManagedKey("", 0)).value)
+        }
+
         val response = doPagedRequest(nextPage)
 
         //update status and new request headers
@@ -92,7 +103,7 @@ class EventService(duplicateFilter: Boolean, duplicateCheckSize : Int = 1000000)
     * @return the list of events.
     */
   def parseEvents(body: String): List[Event] = {
-    implicit val defaultFormats = DefaultFormats
+    implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
 
     val json = parse(body)
     json.transformField {

@@ -20,6 +20,7 @@ package org.codefeedr.plugins.github.requests
 
 import java.io.InputStream
 
+import org.codefeedr.keymanager.StaticKeyManager
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.mockito.Mockito._
@@ -34,7 +35,7 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   var service : EventService = _
 
   before {
-    service = new EventService(false)
+    service = new EventService(false, new StaticKeyManager())
   }
 
   test("A key should be properly set.") {
@@ -116,7 +117,7 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   }
 
   test("There should be a proper duplicate check, but only if there is space left in the queue.") {
-    val service2 = new EventService(true, 1)
+    val service2 = new EventService(true, new StaticKeyManager(), 1)
 
     //ids: 7688205336 and 7688205331
     val events = service2.parseEvents(sampleEvents)
@@ -133,7 +134,7 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   }
 
   test ("Get latest events should return the latest events") {
-   val eventService = spy(new EventService(false))
+   val eventService = spy(new EventService(false, new StaticKeyManager()))
 
     when(eventService.doPagedRequest(any(classOf[Int])))
       .thenReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
@@ -150,7 +151,7 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   }
 
   test ("Get latest events should return the latest events without duplicates") {
-    val eventService = spy(new EventService(true))
+    val eventService = spy(new EventService(true, new StaticKeyManager()))
 
     when(eventService.doPagedRequest(any(classOf[Int])))
       .thenReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))

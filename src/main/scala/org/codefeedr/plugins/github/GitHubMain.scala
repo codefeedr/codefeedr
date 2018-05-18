@@ -1,6 +1,18 @@
 package org.codefeedr.plugins.github
 
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
+
+import com.sksamuel.avro4s.FromRecord
+import org.apache.avro.Schema
+import org.apache.avro.Schema.Field
+import org.codefeedr.keymanager.redis.RedisKeyManager
+import org.codefeedr.pipeline.buffer.serialization.{AvroSerde, Serializer}
+import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
+import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
+import org.codefeedr.plugins.github.GitHubProtocol.{Event, PushEvent, PushPayload}
 import org.codefeedr.plugins.github.requests.EventService
+import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent, GitHubEventsInput, PrintJsonOutputStage}
+import shapeless.datatype.avro.AvroType
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -26,8 +38,14 @@ import org.codefeedr.plugins.github.requests.EventService
 object GitHubMain {
 
   def main(args : Array[String]) = {
-    val service = new EventService(true)
-    val events = service.getLatestEvents()
+    new PipelineBuilder()
+      .setBufferType(BufferType.Kafka)
+      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.JSON)
+      .append(new GitHubEventsInput(1))
+      .append(new GitHubEventToPushEvent)
+      .append(new PrintJsonOutputStage[PushEvent])
+      .build()
+      .startLocal()
   }
 
 }

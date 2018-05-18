@@ -80,15 +80,6 @@ class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     assert(request.headers.contains(("Accept", "application/vnd.github.v3+json")))
   }
 
-  test("A HTTP Request should be properly build (complex)") {
-    val request = defaultRequest.buildRequest()
-
-    assert(request.headers.contains(("test", "test")))
-    assert(request.headers.contains("test2", "test,test2"))
-    assert(request.url == GitHubEndpoints.DEFAULT_URL + "/test")
-    assert(request.headers.contains(("Accept", "application/vnd.github.v3+json")))
-  }
-
   test("A request should be properly handled") {
     val mockHttp = mock[HttpRequest]
     val request = spy(defaultRequest)

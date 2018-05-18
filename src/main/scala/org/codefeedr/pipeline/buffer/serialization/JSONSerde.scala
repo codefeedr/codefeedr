@@ -26,6 +26,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.json4s.NoTypeHints
+import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
 
 import scala.collection.JavaConverters._
@@ -35,7 +36,7 @@ class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends Abs
 
 
   //implicit serialization format
-  implicit lazy val formats = Serialization.formats(NoTypeHints)
+  implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
   /**
     * Serializes a (generic) element into a json format.

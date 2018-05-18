@@ -18,18 +18,23 @@
  */
 package org.codefeedr.plugins.github.stages
 
-import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
+import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.InputStage
-import org.codefeedr.plugins.github.GitHubProtocol.Event
-import org.codefeedr.plugins.github.events.EventSource
-import org.codefeedr.plugins.github.requests.EventService
+import org.codefeedr.pipeline.{OutputStage, PipelineItem}
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.Serialization
 import org.apache.flink.api.scala._
 
-class GitHubEventsInputStage(numOfPolls : Int = -1) extends InputStage[Event] {
+import scala.reflect.{ClassTag, Manifest}
 
-  override def main(): DataStream[Event] = {
-    pipeline.environment.addSource(new EventSource(numOfPolls))
+class PrintJsonOutputStage[T <: PipelineItem : ClassTag : Manifest : FromRecord] extends OutputStage[T] {
+
+  override def main(source: DataStream[T]): Unit = {
+    source
+      .map { x =>
+        implicit lazy val formats = Serialization.formats(NoTypeHints)
+        new String(Serialization.write[T](x)(formats))
+      }.print()
   }
 }

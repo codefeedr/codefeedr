@@ -16,41 +16,20 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.github.events
+package org.codefeedr.plugins.github.stages
 
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
-import org.codefeedr.keymanager.KeyManager
+import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.pipeline.InputStage
 import org.codefeedr.plugins.github.GitHubProtocol.Event
+import org.codefeedr.plugins.github.events.EventSource
 import org.codefeedr.plugins.github.requests.EventService
+import org.apache.flink.api.scala._
 
-class EventSource(numOfPolls : Int = -1, waitTime : Int, keyManager : KeyManager) extends RichSourceFunction[Event] {
+class GitHubEventsInput(numOfPolls : Int = -1) extends InputStage[Event] {
 
-  var numOfPollsRemaining = numOfPolls
-
-  var isRunning = false
-
-  override def open(parameters: Configuration): Unit = {
-    isRunning = true
-  }
-
-  override def cancel(): Unit = {
-    isRunning = false
-  }
-
-  override def run(ctx: SourceFunction.SourceContext[Event]): Unit = {
-    val eventService = new EventService(false, keyManager)
-
-    while (isRunning && numOfPollsRemaining != 0) {
-      if (numOfPollsRemaining > 0) {
-        numOfPollsRemaining -= 1
-      }
-
-      eventService
-        .getLatestEvents()
-        .foreach(ctx.collect)
-
-      Thread.sleep(waitTime)
-    }
+  override def main(): DataStream[Event] = {
+    pipeline.environment.addSource(new EventSource(numOfPolls, 1000, pipeline.keyManager))
   }
 }

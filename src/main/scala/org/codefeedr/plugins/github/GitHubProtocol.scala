@@ -18,7 +18,10 @@
  */
 package org.codefeedr.plugins.github
 
+import java.time.LocalDateTime
+
 import org.codefeedr.pipeline.PipelineItem
+import org.codefeedr.plugins.github.GitHubProtocol.Payload
 import org.json4s.JObject
 
 object GitHubProtocol {
@@ -33,7 +36,7 @@ object GitHubProtocol {
                    organization: Option[Organization],
                    payload: String,
                    public: Boolean,
-                   created_at: String) extends PipelineItem
+                   created_at: LocalDateTime) extends PipelineItem
 
   case class Actor(id: Long,
                    login: String,
@@ -56,6 +59,15 @@ object GitHubProtocol {
     * START PushEvents
     */
 
+  case class PushEvent(id: String,
+                       `type`: String,
+                       actor: Actor,
+                       repo: Repo,
+                       organization: Option[Organization],
+                       payload: PushPayload,
+                       public: Boolean,
+                       created_at: LocalDateTime) extends PipelineItem
+
   case class PushPayload(push_id: Long,
                          size: Int,
                          distinct_size: Int,
@@ -72,5 +84,57 @@ object GitHubProtocol {
     * END PushEvents
     */
 
+  /**
+    * START Commit
+    */
+
+  case class Commit(sha: String,
+                    url: String,
+                    commit: CommitData,
+                    author: Option[User],
+                    committer: Option[User],
+                    parents: List[Parent],
+                    stats: Stats,
+                    files: List[File]) extends PipelineItem
+
+  case class CommitData(author: CommitUser,
+                        committer: CommitUser,
+                        message: String,
+                        tree: Tree,
+                        comment_count: Int,
+                        verification: Verification)
+
+  case class CommitUser(name: String, email: String, date: LocalDateTime)
+
+  case class User(id: Long, login: String, avatar_url: String, `type`: String, site_admin: Boolean)
+
+  case class Verification(verified: Boolean,
+                          reason: String,
+                          signature: Option[String],
+                          payload: Option[String])
+
+  case class Stats(total: Int, additions: Int, deletions: Int)
+
+  case class File(sha: Option[String],
+                  filename: Option[String],
+                  status: Option[String],
+                  additions: Int,
+                  deletions: Int,
+                  changes: Int,
+                  blob_url: Option[String],
+                  raw_url: Option[String],
+                  contents_url: Option[String],
+                  patch: Option[String])
+
+  case class Parent(sha: String)
+
+  case class Tree(sha: String)
+
+  /**
+    * END Commit
+    */
+
+
 
 }
+
