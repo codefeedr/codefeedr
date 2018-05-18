@@ -27,9 +27,12 @@ import org.codefeedr.plugins.github.events.EventSource
 import org.codefeedr.plugins.github.requests.EventService
 import org.apache.flink.api.scala._
 
-class GitHubEventsInput(numOfPolls : Int = -1, waitTime : Int = 1000) extends InputStage[Event] {
+class GitHubEventsInput(numOfPolls : Int = -1,
+                        waitTime : Int = 1000,
+                        duplicateFilter: Boolean = false,
+                        duplicateCheckSize : Int = 1000000) extends InputStage[Event] {
 
   override def main(): DataStream[Event] = {
-    pipeline.environment.addSource(new EventSource(numOfPolls, waitTime, pipeline.keyManager))
+    pipeline.environment.addSource(new EventSource(numOfPolls, waitTime, pipeline.keyManager, duplicateFilter, duplicateCheckSize))
   }
 }

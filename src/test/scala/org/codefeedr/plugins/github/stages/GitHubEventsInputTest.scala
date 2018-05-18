@@ -35,14 +35,14 @@ class GitHubEventsInputTest extends FunSuite {
 
   test("A GitHubEventsInputTest should create the proper results") {
     val pipeLine = new PipelineBuilder()
-      .append(new GitHubEventsInput(1, 1000))
+      .append(new GitHubEventsInput(2, 1000))
       .append { x : DataStream[Event] =>
         x.addSink(new EventCollectSink)
       }
       .build()
       .startMock()
 
-    //10 requests, so we get >>200 events
+    //+- 10 requests, so we get >>200 events
     assert(EventCollectSink.result.size > 200)
   }
 
