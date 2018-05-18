@@ -16,19 +16,18 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.github.stages
+package org.codefeedr.plugins
 
 import com.sksamuel.avro4s.FromRecord
+import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.{OutputStage, PipelineItem}
 import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization
-import org.apache.flink.api.scala._
 
 import scala.reflect.{ClassTag, Manifest}
 
-class PrintJsonOutputStage[T <: PipelineItem : ClassTag : Manifest : FromRecord] extends OutputStage[T] {
+class JsonPrinter[T <: PipelineItem : ClassTag : Manifest : FromRecord] extends OutputStage[T] {
 
   override def main(source: DataStream[T]): Unit = {
     source

@@ -25,7 +25,7 @@ import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.{PipelineObject, TransformStage}
 import org.codefeedr.plugins.github.GitHubProtocol.{Event, PushEvent, PushPayload}
 
-class GitHubEventToPushEvent extends PipelineObject[Event, PushEvent] {
+class GitHubEventToPushEvent extends TransformStage[Event, PushEvent] {
 
   override def transform(source: DataStream[Event]): DataStream[PushEvent] = {
     source

@@ -9,9 +9,10 @@ import org.codefeedr.keymanager.redis.RedisKeyManager
 import org.codefeedr.pipeline.buffer.serialization.{AvroSerde, Serializer}
 import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
 import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
+import org.codefeedr.plugins.JsonPrinter
 import org.codefeedr.plugins.github.GitHubProtocol.{Event, PushEvent, PushPayload}
 import org.codefeedr.plugins.github.requests.EventService
-import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent, GitHubEventsInput, PrintJsonOutputStage}
+import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent, GitHubEventsInput}
 import shapeless.datatype.avro.AvroType
 
 /*
@@ -43,7 +44,7 @@ object GitHubMain {
       .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.JSON)
       .append(new GitHubEventsInput(1))
       .append(new GitHubEventToPushEvent)
-      .append(new PrintJsonOutputStage[PushEvent])
+      .append(new JsonPrinter[PushEvent])
       .build()
       .startLocal()
   }

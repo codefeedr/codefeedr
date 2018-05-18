@@ -18,18 +18,46 @@
  */
 package org.codefeedr.plugins.github.stages
 
-import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
+import java.util
+
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.InputStage
+import org.codefeedr.pipeline.PipelineBuilder
+import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
 import org.codefeedr.plugins.github.GitHubProtocol.Event
-import org.codefeedr.plugins.github.events.EventSource
-import org.codefeedr.plugins.github.requests.EventService
 import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.codefeedr.plugins.StringType
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class GitHubEventsInput(numOfPolls : Int = -1, waitTime : Int = 1000) extends InputStage[Event] {
+//integration test
+class GitHubEventsInputTest extends FunSuite {
 
-  override def main(): DataStream[Event] = {
-    pipeline.environment.addSource(new EventSource(numOfPolls, waitTime, pipeline.keyManager))
+
+  test("A GitHubEventsInputTest should create the proper results") {
+    val pipeLine = new PipelineBuilder()
+      .append(new GitHubEventsInput(1, 1000))
+      .append { x : DataStream[Event] =>
+        x.addSink(new EventCollectSink)
+      }
+      .build()
+      .startMock()
+
+    //10 requests, so we get >>200 events
+    assert(EventCollectSink.result.size > 200)
   }
+
+}
+
+object EventCollectSink {
+  val result = new util.ArrayList[Event]() //mutable list
+}
+
+class EventCollectSink extends SinkFunction[Event] {
+
+  override def invoke(value: Event): Unit = {
+    synchronized {
+      EventCollectSink.result.add(value)
+    }
+  }
+
 }

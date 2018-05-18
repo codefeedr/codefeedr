@@ -148,7 +148,7 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   }
 
   test ("Get latest events should return the latest events without duplicates") {
-    val eventService = spy(new EventService(true, new StaticKeyManager()))
+    val eventService = spy(new EventService(true, null))
 
     doReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
       .when(eventService)

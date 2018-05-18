@@ -24,10 +24,11 @@ import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.requests.EventService
 
-class EventSource(numOfPolls : Int = -1, waitTime : Int, keyManager : KeyManager) extends RichSourceFunction[Event] {
+class EventSource(numOfPolls : Int = -1,
+                  waitTime : Int,
+                  keyManager : KeyManager) extends RichSourceFunction[Event] {
 
   var numOfPollsRemaining = numOfPolls
-
   var isRunning = false
 
   override def open(parameters: Configuration): Unit = {
