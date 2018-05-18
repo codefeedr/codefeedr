@@ -136,13 +136,10 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   test ("Get latest events should return the latest events") {
    val eventService = spy(new EventService(false, new StaticKeyManager()))
 
-    when(eventService.doPagedRequest(any(classOf[Int])))
-      .thenReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
+    doReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array(""))))).when(eventService).doPagedRequest(any(classOf[Int]))
 
     //should stop after one run
-    doReturn((1, 0))
-      .when(eventService)
-      .parseNextAndLastPage(any(classOf[Header]))
+    doReturn((1, 0)).when(eventService).parseNextAndLastPage(any(classOf[Header]))
 
 
     val events = eventService.getLatestEvents()
@@ -153,8 +150,9 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   test ("Get latest events should return the latest events without duplicates") {
     val eventService = spy(new EventService(true, new StaticKeyManager()))
 
-    when(eventService.doPagedRequest(any(classOf[Int])))
-      .thenReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
+    doReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
+      .when(eventService)
+      .doPagedRequest(any(classOf[Int]))
 
     //should stop after two runs
     doReturn((0, 0))
