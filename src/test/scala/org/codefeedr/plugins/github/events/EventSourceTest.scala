@@ -18,10 +18,36 @@
  */
 package org.codefeedr.plugins.github.events
 
+import org.apache.flink.configuration.Configuration
+import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.codefeedr.keymanager.StaticKeyManager
+import org.codefeedr.plugins.github.GitHubProtocol.Event
+import org.codefeedr.plugins.github.requests.EventService
 import org.scalatest.FunSuite
+import org.scalatest.mockito.MockitoSugar
+import org.mockito.Mockito._
+import org.mockito.Matchers._
 
-class EventSourceTest extends FunSuite {
+class EventSourceTest extends FunSuite with MockitoSugar {
 
-  test ("")
+  test ("The event service should be properly stopped.") {
+    val mockContext = mock[SourceFunction.SourceContext[Event]]
+    val mockService = mock[EventService]
+    val mockEvent = mock[Event]
 
+    val eventSource = spy(new EventSource(2, 0, new StaticKeyManager(), true, 3))
+    eventSource.open(new Configuration())
+    eventSource.eventService = mockService
+
+    //2 mock events
+    when(mockService.getLatestEvents()).thenReturn(List(mockEvent, mockEvent))
+
+    assert(eventSource.numOfPollsRemaining == 2)
+
+    eventSource.run(mockContext)
+
+    assert(eventSource.numOfPollsRemaining == 0)
+    verify(eventSource).cancel()
+    verify(mockContext, times(4)).collect(any[Event]) // 2 runs * 2 events = 4 calls
+  }
 }

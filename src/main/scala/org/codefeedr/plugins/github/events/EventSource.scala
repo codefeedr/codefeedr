@@ -32,18 +32,19 @@ class EventSource(numOfPolls : Int,
 
   var numOfPollsRemaining = numOfPolls
   var isRunning = false
+  var eventService : EventService = null
 
   override def open(parameters: Configuration): Unit = {
     isRunning = true
+    eventService = new EventService(duplicateFilter, keyManager, duplicateCheckSize)
   }
 
   override def cancel(): Unit = {
     isRunning = false
+    eventService = null
   }
 
   override def run(ctx: SourceFunction.SourceContext[Event]): Unit = {
-    val eventService = new EventService(false, keyManager)
-
     while (isRunning && numOfPollsRemaining != 0) {
       if (numOfPollsRemaining > 0) {
         numOfPollsRemaining -= 1
@@ -55,5 +56,9 @@ class EventSource(numOfPolls : Int,
 
       Thread.sleep(waitTime)
     }
+
+    cancel()
   }
+
+
 }
