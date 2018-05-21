@@ -102,6 +102,15 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     assert(pages._2 == 10)
   }
 
+  test ("Next and last pages should be properly retrieved (complext") {
+    val url = "<https://api.github.com/events?per_page=100%3Fpage%3D1&page=2>; rel=\"next\", <https://api.github.com/events?per_page=100%3Fpage%3D1&page=10>; rel=\"last\""
+    val linkHeader = Header("Link", Array(url))
+    val pages = service.parseNextAndLastPage(linkHeader)
+
+    assert(pages._1 == 2)
+    assert(pages._2 == 10)
+  }
+
   test("Events should be properly parsed") {
     val events = service.parseEvents(sampleEvents)
     assert(events.size == 2)

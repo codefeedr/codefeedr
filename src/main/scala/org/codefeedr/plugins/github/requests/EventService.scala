@@ -77,7 +77,7 @@ class EventService(duplicateFilter: Boolean,
         }
 
         //do the request
-        val response = doPagedRequest(s"${GitHubEndpoints.EVENTS}?${GitHubEndpoints.EVENTS_SIZE_SEGMENT}$EVENTS_SIZE?${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$nextPage")
+        val response = doPagedRequest(s"${GitHubEndpoints.EVENTS}?${GitHubEndpoints.EVENTS_SIZE_SEGMENT}$EVENTS_SIZE&${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$nextPage")
 
         //update status and new request headers
         status = response.status
@@ -166,9 +166,9 @@ class EventService(duplicateFilter: Boolean,
     url
       .split(",")
       .map { x =>
-        val digitRegex = "(\\d+)".r
+        val digitRegex = "&page=(\\d+)".r
         val wordRegex = "\"(\\w+)\"".r
-        Page(digitRegex.findFirstIn(x).get.toInt, wordRegex.findFirstIn(x).get.replace("\"", ""))
+        Page(digitRegex.findFirstIn(x).get.replace("&page=","").toInt, wordRegex.findFirstIn(x).get.replace("\"", ""))
       }
       .toList
   }

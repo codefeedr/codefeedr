@@ -64,7 +64,7 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     */
   def handleErrorCodes(response: GitHubResponse) : GitHubResponse = response.status match {
     case 200 | 304 => response
-    case other => throw new GitHubRequestException(s"Undefined response code $other. Body: ${response.body}")
+    case other => throw new GitHubRequestException(s"Undefined response code $other. Body: ${response.body} Endpoint: $endpoint")
   }
 
   /**
