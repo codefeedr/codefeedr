@@ -40,6 +40,12 @@ import scala.collection.mutable.Queue
   */
 case class Page(page: Int, rel: String)
 
+/**
+  * GitHub events service.
+  * @param duplicateFilter if there should be checked for duplicates.
+  * @param keyManager the keymanager to use for the requests.
+  * @param duplicateCheckSize
+  */
 class EventService(duplicateFilter: Boolean,
                    keyManager : KeyManager,
                    duplicateCheckSize : Int = 1000000) {
@@ -47,6 +53,11 @@ class EventService(duplicateFilter: Boolean,
   var queue : FiniteQueue[String] = new FiniteQueue[String]()
   var requestHeaders: List[Header] = List()
 
+  /**
+    * Requests the latest events.
+    * Most often there are 10 pages with events, so 10 requests.
+    * @return a list of events.
+    */
   def getLatestEvents(): List[Event] = {
     var lastPage = Int.MaxValue
     var nextPage = 1
@@ -58,9 +69,11 @@ class EventService(duplicateFilter: Boolean,
       while (status == 200 && nextPage <= lastPage) {
         //before each request, request a key
         if (keyManager != null) {
-          setKey(keyManager.request("events_source").getOrElse(ManagedKey("", 0)).value)
+          setKey(keyManager.request("events_source")
+            .getOrElse(ManagedKey("", 0)).value)
         }
 
+        //do the request
         val response = doPagedRequest(s"${GitHubEndpoints.EVENTS}${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$nextPage")
 
         //update status and new request headers

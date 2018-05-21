@@ -27,12 +27,25 @@ import org.codefeedr.plugins.github.events.EventSource
 import org.codefeedr.plugins.github.requests.EventService
 import org.apache.flink.api.scala._
 
+/**
+  * Input stage which requests GitHubEvents.
+  * Note: Make use of the KeyManager to configure your keys.
+  * @param numOfPolls the amount of polls before it stops (-1 for unbounded).
+  * @param waitTime the wait time in between polls.
+  * @param duplicateFilter enable to filter duplicate events.
+  * @param duplicateCheckSize to amount of events to cache for duplicate check.
+  */
 class GitHubEventsInput(numOfPolls : Int = -1,
                         waitTime : Int = 1000,
                         duplicateFilter: Boolean = false,
                         duplicateCheckSize : Int = 1000000) extends InputStage[Event] {
 
+  /**
+    * Add (GitHub) EventSource.
+    */
   override def main(): DataStream[Event] = {
-    pipeline.environment.addSource(new EventSource(numOfPolls, waitTime, pipeline.keyManager, duplicateFilter, duplicateCheckSize))
+    pipeline
+      .environment
+      .addSource(new EventSource(numOfPolls, waitTime, pipeline.keyManager, duplicateFilter, duplicateCheckSize))
   }
 }
