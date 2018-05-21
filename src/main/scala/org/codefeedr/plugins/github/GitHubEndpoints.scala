@@ -26,6 +26,7 @@ object GitHubEndpoints {
     * EVENTS
     */
   val EVENTS = "/events"
-  val EVENTS_PAGE_SEGMENT = "?page="
+  val EVENTS_PAGE_SEGMENT = "page="
+  val EVENTS_SIZE_SEGMENT = "per_page="
 
 }

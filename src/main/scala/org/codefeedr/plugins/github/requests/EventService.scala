@@ -50,12 +50,15 @@ class EventService(duplicateFilter: Boolean,
                    keyManager : KeyManager,
                    duplicateCheckSize : Int = 1000000) {
 
+  //events size
+  val EVENTS_SIZE = 100
+
   var queue : FiniteQueue[String] = new FiniteQueue[String]()
   var requestHeaders: List[Header] = List()
 
   /**
     * Requests the latest events.
-    * Most often there are 10 pages with events, so 10 requests.
+    * Most often there are 3 pages with events, so 3 requests.
     * @return a list of events.
     */
   def getLatestEvents(): List[Event] = {
@@ -74,7 +77,7 @@ class EventService(duplicateFilter: Boolean,
         }
 
         //do the request
-        val response = doPagedRequest(s"${GitHubEndpoints.EVENTS}${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$nextPage")
+        val response = doPagedRequest(s"${GitHubEndpoints.EVENTS}?${GitHubEndpoints.EVENTS_SIZE_SEGMENT}$EVENTS_SIZE?${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$nextPage")
 
         //update status and new request headers
         status = response.status
