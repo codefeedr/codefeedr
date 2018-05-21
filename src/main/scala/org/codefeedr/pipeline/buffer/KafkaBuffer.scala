@@ -45,6 +45,7 @@ object KafkaBuffer {
   val BROKER = "HOST"
   val ZOOKEEPER = "ZOOKEEPER"
   val SERIALIZER = "SERIALIZER"
+  val GROUP_ID = "GROUP_ID"
 
   //SCHEMA EXPOSURE
   val SCHEMA_EXPOSURE = "SCHEMA_EXPOSURE"
@@ -116,7 +117,10 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, prope
       exposeSchema()
     }
 
-    new FlinkKafkaProducer011[T](topic, serde, getKafkaProperties)
+    val producer = new FlinkKafkaProducer011[T](topic, serde, getKafkaProperties)
+    producer.setWriteTimestampToKafka(true)
+
+    producer
   }
 
   /**
@@ -126,13 +130,15 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, prope
     */
   def getKafkaProperties: java.util.Properties = {
     val kafkaProp = new java.util.Properties()
-    kafkaProp.put("bootstrap.servers", properties.get[String](KafkaBuffer.BROKER).
-      getOrElse(KafkaBufferDefaults.BROKER))
-    kafkaProp.put("zookeeper.connect", properties.get[String](KafkaBuffer.ZOOKEEPER).
-      getOrElse(KafkaBufferDefaults.ZOOKEEPER))
+    kafkaProp.put("bootstrap.servers", properties.getOrElse[String](KafkaBuffer.BROKER, KafkaBufferDefaults.BROKER))
+    kafkaProp.put("zookeeper.connect", properties.getOrElse[String](KafkaBuffer.ZOOKEEPER, KafkaBufferDefaults.ZOOKEEPER))
     kafkaProp.put("auto.offset.reset", "earliest")
     kafkaProp.put("auto.commit.interval.ms", "100")
     kafkaProp.put("enable.auto.commit", "true")
+
+    if (properties.has(KafkaBuffer.GROUP_ID)) {
+      kafkaProp.put("group.id", properties.get[String](KafkaBuffer.GROUP_ID).get)
+    }
 
     kafkaProp
   }
