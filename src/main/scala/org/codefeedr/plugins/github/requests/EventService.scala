@@ -61,7 +61,7 @@ class EventService(duplicateFilter: Boolean,
           setKey(keyManager.request("events_source").getOrElse(ManagedKey("", 0)).value)
         }
 
-        val response = doPagedRequest(nextPage)
+        val response = doPagedRequest(s"${GitHubEndpoints.EVENTS}${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$nextPage")
 
         //update status and new request headers
         status = response.status
@@ -132,11 +132,11 @@ class EventService(duplicateFilter: Boolean,
   /**
     * Do a request for a certain page.
     *
-    * @param page the page id.
+    * @param endPoint the page endpoint
     * @return a github response.
     */
-  def doPagedRequest(page: Int): GitHubResponse = {
-    new GitHubRequest(s"${GitHubEndpoints.EVENTS}${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$page", requestHeaders)
+  def doPagedRequest(endPoint : String): GitHubResponse = {
+    new GitHubRequest(endPoint, requestHeaders)
       .request()
   }
 

@@ -30,6 +30,8 @@ class EventSource(numOfPolls : Int,
                   duplicateFilter: Boolean,
                   duplicateCheckSize : Int) extends RichSourceFunction[Event] {
 
+  def isUnbounded = numOfPolls == -1
+
   var numOfPollsRemaining = numOfPolls
   var isRunning = false
   var eventService : EventService = null
@@ -46,9 +48,10 @@ class EventSource(numOfPolls : Int,
 
   override def run(ctx: SourceFunction.SourceContext[Event]): Unit = {
     while (isRunning && numOfPollsRemaining != 0) {
-      if (numOfPollsRemaining > 0) {
+      if (!isUnbounded) {
         numOfPollsRemaining -= 1
       }
+      
 
       eventService
         .getLatestEvents()

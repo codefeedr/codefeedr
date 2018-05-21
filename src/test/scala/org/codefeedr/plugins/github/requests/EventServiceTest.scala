@@ -136,7 +136,7 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   test ("Get latest events should return the latest events") {
    val eventService = spy(new EventService(false, new StaticKeyManager()))
 
-    doReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array(""))))).when(eventService).doPagedRequest(any(classOf[Int]))
+    doReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array(""))))).when(eventService).doPagedRequest(any(classOf[String]))
 
     //should stop after one run
     doReturn((1, 0)).when(eventService).parseNextAndLastPage(any(classOf[Header]))
@@ -152,7 +152,7 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
 
     doReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
       .when(eventService)
-      .doPagedRequest(any(classOf[Int]))
+      .doPagedRequest(any(classOf[String]))
 
     //should stop after two runs
     doReturn((0, 0))
@@ -163,6 +163,12 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     val events = eventService.getLatestEvents()
 
     assert(events.size == 2)
+  }
+
+  test ("A paged request should be properly done.") {
+    val response = service.doPagedRequest("/rate_limit") //this is a free request
+
+    assert(response.status == 200)
   }
 
 
