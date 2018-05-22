@@ -22,7 +22,8 @@ import java.util.{Properties, UUID}
 
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.codefeedr.pipeline.{PipelineBuilder, StageAttributes}
-import org.codefeedr.testUtils.{SimpleSourcePipelineObject, StringType}
+import org.codefeedr.plugins.StringType
+import org.codefeedr.testUtils.SimpleSourcePipelineObject
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class KafkaBufferTest extends FunSuite with BeforeAndAfter {

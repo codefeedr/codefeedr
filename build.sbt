@@ -40,7 +40,8 @@ val coreDependencies = Seq(
    "org.scalactic" %% "scalactic" % "3.0.1",
    "org.scalatest" %% "scalatest" % "3.0.1" % "test",
 
-  // "org.mongodb.scala" %% "mongo-scala-driver" % "2.1.0"
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.3.0",
+
   "org.apache.logging.log4j" % "log4j-api" % "2.11.0",
   "org.apache.logging.log4j" % "log4j-core" % "2.11.0",
 

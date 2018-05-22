@@ -20,8 +20,8 @@ package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.buffer.BufferType
-import org.codefeedr.plugins.StringSource
-import org.codefeedr.testUtils.{CodeHitException, StringType}
+import org.codefeedr.plugins.{StringSource, StringType}
+import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.FunSuite
 
 class PipelineObjectNTest extends FunSuite {
