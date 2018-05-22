@@ -53,8 +53,11 @@ val coreDependencies = Seq(
 
   // https://mvnrepository.com/artifact/org.scalaj/scalaj-http
   "org.scalaj" %% "scalaj-http" % "2.4.0",
+  "org.json4s" %% "json4s-ext" % "3.6.0-M3",
+  "com.chuusai" %% "shapeless" % "2.3.3",
 
-  "org.scalamock" % "scalamock_2.11" % "4.1.0" % "test"
+  "org.scalamock" % "scalamock_2.11" % "4.1.0" % "test",
+  "org.mockito" % "mockito-all" % "1.10.19" % "test"
 )
 
 
