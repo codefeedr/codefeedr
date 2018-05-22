@@ -93,6 +93,52 @@ object GitHubProtocol {
     */
 
   /**
+    * START IssuesEvents
+    */
+  case class IssuesEvent(id: String,
+                         eventType: String,
+                         actor: Actor,
+                         repo: Repo,
+                         organization: Option[Organization],
+                         payload: IssuesPayload,
+                         public: Boolean,
+                         created_at: LocalDateTime) extends PipelineItem
+
+  case class IssuesPayload(action: String) extends Payload
+
+  case class Issue(url: String,
+                   repository_url: String,
+                   labels_url: String,
+                   comments_url: String,
+                   events_url: String,
+                   html_url: String,
+                   id: Double,
+                   number: Double,
+                   title: String,
+                   user: User,
+                   labels: List[Label],
+                   state: String,
+                   locked: Boolean,
+                   assignee: Option[User],
+                   assignees: List[User],
+                   milestone: Option[String],
+                   comments: Double,
+                   created_at: Option[LocalDateTime],
+                   updated_at: Option[LocalDateTime],
+                   closed_at: Option[LocalDateTime],
+                   author_association: String,
+                   body: Option[String])
+
+  case class Label(id: Long,
+                   url: String,
+                   name: String,
+                   color: String,
+                   default: Boolean)
+  /**
+    * END IssuesEvents
+    */
+
+  /**
     * START Commit
     */
 
@@ -149,7 +195,6 @@ object GitHubProtocol {
   /**
     * END Commit
     */
-
 
 
 }
