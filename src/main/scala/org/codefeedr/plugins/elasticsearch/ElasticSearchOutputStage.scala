@@ -106,7 +106,7 @@ private class ElasticSearchSink[T <: PipelineItem : ClassTag : Manifest : FromRe
 
     Requests.indexRequest()
       .index(index)
-      .`type`("my-type") // TODO
+      .`type`("json")
       .source(bytes)
   }
 
