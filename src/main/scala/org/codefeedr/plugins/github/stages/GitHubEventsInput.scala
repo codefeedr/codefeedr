@@ -48,6 +48,4 @@ class GitHubEventsInput(numOfPolls : Int = -1,
       .environment
       .addSource(new EventSource(numOfPolls, waitTime, pipeline.keyManager, duplicateFilter, duplicateCheckSize))
   }
-
-  override def getSinkSubject: String = "hhdhhfhgikk"
 }

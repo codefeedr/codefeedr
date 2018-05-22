@@ -20,6 +20,7 @@ package org.codefeedr.plugins.github.requests
 
 import org.codefeedr.keymanager.{KeyManager, ManagedKey}
 import org.json4s._
+import org.json4s.FieldSerializer._
 
 import util.control.Breaks._
 import org.json4s.jackson.JsonMethods._
@@ -119,7 +120,8 @@ class EventService(duplicateFilter: Boolean,
     * @return the list of events.
     */
   def parseEvents(body: String): List[Event] = {
-    implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
+    val rename = FieldSerializer[Event](renameTo("eventType", "type"), renameFrom("type", "eventType"))
+    implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all + rename
 
     val json = parse(body)
     json.transformField {

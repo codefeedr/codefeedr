@@ -20,9 +20,9 @@ package org.codefeedr.plugins.github
 
 import java.time.LocalDateTime
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.Payload
-import org.codehaus.jackson.annotate.JsonProperty
 import org.json4s.JObject
 
 object GitHubProtocol {
@@ -31,7 +31,7 @@ object GitHubProtocol {
     * START /events
     */
   case class Event(id: String,
-                   @JsonProperty("type") eventType: String,
+                   eventType: String,
                    actor: Actor,
                    repo: Repo,
                    organization: Option[Organization],
@@ -64,7 +64,7 @@ object GitHubProtocol {
     */
 
   case class PushEvent(id: String,
-                       @JsonProperty("type") eventType: String,
+                       eventType: String,
                        actor: Actor,
                        repo: Repo,
                        organization: Option[Organization],
