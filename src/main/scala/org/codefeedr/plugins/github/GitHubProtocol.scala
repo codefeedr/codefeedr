@@ -22,6 +22,7 @@ import java.time.LocalDateTime
 
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.Payload
+import org.codehaus.jackson.annotate.JsonProperty
 import org.json4s.JObject
 
 object GitHubProtocol {
@@ -30,7 +31,7 @@ object GitHubProtocol {
     * START /events
     */
   case class Event(id: String,
-                   `type`: String,
+                   @JsonProperty("type") eventType: String,
                    actor: Actor,
                    repo: Repo,
                    organization: Option[Organization],
@@ -45,9 +46,12 @@ object GitHubProtocol {
                    url: String,
                    avatar_url: String)
 
-  case class Repo(id: Long, name: String, url: String)
+  case class Repo(id: Long,
+                  name: String,
+                  url: String)
 
-  case class Organization(id: Long, login: String)
+  case class Organization(id: Long,
+                          login: String)
 
   sealed abstract class Payload()
 
@@ -60,7 +64,7 @@ object GitHubProtocol {
     */
 
   case class PushEvent(id: String,
-                       `type`: String,
+                       @JsonProperty("type") eventType: String,
                        actor: Actor,
                        repo: Repo,
                        organization: Option[Organization],
@@ -76,9 +80,13 @@ object GitHubProtocol {
                          before: String,
                          commits: List[PushCommit]) extends Payload
 
-  case class PushCommit(sha: String, author: PushAuthor, message: String, distinct: Boolean)
+  case class PushCommit(sha: String,
+                        author: PushAuthor,
+                        message: String,
+                        distinct: Boolean)
 
-  case class PushAuthor(email: String, name: String)
+  case class PushAuthor(email: String,
+                        name: String)
 
   /**
     * END PushEvents
@@ -104,16 +112,24 @@ object GitHubProtocol {
                         comment_count: Int,
                         verification: Verification)
 
-  case class CommitUser(name: String, email: String, date: LocalDateTime)
+  case class CommitUser(name: String,
+                        email: String,
+                        date: LocalDateTime)
 
-  case class User(id: Long, login: String, avatar_url: String, `type`: String, site_admin: Boolean)
+  case class User(id: Long,
+                  login: String,
+                  avatar_url: String,
+                  `type`: String,
+                  site_admin: Boolean)
 
   case class Verification(verified: Boolean,
                           reason: String,
                           signature: Option[String],
                           payload: Option[String])
 
-  case class Stats(total: Int, additions: Int, deletions: Int)
+  case class Stats(total: Int,
+                   additions: Int,
+                   deletions: Int)
 
   case class File(sha: Option[String],
                   filename: Option[String],

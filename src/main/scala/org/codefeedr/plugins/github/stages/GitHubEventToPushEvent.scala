@@ -35,13 +35,13 @@ class GitHubEventToPushEvent extends TransformStage[Event, PushEvent] {
     */
   override def transform(source: DataStream[Event]): DataStream[PushEvent] = {
     source
-      .filter(_.`type` == "PushEvent")
+      .filter(_.eventType == "PushEvent")
       .map { x =>
       implicit val defaultFormats = DefaultFormats
 
       val pushPayload = parse(x.payload).extract[PushPayload]
 
-      PushEvent(x.id, x.`type`, x.actor, x.repo, x.organization, pushPayload, x.public, x.created_at)
+      PushEvent(x.id, x.eventType, x.actor, x.repo, x.organization, pushPayload, x.public, x.created_at)
     }
   }
 }
