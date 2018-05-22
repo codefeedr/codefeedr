@@ -45,7 +45,6 @@ object KafkaBuffer {
   val BROKER = "HOST"
   val ZOOKEEPER = "ZOOKEEPER"
   val SERIALIZER = "SERIALIZER"
-  val GROUP_ID = "GROUP_ID"
 
   //SCHEMA EXPOSURE
   val SCHEMA_EXPOSURE = "SCHEMA_EXPOSURE"
@@ -135,10 +134,6 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, prope
     kafkaProp.put("auto.offset.reset", "earliest")
     kafkaProp.put("auto.commit.interval.ms", "100")
     kafkaProp.put("enable.auto.commit", "true")
-
-    if (properties.has(KafkaBuffer.GROUP_ID)) {
-      kafkaProp.put("group.id", properties.get[String](KafkaBuffer.GROUP_ID).get)
-    }
 
     kafkaProp
   }
