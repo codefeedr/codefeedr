@@ -120,12 +120,12 @@ class EventService(duplicateFilter: Boolean,
     * @return the list of events.
     */
   def parseEvents(body: String): List[Event] = {
-    val rename = FieldSerializer[Event](renameTo("eventType", "type"), renameFrom("type", "eventType"))
-    implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all + rename
+    implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
 
     val json = parse(body)
     json.transformField {
       case JField("payload", list : JObject) => ("payload", JString(compact(render(list))))
+      case JField("type", x) => JField("eventType", x)
     }.extract[List[Event]]
   }
 
