@@ -104,14 +104,10 @@ object GitHubProtocol {
                          public: Boolean,
                          created_at: LocalDateTime) extends PipelineItem
 
-  case class IssuesPayload(action: String) extends Payload
+  case class IssuesPayload(action: String,
+                           issue: Issue) extends Payload
 
   case class Issue(url: String,
-                   repository_url: String,
-                   labels_url: String,
-                   comments_url: String,
-                   events_url: String,
-                   html_url: String,
                    id: Double,
                    number: Double,
                    title: String,
@@ -134,8 +130,37 @@ object GitHubProtocol {
                    name: String,
                    color: String,
                    default: Boolean)
+
   /**
     * END IssuesEvents
+    */
+
+  /**
+    * START IssueCommentEvents
+    */
+  case class IssueCommentEvent(id: String,
+                               eventType: String,
+                               actor: Actor,
+                               repo: Repo,
+                               organization: Option[Organization],
+                               payload: IssueCommentPayload,
+                               public: Boolean,
+                               created_at: LocalDateTime) extends PipelineItem
+
+  case class IssueCommentPayload(action: String,
+                                 issue: Issue,
+                                 comment: Comment) extends Payload
+
+  case class Comment(url: String,
+                     id: Long,
+                     user: User,
+                     created_at: Option[LocalDateTime],
+                     updated_at: Option[LocalDateTime],
+                     author_association: String,
+                     body: Option[String])
+
+  /**
+    * END IssueCommentEvents
     */
 
   /**

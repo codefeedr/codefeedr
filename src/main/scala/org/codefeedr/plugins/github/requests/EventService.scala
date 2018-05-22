@@ -125,7 +125,7 @@ class EventService(duplicateFilter: Boolean,
     val json = parse(body)
     json.transformField {
       case JField("payload", list : JObject) => ("payload", JString(compact(render(list))))
-      case JField("type", x) => JField("eventType", x)
+      case JField("type", JString(x)) if x.endsWith("Event") => JField("eventType", JString(x)) //transform type field
     }.extract[List[Event]]
   }
 
