@@ -42,7 +42,7 @@ class ElasticSearchOutputStageTest extends FunSuite {
   }
 
   test("Should add configured hosts") {
-    val servers = Set("es://example.com:9300", "es://myHost:9200")
+    val servers = Set("es://example.com:9300", "es://google.com:9200")
     val stage = new ElasticSearchOutputStage[StringType](index, servers)
 
     val addresses = stage.createTransportAddresses()
@@ -50,7 +50,7 @@ class ElasticSearchOutputStageTest extends FunSuite {
     assert(addresses.size() == 2)
     assert(addresses.get(0).getHostName == "example.com")
     assert(addresses.get(0).getPort == 9300)
-    assert(addresses.get(1).getHostName == "myHost")
+    assert(addresses.get(1).getHostName == "google.com")
     assert(addresses.get(1).getPort == 9200)
   }
 
