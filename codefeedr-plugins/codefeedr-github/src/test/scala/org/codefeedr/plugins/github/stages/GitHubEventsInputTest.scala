@@ -20,14 +20,11 @@ package org.codefeedr.plugins.github.stages
 
 import java.util
 
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer}
 import org.codefeedr.plugins.github.GitHubProtocol.Event
-import org.apache.flink.api.scala._
-import org.apache.flink.streaming.api.functions.sink.SinkFunction
-import org.codefeedr.plugins.StringType
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.FunSuite
 
 //integration test
 class GitHubEventsInputTest extends FunSuite {

@@ -21,13 +21,13 @@ package org.codefeedr.plugins.github.stages
 import java.io.InputStream
 import java.util
 
+import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.{InputStage, PipelineBuilder}
 import org.codefeedr.plugins.github.GitHubProtocol.{Event, PushEvent}
 import org.codefeedr.plugins.github.requests.EventService
 import org.scalatest.FunSuite
-import org.apache.flink.api.scala._
 
 import scala.io.Source
 

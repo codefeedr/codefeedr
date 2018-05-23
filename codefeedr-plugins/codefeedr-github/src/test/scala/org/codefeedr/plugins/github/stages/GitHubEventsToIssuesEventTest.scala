@@ -23,7 +23,7 @@ import java.util
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.plugins.github.GitHubProtocol.{IssuesEvent, PushEvent}
+import org.codefeedr.plugins.github.GitHubProtocol.IssuesEvent
 import org.scalatest.FunSuite
 
 class GitHubEventsToIssuesEventTest extends FunSuite{

@@ -21,10 +21,10 @@ package org.codefeedr.plugins.github.requests
 import java.io.InputStream
 
 import org.codefeedr.keymanager.StaticKeyManager
+import org.mockito.Matchers.any
+import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
-import org.mockito.Mockito._
-import org.mockito.Matchers.any
 
 import scala.io.Source
 

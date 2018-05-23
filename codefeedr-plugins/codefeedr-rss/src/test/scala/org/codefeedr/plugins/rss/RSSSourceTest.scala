@@ -1,15 +1,13 @@
 package org.codefeedr.plugins.rss
 
-import java.time.format.DateTimeFormatter
-
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.codefeedr.utilities.Http
 import org.scalamock.function.FunctionAdapter1
-import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.scalamock.scalatest.MockFactory
-import scalaj.http.HttpResponse
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
 import scala.io.Source
+import scalaj.http.HttpResponse
 
 class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 

@@ -19,12 +19,7 @@
 package org.codefeedr.plugins.github.requests
 
 import org.codefeedr.plugins.github.GitHubEndpoints
-import org.codefeedr.utilities.Http
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.doReturn
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{spy, when}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
 

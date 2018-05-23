@@ -20,8 +20,6 @@ package org.codefeedr.plugins.github.util
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-import scala.collection.mutable.Queue
-
 class FiniteQueueTest extends FunSuite with BeforeAndAfter {
 
   var queue : FiniteQueue[String] = new FiniteQueue[String]()

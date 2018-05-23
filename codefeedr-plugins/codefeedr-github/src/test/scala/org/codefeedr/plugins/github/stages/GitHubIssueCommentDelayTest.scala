@@ -21,17 +21,14 @@ package org.codefeedr.plugins.github.stages
 import java.io.InputStream
 import java.util
 
-import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 import org.codefeedr.plugins.github.requests.EventService
+import org.mockito.Mockito._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.FunSuite
-import org.mockito.Mockito._
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
 
 import scala.io.Source
 

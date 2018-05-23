@@ -23,10 +23,10 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.requests.EventService
+import org.mockito.Matchers._
+import org.mockito.Mockito._
 import org.scalatest.FunSuite
 import org.scalatest.mockito.MockitoSugar
-import org.mockito.Mockito._
-import org.mockito.Matchers._
 
 class EventSourceTest extends FunSuite with MockitoSugar {
 
