@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
-    name := "core",
+    name := projectPrefix + "core",
     settings,
     unmanagedBase := baseDirectory.value / "../lib",
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -49,7 +49,7 @@ lazy val core = (project in file("codefeedr-core"))
 
 lazy val pluginRss = (project in file("codefeedr-plugins/codefeedr-rss"))
   .settings(
-    name := "rss",
+    name := projectPrefix + "rss",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -62,7 +62,7 @@ lazy val pluginRss = (project in file("codefeedr-plugins/codefeedr-rss"))
 
 lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb"))
   .settings(
-    name := "mongodb",
+    name := projectPrefix + "mongodb",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -75,7 +75,7 @@ lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb")
 
 lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-elasticsearch"))
   .settings(
-    name := "elasticsearch",
+    name := projectPrefix + "elasticsearch",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -88,7 +88,7 @@ lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-ela
 
 lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
   .settings(
-    name := "github",
+    name := projectPrefix + "github",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -104,7 +104,7 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
 
 lazy val pluginHttpd = (project in file("codefeedr-plugins/codefeedr-httpd"))
   .settings(
-    name := "httpd",
+    name := projectPrefix + "httpd",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
