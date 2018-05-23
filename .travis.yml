@@ -6,6 +6,7 @@ dist: trusty
 services:
   - docker
   - redis
+  - mongodb
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
