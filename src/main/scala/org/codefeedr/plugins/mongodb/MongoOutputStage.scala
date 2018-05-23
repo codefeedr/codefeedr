@@ -24,6 +24,17 @@ import org.codefeedr.pipeline.{OutputStage, PipelineItem, StageAttributes}
 
 import scala.reflect.{ClassTag, Manifest}
 
+/**
+  * MongoDB output stage.
+  *
+  * Writes the data to the collection. If an event time is set, it is also sent to the database.
+  *
+  * @param database Name of the database
+  * @param collection Name of the collection to write to
+  * @param server Optional server address. Format: mongodb://host:port. Defaults to localhost.
+  * @param stageAttributes Extra stage attributes
+  * @tparam T Type of output
+  */
 class MongoOutputStage[T <: PipelineItem : ClassTag : Manifest : FromRecord](database: String,
                                                                              collection: String,
                                                                              server: String = "mongodb://localhost:27017",

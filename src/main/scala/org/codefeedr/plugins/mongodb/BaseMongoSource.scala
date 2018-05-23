@@ -31,6 +31,12 @@ import org.mongodb.scala.{MongoClient, MongoCollection, Observer}
 
 import scala.reflect.{ClassTag, classTag}
 
+/**
+  * Mongo source
+  *
+  * @param userConfig User configuration. Properties [server, database, collection]
+  * @tparam T Type of element that comes from the database
+  */
 class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[String,String])
   extends RichSourceFunction[T] with ResultTypeQueryable[T] {
 
@@ -46,6 +52,12 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
     isWaiting = true
   }
 
+  /**
+    * Runs the mongo source.
+    *
+    * First gets the collection and executes an empty query on all the data.
+    * The data is then received in an async manner sending items to the context.
+    */
   override def run(ctx: SourceFunction.SourceContext[T]): Unit = {
     val jsonSettings = JsonWriterSettings.builder()
       .outputMode(JsonMode.RELAXED)
@@ -58,11 +70,30 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
     val observer = new Observer[Document] {
 
       override def onNext(result: Document): Unit = {
-        val json = result.toJson(jsonSettings)
-        val element = Serialization.read[T](json)
 
-        ctx.collect(element)
+        val eventTimeVal = result.get("_eventTime")
+        if (eventTimeVal.isDefined) {
+          val eventTime = eventTimeVal.get.asInt64()
+
+          result -= "_eventTime"
+
+          collect(result, eventTime.longValue())
+        } else {
+          collect(result)
+        }
       }
+
+      def toJson(result: Document): T = {
+        val json = result.toJson(jsonSettings)
+        Serialization.read[T](json)
+      }
+
+      def collect(result: Document): Unit =
+        ctx.collect(toJson(result))
+
+      def collect(result: Document, timestamp: Long): Unit =
+        ctx.collectWithTimestamp(toJson(result), timestamp)
+
 
       override def onError(e: Throwable): Unit = {
         println("Error while reading from mongo:", e)
@@ -92,6 +123,13 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
     client.close()
   }
 
+  /**
+    * Get the mongo collection for the configuration.
+    *
+    * This is not verified to exist; it will be created upon first use.
+    *
+    * @return Mongo Collection
+    */
   def getCollection: MongoCollection[Document] = {
     val database = client.getDatabase(userConfig("database"))
 

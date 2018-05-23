@@ -20,11 +20,23 @@ package org.codefeedr.plugins.mongodb
 
 import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.{InputStage, PipelineItem, StageAttributes}
 
 import scala.reflect.{ClassTag, Manifest}
 
+/**
+  * MongoDB input stage.
+  *
+  * Reads from the beginning of the collection. If an event time is available in the data, it is set.
+  *
+  * @param database Name of the database
+  * @param collection Name of the collection to read from
+  * @param server Optional server address. Format: mongodb://host:port. Defaults to localhost.
+  * @param stageAttributes Extra stage attributes
+  * @tparam T Type of input
+  */
 class MongoInputStage[T <: PipelineItem : ClassTag : Manifest : FromRecord : TypeInformation](database: String,
                                                                                               collection: String,
                                                                                               server: String = "mongodb://localhost:27017",
