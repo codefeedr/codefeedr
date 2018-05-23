@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.log
+package org.codefeedr.plugins.httpd
 
 import java.time.LocalDateTime
 

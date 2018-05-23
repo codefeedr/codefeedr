@@ -199,27 +199,7 @@ lazy val assemblySettings = Seq(
   }
 )
 
-//
-//val coreDependencies = Seq(
-//  "org.apache.zookeeper" % "zookeeper" % "3.4.9",
-//  // "org.mockito" % "mockito-core" % "2.13.0" % "test",
-//
-//
-//  "net.debasishg" %% "redisclient" % "3.6",
-//
-//  "org.mongodb.scala" %% "mongo-scala-driver" % "2.3.0",
-//
-//  "org.apache.logging.log4j" % "log4j-api" % "2.11.0",
-//  "org.apache.logging.log4j" % "log4j-core" % "2.11.0",
-//
-//
-//  "me.lyh" %% "shapeless-datatype-avro" % "0.1.9",
-//
-//  // https://mvnrepository.com/artifact/org.scalaj/scalaj-http
-//  "com.chuusai" %% "shapeless" % "2.3.3",
-//
-
-//)
+// MAKING FLINK WORK
 
 // make run command include the provided dependencies
 Compile / run  := Defaults.runTask(Compile / fullClasspath,
