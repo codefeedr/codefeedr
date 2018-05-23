@@ -1,4 +1,4 @@
-package org.codefeedr.plugins.log
+package org.codefeedr.plugins.httpd
 
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.pipeline._
