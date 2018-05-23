@@ -93,6 +93,77 @@ object GitHubProtocol {
     */
 
   /**
+    * START IssuesEvents
+    */
+  case class IssuesEvent(id: String,
+                         eventType: String,
+                         actor: Actor,
+                         repo: Repo,
+                         organization: Option[Organization],
+                         payload: IssuesPayload,
+                         public: Boolean,
+                         created_at: LocalDateTime) extends PipelineItem
+
+  case class IssuesPayload(action: String,
+                           issue: Issue) extends Payload
+
+  case class Issue(url: String,
+                   id: Double,
+                   number: Double,
+                   title: String,
+                   user: User,
+                   labels: List[Label],
+                   state: String,
+                   locked: Boolean,
+                   assignee: Option[User],
+                   assignees: List[User],
+                   milestone: Option[String],
+                   comments: Double,
+                   created_at: Option[LocalDateTime],
+                   updated_at: Option[LocalDateTime],
+                   closed_at: Option[LocalDateTime],
+                   author_association: String,
+                   body: Option[String])
+
+  case class Label(id: Long,
+                   url: String,
+                   name: String,
+                   color: String,
+                   default: Boolean)
+
+  /**
+    * END IssuesEvents
+    */
+
+  /**
+    * START IssueCommentEvents
+    */
+  case class IssueCommentEvent(id: String,
+                               eventType: String,
+                               actor: Actor,
+                               repo: Repo,
+                               organization: Option[Organization],
+                               payload: IssueCommentPayload,
+                               public: Boolean,
+                               created_at: LocalDateTime) extends PipelineItem
+
+  case class IssueCommentPayload(action: String,
+                                 issue: Issue,
+                                 comment: Comment) extends Payload
+
+  case class Comment(url: String,
+                     id: Long,
+                     user: User,
+                     created_at: Option[LocalDateTime],
+                     updated_at: Option[LocalDateTime],
+                     author_association: String,
+                     body: Option[String])
+
+  /**
+    * END IssueCommentEvents
+    */
+
+  /**
     * START Commit
     */
 
@@ -149,7 +220,6 @@ object GitHubProtocol {
   /**
     * END Commit
     */
-
 
 
 }
