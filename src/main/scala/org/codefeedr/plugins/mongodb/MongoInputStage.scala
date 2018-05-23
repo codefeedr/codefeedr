@@ -19,23 +19,21 @@
 package org.codefeedr.plugins.mongodb
 
 import com.sksamuel.avro4s.FromRecord
+import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.{InputStage, PipelineItem, StageAttributes}
-import org.apache.flink.api.scala._
-import org.codefeedr.plugins.StringType
 
 import scala.reflect.{ClassTag, Manifest}
 
-class MongoInputStage[T <: PipelineItem : ClassTag : Manifest : FromRecord](server: String,
-                                                                            database: String,
-                                                                            collection: String,
-                                                                            stageAttributes: StageAttributes = StageAttributes())
+class MongoInputStage[T <: PipelineItem : ClassTag : Manifest : FromRecord : TypeInformation](database: String,
+                                                                                              collection: String,
+                                                                                              server: String = "mongodb://localhost:27017",
+                                                                                              stageAttributes: StageAttributes = StageAttributes())
   extends InputStage[T](stageAttributes) {
 
   override def main(): DataStream[T] = {
     val config = Map("database" -> database, "collection" -> collection, "server" -> server)
 
-    pipeline.environment.addSource(new BaseMongoSource[StringType](config))
-      .asInstanceOf[DataStream[T]]
+    pipeline.environment.addSource(new BaseMongoSource[T](config))
   }
 }

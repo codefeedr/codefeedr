@@ -24,9 +24,9 @@ import org.codefeedr.pipeline.{OutputStage, PipelineItem, StageAttributes}
 
 import scala.reflect.{ClassTag, Manifest}
 
-class MongoOutputStage[T <: PipelineItem : ClassTag : Manifest : FromRecord](server: String,
-                                                                             database: String,
+class MongoOutputStage[T <: PipelineItem : ClassTag : Manifest : FromRecord](database: String,
                                                                              collection: String,
+                                                                             server: String = "mongodb://localhost:27017",
                                                                              stageAttributes: StageAttributes = StageAttributes())
   extends OutputStage[T](stageAttributes) {
 

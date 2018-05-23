@@ -1,5 +1,7 @@
 package org.codefeedr.testUtils
 
+import java.util
+
 import org.apache.flink.api.common.JobID
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
 import org.apache.flink.streaming.api.scala.DataStream
@@ -8,6 +10,7 @@ import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.{PrintSinkFunction, RichSinkFunction, SinkFunction}
 import org.codefeedr.pipeline._
 import org.codefeedr.plugins.StringType
+import org.codefeedr.plugins.github.GitHubProtocol.Event
 
 //This will be thrown after the print sink received x elements.
 final case class JobFinishedException() extends JobExecutionException(new JobID(), "Job is finished.")
@@ -55,7 +58,7 @@ class PrintSinkElements(elements : Int) extends PrintSinkFunction[StringType] {
     count += 1
 
     if (elements != -1 && count >= elements) {
-      throw new JobFinishedException()
+      throw JobFinishedException()
     }
   }
 }
@@ -72,5 +75,4 @@ class FlinkCrashObjectTest extends PipelineObject[NoType, NoType] {
       .map { a => throw CodeHitException() }
   }
 }
-
 

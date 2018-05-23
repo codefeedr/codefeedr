@@ -37,7 +37,7 @@ class BaseMongoSink[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Strin
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
   override def open(parameters: Configuration): Unit = {
-    client = MongoClient() // TODO: config options
+    client = MongoClient(userConfig("server"))
   }
 
   override def invoke(value: T, context: SinkFunction.Context[_]): Unit = {

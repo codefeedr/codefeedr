@@ -18,6 +18,8 @@
 
 package org.codefeedr.plugins.mongodb
 
+import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.api.java.typeutils.{ResultTypeQueryable, TypeExtractor}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
 import org.bson.json.{JsonMode, JsonWriterSettings}
@@ -27,17 +29,19 @@ import org.json4s.jackson.Serialization
 import org.mongodb.scala.bson.collection.mutable.Document
 import org.mongodb.scala.{MongoClient, MongoCollection, Observer}
 
-import scala.reflect.ClassTag
+import scala.reflect.{ClassTag, classTag}
 
-class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[String,String]) extends RichSourceFunction[T] {
+class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[String,String])
+  extends RichSourceFunction[T] with ResultTypeQueryable[T] {
 
   var client: MongoClient = _
   var isWaiting = false
 
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
+  val outputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
 
   override def open(parameters: Configuration): Unit = {
-    client = MongoClient() // TODO: config options
+    client = MongoClient(userConfig("server"))
 
     isWaiting = true
   }
@@ -61,7 +65,7 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
       }
 
       override def onError(e: Throwable): Unit = {
-        println("Failed execution of mongo query", e)
+        println("Error while reading from mongo:", e)
         isWaiting = false
       }
 
@@ -74,9 +78,10 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
 
     // Wait for all records to arrive
     while (isWaiting) {
-      Thread.sleep(1000)
+      Thread.sleep(500)
     }
 
+    cancel()
   }
 
   override def cancel(): Unit = {
@@ -92,4 +97,7 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
 
     database.getCollection(userConfig("collection"))
   }
+
+  override def getProducedType: TypeInformation[T] =
+    TypeExtractor.createTypeInfo(outputClassType)
 }
