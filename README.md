@@ -11,7 +11,7 @@ Bachelor Project Codefeedr
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![University](https://img.shields.io/badge/university-tudelft-blue.svg)](http://swerl.tudelft.nl/bin/view/Main/WebHome)
 
-A framework for easily building Flink streaming programs
+A framework for pipelining and combining Flink jobs. See the [wiki](https://github.com/joskuijpers/bep_codefeedr/wiki) for documentation.
 
 ## Configuring the build environment
 
