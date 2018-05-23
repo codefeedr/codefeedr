@@ -94,6 +94,7 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
       .toMap + ACCEPT_HEADER
 
     val http = Http(GitHubEndpoints.DEFAULT_URL + endpoint)
+      .timeout(connTimeoutMs = 10000, readTimeoutMs = 15000)
       .headers(headers)
 
     http

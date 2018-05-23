@@ -52,7 +52,7 @@ class GitHubIssueCommentDelay extends TransformStage2[IssuesEvent, IssueCommentE
       .join(secondSourceTimeStamps)
       .where(_.issueId)
       .equalTo(_.payload.issue.id)
-      .window(EventTimeSessionWindows.withGap(Time.hours(2)))
+      .window(EventTimeSessionWindows.withGap(Time.minutes(30)))
       .apply(new JoinFunction[SimpleIssue, IssueCommentEvent, IssueOpenedReply] {
         override def join(first: SimpleIssue, second: IssueCommentEvent): IssueOpenedReply = {
           val deltaSeconds = first.created_at.until(second.payload.comment.created_at.get, ChronoUnit.SECONDS)
