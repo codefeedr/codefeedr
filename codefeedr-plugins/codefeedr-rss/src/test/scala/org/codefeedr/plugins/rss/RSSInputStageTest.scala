@@ -1,12 +1,14 @@
 package org.codefeedr.plugins.rss
 
+import org.apache.flink.api.common.JobID
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.pipeline.{OutputStage, PipelineBuilder}
-import org.codefeedr.testUtils.JobFinishedException
 import org.scalatest.FunSuite
 
+//This will be thrown after the print sink received x elements.
+final case class JobFinishedException() extends JobExecutionException(new JobID(), "Job is finished.")
 class RSSInputStageTest extends FunSuite {
 
   test("RSS source end-to-end test") {

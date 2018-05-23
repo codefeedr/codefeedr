@@ -22,7 +22,6 @@ import java.lang.Exception
 
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
-import org.codefeedr.utilities.Http
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import scala.util.control.Breaks._

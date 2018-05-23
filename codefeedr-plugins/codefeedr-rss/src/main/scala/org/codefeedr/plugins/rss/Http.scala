@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.utilities
+package org.codefeedr.plugins.rss
 
 import scalaj.http.HttpResponse
 

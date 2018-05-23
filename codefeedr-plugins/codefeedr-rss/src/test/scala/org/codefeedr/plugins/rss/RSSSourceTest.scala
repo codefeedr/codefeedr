@@ -1,7 +1,6 @@
 package org.codefeedr.plugins.rss
 
 import org.apache.flink.streaming.api.functions.source.SourceFunction
-import org.codefeedr.utilities.Http
 import org.scalamock.function.FunctionAdapter1
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FunSuite}
