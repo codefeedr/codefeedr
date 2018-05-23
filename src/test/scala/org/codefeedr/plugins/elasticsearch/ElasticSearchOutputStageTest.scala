@@ -18,7 +18,7 @@
 
 package org.codefeedr.plugins.elasticsearch
 
-import org.codefeedr.testUtils.StringType
+import org.codefeedr.plugins.StringType
 import org.scalatest.FunSuite
 
 class ElasticSearchOutputStageTest extends FunSuite {

@@ -1,7 +1,8 @@
 package org.codefeedr.pipeline.buffer
 
 import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.testUtils.{SimpleSourcePipelineObject, SimpleTransformPipelineObject, StringType}
+import org.codefeedr.plugins.StringType
+import org.codefeedr.testUtils.{SimpleSourcePipelineObject, SimpleTransformPipelineObject}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class BufferFactoryTest extends FunSuite with BeforeAndAfter {

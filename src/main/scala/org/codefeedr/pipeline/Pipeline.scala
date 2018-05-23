@@ -20,6 +20,7 @@ package org.codefeedr.pipeline
 
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.configuration.{ConfigConstants, Configuration}
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment
 //import org.apache.flink.streaming.api.environment.{LocalStreamEnvironment, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
@@ -45,6 +46,8 @@ case class Pipeline(bufferType: BufferType,
       conf.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true)
 
       _environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf)
+
+      _environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
     }
 
     _environment

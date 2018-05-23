@@ -39,8 +39,8 @@ class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends Abs
     * @return a serialized byte array.
     */
   override def serialize(element: T): Array[Byte] = {
-    val bytes = Serialization.write(element)(formats)
-    bytes.getBytes(StandardCharsets.UTF_8)
+    val string = Serialization.write(element)(formats)
+    string.getBytes(StandardCharsets.UTF_8)
   }
 
   /**
