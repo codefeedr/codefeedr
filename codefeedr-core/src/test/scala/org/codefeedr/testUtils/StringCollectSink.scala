@@ -16,11 +16,12 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins
+package org.codefeedr.testUtils
 
 import java.util
 
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.codefeedr.plugins.StringType
 
 object StringCollectSink {
   val result = new util.ArrayList[String]() //mutable list
