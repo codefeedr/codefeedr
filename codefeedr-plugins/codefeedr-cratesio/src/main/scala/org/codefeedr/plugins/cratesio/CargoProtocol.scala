@@ -16,10 +16,14 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.cargo
+package org.codefeedr.plugins.cratesio
 
 import org.codefeedr.pipeline.PipelineItem
 
+
+/**
+  * Classes for the crates.io response schema.
+  */
 object CargoProtocol {
 
   case class CrateLinks(version_downloads: String,

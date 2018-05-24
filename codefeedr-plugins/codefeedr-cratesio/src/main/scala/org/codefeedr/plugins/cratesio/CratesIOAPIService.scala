@@ -17,35 +17,40 @@
  *
  */
 
-package org.codefeedr.plugins.cargo
+package org.codefeedr.plugins.cratesio
 
 
-import org.codefeedr.plugins.cargo.CargoProtocol.CrateInfo
-import org.json4s.{DefaultFormats}
+import org.codefeedr.plugins.cratesio.CargoProtocol.CrateInfo
+import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
-import scalaj.http.Http
+import scalaj.http.{Http, HttpResponse}
 
-object CargoService {
+import scala.util.{Failure, Success, Try}
+
+/**
+  * A set of methods to query the crates.io API for a single package information
+  */
+class CratesIOAPIService {
 
   val BASE_URL = "https://crates.io/api/v1/crates/"
 
   implicit val defaultFormats = DefaultFormats
 
-  def crateInfo(crate: String): CrateInfo = cratesRequest(crate)
+  def crateInfo(crateName: String) : CrateInfo =
+    parseRespose(crateAPIRequest(crateName).body)
 
-  def cratesRequest(crate: String): CrateInfo = {
-    val request = BASE_URL + crate
-    val response = Http(request).
+  def crateAPIRequest(crate: String): HttpResponse[String] =
+    Http(BASE_URL + crate).
         timeout(connTimeoutMs = 10000, readTimeoutMs = 15000).
         asString
-
-    parseRespose(response.body)
-  }
 
   def parseRespose(crateInfoJSON: String): CrateInfo =
     parse(crateInfoJSON).extract[CrateInfo]
 
-
-  def extactCrateFromCommitMsg(msg: String) : String =
-    msg.split("`")(1).split("#")(0)
+  def extactCrateFromCommitMsg(msg: String) : Try[String] =
+    try {
+      Success(msg.split("`")(1).split("#")(0))
+    } catch {
+      case e: Exception => Failure(e)
+    }
 }

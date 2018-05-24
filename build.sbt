@@ -20,7 +20,7 @@ lazy val root = (project in file("."))
     pluginElasticSearch,
     pluginGitHub,
     pluginWeblogs,
-    pluginCargo
+    pluginCratesIO
   )
 
 lazy val core = (project in file("codefeedr-core"))
@@ -115,9 +115,9 @@ lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs")
     core
   )
 
-lazy val pluginCargo = (project in file("codefeedr-plugins/codefeedr-cargo"))
+lazy val pluginCratesIO = (project in file("codefeedr-plugins/codefeedr-cratesio"))
   .settings(
-    name := projectPrefix + "cargo",
+    name := projectPrefix + "cratesio",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
