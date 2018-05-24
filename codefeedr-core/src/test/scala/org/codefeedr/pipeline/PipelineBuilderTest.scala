@@ -3,9 +3,10 @@ package org.codefeedr.pipeline
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.StaticKeyManager
-import org.codefeedr.pipeline.buffer.BufferType
+import org.codefeedr.buffer.BufferType
 import org.apache.flink.api.scala._
-import org.codefeedr.plugins.StringType
+import org.codefeedr.stages.utilities.StringType
+import org.codefeedr.stages.{OutputStage, StageAttributes}
 import org.codefeedr.testUtils.{SimpleSinkPipelineObject, SimpleSourcePipelineObject, SimpleTransformPipelineObject}
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 

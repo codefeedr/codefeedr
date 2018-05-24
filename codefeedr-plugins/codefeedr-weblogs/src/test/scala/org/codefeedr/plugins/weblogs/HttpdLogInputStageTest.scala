@@ -2,8 +2,8 @@ package org.codefeedr.plugins.weblogs
 
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.pipeline._
-import org.codefeedr.pipeline.buffer.BufferType
-import org.codefeedr.plugins.StringType
+import org.codefeedr.buffer.BufferType
+import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.StringCollectSink
 import org.scalatest.{BeforeAndAfter, FunSuite}
 

@@ -27,9 +27,10 @@ import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.api.windowing.assigners.{EventTimeSessionWindows, TumblingEventTimeWindows}
 import org.apache.flink.streaming.api.windowing.time.Time
-import org.codefeedr.pipeline.{PipelineItem, TransformStage2}
+import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.{IssueCommentEvent, IssuesEvent}
 import org.apache.flink.api.scala._
+import org.codefeedr.stages.TransformStage2
 
 case class IssueOpenedReply(id: Double,
                             secondsDelay: Long) extends PipelineItem

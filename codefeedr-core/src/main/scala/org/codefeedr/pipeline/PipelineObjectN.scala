@@ -20,6 +20,7 @@ package org.codefeedr.pipeline
 
 import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.stages.StageAttributes
 
 import scala.reflect.{ClassTag, Manifest}
 import scala.reflect.runtime.universe._
