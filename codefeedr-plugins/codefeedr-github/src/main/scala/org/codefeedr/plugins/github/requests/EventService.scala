@@ -122,6 +122,9 @@ class EventService(duplicateFilter: Boolean,
   def parseEvents(body: String): List[Event] = {
     implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
 
+    //if there is no body just return an empty list
+    if (body == "") return List()
+
     val json = parse(body)
     json.transformField {
       case JField("payload", list : JObject) => ("payload", JString(compact(render(list))))

@@ -107,6 +107,11 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     assert(events.size == 2)
   }
 
+  test("If there is an empty body, no events should be parsed") {
+    val events = service.parseEvents("")
+    assert(events.size == 0)
+  }
+
   test("There should be a proper duplicate check.") {
     val events = service.parseEvents(sampleEvents)
     val events2 = service.parseEvents(sampleEvents)

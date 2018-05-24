@@ -5,10 +5,9 @@ import org.codefeedr.pipeline._
 import org.codefeedr.pipeline.buffer.BufferType
 import org.codefeedr.plugins.StringType
 import org.codefeedr.testUtils.StringCollectSink
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class LogInputStageTest extends FunSuite with MockFactory with BeforeAndAfter {
+class LogInputStageTest extends FunSuite with BeforeAndAfter {
 
   test("LogSource integration test") {
 
