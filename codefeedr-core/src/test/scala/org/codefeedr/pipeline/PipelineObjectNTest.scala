@@ -19,8 +19,8 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.buffer.BufferType
-import org.codefeedr.plugins.{StringSource, StringType}
+import org.codefeedr.buffer.BufferType
+import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.FunSuite
 
@@ -89,8 +89,8 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("An object2 has two inputs") {
-    val a = new StringSource()
-    val b = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
     val job = new MyObject2()
 
     val pipeline = new PipelineBuilder()
@@ -104,9 +104,9 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("An object3 has three inputs") {
-    val a = new StringSource()
-    val b = new StringSource()
-    val c = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
+    val c = new StringInput()
     val job = new MyObject3()
 
     val pipeline = new PipelineBuilder()
@@ -120,10 +120,10 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("An object4 has four inputs") {
-    val a = new StringSource()
-    val b = new StringSource()
-    val c = new StringSource()
-    val d = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
+    val c = new StringInput()
+    val d = new StringInput()
     val job = new MyObject4()
 
     val pipeline = new PipelineBuilder()
@@ -137,7 +137,7 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("Should throw when not enough inputs are defined for an object2") {
-    val a = new StringSource()
+    val a = new StringInput()
     val job = new MyObject2()
 
     val builder = new PipelineBuilder()
@@ -150,8 +150,8 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("Should throw when not enough inputs are defined for an object3") {
-    val a = new StringSource()
-    val b = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
     val job = new MyObject3()
 
     val builder = new PipelineBuilder()
@@ -164,9 +164,9 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("Should throw when not enough inputs are defined for an object4") {
-    val a = new StringSource()
-    val b = new StringSource()
-    val c = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
+    val c = new StringInput()
     val job = new MyObject4()
 
     val builder = new PipelineBuilder()
@@ -179,11 +179,11 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("Should not throw when plenty of inputs are defined for an object4") {
-    val a = new StringSource()
-    val b = new StringSource()
-    val c = new StringSource()
-    val d = new StringSource()
-    val e = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
+    val c = new StringInput()
+    val d = new StringInput()
+    val e = new StringInput()
     val job = new MyObject4()
 
     val builder = new PipelineBuilder()
@@ -196,8 +196,8 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("Should throw when input type of object2 is NoType") {
-    val a = new StringSource()
-    val b = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
     val job = new MyBadObject2()
 
     val builder = new PipelineBuilder()
@@ -210,9 +210,9 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("Should throw when input type of object3 is NoType") {
-    val a = new StringSource()
-    val b = new StringSource()
-    val c = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
+    val c = new StringInput()
     val job = new MyBadObject3()
 
     val builder = new PipelineBuilder()
@@ -225,10 +225,10 @@ class PipelineObjectNTest extends FunSuite {
   }
 
   test("Should throw when input type of object4 is NoType") {
-    val a = new StringSource()
-    val b = new StringSource()
-    val c = new StringSource()
-    val d = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
+    val c = new StringInput()
+    val d = new StringInput()
     val job = new MyBadObject4()
 
     val builder = new PipelineBuilder()

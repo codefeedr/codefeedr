@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter
 import org.apache.flink.api.common.functions.FlatMapFunction
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector
-import org.codefeedr.pipeline.{InputStage, StageAttributes}
+import org.codefeedr.stages.{InputStage, StageAttributes}
 
 /**
   * Source that streams Apache log files
