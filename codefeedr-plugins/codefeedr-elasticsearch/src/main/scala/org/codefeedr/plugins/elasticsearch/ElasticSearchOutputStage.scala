@@ -26,7 +26,8 @@ import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
 import org.apache.flink.streaming.connectors.elasticsearch5.ElasticsearchSink
-import org.codefeedr.pipeline.{OutputStage, PipelineItem, StageAttributes}
+import org.codefeedr.pipeline.{PipelineItem}
+import org.codefeedr.stages.{OutputStage, StageAttributes}
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.Requests
 import org.json4s.NoTypeHints

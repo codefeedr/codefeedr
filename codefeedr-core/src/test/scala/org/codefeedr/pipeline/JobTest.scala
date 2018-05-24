@@ -19,8 +19,9 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.buffer.BufferType
-import org.codefeedr.plugins.{StringSource, StringType}
+import org.codefeedr.buffer.BufferType
+import org.codefeedr.stages.utilities.{StringInput, StringType}
+import org.codefeedr.stages.{OutputStage, OutputStage2, OutputStage3, OutputStage4}
 import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.FunSuite
 
@@ -60,7 +61,7 @@ class JobTest extends FunSuite {
 
   test("Job with single source") {
     val pipeline = new PipelineBuilder()
-      .append(new StringSource())
+      .append(new StringInput())
       .append(new MyJob1())
       .build()
 
@@ -68,8 +69,8 @@ class JobTest extends FunSuite {
   }
 
   test("Job with two sources") {
-    val a = new StringSource()
-    val b = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
     val job = new MyJob2()
 
     val pipeline = new PipelineBuilder()
@@ -81,9 +82,9 @@ class JobTest extends FunSuite {
   }
 
   test("Job with three sources") {
-    val a = new StringSource()
-    val b = new StringSource()
-    val c = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
+    val c = new StringInput()
     val job = new MyJob3()
 
     val pipeline = new PipelineBuilder()
@@ -95,10 +96,10 @@ class JobTest extends FunSuite {
   }
 
   test("Job with four sources") {
-    val a = new StringSource()
-    val b = new StringSource()
-    val c = new StringSource()
-    val d = new StringSource()
+    val a = new StringInput()
+    val b = new StringInput()
+    val c = new StringInput()
+    val d = new StringInput()
     val job = new MyJob4()
 
     val pipeline = new PipelineBuilder()

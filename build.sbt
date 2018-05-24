@@ -19,7 +19,7 @@ lazy val root = (project in file("."))
     pluginMongodb,
     pluginElasticSearch,
     pluginGitHub,
-    pluginHttpd,
+    pluginWeblogs,
     pluginCargo
   )
 
@@ -103,9 +103,9 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
     core
   )
 
-lazy val pluginHttpd = (project in file("codefeedr-plugins/codefeedr-httpd"))
+lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs"))
   .settings(
-    name := projectPrefix + "httpd",
+    name := projectPrefix + "weblogs",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -230,4 +230,3 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
-

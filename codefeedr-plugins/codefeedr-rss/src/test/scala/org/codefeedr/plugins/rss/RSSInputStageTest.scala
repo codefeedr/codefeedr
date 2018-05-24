@@ -4,7 +4,8 @@ import org.apache.flink.api.common.JobID
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala._
-import org.codefeedr.pipeline.{OutputStage, PipelineBuilder}
+import org.codefeedr.pipeline.PipelineBuilder
+import org.codefeedr.stages.OutputStage
 import org.scalatest.FunSuite
 
 //This will be thrown after the print sink received x elements.

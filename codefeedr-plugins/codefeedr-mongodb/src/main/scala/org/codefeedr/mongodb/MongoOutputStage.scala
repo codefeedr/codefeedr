@@ -20,7 +20,8 @@ package org.codefeedr.plugins.mongodb
 
 import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.{OutputStage, PipelineItem, StageAttributes}
+import org.codefeedr.pipeline.PipelineItem
+import org.codefeedr.stages.{OutputStage, StageAttributes}
 
 import scala.reflect.{ClassTag, Manifest}
 

@@ -19,7 +19,8 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.plugins.StringType
+import org.codefeedr.stages.StageAttributes
+import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.{SimpleSourcePipelineObject, SimpleTransformPipelineObject}
 import org.scalatest.FunSuite
 
