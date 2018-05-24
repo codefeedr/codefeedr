@@ -19,7 +19,8 @@ lazy val root = (project in file("."))
     pluginMongodb,
     pluginElasticSearch,
     pluginGitHub,
-    pluginHttpd
+    pluginHttpd,
+    pluginCargo
   )
 
 lazy val core = (project in file("codefeedr-core"))
@@ -108,6 +109,22 @@ lazy val pluginHttpd = (project in file("codefeedr-plugins/codefeedr-httpd"))
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
+    )
+  )
+  .dependsOn(
+    core
+  )
+
+lazy val pluginCargo = (project in file("codefeedr-plugins/codefeedr-cargo"))
+  .settings(
+    name := projectPrefix + "cargo",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.httpj,
+      dependencies.json4s,
+      dependencies.jackson,
+      dependencies.json4sExt
     )
   )
   .dependsOn(
