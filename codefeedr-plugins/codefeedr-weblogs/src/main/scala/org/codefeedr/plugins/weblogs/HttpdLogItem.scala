@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.httpd
+package org.codefeedr.plugins.weblogs
 
 import java.time.LocalDateTime
 
@@ -34,12 +34,12 @@ import org.codefeedr.pipeline.PipelineItem
   * @param referer Referer
   * @param userAgent Information about the user agent that made the request
   */
-case class ApacheAccessLogItem(ip: String,
-                               date: LocalDateTime,
-                               method: String,
-                               path: String,
-                               version: String,
-                               status: Int,
-                               amountOfBytes: Int,
-                               referer: String,
-                               userAgent: String) extends PipelineItem
+case class HttpdLogItem(ip: String,
+                        date: LocalDateTime,
+                        method: String,
+                        path: String,
+                        version: String,
+                        status: Int,
+                        amountOfBytes: Int,
+                        referer: String,
+                        userAgent: String) extends PipelineItem

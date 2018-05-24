@@ -1,4 +1,4 @@
-package org.codefeedr.plugins.httpd.testUtils
+package org.codefeedr.plugins.weblogs.testUtils
 
 import org.apache.flink.api.common.JobID
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
