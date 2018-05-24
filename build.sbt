@@ -102,6 +102,20 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
     core
   )
 
+lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
+  .settings(
+    name := projectPrefix + "travis",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.httpj
+    )
+  )
+  .dependsOn(
+    core,
+    pluginGitHub
+  )
+
 lazy val pluginHttpd = (project in file("codefeedr-plugins/codefeedr-httpd"))
   .settings(
     name := projectPrefix + "httpd",
@@ -124,29 +138,28 @@ lazy val dependencies =
 //    "org.apache.logging.log4j" % "log4j-api" % "2.11.0",
 //    "org.apache.logging.log4j" % "log4j-core" % "2.11.0",
 
-    val flink                     = "org.apache.flink"  %% "flink-scala"                            % flinkVersion    % "compile"
-    val flinkStreaming            = "org.apache.flink"  %% "flink-streaming-scala"                  % flinkVersion    % "compile"
-    val flinkKafka                = "org.apache.flink"  %% "flink-connector-kafka-0.11"             % flinkVersion    % "compile"
-    val flinkAvro                 = "org.apache.flink"  %% "flink-avro"                             % flinkVersion
-    val flinkRuntimeWeb           = "org.apache.flink"  %% "flink-runtime-web"                      % flinkVersion
-    val flinkElasticSearch        = "org.apache.flink"  %% "flink-connector-elasticsearch5"         % flinkVersion
+    val flink                     = "org.apache.flink"    %% "flink-scala"                            % flinkVersion    % "compile"
+    val flinkStreaming            = "org.apache.flink"    %% "flink-streaming-scala"                  % flinkVersion    % "compile"
+    val flinkKafka                = "org.apache.flink"    %% "flink-connector-kafka-0.11"             % flinkVersion    % "compile"
+    val flinkAvro                 = "org.apache.flink"    %% "flink-avro"                             % flinkVersion
+    val flinkRuntimeWeb           = "org.apache.flink"    %% "flink-runtime-web"                      % flinkVersion
+    val flinkElasticSearch        = "org.apache.flink"    %% "flink-connector-elasticsearch5"         % flinkVersion
+    val redis                     = "net.debasishg"       %% "redisclient"                            % "3.6"
+    val kafkaClient               = "org.apache.kafka"     % "kafka-clients"                          % "1.0.0"
+    val zookeeper                 = "org.apache.zookeeper" % "zookeeper"                              % "3.4.9"
 
-    val redis                     = "net.debasishg"     %% "redisclient"                            % "3.6"
-    val kafkaClient               = "org.apache.kafka"   % "kafka-clients"                          % "1.0.0"
-    val zookeeper                 = "org.apache.zookeeper" % "zookeeper"                            % "3.4.9"
+    val json4s                    = "org.json4s"          %% "json4s-scalap"                          % json4sVersion
+    val jackson                   = "org.json4s"          %% "json4s-jackson"                         % json4sVersion
+    val json4sExt                 = "org.json4s"          %% "json4s-ext"                             % json4sVersion
 
-    val json4s                    = "org.json4s"        %% "json4s-scalap"                          % json4sVersion
-    val jackson                   = "org.json4s"        %% "json4s-jackson"                         % json4sVersion
-    val json4sExt                 = "org.json4s"        %% "json4s-ext"                             % json4sVersion
+    val mongo                     = "org.mongodb.scala"   %% "mongo-scala-driver"                     % "2.3.0"
 
-    val mongo                     = "org.mongodb.scala" %% "mongo-scala-driver"                     % "2.3.0"
+    val httpj                     = "org.scalaj"          %% "scalaj-http"                            % "2.4.0"
 
-    val httpj                     = "org.scalaj"        %% "scalaj-http"                            % "2.4.0"
-
-    val scalactic                 = "org.scalactic"     %% "scalactic"                              % "3.0.1"         % "test"
-    val scalatest                 = "org.scalatest"     %% "scalatest"                              % "3.0.1"         % "test"
-    val scalamock                 = "org.scalamock"     %% "scalamock"                              % "4.1.0"         % "test"
-    val mockito                   = "org.mockito"        % "mockito-all"                            % "1.10.19"       % "test"
+    val scalactic                 = "org.scalactic"       %% "scalactic"                              % "3.0.1"         % "test"
+    val scalatest                 = "org.scalatest"       %% "scalatest"                              % "3.0.1"         % "test"
+    val scalamock                 = "org.scalamock"       %% "scalamock"                              % "4.1.0"         % "test"
+    val mockito                   = "org.mockito"          % "mockito-all"                            % "1.10.19"       % "test"
   }
 
 lazy val commonDependencies = Seq(
