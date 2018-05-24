@@ -19,7 +19,7 @@ lazy val root = (project in file("."))
     pluginMongodb,
     pluginElasticSearch,
     pluginGitHub,
-    pluginHttpd
+    pluginWeblogs
   )
 
 lazy val core = (project in file("codefeedr-core"))
@@ -102,9 +102,9 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
     core
   )
 
-lazy val pluginHttpd = (project in file("codefeedr-plugins/codefeedr-httpd"))
+lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs"))
   .settings(
-    name := projectPrefix + "httpd",
+    name := projectPrefix + "weblogs",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(

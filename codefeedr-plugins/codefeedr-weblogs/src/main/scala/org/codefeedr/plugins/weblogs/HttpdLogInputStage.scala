@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.httpd
+package org.codefeedr.plugins.weblogs
 
 import java.time.{LocalDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
@@ -31,9 +31,9 @@ import org.codefeedr.pipeline.{InputStage, StageAttributes}
   *
   * @param absolutePath Absolute file path to the log
   */
-class ApacheLogFileInputStage(absolutePath: String, stageAttributes: StageAttributes = StageAttributes()) extends InputStage[ApacheAccessLogItem](stageAttributes) with Serializable {
+class HttpdLogInputStage(absolutePath: String, stageAttributes: StageAttributes = StageAttributes()) extends InputStage[HttpdLogItem](stageAttributes) with Serializable {
 
-  override def main(): DataStream[ApacheAccessLogItem] = {
+  override def main(): DataStream[HttpdLogItem] = {
     pipeline.environment
       .readTextFile(absolutePath)
       .setParallelism(1)
@@ -44,17 +44,17 @@ class ApacheLogFileInputStage(absolutePath: String, stageAttributes: StageAttrib
 
 }
 
-private class LogMapper extends FlatMapFunction[String, ApacheAccessLogItem] {
+private class LogMapper extends FlatMapFunction[String, HttpdLogItem] {
 
   lazy val dateFormatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z")
   lazy val pattern = """^(\S+) \S+ \S+ \[([\w:\/]+\s[+\-]\d{4})\] "(\S+)\s+(\S+)\s+(\S+)?\s*" (\d{3}) (\S+) ("[^"]*") ("[^"]*") ("[^"]*")""".r
 
-  def flatMap(line: String, out: Collector[ApacheAccessLogItem]): Unit = line match {
+  def flatMap(line: String, out: Collector[HttpdLogItem]): Unit = line match {
     case pattern(ipAddress, dateString, method, path, version, status, amountOfBytes, referer, userAgent, _*) => {
       val date = LocalDateTime.parse(dateString, dateFormatter)
       val amountOfBytesInt = if (amountOfBytes != "-") amountOfBytes.toInt else -1
 
-      out.collect(ApacheAccessLogItem(ipAddress, date, method, path, version, status.toInt, amountOfBytesInt, referer, userAgent))
+      out.collect(HttpdLogItem(ipAddress, date, method, path, version, status.toInt, amountOfBytesInt, referer, userAgent))
     }
     case _ =>
   }
