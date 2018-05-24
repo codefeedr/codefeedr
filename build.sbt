@@ -128,7 +128,7 @@ lazy val pluginCargo = (project in file("codefeedr-plugins/codefeedr-cargo"))
     )
   )
   .dependsOn(
-    core
+    core, pluginGitHub
   )
 
 

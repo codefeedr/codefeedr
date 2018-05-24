@@ -37,4 +37,12 @@ class CargoServiceTest extends FunSuite {
     assert(result.crate.badges.length == 2)
     assert(result.crate.links.owner_user == "/api/v1/crates/libc/owner_user")
   }
+
+  test ("Parse crate index commit messages") {
+    Map("Updating crate `btc-transaction-utils#0.2.0`" -> "btc-transaction-utils",
+        "Updating crate `gcollections#1.1.0`" -> "gcollections",
+        "Updating crate `sbr#0.1.1`" -> "sbr",
+        "Updating crate `error-chain-mini-derive#0.2.0`" -> "error-chain-mini-derive"
+    ).foreach(x => assert(CargoService.extactCrateFromCommitMsg(x._1) == x._2))
+  }
 }

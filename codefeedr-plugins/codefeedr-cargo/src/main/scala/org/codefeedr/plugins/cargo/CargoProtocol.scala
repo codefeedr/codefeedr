@@ -41,7 +41,7 @@ object CargoProtocol {
   case class Crate(id: String,
                    name: String,
                    updated_at: String,
-                   versions: List[Integer],
+                   versions: List[Int],
                    keywords: List[String],
                    categories: List[String],
                    badges: List[Badge],

@@ -19,7 +19,6 @@
 
 package org.codefeedr.plugins.cargo
 
-import java.time.Year
 
 import org.codefeedr.plugins.cargo.CargoProtocol.CrateInfo
 import org.json4s.{DefaultFormats}
@@ -46,5 +45,7 @@ object CargoService {
   def parseRespose(crateInfoJSON: String): CrateInfo =
     parse(crateInfoJSON).extract[CrateInfo]
 
-}
 
+  def extactCrateFromCommitMsg(msg: String) : String =
+    msg.split("`")(1).split("#")(0)
+}
