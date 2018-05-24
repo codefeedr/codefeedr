@@ -99,8 +99,7 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
     )
   )
   .dependsOn(
-    core,
-    pluginMongodb
+    core
   )
 
 lazy val pluginHttpd = (project in file("codefeedr-plugins/codefeedr-httpd"))
