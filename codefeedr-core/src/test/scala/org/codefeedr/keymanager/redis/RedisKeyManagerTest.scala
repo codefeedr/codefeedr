@@ -62,7 +62,7 @@ class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://lo
 
     km.request("testTarget", 3)
 
-    // Wait 5 seconds to make the keys pass
+    // Wait 2 seconds to make the keys pass
     Thread.sleep(2000)
 
     val key = km.request(target = "testTarget", numberOfCalls = 8)
