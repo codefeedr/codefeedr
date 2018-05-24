@@ -1,10 +1,10 @@
 package org.codefeedr.plugins.cargo
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.TransformStage
 import org.codefeedr.plugins.cargo.CargoProtocol.CrateInfo
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 import org.apache.flink.api.scala._
+import org.codefeedr.stages.TransformStage
 
 class GitHubPushEventToCargoTransform extends TransformStage[PushEvent, CrateInfo] {
 
