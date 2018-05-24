@@ -1,13 +1,13 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer, NoAvroSerdeException}
-import org.codefeedr.plugins.{StringSource, StringType}
+import org.codefeedr.buffer.{BufferType, KafkaBuffer, NoAvroSerdeException}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
-import org.codefeedr.pipeline.buffer.serialization.Serializer
-import org.codefeedr.pipeline.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
+import org.codefeedr.buffer.serialization.Serializer
+import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
+import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils._
 
 import scala.collection.JavaConverters._
@@ -23,7 +23,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
   test("Simple pipeline test wordcount") {
     builder
-      .append(new StringSource(str = "hallo hallo doei doei doei"))
+      .append(new StringInput(str = "hallo hallo doei doei doei"))
       .append { x: DataStream[StringType] =>
         x.map(x => (x.value, 1))
           .keyBy(0)
@@ -44,7 +44,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
   test("Simple pipeline test") {
     builder
-      .append(new StringSource())
+      .append(new StringInput())
       .append { x: DataStream[StringType] =>
         x.map(x => WordCount(x.value, 1)).setParallelism(1)
           .addSink(new CollectSink).setParallelism(1)

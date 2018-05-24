@@ -99,7 +99,8 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
     )
   )
   .dependsOn(
-    core
+    core,
+    pluginMongodb
   )
 
 lazy val pluginHttpd = (project in file("codefeedr-plugins/codefeedr-httpd"))
@@ -213,4 +214,3 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
-

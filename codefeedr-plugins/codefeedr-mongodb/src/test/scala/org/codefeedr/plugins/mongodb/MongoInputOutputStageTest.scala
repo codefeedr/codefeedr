@@ -22,13 +22,13 @@ import java.time.{LocalDateTime, ZoneId}
 import java.util
 
 import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
-import org.codefeedr.plugins.{Printer, StringSource, StringType}
 import org.scalatest.FunSuite
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.mongodb.scala.MongoClient
 
 import scala.collection.JavaConversions._
@@ -57,7 +57,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     clearDatabase()
 
     val pipeline = new PipelineBuilder()
-      .append(new StringSource(longString))
+      .append(new StringInput(longString))
       .append(new MongoOutputStage[StringType]("db", "collection"))
       .build()
 
@@ -101,7 +101,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     clearDatabase()
 
     val pipeline = new PipelineBuilder()
-      .append(new StringSource(longString))
+      .append(new StringInput(longString))
       .append { e: DataStream[StringType] => e.assignAscendingTimestamps(_ => LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond) }
       .append(new MongoOutputStage[StringType]("db", "collection"))
       .build()
