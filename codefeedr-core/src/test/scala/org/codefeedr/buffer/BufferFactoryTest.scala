@@ -12,7 +12,7 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
 
   test("Should throw when creating a buffer with no buffertype") {
     val pipeline = new PipelineBuilder()
-      .setBufferType(BufferType.None)
+      .setBufferType(BufferType.Kafka)
       .append(nodeA)
       .append(nodeB)
       .build()
@@ -26,7 +26,7 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
 
   test("Should throw when giving a null object") {
     val pipeline = new PipelineBuilder()
-      .setBufferType(BufferType.None)
+      .setBufferType(BufferType.Kafka)
       .append(nodeA)
       .append(nodeB)
       .build()
