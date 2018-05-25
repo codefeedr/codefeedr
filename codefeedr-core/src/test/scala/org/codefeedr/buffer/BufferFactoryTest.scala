@@ -10,20 +10,6 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
   val nodeA = new SimpleSourcePipelineObject()
   val nodeB = new SimpleTransformPipelineObject()
 
-  test("Should throw when creating a buffer with no buffertype") {
-    val pipeline = new PipelineBuilder()
-      .setBufferType(BufferType.Kafka)
-      .append(nodeA)
-      .append(nodeB)
-      .build()
-
-    val factory = new BufferFactory(pipeline, nodeA, nodeB)
-
-    assertThrows[IllegalStateException] {
-      factory.create[StringType]()
-    }
-  }
-
   test("Should throw when giving a null object") {
     val pipeline = new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
