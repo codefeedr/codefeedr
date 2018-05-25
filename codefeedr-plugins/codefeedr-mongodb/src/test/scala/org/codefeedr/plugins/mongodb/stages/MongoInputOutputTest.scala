@@ -15,22 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.codefeedr.plugins.mongodb
+package org.codefeedr.plugins.mongodb.stages
 
 import java.time.{LocalDateTime, ZoneId}
 import java.util
 
-import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
-import org.scalatest.FunSuite
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.plugins.mongodb.stages.{MongoInput, MongoOutput}
+import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
+import org.codefeedr.plugins.mongodb.MongoQuery
 import org.codefeedr.stages.utilities.{SeqInput, StringInput, StringType}
 import org.mongodb.scala.MongoClient
+import org.scalatest.FunSuite
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
