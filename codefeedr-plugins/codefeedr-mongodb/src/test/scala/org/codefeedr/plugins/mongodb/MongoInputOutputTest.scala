@@ -21,7 +21,6 @@ package org.codefeedr.plugins.mongodb
 import java.time.{LocalDateTime, ZoneId}
 import java.util
 
-import com.sksamuel.avro4s.FromRecord
 import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
 import org.scalatest.FunSuite
 import org.apache.flink.api.scala._
@@ -30,16 +29,14 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.plugins.mongodb.stages.{MongoInput, MongoOutput}
-import org.codefeedr.stages.InputStage
 import org.codefeedr.stages.utilities.{SeqInput, StringInput, StringType}
 import org.mongodb.scala.MongoClient
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.reflect.{ClassTag, Manifest}
 
-class MongoInputOutputStageTest extends FunSuite {
+class MongoInputOutputTest extends FunSuite {
 
   val server = "mongodb://localhost:27017"
   val longString =
