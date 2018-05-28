@@ -18,9 +18,13 @@
  */
 package org.codefeedr.buffer
 
+import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
 import org.codefeedr.pipeline.Pipeline
+
+import scala.reflect.Manifest
 
 /**
   * A pipeline buffer.
@@ -28,9 +32,40 @@ import org.codefeedr.pipeline.Pipeline
   * A buffer is an often external source that stores and queues elements.
   *
   * @param pipeline Pipeline
+  * @param properties Buffer properties
   * @tparam T Element type of the buffer
   */
-abstract class Buffer[T](pipeline: Pipeline) {
+abstract class Buffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, properties: org.codefeedr.Properties) {
+
+  /**
+    * Get the source for this buffer. The buffer ereads from this
+    *
+    * @return Source stream
+    */
   def getSource: DataStream[T]
+
+  /**
+    * Get the sink function for the buffer. The buffer writes to this.
+    *
+    * @return Sink function
+    */
   def getSink: SinkFunction[T]
+
+  /**
+    * Get serializer/deserializer of elements
+    *
+    * @return Serializer
+    */
+  def getSerializer: AbstractSerde[T] = {
+    val serializer = properties.getOrElse[String](Buffer.SERIALIZER, Serializer.JSON)
+
+    Serializer.getSerde[T](serializer)
+  }
+}
+
+/**
+  * Buffer static values
+  */
+object Buffer {
+  val SERIALIZER = "SERIALIZER"
 }

@@ -14,14 +14,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-package org.codefeedr.buffer
+
+package org.codefeedr.stages.rabbitmq
+
+import com.sksamuel.avro4s.FromRecord
+import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.pipeline.PipelineItem
+import org.codefeedr.stages.{InputStage, StageAttributes}
+
+import scala.reflect.{ClassTag, Manifest}
 
 /**
-  * Type of a buffer.
+  * Input stage pulling data from a RabbitMQ queue.
+  *
+  * @param stageAttributes Optional attributes
+  * @tparam T Type of value to pull from the queue
   */
-object BufferType extends Enumeration {
-  type BufferType = Value
-  val Kafka, RabbitMQ = Value
+class RabbitMQInput[T <: PipelineItem : ClassTag : Manifest : FromRecord](stageAttributes: StageAttributes = StageAttributes())
+  extends InputStage[T](stageAttributes) {
+
+  override def main(): DataStream[T] = {
+    null
+  }
 }

@@ -37,6 +37,9 @@ lazy val core = (project in file("codefeedr-core"))
       dependencies.kafkaClient,
       dependencies.flinkKafka,
 
+      // RabbitMQBuffer
+      dependencies.flinkRabbitMQ,
+
       // RedisKeyManager
       dependencies.redis,
 
@@ -133,6 +136,7 @@ lazy val dependencies =
     val flinkAvro                 = "org.apache.flink"  %% "flink-avro"                             % flinkVersion
     val flinkRuntimeWeb           = "org.apache.flink"  %% "flink-runtime-web"                      % flinkVersion
     val flinkElasticSearch        = "org.apache.flink"  %% "flink-connector-elasticsearch5"         % flinkVersion
+    val flinkRabbitMQ             = "org.apache.flink"  %% "flink-connector-rabbitmq"               % flinkVersion
 
     val redis                     = "net.debasishg"     %% "redisclient"                            % "3.6"
     val kafkaClient               = "org.apache.kafka"   % "kafka-clients"                          % "1.0.0"
@@ -173,9 +177,9 @@ lazy val commonDependencies = Seq(
 lazy val settings = commonSettings
 
 lazy val commonSettings = Seq(
-  organization := "com.example",
-  version := "0.1.0-SNAPSHOT",
-  scalaVersion := "2.11.11",
+//  organization := "org.codefeedr",
+//  version := "0.1.0-SNAPSHOT",
+//  scalaVersion := "2.11.11",
 
   scalacOptions ++= compilerOptions,
   resolvers ++= Seq(
