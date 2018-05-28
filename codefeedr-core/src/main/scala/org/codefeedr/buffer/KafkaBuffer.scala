@@ -35,6 +35,7 @@ import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.codefeedr.pipeline.{Pipeline, PipelineItem, PipelineObject}
 import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
 import org.codefeedr.stages.StageAttributes
+import shapeless.datatype.avro.AvroSchema
 
 import scala.collection.JavaConverters._
 
@@ -104,13 +105,6 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
 
       //get the schema
       val schema = getSchema(topic)
-
-      //set serde if avro
-      if (serde.isInstanceOf[AvroSerde[T]]) {
-        serde.asInstanceOf[AvroSerde[T]].setSchema(getSchema(topic).toString) //TODO find a better workaround for this
-      } else {
-        throw NoAvroSerdeException("You can't use an Avro schema for deserialization if Avro isn't the serde type.")
-      }
     }
 
     pipeline.environment.
@@ -189,7 +183,7 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
     */
   def exposeSchema(): Boolean = {
     //get the schema
-    val schema = ReflectData.get().getSchema(inputClassType)
+    val schema = AvroSchema[T]
 
     //expose the schema
     getExposer.put(schema, topic)

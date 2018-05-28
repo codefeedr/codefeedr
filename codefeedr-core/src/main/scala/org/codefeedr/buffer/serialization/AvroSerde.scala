@@ -36,7 +36,6 @@ import scala.reflect.runtime.universe._
  */
 trait AvroSerde[T] extends AbstractSerde[T] {
   type L <: HList
-  def setSchema(str : String)
 }
 
 object AvroSerde {
@@ -52,13 +51,6 @@ object AvroSerde {
       val date = AvroType.at[LocalDateTime](Schema.Type.STRING)(x => LocalDateTime.parse(x.toString), _.toString)
 
       type L = L0
-
-      //work around for serialization
-      var schemaString = ""
-      var schemaSet = false
-
-      @transient
-      lazy val exposedSchema : Schema = new Schema.Parser().parse(schemaString)
 
       //Get Avro Type
       val avroType = AvroType[T]
@@ -95,11 +87,6 @@ object AvroSerde {
         val decoder = DecoderFactory.get().binaryDecoder(bais, null)
 
         avroType.fromGenericRecord(reader.read(null, decoder)).get
-      }
-
-      def setSchema(schema : String) = {
-        this.schemaString = schema
-        this.schemaSet = true
       }
     }
 }
