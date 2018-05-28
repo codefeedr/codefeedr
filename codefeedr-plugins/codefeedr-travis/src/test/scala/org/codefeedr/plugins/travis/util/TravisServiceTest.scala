@@ -1,12 +1,10 @@
-package org.codefeedr.plugins.travis
+package org.codefeedr.plugins.travis.util
 
 import org.codefeedr.keymanager.StaticKeyManager
-import org.codefeedr.plugins.travis.TravisPushEventBuildInfoTransformStageTest.getClass
 import org.codefeedr.plugins.travis.util.TravisExceptions.CouldNotExtractException
-import org.codefeedr.plugins.travis.util.TravisService
 import org.mockito.Matchers.any
-import org.scalatest.FunSuite
 import org.mockito.Mockito._
+import org.scalatest.FunSuite
 
 import scala.io.Source
 
