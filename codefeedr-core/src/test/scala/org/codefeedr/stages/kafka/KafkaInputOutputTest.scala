@@ -1,0 +1,87 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+package org.codefeedr.stages.kafka
+
+import java.util
+import java.util.{Properties, UUID}
+
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
+import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
+import org.codefeedr.stages.{InputStage, OutputStage}
+import org.codefeedr.stages.utilities.{StringInput, StringType}
+import org.codefeedr.testUtils.JobFinishedException
+import org.scalatest.FunSuite
+import org.apache.flink.api.scala._
+import org.apache.flink.runtime.client.JobExecutionException
+
+import scala.collection.JavaConversions._
+
+class KafkaInputOutputTest extends FunSuite {
+
+  val someInput = "hi\nthis\nis\na\nreally\nnice\ntest"
+
+  test("Data should be properly sent and read") {
+    val properties = new Properties()
+    properties.put("bootstrap.servers", "localhost:9092")
+    properties.put("enable.auto.commit", "true")
+    properties.put("auto.commit.interval.ms", "10")
+
+    val topic = UUID.randomUUID().toString
+
+    val pipeline =
+      new PipelineBuilder()
+      .edge(new StringInput(someInput), new KafkaOutput[StringType](topic, properties))
+      .edge(new KafkaInput[StringType](topic, properties),new KafkaStringOutput(7))
+      .build()
+
+    assertThrows[JobExecutionException] {
+      pipeline.startLocal()
+    }
+
+
+    assert(KafkaStringCollectSink.result.size() == 7)
+  }
+
+}
+
+object KafkaStringCollectSink {
+  var result = new util.ArrayList[String]() //mutable list
+
+  def asList: List[String] = result.toList
+}
+
+class KafkaStringCollectSink(amount : Int) extends SinkFunction[StringType] {
+
+  var amountLeft = amount
+  override def invoke(value: StringType, context: Context[_]): Unit = {
+    synchronized {
+      KafkaStringCollectSink.result.add(value.value)
+
+      amountLeft -= 1
+      if (amountLeft == 0) throw new JobFinishedException()
+    }
+  }
+
+}
+
+class KafkaStringOutput(amount : Int) extends OutputStage[StringType] {
+  override def main(source: DataStream[StringType]): Unit = source.addSink(new KafkaStringCollectSink(amount))
+}
