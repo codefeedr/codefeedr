@@ -156,7 +156,6 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
     pipeline.startMock()
 
-    println(TestEventCollectSink.result)
     assert(TestEventCollectSink.result.size == 2)
     assert(TestEventCollectSink.result.containsAll(Seq("klaas", "nagellak")))
   }

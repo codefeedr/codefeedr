@@ -26,6 +26,7 @@ import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
 import org.apache.flink.streaming.connectors.elasticsearch5.ElasticsearchSink
+import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 import org.elasticsearch.action.index.IndexRequest
@@ -49,7 +50,7 @@ class ElasticSearchOutput[T <: PipelineItem : ClassTag : Manifest : FromRecord](
                                                                                 servers: Set[String] = Set(),
                                                                                 config: Map[String, String] = Map(),
                                                                                 attributes: StageAttributes = StageAttributes())
-  extends OutputStage[T](attributes) {
+  extends OutputStage[T](attributes) with Logging {
 
   override def main(source: DataStream[T]): Unit = {
     val config = createConfig()
@@ -76,6 +77,7 @@ class ElasticSearchOutput[T <: PipelineItem : ClassTag : Manifest : FromRecord](
     val transportAddresses = new java.util.ArrayList[InetSocketAddress]
 
     if (servers.isEmpty) {
+      logger.info("Transport address set is empty. Using localhost with default port 9300.")
       transportAddresses.add(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9300))
     }
 
@@ -83,6 +85,7 @@ class ElasticSearchOutput[T <: PipelineItem : ClassTag : Manifest : FromRecord](
       val uri = new URI(server)
 
       if (uri.getScheme == "es") {
+        logger.info(s"Adding transport address $server")
         transportAddresses.add(new InetSocketAddress(InetAddress.getByName(uri.getHost), uri.getPort))
       }
     }
