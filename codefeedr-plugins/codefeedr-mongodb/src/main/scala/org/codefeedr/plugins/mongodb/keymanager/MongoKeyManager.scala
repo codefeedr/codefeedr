@@ -30,9 +30,7 @@ import scala.concurrent.duration.Duration
 import org.mongodb.scala.bson.codecs.Macros._
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
-import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.mongodb.scala.model.UpdateOptions
 
 /**
   * Key manager implementation using mongoDB as a backend.
