@@ -1,11 +1,10 @@
-package org.codefeedr.plugins.travis
+package org.codefeedr.plugins.travis.stages
 
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent, GitHubEventsInput}
 import org.codefeedr.plugins.travis.TravisProtocol.TravisBuild
-import org.codefeedr.plugins.travis.stages.{TravisFilterActiveReposTransformStage, TravisPushEventBuildInfoTransformStage}
 import org.scalatest.FunSuite
 
 import scala.io.Source

@@ -19,7 +19,8 @@ lazy val root = (project in file("."))
     pluginMongodb,
     pluginElasticSearch,
     pluginGitHub,
-    pluginHttpd
+    pluginHttpd,
+    pluginTravis
   )
 
 lazy val core = (project in file("codefeedr-core"))
