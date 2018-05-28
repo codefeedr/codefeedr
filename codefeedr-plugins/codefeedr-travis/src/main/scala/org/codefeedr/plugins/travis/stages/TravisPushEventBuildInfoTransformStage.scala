@@ -9,8 +9,6 @@ import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.{PushEventFromActiveTravisRepo, TravisBuild}
 import org.codefeedr.plugins.travis.util.{TravisBuildCollector, TravisService}
 
-import scala.concurrent.ExecutionContext
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}

@@ -61,7 +61,7 @@ object TravisProtocol {
                               github_language: Option[String],
                               active: Option[Boolean],
                               `private`: Option[Boolean],
-                              owner: Option[TravisOwner],
+//                              owner: Option[TravisOwner],
                               default_branch: Option[TravisBranch],
                               starred: Option[Boolean],
                               managed_by_installation: Option[Boolean],
@@ -82,11 +82,11 @@ object TravisProtocol {
                           compare_url: String,
                           committed_at: String)
 
-  case class TravisOwner(id: Int,
-                         login: String,
-                         name: Option[String],
-                         github_id: Option[Int],
-                         avatar_url: Option[String],
-                         education: Option[Boolean])
+//  case class TravisOwner(id: Int,
+//                         login: String,
+//                         name: Option[String],
+//                         github_id: Option[Int],
+//                         avatar_url: Option[String],
+//                         education: Option[Boolean])
 }
 

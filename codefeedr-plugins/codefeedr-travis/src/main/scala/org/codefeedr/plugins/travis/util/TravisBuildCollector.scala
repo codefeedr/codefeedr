@@ -42,7 +42,7 @@ class TravisBuildCollector(repoOwner: String,
     build.get
   }
 
-  private def checkIfBuildShouldBeKnownAlready(): Unit = {
+  def checkIfBuildShouldBeKnownAlready(): Unit = {
     val waitUntil = pushDate.plusSeconds(100 * timeoutSeconds)
     if (build.isEmpty && waitUntil.isBefore(LocalDateTime.now(ZoneId.of("GMT")))) {
       throw BuildNotFoundForTooLongException("Waited " + timeoutSeconds + " seconds for build, but still not found" +
@@ -50,7 +50,7 @@ class TravisBuildCollector(repoOwner: String,
     }
   }
 
-  private def isReady: Boolean = {
+  def isReady: Boolean = {
     if (build.nonEmpty) {
       val state = build.get.state
       return state == "passed" || state == "failed" || state == "canceled" || state == "errored"
@@ -62,7 +62,7 @@ class TravisBuildCollector(repoOwner: String,
     * Requests the build information based on if a build id is known
     * @return A Travis build
     */
-  private def requestBuild: Option[TravisBuild] = {
+  def requestBuild: Option[TravisBuild] = {
     try {
       build match {
         case None => requestUnknownBuild()
@@ -74,17 +74,13 @@ class TravisBuildCollector(repoOwner: String,
           + repoOwner + "/" + repoName)
       case _: CouldNotGetResourceException =>
         None
-      case e: Throwable =>
-        e.printStackTrace()
-        throw e
-    }
   }
 
   /**
     * Requests a build from travis of which the build id is known
     * @return A TravisBuild if it is found, None otherwise
     */
-  private def requestKnownBuild(): Option[TravisBuild] = {
+  def requestKnownBuild(): Option[TravisBuild] = {
     assert(build.nonEmpty)
     Some(travis.getBuild(build.get.id))
   }
@@ -94,7 +90,7 @@ class TravisBuildCollector(repoOwner: String,
     * The builds are sorted on date, so it only looks after the push date
     * @return A TravisBuild if it is found, None otherwise
     */
-  private def requestUnknownBuild(): Option[TravisBuild] = {
+  def requestUnknownBuild(): Option[TravisBuild] = {
     var newestBuildDate: LocalDateTime = LocalDateTime.MIN
     var builds: TravisBuilds = null
 
