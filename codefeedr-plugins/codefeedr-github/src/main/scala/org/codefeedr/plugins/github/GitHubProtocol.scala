@@ -18,15 +18,17 @@
  */
 package org.codefeedr.plugins.github
 
+
 import java.time.LocalDateTime
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.apache.avro.Schema
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.Payload
 import org.json4s.JObject
+import shapeless.datatype.avro.AvroType
 
 object GitHubProtocol {
-
   /**
     * START /events
     */
@@ -185,7 +187,7 @@ object GitHubProtocol {
 
   case class CommitUser(name: String,
                         email: String,
-                        date: LocalDateTime)
+                        date: String)
 
   case class User(id: Long,
                   login: String,
