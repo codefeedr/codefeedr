@@ -18,8 +18,9 @@
 
 package org.codefeedr.stages.rabbitmq
 
-import com.sksamuel.avro4s.FromRecord
+import com.sun.tools.javac.code.TypeTag
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.buffer.serialization.AvroSerde
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.{InputStage, StageAttributes}
 
@@ -31,7 +32,7 @@ import scala.reflect.{ClassTag, Manifest}
   * @param stageAttributes Optional attributes
   * @tparam T Type of value to pull from the queue
   */
-class RabbitMQInput[T <: PipelineItem : ClassTag : Manifest : FromRecord](stageAttributes: StageAttributes = StageAttributes())
+class RabbitMQInput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](stageAttributes: StageAttributes = StageAttributes())
   extends InputStage[T](stageAttributes) {
 
   override def main(): DataStream[T] = {
