@@ -63,6 +63,12 @@ object AvroSerde {
       //Get Avro Type
       val avroType = AvroType[T]
 
+      /**
+        * Serializes a (generic) element into a binary format using the Avro serializer.
+        *
+        * @param value the element to serialized.
+        * @return a serialized byte array.
+        */
       override def serialize(value : T) : Array[Byte] = {
         val r = avroType.toGenericRecord(value)
         val writer = new GenericDatumWriter[GenericRecord](r.getSchema)
@@ -75,6 +81,12 @@ object AvroSerde {
         baos.toByteArray
       }
 
+      /**
+        * Deserializes a (Avro binary) message into a (generic) case class
+        *
+        * @param message the message to deserialized.
+        * @return a deserialized case class.
+        */
       override def deserialize(message: Array[Byte]) : T = {
         val schema = AvroSchema[T]
 

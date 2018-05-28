@@ -48,8 +48,8 @@ object Serializer {
     */
   def getSerde[T <: AnyRef : ClassTag : TypeTag : AvroSerde](name: String) = name match {
     case "AVRO" => AvroSerde[T]
-    case "JSON" => new JSONSerde[T]
-    case _ => new JSONSerde[T] //default is JSON
+    case "JSON" => JSONSerde[T]
+    case _ => JSONSerde[T] //default is JSON
   }
 
 }
