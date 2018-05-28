@@ -8,6 +8,10 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.{DefaultFormats, Formats, JValue}
 import scalaj.http.Http
 
+/**
+  * Used to interact with the travis API
+  * @param keyManager KeyManager that contains keys for the travis API
+  */
 class TravisService(keyManager: KeyManager) extends Serializable {
 
   lazy implicit val formats: Formats = DefaultFormats ++ JavaTimeSerializers.all
@@ -56,26 +60,14 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     */
   def getTravisBuildsWithSlug(slug: String, branch: String = "", offset: Int = 0, limit: Int = 25): TravisBuilds = {
 
-//    println("\tGetting travis builds " + offset + " until " + (offset + limit))
-
     val url = "/repo/" + slug + "/builds" +
       (if (branch.nonEmpty) "?branch.name=" + branch else "?") +
       "&sort_by=started_at:desc" +
-//      "&state=created,started,failed,passed" +
-      "&include=build.repository" +
       "&offset=" + offset +
       "&limit=" + limit
 
     val responseBody = getTravisResource(url)
-
-    val json = try {
-      parse(responseBody)
-    } catch {
-      case e: Throwable =>
-        println(responseBody)
-        throw e
-    }
-
+    val json = parse(responseBody)
     val builds = extract[TravisBuilds](json)
     builds
   }
@@ -89,18 +81,19 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     val url = "/build/" + buildID
 
     val responseBody = getTravisResource(url)
-    val json =  try {
-      parse(responseBody)
-    } catch {
-      case e: Throwable =>
-        println(responseBody)
-        throw e
-    }
+    val json = parse(responseBody)
+
     val build = extract[TravisBuild](json)
     build
   }
 
-  private def extract[A : Manifest](json: JValue): A = {
+  /**
+    * Extracts a case class from a Jvalue and throws an exception if it fails
+    * @param json JSon from which a case class should be extracted
+    * @tparam A Case class
+    * @return Extracted JSon in case class
+    */
+  def extract[A : Manifest](json: JValue): A = {
     try {
       json.extract[A]
     } catch {
@@ -109,7 +102,12 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     }
   }
 
-  private def getTravisResource(endpoint: String): String = {
+  /**
+    * Gets the response body from a specified endpoint in the travis API
+    * @param endpoint Endpoint
+    * @return Body of the Http response
+    */
+  def getTravisResource(endpoint: String): String = {
     try {
       Http(url + endpoint)
         .headers(getHeaders)
@@ -120,14 +118,16 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     }
   }
 
-  private def getHeaders = {
+  /**
+    * Gets the needed headers for travis API requests
+    * @return
+    */
+  def getHeaders: List[(String, String)] = {
     ("Travis-API-Version", "3") ::
       ("Authorization", "token " + keyManager.request("travis").get.value) ::
       Nil
 
   }
-
-
 }
 
 

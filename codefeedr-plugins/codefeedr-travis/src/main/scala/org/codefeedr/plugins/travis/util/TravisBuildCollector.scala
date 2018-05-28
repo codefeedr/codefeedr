@@ -33,14 +33,6 @@ class TravisBuildCollector(repoOwner: String,
       build = requestBuild
       checkIfBuildShouldBeKnownAlready()
 
-      if (build.nonEmpty){
-        print("Found build... Waiting to finish... " + pushCommitSha.substring(0, 4) + " " + build.get.state)
-        println(" " + Thread.currentThread().getId + " " + repoName)
-      } else {
-        println("Not found build yet... Waiting until created... " + repoName)
-      }
-
-
       if (!isReady) {
         blocking {
           Thread.sleep(pollingInterval)
