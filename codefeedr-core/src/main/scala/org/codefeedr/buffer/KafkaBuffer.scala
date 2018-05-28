@@ -54,20 +54,6 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE_DESERIALIZATION = "SCHEMA_EXPOSURE_SERIALIZATION"
 }
 
-private object KafkaBufferDefaults {
-  /**
-    * DEFAULT VALUES
-    */
-  val BROKER = "localhost:9092"
-  val ZOOKEEPER = "localhost:2181"
-
-  //SCHEMA EXPOSURE
-  val SCHEMA_EXPOSURE = false
-  val SCHEMA_EXPOSURE_SERVICE = "redis"
-  val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
-  val SCHEMA_EXPOSURE_DESERIALIZATION = false
-}
-
 class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String) extends Buffer[T](pipeline) {
 
   private object KafkaBufferDefaults {
