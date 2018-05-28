@@ -27,6 +27,7 @@ import org.json4s.jackson.JsonMethods._
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.util.FiniteQueue
+import org.codefeedr.stages.utilities.DuplicateFilter
 import org.codehaus.jackson.map.ext.JodaSerializers
 import org.codehaus.jackson.map.ext.JodaSerializers.LocalDateTimeSerializer
 import org.json4s.ext.JavaTimeSerializers
@@ -54,7 +55,9 @@ class EventService(duplicateFilter: Boolean,
   //events size
   val EVENTS_SIZE = 100
 
-  var queue : FiniteQueue[String] = new FiniteQueue[String]()
+  //duplicate filter
+  val dupCheck = new DuplicateFilter[String](duplicateCheckSize)
+
   var requestHeaders: List[Header] = List()
 
   /**
@@ -101,17 +104,14 @@ class EventService(duplicateFilter: Boolean,
   }
 
   /**
-    * Checks for duplicates. Assumes the event list doesn't contain any duplicates!
+    * Checks for duplicates.
     * @param events events to check.
     * @return non-duplicated events.
     */
   def duplicateCheck(events : List[Event]) : List[Event] = {
-    events
-      .filter(x => !queue.contains(x.id))
-      .map { x =>
-        queue.enqueueFinite(x.id, duplicateCheckSize)
-        x
-      }
+    val check = dupCheck.check(events.map(_.id))
+
+    events.filter(x => check.contains(x.id))
   }
 
   /**
