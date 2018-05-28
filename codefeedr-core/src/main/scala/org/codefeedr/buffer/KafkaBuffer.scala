@@ -28,7 +28,8 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
 import org.codefeedr.buffer.serialization._
 
-import scala.reflect.classTag
+import scala.reflect.{ClassTag, Manifest, classTag}
+import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
@@ -37,7 +38,6 @@ import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, S
 import org.codefeedr.stages.StageAttributes
 
 import scala.collection.JavaConverters._
-import scala.reflect.Manifest
 
 object KafkaBuffer {
   /**
@@ -68,7 +68,7 @@ private object KafkaBufferDefaults {
   val SCHEMA_EXPOSURE_DESERIALIZATION = false
 }
 
-class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String) extends Buffer[T](pipeline) {
+class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String) extends Buffer[T](pipeline) {
 
   //Get type of the class at run time
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
@@ -94,9 +94,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, prope
 
       //set serde if avro
       if (serde.isInstanceOf[AvroSerde[T]]) {
-        serde
-          .asInstanceOf[AvroSerde[T]]
-          .setSchema(getSchema(topic).toString) //TODO find a better workaround for this
+        serde.asInstanceOf[AvroSerde[T]].setSchema(getSchema(topic).toString) //TODO find a better workaround for this
       } else {
         throw NoAvroSerdeException("You can't use an Avro schema for deserialization if Avro isn't the serde type.")
       }

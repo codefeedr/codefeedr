@@ -22,6 +22,7 @@ import java.time.{LocalDateTime, ZoneOffset}
 import java.time.temporal.ChronoUnit
 import java.util.{Date, TimeZone}
 
+import org.apache.avro.Schema
 import org.apache.flink.api.common.functions.JoinFunction
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.DataStream
@@ -30,7 +31,9 @@ import org.apache.flink.streaming.api.windowing.time.Time
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.{IssueCommentEvent, IssuesEvent}
 import org.apache.flink.api.scala._
+import org.codefeedr.plugins.github._
 import org.codefeedr.stages.TransformStage2
+import shapeless.datatype.avro.AvroType
 
 case class IssueOpenedReply(id: Double,
                             secondsDelay: Long) extends PipelineItem
@@ -39,15 +42,14 @@ case class SimpleIssue(issueId: Double,
                        created_at: LocalDateTime)
 
 class GitHubIssueCommentDelay extends TransformStage2[IssuesEvent, IssueCommentEvent, IssueOpenedReply]{
-
   override def transform(source: DataStream[IssuesEvent], secondSource: DataStream[IssueCommentEvent]): DataStream[IssueOpenedReply] = {
     setEventTime() //sets correct event time
 
     val secondSourceTimeStamps = secondSource
-      .assignAscendingTimestamps(_.created_at.toEpochSecond(ZoneOffset.UTC))
+      .assignAscendingTimestamps(x => x.created_at.toEpochSecond(ZoneOffset.UTC))
 
     source
-      .assignAscendingTimestamps(_.created_at.toEpochSecond(ZoneOffset.UTC))
+      .assignAscendingTimestamps(x => x.created_at.toEpochSecond(ZoneOffset.UTC))
       .filter(_.payload.action == "opened")
       .map(x => SimpleIssue(x.payload.issue.id, x.payload.issue.created_at.get))
       .join(secondSourceTimeStamps)

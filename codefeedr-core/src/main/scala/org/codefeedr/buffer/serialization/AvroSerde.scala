@@ -1,3 +1,21 @@
+package org.codefeedr.buffer.serialization
+
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
+
+import org.apache.avro.Schema
+import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericRecord}
+import org.apache.avro.io.{DecoderFactory, EncoderFactory}
+import org.codefeedr.pipeline.PipelineItem
+import org.json4s.NoTypeHints
+import org.json4s.ext.JavaTimeSerializers
+import org.json4s.jackson.Serialization
+import shapeless.{HList, LabelledGeneric}
+import shapeless.datatype.avro.{AvroSchema, AvroType, FromAvroRecord, ToAvroRecord}
+
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,75 +34,60 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.buffer.serialization
+trait AvroSerde[T] extends AbstractSerde[T] {
+  type L <: HList
+  def setSchema(str : String)
+}
 
-import java.io.ByteArrayOutputStream
+object AvroSerde {
+  type Aux[T, L0 <: HList] = AvroSerde[T] { type L = L0 }
 
-import com.sksamuel.avro4s.FromRecord
-import org.apache.avro.Schema
-import org.apache.avro.generic.{GenericDatumReader, GenericRecord}
-import org.apache.avro.io.{BinaryEncoder, DatumWriter, DecoderFactory, EncoderFactory}
-import org.apache.avro.reflect.{ReflectData, ReflectDatumWriter}
-import org.apache.avro.specific.{SpecificDatumWriter, SpecificRecordBase}
-import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.api.java.typeutils.TypeExtractor
-import org.codefeedr.buffer.serialization.schema_exposure.SchemaExposer
+  def apply[T](implicit serializer: AvroSerde[T]): AvroSerde[T] = serializer
 
-import scala.reflect.{ClassTag, classTag}
+  implicit def mkSerializer[T : ClassTag : TypeTag, L0 <: HList](implicit
+                                                                 gen: LabelledGeneric.Aux[T, L0],
+                                                                 toL: ToAvroRecord[L0],
+                                                                 fromL: FromAvroRecord[L0]): Aux[T, L0] =
+    new AvroSerde[T] {
+      val date = AvroType.at[LocalDateTime](Schema.Type.STRING)(x => LocalDateTime.parse(x.toString), _.toString)
 
-class AvroSerde[T: ClassTag](limit : Int = -1)(implicit val recordFrom: FromRecord[T]) extends AbstractSerde[T] {
+      type L = L0
 
-  //work around for serialization
-  var schemaString = ""
-  var schemaSet = false
+      //work around for serialization
+      var schemaString = ""
+      var schemaSet = false
 
-  @transient
-  lazy val exposedSchema : Schema = new Schema.Parser().parse(schemaString)
+      @transient
+      lazy val exposedSchema : Schema = new Schema.Parser().parse(schemaString)
 
-  /**
-    * Serializes a (generic) element into a binary format using the Avro serializer.
-    *
-    * @param element the element to serialized.
-    * @return a serialized byte array.
-    */
-  override def serialize(element: T): Array[Byte] = {
-    val out: ByteArrayOutputStream = new ByteArrayOutputStream()
-    val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(out, null)
-    val writer: DatumWriter[T] = new ReflectDatumWriter[T](inputClassType)
+      //Get Avro Type
+      val avroType = AvroType[T]
 
-    writer.write(element, encoder)
-    encoder.flush()
-    out.close()
+      override def serialize(value : T) : Array[Byte] = {
+        val r = avroType.toGenericRecord(value)
+        val writer = new GenericDatumWriter[GenericRecord](r.getSchema)
+        val baos = new ByteArrayOutputStream()
+        val encoder = EncoderFactory.get().binaryEncoder(baos, null)
+        writer.write(r, encoder)
+        encoder.flush()
+        baos.close()
 
-    out.toByteArray
-  }
+        baos.toByteArray
+      }
 
-  /**
-    * Deserializes a (Avro binary) message into a (generic) case class
-    *
-    * @param message the message to deserialized.
-    * @return a deserialized case class.
-    */
-  override def deserialize(message: Array[Byte]): T = {
-    var schema: Schema = null
+      override def deserialize(message: Array[Byte]) : T = {
+        val schema = AvroSchema[T]
 
-    //either generate a schema from the case class or get the exposed schema from the topic
-    if (!schemaSet) {
-      schema = ReflectData.get().getSchema(inputClassType)
-    } else {
-      schema = exposedSchema
+        val reader = new GenericDatumReader[GenericRecord](schema)
+        val bais = new ByteArrayInputStream(message)
+        val decoder = DecoderFactory.get().binaryDecoder(bais, null)
+
+        avroType.fromGenericRecord(reader.read(null, decoder)).get
+      }
+
+      def setSchema(schema : String) = {
+        this.schemaString = schema
+        this.schemaSet = true
+      }
     }
-
-    val datumReader = new GenericDatumReader[GenericRecord](schema)
-    val decoder = DecoderFactory.get().binaryDecoder(message, null)
-
-    recordFrom(datumReader.read(null, decoder))
-  }
-
-  def setSchema(schema : String) = {
-    this.schemaString = schema
-    this.schemaSet = true
-  }
-
 }

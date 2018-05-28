@@ -18,17 +18,18 @@
  */
 package org.codefeedr.pipeline
 
-import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.Properties
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.buffer.BufferType
 import org.codefeedr.buffer.BufferType.BufferType
+import org.codefeedr.buffer.serialization.{AvroSerde}
 import org.codefeedr.stages.OutputStage
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 
 class PipelineBuilder() {
   /** Type of buffer used in the pipeline */
@@ -164,7 +165,7 @@ class PipelineBuilder() {
     * @param trans Function
     * @return Builder
     */
-  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord, V <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => DataStream[V]): PipelineBuilder = {
+  def append[U <: PipelineItem : ClassTag : TypeTag : AvroSerde, V <: PipelineItem : ClassTag : TypeTag :AvroSerde](trans : DataStream[U] => DataStream[V]): PipelineBuilder = {
     val pipelineItem = new PipelineObject[U, V](null) {
       override def transform(source: DataStream[U]): DataStream[V] = trans(source)
     }
@@ -178,7 +179,7 @@ class PipelineBuilder() {
     * @param trans Function
     * @return Builder
     */
-  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => Any): PipelineBuilder = {
+  def append[U <: PipelineItem : ClassTag : TypeTag : AvroSerde](trans : DataStream[U] => Any): PipelineBuilder = {
     val pipelineItem = new OutputStage[U](null) {
       override def main(source: DataStream[U]): Unit = trans(source)
     }

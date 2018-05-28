@@ -16,37 +16,39 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.github.stages
+package org.codefeedr.plugins.github
 
+
+import java.net.URI
 import java.time.LocalDateTime
+import java.util.Date
 
 import org.apache.avro.Schema
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.plugins.github.GitHubProtocol.{Event, IssuesEvent, IssuesPayload}
-import org.json4s._
-import org.json4s.ext.JavaTimeSerializers
-import org.json4s.jackson.JsonMethods._
+import org.codefeedr.buffer.{BufferType, KafkaBuffer}
+import org.codefeedr.pipeline.{NoType, PipelineBuilder, PipelineItem}
+import org.codefeedr.stages.InputStage
 import org.apache.flink.api.scala._
-import org.codefeedr.stages.TransformStage
+import org.codefeedr.buffer.serialization.{AvroSerde, Serializer}
+import org.codefeedr.plugins.github.GitHubProtocol.Event
+import org.codefeedr.stages.utilities.JsonPrinterOutput
+import shapeless.datatype.avro.AvroType
 
+case class hoi(lol : Option[Date]) extends PipelineItem
 
+object Main {
+  def main(args : Array[String]) : Unit = {
 
-/**
-  * Transform stage which reads from EventsInput and filters to IssuesEvent.
-  */
-class GitHubEventToIssuesEvent extends TransformStage[Event, IssuesEvent] {
-
-  /**
-    * Filter and parses IssuesEvent from GitHub Event stream.
-    */
-  override def transform(source: DataStream[Event]): DataStream[IssuesEvent] = {
-    source
-      .filter(_.eventType == "IssuesEvent")
-      .map { x =>
-        implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
-
-        val issuePayload = parse(x.payload).extract[IssuesPayload]
-        IssuesEvent(x.id, x.eventType, x.actor, x.repo, x.organization, issuePayload, x.public, x.created_at)
-      }
+    val serializer = AvroSerde[hoi]
+    println(serializer.serialize(hoi(Some(new Date()))))
   }
+
 }
+
+class HoiInput extends InputStage[hoi]{
+
+  override def main(): DataStream[hoi] = pipeline.environment.fromCollection(Seq(hoi(Some(new Date))))
+}
+
+
+

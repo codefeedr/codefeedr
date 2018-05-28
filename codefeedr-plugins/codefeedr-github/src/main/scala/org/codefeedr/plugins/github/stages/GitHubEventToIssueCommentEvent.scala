@@ -18,6 +18,10 @@
  */
 package org.codefeedr.plugins.github.stages
 
+
+import java.time.LocalDateTime
+
+import org.apache.avro.Schema
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.plugins.github.GitHubProtocol._
 import org.json4s.DefaultFormats
@@ -25,6 +29,7 @@ import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.JsonMethods.parse
 import org.apache.flink.api.scala._
 import org.codefeedr.stages.TransformStage
+import shapeless.datatype.avro._
 
 /**
   * Transform stage which reads from EventsInput and filters to IssueCommentEvent.

@@ -43,7 +43,11 @@ lazy val core = (project in file("codefeedr-core"))
       // Schema exposure
       dependencies.zookeeper,
 
-      "me.lyh" %% "shapeless-datatype-avro" % "0.1.9"
+      // Avro serialization
+      dependencies.avro,
+      dependencies.shapeless,
+      dependencies.reflectLang
+
     )
   )
 
@@ -89,6 +93,7 @@ lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-ela
 lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
   .settings(
     name := projectPrefix + "github",
+    description := "GitHub plugin",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -143,6 +148,10 @@ lazy val dependencies =
 
     val httpj                     = "org.scalaj"        %% "scalaj-http"                            % "2.4.0"
 
+    val avro                      = "org.apache.avro"   % "avro"                                    % "1.8.2"
+    val shapeless                 = "com.chuusai"       %% "shapeless"                              % "2.3.3"
+    val reflectLang               = "org.scala-lang"    % "scala-reflect"                           % "2.11.11"
+
     val scalactic                 = "org.scalactic"     %% "scalactic"                              % "3.0.1"         % "test"
     val scalatest                 = "org.scalatest"     %% "scalatest"                              % "3.0.1"         % "test"
     val scalamock                 = "org.scalamock"     %% "scalamock"                              % "4.1.0"         % "test"
@@ -152,8 +161,6 @@ lazy val dependencies =
 lazy val commonDependencies = Seq(
   dependencies.flink,
   dependencies.flinkStreaming,
-
-  // avro
 
   dependencies.scalactic,
   dependencies.scalatest,
