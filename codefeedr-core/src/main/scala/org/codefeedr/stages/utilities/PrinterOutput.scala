@@ -18,7 +18,6 @@
 
 package org.codefeedr.stages.utilities
 
-import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.buffer.serialization.{AvroSerde}
 import org.codefeedr.pipeline.PipelineItem

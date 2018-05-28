@@ -18,21 +18,21 @@
  */
 package org.codefeedr.plugins.rss
 
-import java.lang.Exception
-
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import scala.util.control.Breaks._
 
-import scala.xml.{Elem, XML}
+import org.apache.logging.log4j.scala.Logging
+
+import scala.xml.XML
 
 class RSSSource(url: String,
                 dateFormat: String,
                 pollingInterval: Int = 1000,
                 maxNumberOfRuns: Int = -1,
-                http: Http = new Http) extends RichSourceFunction[RSSItem] {
+                http: Http = new Http)
+  extends RichSourceFunction[RSSItem] with Logging {
 
   private var isRunning = false
   private var runsLeft = 0
@@ -101,18 +101,17 @@ class RSSSource(url: String,
         rssBody = http.getResponse(url).body
 
         if (failedTries > 0) {
-          println("Succeeded again. Resetting amount of fails.")
+          logger.info("Succeeded again. Resetting amount of fails.")
           failedTries = 0
         }
       }
       catch {
         case e: Throwable =>
-//          e.printStackTrace()
           failedTries += 1
-          println("Failed to get RSS feed", failedTries, "time(s)")
+          logger.error("Failed to get RSS feed $failedTries time(s)")
           if (failedTries % 3 == 0) {
             val amountOfIntervals = failedTries / 3
-            println("now sleeping for " + amountOfIntervals * pollingInterval + " milliseconds")
+            logger.warn(s"Now sleeping for ${amountOfIntervals * pollingInterval} milliseconds")
             waitPollingInterval(amountOfIntervals)
           }
       }
@@ -169,6 +168,5 @@ class RSSSource(url: String,
   def waitPollingInterval(times: Int = 1) = {
     Thread.sleep(times * pollingInterval)
   }
-
 
 }

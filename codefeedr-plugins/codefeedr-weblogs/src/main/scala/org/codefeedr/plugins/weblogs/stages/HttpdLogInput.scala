@@ -16,14 +16,15 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.weblogs
+package org.codefeedr.plugins.weblogs.stages
 
-import java.time.{LocalDateTime, ZoneId}
 import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, ZoneId}
 
 import org.apache.flink.api.common.functions.FlatMapFunction
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector
+import org.codefeedr.plugins.weblogs.HttpdLogItem
 import org.codefeedr.stages.{InputStage, StageAttributes}
 
 /**
@@ -31,7 +32,7 @@ import org.codefeedr.stages.{InputStage, StageAttributes}
   *
   * @param absolutePath Absolute file path to the log
   */
-class HttpdLogInputStage(absolutePath: String, stageAttributes: StageAttributes = StageAttributes()) extends InputStage[HttpdLogItem](stageAttributes) with Serializable {
+class HttpdLogInput(absolutePath: String, stageAttributes: StageAttributes = StageAttributes()) extends InputStage[HttpdLogItem](stageAttributes) with Serializable {
 
   override def main(): DataStream[HttpdLogItem] = {
     pipeline.environment

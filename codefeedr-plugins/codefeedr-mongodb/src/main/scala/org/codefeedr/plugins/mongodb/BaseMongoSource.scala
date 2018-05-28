@@ -40,7 +40,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.{ResultTypeQueryable, TypeExtractor}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
-import org.bson.conversions.Bson
+import org.apache.logging.log4j.scala.Logging
 import org.bson.json.{JsonMode, JsonWriterSettings}
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
@@ -59,7 +59,7 @@ import scala.reflect.{ClassTag, classTag}
   */
 class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[String,String],
                                                          val query: BsonDocument)
-  extends RichSourceFunction[T] with ResultTypeQueryable[T] {
+  extends RichSourceFunction[T] with ResultTypeQueryable[T] with Logging {
 
   var client: MongoClient = _
   var isWaiting = false
@@ -117,7 +117,7 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
 
 
       override def onError(e: Throwable): Unit = {
-        println("Error while reading from mongo:", e)
+        logger.error("Error while reading from mongo:", e)
         isWaiting = false
       }
 
@@ -141,7 +141,9 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
   }
 
   override def close(): Unit = {
-    client.close()
+    if (client != null) {
+      client.close()
+    }
   }
 
   /**
