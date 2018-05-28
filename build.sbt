@@ -120,9 +120,9 @@ lazy val dependencies =
     val flinkVersion    = "1.4.2"
     val avroVersion     = ""
     val json4sVersion   = "3.6.0-M2"
+    val log4jVersion    = "11.0"
 
-//    "org.apache.logging.log4j" % "log4j-api" % "2.11.0",
-//    "org.apache.logging.log4j" % "log4j-core" % "2.11.0",
+    val logging                   = "org.apache.logging.log4j"  %% "log4j-api-scala"                % log4jVersion
 
     val flink                     = "org.apache.flink"  %% "flink-scala"                            % flinkVersion    % "compile"
     val flinkStreaming            = "org.apache.flink"  %% "flink-streaming-scala"                  % flinkVersion    % "compile"
@@ -152,6 +152,8 @@ lazy val dependencies =
 lazy val commonDependencies = Seq(
   dependencies.flink,
   dependencies.flinkStreaming,
+
+  dependencies.logging,
 
   // avro
 
