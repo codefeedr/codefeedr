@@ -89,7 +89,13 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     val url = "/build/" + buildID
 
     val responseBody = getTravisResource(url)
-    val json =  parse(responseBody)
+    val json =  try {
+      parse(responseBody)
+    } catch {
+      case e: Throwable =>
+        println(responseBody)
+        throw e
+    }
     val build = extract[TravisBuild](json)
     build
   }

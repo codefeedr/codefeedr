@@ -38,3 +38,4 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
+codefeedr-plugins/codefeedr-travis/src/main/resources/github_api_key

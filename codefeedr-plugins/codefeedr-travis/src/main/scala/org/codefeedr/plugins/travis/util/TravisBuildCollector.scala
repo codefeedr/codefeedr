@@ -1,32 +1,12 @@
 package org.codefeedr.plugins.travis.util
 
-import java.time.{Duration, LocalDateTime, Period}
-import java.time.temporal.TemporalAmount
+import java.time.{LocalDateTime, ZoneId}
 
 import org.codefeedr.plugins.travis.TravisProtocol.{TravisBuild, TravisBuilds}
 import org.codefeedr.plugins.travis.util.TravisExceptions._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-
-object TravisBuildCollector {
-
-  def main(args: Array[String]): Unit = {
-////    implicit lazy val executor: ExecutionContext = ExecutionContext.fromExecutor(Executors.directExecutor())
-//
-////    val collector = new TravisBuildCollector("joskuijpers", "bep_codefeedr", "develop", "bb5cc7e5a19a84d71d627d202d44ea81598d9a68", LocalDateTime.MIN)
-//
-//    val result: Future[TravisBuild] = collector.requestFinishedBuild()
-//    result.onComplete {
-//      case Success(x) => println("Succeeded", x.commit.message.replace('\n', ' '))
-////      case Success(None) => println("Build not found")
-//      case Failure(e) => e.printStackTrace()
-//    }
-//
-//    while(true) Thread.sleep(1000)
-
-  }
-}
+import scala.concurrent.{blocking, Future}
 
 
 //TODO only give GithubPushEvent as constructor argument
@@ -48,26 +28,32 @@ class TravisBuildCollector(repoOwner: String,
     * @return A finished Travis build
     */
   def requestFinishedBuild(): Future[TravisBuild] = Future {
-
     while (!isReady) {
 
       build = requestBuild
       checkIfBuildShouldBeKnownAlready()
 
-      if (build.nonEmpty) println("Found build... Waiting to finish... " + pushCommitSha.substring(0, 4) + " " + build.get.state)
+      if (build.nonEmpty){
+        print("Found build... Waiting to finish... " + pushCommitSha.substring(0, 4) + " " + build.get.state)
+        println(" " + Thread.currentThread().getId + " " + repoName)
+      } else {
+        println("Not found build yet... Waiting until created... " + repoName)
+      }
 
 
       if (!isReady) {
-        Thread.sleep(pollingInterval)
+        blocking {
+          Thread.sleep(pollingInterval)
+        }
       }
     }
     build.get
   }
 
   private def checkIfBuildShouldBeKnownAlready(): Unit = {
-    val waitTime = Duration.ofMinutes(1)
-    if (build.isEmpty && pushDate.plus(waitTime).isBefore(LocalDateTime.now())) {
-      throw BuildNotFoundForTooLongException("Waited " + waitTime + " for build, but still not found" +
+    val waitUntil = pushDate.plusSeconds(100 * timeoutSeconds)
+    if (build.isEmpty && waitUntil.isBefore(LocalDateTime.now(ZoneId.of("GMT")))) {
+      throw BuildNotFoundForTooLongException("Waited " + timeoutSeconds + " seconds for build, but still not found" +
         ", probably because " + repoOwner + "/" + repoName + "is not active on Travis")
     }
   }
