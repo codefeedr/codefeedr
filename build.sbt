@@ -117,16 +117,19 @@ lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs")
 
 lazy val dependencies =
   new {
-    val flinkVersion    = "1.4.2"
-    val avroVersion     = ""
-    val json4sVersion   = "3.6.0-M2"
+    val flinkVersion              = "1.4.2"
+    val json4sVersion             = "3.6.0-M2"
+    val log4jVersion              = "2.11.0"
+    val log4jScalaVersion         = "11.0"
 
-//    "org.apache.logging.log4j" % "log4j-api" % "2.11.0",
-//    "org.apache.logging.log4j" % "log4j-core" % "2.11.0",
 
-    val flink                     = "org.apache.flink"  %% "flink-scala"                            % flinkVersion    % "compile"
-    val flinkStreaming            = "org.apache.flink"  %% "flink-streaming-scala"                  % flinkVersion    % "compile"
-    val flinkKafka                = "org.apache.flink"  %% "flink-connector-kafka-0.11"             % flinkVersion    % "compile"
+    val loggingApi                = "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion
+    val loggingCore               = "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion    % Runtime
+    val loggingScala              = "org.apache.logging.log4j"  %% "log4j-api-scala"                % log4jScalaVersion
+
+    val flink                     = "org.apache.flink"  %% "flink-scala"                            % flinkVersion    % Compile
+    val flinkStreaming            = "org.apache.flink"  %% "flink-streaming-scala"                  % flinkVersion    % Compile
+    val flinkKafka                = "org.apache.flink"  %% "flink-connector-kafka-0.11"             % flinkVersion    % Compile
     val flinkAvro                 = "org.apache.flink"  %% "flink-avro"                             % flinkVersion
     val flinkRuntimeWeb           = "org.apache.flink"  %% "flink-runtime-web"                      % flinkVersion
     val flinkElasticSearch        = "org.apache.flink"  %% "flink-connector-elasticsearch5"         % flinkVersion
@@ -143,15 +146,19 @@ lazy val dependencies =
 
     val httpj                     = "org.scalaj"        %% "scalaj-http"                            % "2.4.0"
 
-    val scalactic                 = "org.scalactic"     %% "scalactic"                              % "3.0.1"         % "test"
-    val scalatest                 = "org.scalatest"     %% "scalatest"                              % "3.0.1"         % "test"
-    val scalamock                 = "org.scalamock"     %% "scalamock"                              % "4.1.0"         % "test"
-    val mockito                   = "org.mockito"        % "mockito-all"                            % "1.10.19"       % "test"
+    val scalactic                 = "org.scalactic"     %% "scalactic"                              % "3.0.1"         % Test
+    val scalatest                 = "org.scalatest"     %% "scalatest"                              % "3.0.1"         % Test
+    val scalamock                 = "org.scalamock"     %% "scalamock"                              % "4.1.0"         % Test
+    val mockito                   = "org.mockito"        % "mockito-all"                            % "1.10.19"       % Test
   }
 
 lazy val commonDependencies = Seq(
   dependencies.flink,
   dependencies.flinkStreaming,
+
+  dependencies.loggingApi,
+  dependencies.loggingCore,
+  dependencies.loggingScala,
 
   // avro
 

@@ -16,23 +16,23 @@
  * limitations under the License.
  */
 
-package org.codefeedr.plugins.elasticsearch
+package org.codefeedr.plugins.elasticsearch.stages
 
 import org.codefeedr.stages.utilities.StringType
 import org.scalatest.FunSuite
 
-class ElasticSearchOutputStageTest extends FunSuite {
+class ElasticSearchOutputTest extends FunSuite {
   val index = "testIndex"
 
   test("Should create config object") {
-    val stage = new ElasticSearchOutputStage[StringType](index)
+    val stage = new ElasticSearchOutput[StringType](index)
 
     val config = stage.createConfig()
     assert(config != null)
   }
 
   test("Should add localhost to connections if none are given") {
-    val stage = new ElasticSearchOutputStage[StringType](index)
+    val stage = new ElasticSearchOutput[StringType](index)
 
     val addresses = stage.createTransportAddresses()
 
@@ -43,7 +43,7 @@ class ElasticSearchOutputStageTest extends FunSuite {
 
   test("Should add configured hosts") {
     val servers = Set("es://example.com:9300", "es://google.com:9200")
-    val stage = new ElasticSearchOutputStage[StringType](index, servers)
+    val stage = new ElasticSearchOutput[StringType](index, servers)
 
     val addresses = stage.createTransportAddresses()
 
@@ -56,7 +56,7 @@ class ElasticSearchOutputStageTest extends FunSuite {
 
   test("Should not add servers with no es schema") {
     val servers = Set("es://example.com:9300", "myHost:9200")
-    val stage = new ElasticSearchOutputStage[StringType](index, servers)
+    val stage = new ElasticSearchOutput[StringType](index, servers)
 
     val addresses = stage.createTransportAddresses()
 

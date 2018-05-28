@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.codefeedr.plugins.elasticsearch
+package org.codefeedr.plugins.elasticsearch.stages
 
 import java.net.{InetAddress, InetSocketAddress, URI}
 import java.nio.charset.StandardCharsets
@@ -26,7 +26,8 @@ import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
 import org.apache.flink.streaming.connectors.elasticsearch5.ElasticsearchSink
-import org.codefeedr.pipeline.{PipelineItem}
+import org.apache.logging.log4j.scala.Logging
+import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.Requests
@@ -45,11 +46,11 @@ import scala.reflect.{ClassTag, Manifest}
   * @param attributes Optional stage attributes
   * @tparam T Input type
   */
-class ElasticSearchOutputStage[T <: PipelineItem : ClassTag : Manifest : FromRecord](index: String,
-                                                                                     servers: Set[String] = Set(),
-                                                                                     config: Map[String, String] = Map(),
-                                                                                     attributes: StageAttributes = StageAttributes())
-  extends OutputStage[T](attributes) {
+class ElasticSearchOutput[T <: PipelineItem : ClassTag : Manifest : FromRecord](index: String,
+                                                                                servers: Set[String] = Set(),
+                                                                                config: Map[String, String] = Map(),
+                                                                                attributes: StageAttributes = StageAttributes())
+  extends OutputStage[T](attributes) with Logging {
 
   override def main(source: DataStream[T]): Unit = {
     val config = createConfig()
@@ -76,6 +77,7 @@ class ElasticSearchOutputStage[T <: PipelineItem : ClassTag : Manifest : FromRec
     val transportAddresses = new java.util.ArrayList[InetSocketAddress]
 
     if (servers.isEmpty) {
+      logger.info("Transport address set is empty. Using localhost with default port 9300.")
       transportAddresses.add(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9300))
     }
 
@@ -83,6 +85,7 @@ class ElasticSearchOutputStage[T <: PipelineItem : ClassTag : Manifest : FromRec
       val uri = new URI(server)
 
       if (uri.getScheme == "es") {
+        logger.info(s"Adding transport address $server")
         transportAddresses.add(new InetSocketAddress(InetAddress.getByName(uri.getHost), uri.getPort))
       }
     }
