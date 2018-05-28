@@ -1,7 +1,7 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.buffer.{BufferType, KafkaBuffer}
+import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
@@ -79,7 +79,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     val pipeline = simpleDAGPipeline(2)
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
+      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
@@ -100,7 +100,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
+      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
@@ -114,7 +114,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_SERVICE, "zookeeper")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, "localhost:2181")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
+      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
