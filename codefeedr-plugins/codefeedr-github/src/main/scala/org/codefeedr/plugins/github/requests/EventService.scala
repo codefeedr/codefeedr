@@ -26,7 +26,7 @@ import util.control.Breaks._
 import org.json4s.jackson.JsonMethods._
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.plugins.github.GitHubProtocol.Event
-import org.codefeedr.stages.utilities.DuplicateFilter
+import org.codefeedr.stages.utilities.DuplicateService
 import org.json4s.ext.JavaTimeSerializers
 
 /**
@@ -52,7 +52,7 @@ class EventService(duplicateFilter: Boolean,
   val EVENTS_SIZE = 100
 
   //duplicate filter
-  val dupCheck = new DuplicateFilter[String](duplicateCheckSize)
+  val dupCheck = new DuplicateService[String](duplicateCheckSize)
 
   var requestHeaders: List[Header] = List()
 
@@ -85,7 +85,7 @@ class EventService(duplicateFilter: Boolean,
 
         //add new events
         val newEvents = parseEvents(response.body)
-        events = (if (duplicateFilter) duplicateCheck(newEvents) else newEvents) ::: events
+        events = (if (duplicateFilter) dupCheck.deduplicate[Event](newEvents, _.id) else newEvents) ::: events
 
         if (nextPage == lastPage) break
 
@@ -97,17 +97,6 @@ class EventService(duplicateFilter: Boolean,
     }
 
     events
-  }
-
-  /**
-    * Checks for duplicates.
-    * @param events events to check.
-    * @return non-duplicated events.
-    */
-  def duplicateCheck(events : List[Event]) : List[Event] = {
-    val check = dupCheck.check(events.map(_.id))
-
-    events.filter(x => check.contains(x.id))
   }
 
   /**

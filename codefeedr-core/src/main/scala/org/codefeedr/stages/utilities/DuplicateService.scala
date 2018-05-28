@@ -18,23 +18,40 @@
  */
 package org.codefeedr.stages.utilities
 
-class DuplicateFilter[T](queueSize: Int) {
+/**
+  *
+  * @param queueSize
+  * @tparam T
+  */
+class DuplicateService[T](queueSize: Int) {
 
   val queue: FiniteQueue[T] = new FiniteQueue[T]()
 
   /**
-    * Checks for duplicates.
-    *
-    * @param items items to check.
-    * @return list of non duplicated items.
+    * Check and removes duplicates based on the contents of a queue.
+    * @param items the items to check for duplicates.
+    * @param getField function which retrieves a field based on the type to check.
+    * @tparam IN the type on which the duplicate check should be done.
+    * @return a list of IN without any duplicates based on a queue.
     */
-  def check(items: List[T]): List[T] = {
+  def deduplicate[IN](items: List[IN], getField: (IN) => T): List[IN] = {
     items.distinct
-      .filter(x => !queue.contains(x))
+      .filter(x => !queue.contains(getField(x)))
       .map { x =>
-        queue.enqueueFinite(x, queueSize)
+        queue.enqueueFinite(getField(x), queueSize)
         x
       }
   }
+
+  /**
+    * Check and removes duplicates based on the contents of a queue.
+    * @param items the items to check for duplicates.
+    * @return  a list of T without any duplicates based on a queue.
+    */
+  def deduplicate(items: List[T]): List[T] = {
+    deduplicate[T](items, x => x)
+  }
+
+
 
 }
