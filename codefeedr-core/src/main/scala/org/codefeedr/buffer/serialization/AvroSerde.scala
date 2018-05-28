@@ -48,8 +48,6 @@ object AvroSerde {
                                                                  toL: ToAvroRecord[L0],
                                                                  fromL: FromAvroRecord[L0]): Aux[T, L0] =
     new AvroSerde[T] {
-      val date = AvroType.at[LocalDateTime](Schema.Type.STRING)(x => LocalDateTime.parse(x.toString), _.toString)
-
       type L = L0
 
       //Get Avro Type
