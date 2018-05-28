@@ -16,23 +16,35 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.github.util
+package org.codefeedr.stages.utilities
 
-import scala.collection.mutable.Queue
+import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class FiniteQueue[A] extends Queue[A] {
+class FiniteQueueTest extends FunSuite with BeforeAndAfter {
 
-  /**
-    * Enqueues with a finite size.
-    * Dequeues according to the FIFO principle.
-    * @param elem the element to add.
-    * @param maxSize the maximum size.
-    */
-  def enqueueFinite(elem: A, maxSize: Int): Unit = {
-    this.enqueue(elem)
-    while (this.size > maxSize) {
-      this.dequeue()
-    }
+  var queue : FiniteQueue[String] = new FiniteQueue[String]()
+
+  before {
+    queue = new FiniteQueue[String]()
   }
+
+  test ("Should properly enqueue") {
+    queue.enqueueFinite("test", 2)
+    queue.enqueueFinite("test2", 2)
+
+    assert(queue.contains("test"))
+    assert(queue.contains("test2"))
+  }
+
+  test ("Should properly remove on enqueue") {
+    queue.enqueueFinite("test", 2)
+    queue.enqueueFinite("test2", 2)
+    queue.enqueueFinite("test3", 2)
+
+    assert(queue.contains("test2"))
+    assert(queue.contains("test3"))
+    assert(!queue.contains("test"))
+  }
+
 
 }
