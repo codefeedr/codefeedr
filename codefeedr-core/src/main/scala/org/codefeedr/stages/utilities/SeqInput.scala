@@ -14,14 +14,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-package org.codefeedr.buffer
 
-/**
-  * Type of a buffer.
-  */
-object BufferType extends Enumeration {
-  type BufferType = Value
-  val Kafka = Value
+package org.codefeedr.stages.utilities
+
+import com.sksamuel.avro4s.FromRecord
+import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.pipeline.PipelineItem
+import org.codefeedr.stages.InputStage
+
+import scala.reflect.{ClassTag, Manifest}
+
+class SeqInput[T <: PipelineItem : ClassTag : Manifest : FromRecord : TypeInformation](seq: Seq[T]) extends InputStage[T] {
+
+  override def main(): DataStream[T] = {
+    pipeline.environment.fromCollection(seq)
+  }
 }

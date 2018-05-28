@@ -16,16 +16,36 @@
  * limitations under the License.
  */
 
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.codefeedr.plugins.mongodb
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.{ResultTypeQueryable, TypeExtractor}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
+import org.bson.conversions.Bson
 import org.bson.json.{JsonMode, JsonWriterSettings}
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
+import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.bson.collection.mutable.Document
 import org.mongodb.scala.{MongoClient, MongoCollection, Observer}
 
@@ -37,7 +57,8 @@ import scala.reflect.{ClassTag, classTag}
   * @param userConfig User configuration. Properties [server, database, collection]
   * @tparam T Type of element that comes from the database
   */
-class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[String,String])
+class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[String,String],
+                                                         val query: BsonDocument)
   extends RichSourceFunction[T] with ResultTypeQueryable[T] {
 
   var client: MongoClient = _
@@ -63,7 +84,7 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
       .outputMode(JsonMode.RELAXED)
       .build()
 
-    val result = getCollection.find()
+    val result = if (query == null) getCollection.find() else getCollection.find(query)
 
     // Use an observer so not all mongo data needs to be loaded into memory,
     // as would be the case when waiting for a List of results

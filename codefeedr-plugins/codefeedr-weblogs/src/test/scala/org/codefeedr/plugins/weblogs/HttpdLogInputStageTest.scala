@@ -12,7 +12,7 @@ class HttpdLogInputStageTest extends FunSuite with BeforeAndAfter {
   test("LogSource integration test") {
 
     new PipelineBuilder()
-      .setBufferType(BufferType.None)
+      .setBufferType(BufferType.Kafka)
       .append(new HttpdLogInputStage(getClass.getResource("/access.log").getPath))
       .append(new MyPipelineObject)
       .append { x: DataStream[StringType] =>
