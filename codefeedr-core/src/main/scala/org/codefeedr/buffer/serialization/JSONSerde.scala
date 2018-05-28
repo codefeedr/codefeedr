@@ -23,11 +23,12 @@ import java.nio.charset.StandardCharsets
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
+import shapeless.HList
 
 import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 
-class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends AbstractSerde[T] {
-
+class JSONSerde[T <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
 
   //implicit serialization format
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
@@ -52,4 +53,8 @@ class JSONSerde[T <: AnyRef : Manifest : ClassTag](limit : Int = -1) extends Abs
   override def deserialize(message: Array[Byte]): T = {
     Serialization.read[T](new String(message, StandardCharsets.UTF_8))
   }
+}
+
+object JSONSerde {
+  def apply[T <: AnyRef : ClassTag : TypeTag](): JSONSerde[T] = new JSONSerde[T]()
 }

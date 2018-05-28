@@ -29,7 +29,6 @@ trait PipelineItem extends Serializable
   */
 case class NoType() extends PipelineItem
 
-
 object RuntimeType extends Enumeration {
   type RuntimeType = Value
   val Mock, Local, Cluster = Value

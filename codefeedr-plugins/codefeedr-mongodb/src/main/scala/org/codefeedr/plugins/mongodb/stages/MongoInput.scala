@@ -54,9 +54,9 @@
 
 package org.codefeedr.plugins.mongodb.stages
 
-import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.buffer.serialization.AvroSerde
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.mongodb.{BaseMongoSource, MongoQuery}
 import org.codefeedr.stages.{InputStage, StageAttributes}
@@ -74,11 +74,11 @@ import scala.reflect.{ClassTag, Manifest}
   * @param stageAttributes Extra stage attributes
   * @tparam T Type of input
   */
-class MongoInput[T <: PipelineItem : ClassTag : Manifest : FromRecord : TypeInformation](database: String,
-                                                                                         collection: String,
-                                                                                         server: String = "mongodb://localhost:27017",
-                                                                                         query: MongoQuery = MongoQuery.empty,
-                                                                                         stageAttributes: StageAttributes = StageAttributes())
+class MongoInput[T <: PipelineItem : ClassTag : Manifest : AvroSerde : TypeInformation](database: String,
+                                                                                        collection: String,
+                                                                                        server: String = "mongodb://localhost:27017",
+                                                                                        query: MongoQuery = MongoQuery.empty,
+                                                                                        stageAttributes: StageAttributes = StageAttributes())
   extends InputStage[T](stageAttributes) {
 
   override def main(): DataStream[T] = {

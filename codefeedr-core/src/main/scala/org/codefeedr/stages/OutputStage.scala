@@ -18,11 +18,12 @@
  */
 package org.codefeedr.stages
 
-import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.buffer.serialization.{ AvroSerde}
 import org.codefeedr.pipeline._
 
 import scala.reflect.{ClassTag, Manifest}
+import scala.reflect.runtime.universe._
 
 /**
   * The OutputStage class represents the end of a pipeline.
@@ -30,7 +31,7 @@ import scala.reflect.{ClassTag, Manifest}
   *
   * @tparam In the input type of the job.
   */
-abstract class OutputStage[In <: PipelineItem : ClassTag : Manifest : FromRecord](attributes: StageAttributes = StageAttributes()) extends PipelineObject[In, NoType](attributes) {
+abstract class OutputStage[In <: PipelineItem : ClassTag : TypeTag : AvroSerde](attributes: StageAttributes = StageAttributes()) extends PipelineObject[In, NoType](attributes) {
 
   override def transform(source: DataStream[In]): DataStream[NoType] = {
     main(source)
@@ -46,7 +47,7 @@ abstract class OutputStage[In <: PipelineItem : ClassTag : Manifest : FromRecord
   def main(source: DataStream[In]): Unit
 }
 
-abstract class OutputStage2[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord](attributes: StageAttributes = StageAttributes()) extends PipelineObject2[In, In2, NoType](attributes) {
+abstract class OutputStage2[In <: PipelineItem : ClassTag : TypeTag : AvroSerde, In2 <: PipelineItem : ClassTag : TypeTag : AvroSerde](attributes: StageAttributes = StageAttributes()) extends PipelineObject2[In, In2, NoType](attributes) {
 
   override def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[NoType] = {
     main(source, secondSource)
@@ -63,7 +64,7 @@ abstract class OutputStage2[In <: PipelineItem : ClassTag : Manifest : FromRecor
   def main(source: DataStream[In], secondSource: DataStream[In2]): Unit
 }
 
-abstract class OutputStage3[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord](attributes: StageAttributes = StageAttributes()) extends PipelineObject3[In, In2, In3, NoType](attributes) {
+abstract class OutputStage3[In <: PipelineItem : ClassTag : TypeTag : AvroSerde, In2 <: PipelineItem : ClassTag : TypeTag : AvroSerde, In3 <: PipelineItem : ClassTag : TypeTag : AvroSerde](attributes: StageAttributes = StageAttributes()) extends PipelineObject3[In, In2, In3, NoType](attributes) {
 
   override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[NoType] = {
     main(source, secondSource, thirdSource)
@@ -81,7 +82,7 @@ abstract class OutputStage3[In <: PipelineItem : ClassTag : Manifest : FromRecor
   def main(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): Unit
 }
 
-abstract class OutputStage4[In <: PipelineItem : ClassTag : Manifest : FromRecord, In2 <: PipelineItem : ClassTag : Manifest : FromRecord, In3 <: PipelineItem : ClassTag : Manifest : FromRecord, In4 <: PipelineItem : ClassTag : Manifest : FromRecord](attributes: StageAttributes = StageAttributes()) extends PipelineObject4[In, In2, In3, In4, NoType](attributes) {
+abstract class OutputStage4[In <: PipelineItem : ClassTag : TypeTag : AvroSerde, In2 <: PipelineItem : ClassTag : TypeTag: AvroSerde, In3 <: PipelineItem : ClassTag : TypeTag : AvroSerde, In4 <: PipelineItem : ClassTag : TypeTag : AvroSerde](attributes: StageAttributes = StageAttributes()) extends PipelineObject4[In, In2, In3, In4, NoType](attributes) {
 
   override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3], fourthSource: DataStream[In4]): DataStream[NoType] = {
     main(source, secondSource, thirdSource, fourthSource)

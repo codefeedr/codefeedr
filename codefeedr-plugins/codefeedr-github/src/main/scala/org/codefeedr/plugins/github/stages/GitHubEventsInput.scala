@@ -25,6 +25,7 @@ import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.events.EventSource
 import org.codefeedr.plugins.github.requests.EventService
 import org.apache.flink.api.scala._
+import org.codefeedr.plugins.github._
 import org.codefeedr.stages.InputStage
 
 /**

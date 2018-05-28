@@ -1,7 +1,7 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer, NoAvroSerdeException}
+import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
@@ -93,19 +93,6 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
     assert(schema1.nonEmpty)
     assert(schema2.nonEmpty)
-  }
-
-  test("Simple pipeline schema exposure and deserialization test with JSON (redis)") {
-    val pipeline = simpleDAGPipeline(2)
-      .setBufferType(BufferType.Kafka)
-      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
-      .setBufferProperty(Buffer.SERIALIZER, Serializer.JSON)
-      .build()
-
-    assertThrows[NoAvroSerdeException] {
-      pipeline.startLocal()
-    }
   }
 
   test("Simple pipeline schema exposure and deserialization test (redis)") {

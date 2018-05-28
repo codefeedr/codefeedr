@@ -20,24 +20,23 @@ package org.codefeedr.buffer
 
 import java.util.Properties
 
-import com.sksamuel.avro4s.FromRecord
 import org.apache.avro.Schema
-import org.apache.avro.reflect.ReflectData
 import org.codefeedr.Properties._
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
 import org.codefeedr.buffer.serialization._
 
-import scala.reflect.classTag
+import scala.reflect.{ClassTag, classTag}
+import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
 import org.codefeedr.stages.StageAttributes
+import shapeless.datatype.avro.AvroSchema
 
 import scala.collection.JavaConverters._
-import scala.reflect.Manifest
 
 object KafkaBuffer {
   /**
@@ -53,7 +52,7 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE_DESERIALIZATION = "SCHEMA_EXPOSURE_SERIALIZATION"
 }
 
-class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String)
+class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String)
   extends Buffer[T](pipeline, properties) {
 
   private object KafkaBufferDefaults {
@@ -89,15 +88,6 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, prope
 
       //get the schema
       val schema = getSchema(topic)
-
-      //set serde if avro
-      if (serde.isInstanceOf[AvroSerde[T]]) {
-        serde
-          .asInstanceOf[AvroSerde[T]]
-          .setSchema(getSchema(topic).toString) //TODO find a better workaround for this
-      } else {
-        throw NoAvroSerdeException("You can't use an Avro schema for deserialization if Avro isn't the serde type.")
-      }
     }
 
     pipeline.environment.
@@ -173,7 +163,7 @@ class KafkaBuffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, prope
     */
   def exposeSchema(): Boolean = {
     //get the schema
-    val schema = ReflectData.get().getSchema(inputClassType)
+    val schema = AvroSchema[T]
 
     //expose the schema
     getExposer.put(schema, topic)
