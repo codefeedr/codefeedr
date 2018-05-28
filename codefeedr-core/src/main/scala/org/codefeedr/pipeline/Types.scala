@@ -18,21 +18,18 @@
  */
 package org.codefeedr.pipeline
 
-
 /**
   * Generic item that will be pushed througout the pipeline.
   * Each case-class read/send from the buffer, should extend this.
   */
 trait PipelineItem extends Serializable
 
-
-case class NoType() extends PipelineItem
-
 /**
   * This class is used for the InputStage input and for the OutputStage output.
   */
-object RuntimeType extends Enumeration {
+case class NoType() extends PipelineItem
 
+object RuntimeType extends Enumeration {
   type RuntimeType = Value
   val Mock, Local, Cluster = Value
 }

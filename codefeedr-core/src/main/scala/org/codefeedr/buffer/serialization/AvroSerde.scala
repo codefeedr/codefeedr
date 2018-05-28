@@ -1,21 +1,3 @@
-package org.codefeedr.buffer.serialization
-
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.nio.charset.StandardCharsets
-import java.time.LocalDateTime
-
-import org.apache.avro.Schema
-import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericRecord}
-import org.apache.avro.io.{DecoderFactory, EncoderFactory}
-import org.codefeedr.pipeline.PipelineItem
-import org.json4s.NoTypeHints
-import org.json4s.ext.JavaTimeSerializers
-import org.json4s.jackson.Serialization
-import shapeless.{HList, LabelledGeneric}
-import shapeless.datatype.avro.{AvroSchema, AvroType, FromAvroRecord, ToAvroRecord}
-
-import scala.reflect.ClassTag
-import scala.reflect.runtime.universe._
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -34,6 +16,25 @@ import scala.reflect.runtime.universe._
  * limitations under the License.
  *
  */
+package org.codefeedr.buffer.serialization
+
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
+
+import org.apache.avro.Schema
+import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericRecord}
+import org.apache.avro.io.{DecoderFactory, EncoderFactory}
+import org.codefeedr.pipeline.PipelineItem
+import org.json4s.NoTypeHints
+import org.json4s.ext.JavaTimeSerializers
+import org.json4s.jackson.Serialization
+import shapeless.{HList, LabelledGeneric}
+import shapeless.datatype.avro.{AvroSchema, AvroType, FromAvroRecord, ToAvroRecord}
+
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
+
 trait AvroSerde[T] extends AbstractSerde[T] {
   type L <: HList
 }

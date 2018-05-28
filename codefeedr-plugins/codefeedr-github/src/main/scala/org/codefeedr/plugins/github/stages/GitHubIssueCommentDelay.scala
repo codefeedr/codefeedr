@@ -46,10 +46,10 @@ class GitHubIssueCommentDelay extends TransformStage2[IssuesEvent, IssueCommentE
     setEventTime() //sets correct event time
 
     val secondSourceTimeStamps = secondSource
-      .assignAscendingTimestamps(x => x.created_at.toEpochSecond(ZoneOffset.UTC))
+      .assignAscendingTimestamps(_.created_at.toEpochSecond(ZoneOffset.UTC))
 
     source
-      .assignAscendingTimestamps(x => x.created_at.toEpochSecond(ZoneOffset.UTC))
+      .assignAscendingTimestamps(_.created_at.toEpochSecond(ZoneOffset.UTC))
       .filter(_.payload.action == "opened")
       .map(x => SimpleIssue(x.payload.issue.id, x.payload.issue.created_at.get))
       .join(secondSourceTimeStamps)

@@ -40,17 +40,18 @@ import scala.reflect.{ClassTag, Manifest}
 /**
   * An output stage that pushes all elements as JSON to an Elastic Search cluster
   *
-  * @param index Elastic Search index to push the data to
-  * @param servers Optional set of server addresses (defaults to es://localhost:9300)
-  * @param config Extra configuration options for the Elastic Search client
+  * @param index      Elastic Search index to push the data to
+  * @param servers    Optional set of server addresses (defaults to es://localhost:9300)
+  * @param config     Extra configuration options for the Elastic Search client
   * @param attributes Optional stage attributes
   * @tparam T Input type
   */
 class ElasticSearchOutput[T <: PipelineItem : ClassTag : Manifest : AvroSerde](index: String,
-                                                                                     servers: Set[String] = Set(),
-                                                                                     config: Map[String, String] = Map(),
-                                                                                     attributes: StageAttributes = StageAttributes())
+                                                                               servers: Set[String] = Set(),
+                                                                               config: Map[String, String] = Map(),
+                                                                               attributes: StageAttributes = StageAttributes())
   extends OutputStage[T](attributes) with Logging {
+
   override def main(source: DataStream[T]): Unit = {
     val config = createConfig()
     val transportAddresses = createTransportAddresses()
