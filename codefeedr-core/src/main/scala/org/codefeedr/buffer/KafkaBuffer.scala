@@ -21,18 +21,17 @@ package org.codefeedr.buffer
 import java.util.Properties
 
 import org.apache.avro.Schema
-import org.apache.avro.reflect.ReflectData
 import org.codefeedr.Properties._
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
 import org.codefeedr.buffer.serialization._
 
-import scala.reflect.{ClassTag, Manifest, classTag}
+import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
-import org.codefeedr.pipeline.{Pipeline, PipelineItem, PipelineObject}
+import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
 import org.codefeedr.stages.StageAttributes
 import shapeless.datatype.avro.AvroSchema
@@ -45,7 +44,6 @@ object KafkaBuffer {
     */
   val BROKER = "HOST"
   val ZOOKEEPER = "ZOOKEEPER"
-  val SERIALIZER = "SERIALIZER"
 
   //SCHEMA EXPOSURE
   val SCHEMA_EXPOSURE = "SCHEMA_EXPOSURE"
@@ -54,7 +52,8 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE_DESERIALIZATION = "SCHEMA_EXPOSURE_SERIALIZATION"
 }
 
-class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String) extends Buffer[T](pipeline) {
+class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String)
+  extends Buffer[T](pipeline, properties) {
 
   private object KafkaBufferDefaults {
     /**
@@ -77,9 +76,7 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
   implicit val typeInfo = TypeInformation.of(inputClassType)
 
   override def getSource: DataStream[T] = {
-    val serde = Serializer.
-      getSerde[T](properties.get[String](KafkaBuffer.SERIALIZER).
-      getOrElse(Serializer.JSON))
+    val serde = getSerializer
 
     //make sure the topic already exists
     checkAndCreateSubject(topic, properties.get[String](KafkaBuffer.BROKER).
@@ -98,9 +95,6 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
   }
 
   override def getSink: SinkFunction[T] = {
-    val serde = Serializer.getSerde[T](properties.get[String](KafkaBuffer.SERIALIZER).
-      getOrElse(Serializer.JSON))
-
     //check if a schema should be exposed
     if (properties.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE)
       .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE)) {
@@ -108,7 +102,7 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
       exposeSchema()
     }
 
-    val producer = new FlinkKafkaProducer011[T](topic, serde, getKafkaProperties)
+    val producer = new FlinkKafkaProducer011[T](topic, getSerializer, getKafkaProperties)
     producer.setWriteTimestampToKafka(true)
 
     producer
