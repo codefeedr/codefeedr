@@ -18,13 +18,13 @@
 
 package org.codefeedr.stages.rabbitmq
 
-import com.sun.tools.javac.code.TypeTag
+import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.buffer.serialization.AvroSerde
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.{InputStage, StageAttributes}
 
-import scala.reflect.{ClassTag, Manifest}
+import scala.reflect.ClassTag
 
 /**
   * Input stage pulling data from a RabbitMQ queue.

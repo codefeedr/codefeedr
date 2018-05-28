@@ -18,13 +18,13 @@
  */
 package org.codefeedr.buffer
 
-import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
+import org.codefeedr.buffer.serialization.{AbstractSerde, AvroSerde, Serializer}
 import org.codefeedr.pipeline.Pipeline
+import scala.reflect.runtime.universe._
 
-import scala.reflect.Manifest
+import scala.reflect.ClassTag
 
 /**
   * A pipeline buffer.
@@ -35,7 +35,7 @@ import scala.reflect.Manifest
   * @param properties Buffer properties
   * @tparam T Element type of the buffer
   */
-abstract class Buffer[T <: AnyRef : Manifest : FromRecord](pipeline: Pipeline, properties: org.codefeedr.Properties) {
+abstract class Buffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeline, properties: org.codefeedr.Properties) {
 
   /**
     * Get the source for this buffer. The buffer ereads from this

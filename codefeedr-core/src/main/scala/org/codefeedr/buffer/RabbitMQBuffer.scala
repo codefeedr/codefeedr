@@ -18,8 +18,6 @@
 
 package org.codefeedr.buffer
 
-import com.sksamuel.avro4s.FromRecord
-import com.sun.tools.javac.code.TypeTag
 import org.apache.flink.api.common.serialization.SerializationSchema
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
@@ -30,7 +28,8 @@ import org.codefeedr.buffer.serialization.AvroSerde
 import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.stages.StageAttributes
 
-import scala.reflect.{ClassTag, Manifest, classTag}
+import scala.reflect.{ClassTag, classTag}
+import scala.reflect.runtime.universe._
 
 object RabbitMQBuffer {
   /**
