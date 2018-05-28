@@ -74,6 +74,7 @@ class TravisBuildCollector(repoOwner: String,
           + repoOwner + "/" + repoName)
       case _: CouldNotGetResourceException =>
         None
+    }
   }
 
   /**

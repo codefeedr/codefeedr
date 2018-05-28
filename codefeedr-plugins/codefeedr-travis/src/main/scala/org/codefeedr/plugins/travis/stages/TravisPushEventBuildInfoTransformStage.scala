@@ -4,7 +4,7 @@ import java.util.concurrent.{Executors, TimeUnit}
 
 import org.apache.flink.streaming.api.scala.async.{AsyncFunction, ResultFuture}
 import org.apache.flink.streaming.api.scala.{AsyncDataStream, DataStream, _}
-import org.codefeedr.pipeline.{Pipeline, TransformStage}
+import org.codefeedr.pipeline.TransformStage
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.{PushEventFromActiveTravisRepo, TravisBuild}
 import org.codefeedr.plugins.travis.util.{TravisBuildCollector, TravisService}
@@ -13,14 +13,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class TravisPushEventBuildInfoTransformStage(capacity: Int = 100) extends TransformStage[PushEventFromActiveTravisRepo, TravisBuild]{
-
-  var travis: TravisService = _
-
-  override def setUp(pipeline: Pipeline): Unit = {
-    super.setUp(pipeline)
-    travis = new TravisService(pipeline.keyManager)
-  }
+class TravisPushEventBuildInfoTransformStage(travis: TravisService, capacity: Int = 100) extends TransformStage[PushEventFromActiveTravisRepo, TravisBuild]{
 
   override def transform(source: DataStream[PushEventFromActiveTravisRepo]): DataStream[TravisBuild] = {
 
@@ -33,10 +26,7 @@ class TravisPushEventBuildInfoTransformStage(capacity: Int = 100) extends Transf
   }
 }
 
-
-private class TravisBuildStatusRequest(travis: TravisService) extends AsyncFunction[PushEvent, TravisBuild] {
-
-  var futures: List[String] = List()
+class TravisBuildStatusRequest(travis: TravisService) extends AsyncFunction[PushEvent, TravisBuild] {
 
   override def asyncInvoke(input: PushEvent, resultFuture: ResultFuture[TravisBuild]): Unit = {
     // If there are no commits in the push then there will be no build
@@ -49,8 +39,6 @@ private class TravisBuildStatusRequest(travis: TravisService) extends AsyncFunct
     val commitSHA = input.payload.head
     val pushDate = input.created_at
 
-//    implicit lazy val executor: ExecutionContext = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
-
     val futureResultBuild: Future[TravisBuild] =
       new TravisBuildCollector(repoOwner, repoName, branchName, commitSHA, pushDate, travis).requestFinishedBuild()
 
@@ -58,8 +46,5 @@ private class TravisBuildStatusRequest(travis: TravisService) extends AsyncFunct
       case Success(result: TravisBuild) => resultFuture.complete(Iterable(result))
       case Failure(e) => e.printStackTrace()
     }
-
-    futures :+= repoName
-    println(futures.size, futures)
   }
 }

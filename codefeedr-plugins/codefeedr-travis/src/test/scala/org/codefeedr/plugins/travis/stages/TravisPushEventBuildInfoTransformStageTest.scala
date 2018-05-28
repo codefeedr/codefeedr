@@ -1,37 +1,60 @@
 package org.codefeedr.plugins.travis.stages
 
-import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.operators.async.queue.StreamRecordQueueEntry
+import org.apache.flink.streaming.api.scala.async.ResultFuture
+import org.apache.flink.streaming.runtime.streamrecord.StreamRecord
 import org.codefeedr.keymanager.StaticKeyManager
-import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent, GitHubEventsInput}
-import org.codefeedr.plugins.travis.TravisProtocol.TravisBuild
+import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
+import org.codefeedr.plugins.travis.TravisProtocol.{TravisBuild, TravisBuilds}
+import org.codefeedr.plugins.travis.util.TravisService
+import org.json4s.{DefaultFormats, Formats}
+import org.json4s.ext.JavaTimeSerializers
 import org.scalatest.FunSuite
+import org.json4s.jackson.JsonMethods.parse
+import org.mockito.Matchers.any
+import org.scalamock.scalatest.MockFactory
+import org.mockito.Mockito._
 
+import scala.concurrent.Future
 import scala.io.Source
 
-object TravisPushEventBuildInfoTransformStageTest {
+class TravisPushEventBuildInfoTransformStageTest extends FunSuite with MockFactory {
 
-  def main(args: Array[String]): Unit = {
+  test("Travis build status request gives a travis build") {
+    implicit val formats: Formats = DefaultFormats ++ JavaTimeSerializers.all
+    val pushEvent =
+      parse(Source.fromInputStream(getClass.getResourceAsStream("/single_push_event.json")).mkString)
+      .extract[PushEvent]
 
-    new PipelineBuilder()
-      .setKeyManager(new StaticKeyManager(Map("travis" -> Source.fromInputStream(getClass.getResourceAsStream("/travis_api_key")).getLines().next(),
-        "events_source" -> Source.fromInputStream(getClass.getResourceAsStream("/github_api_key")).getLines().next())))
+    val travisBuilds =
+      parse(Source.fromInputStream(getClass.getResourceAsStream("/single_push_event_build.json")).mkString)
+      .extract[TravisBuilds]
 
-      .append(new GitHubEventsInput())
-      .append(new GitHubEventToPushEvent())
-      .append(new TravisFilterActiveReposTransformStage)
-      .append(new TravisPushEventBuildInfoTransformStage(4))
-      .append{x: DataStream[TravisBuild] =>
-        x.map(x => (x.repository.slug, x.state, x.duration.getOrElse(0), x.branch.name, x.commit.sha)).print()
+    val travis = spy(new TravisService(new StaticKeyManager))
+    doReturn(travisBuilds)
+      .when(travis)
+      .getTravisBuilds(any(classOf[String]), any(classOf[String]), any(classOf[String]), any(classOf[Int]), any(classOf[Int]))
+
+    val travisBuildStatusRequest = new TravisBuildStatusRequest(travis)
+
+    var iterable: Iterable[TravisBuild] = null
+
+    val resultFuture: ResultFuture[TravisBuild] = new ResultFuture[TravisBuild] {
+      override def complete(result: Iterable[TravisBuild]): Unit = {
+        iterable = result
       }
-      .build()
-//      .startMock()
+
+      override def completeExceptionally(throwable: Throwable): Unit = {fail()}
+    }
+    travisBuildStatusRequest.asyncInvoke(pushEvent, resultFuture)
+
+    while(iterable == null) {
+      Thread.sleep(100)
+    }
+
+    assert(iterable.head.state == "passed")
+
 
   }
-}
-
-class TravisPushEventBuildInfoTransformStageTest extends FunSuite {
-
-
 
 }
