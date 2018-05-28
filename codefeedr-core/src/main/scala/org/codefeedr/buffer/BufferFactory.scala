@@ -53,10 +53,11 @@ class BufferFactory[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <
     val subject = sinkObject.getSinkSubject
     
     pipeline.bufferType match {
-      case BufferType.None =>
-        throw new IllegalStateException("Cannot instantiate buffer of type 'None'")
-      case BufferType.Kafka =>
-        new KafkaBuffer[T](pipeline, pipeline.bufferProperties, stage.attributes, subject)
+      case BufferType.Kafka => {
+        val cleanedSubject = subject.replace("$", "-")
+        println(cleanedSubject)
+        new KafkaBuffer[T](pipeline, pipeline.bufferProperties, stage.attributes, cleanedSubject)
+      }
     }
   }
 }

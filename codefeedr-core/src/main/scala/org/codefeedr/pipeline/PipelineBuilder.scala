@@ -33,7 +33,7 @@ import scala.reflect.runtime.universe._
 
 class PipelineBuilder() {
   /** Type of buffer used in the pipeline */
-  protected var bufferType: BufferType = BufferType.None
+  protected var bufferType: BufferType = BufferType.Kafka
 
   /** Type of the pipeline graph */
   protected var pipelineType: PipelineType = PipelineType.Sequential

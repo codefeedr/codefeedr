@@ -20,7 +20,6 @@ package org.codefeedr.buffer
 
 import java.util.Properties
 
-import com.sksamuel.avro4s.FromRecord
 import org.apache.avro.Schema
 import org.apache.avro.reflect.ReflectData
 import org.codefeedr.Properties._
@@ -69,6 +68,20 @@ private object KafkaBufferDefaults {
 }
 
 class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String) extends Buffer[T](pipeline) {
+
+  private object KafkaBufferDefaults {
+    /**
+      * DEFAULT VALUES
+      */
+    val BROKER = "localhost:9092"
+    val ZOOKEEPER = "localhost:2181"
+
+    //SCHEMA EXPOSURE
+    val SCHEMA_EXPOSURE = false
+    val SCHEMA_EXPOSURE_SERVICE = "redis"
+    val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
+    val SCHEMA_EXPOSURE_DESERIALIZATION = false
+  }
 
   //Get type of the class at run time
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]

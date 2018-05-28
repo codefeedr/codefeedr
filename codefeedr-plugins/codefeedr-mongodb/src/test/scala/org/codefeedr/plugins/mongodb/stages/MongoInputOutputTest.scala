@@ -15,27 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.codefeedr.plugins.mongodb
+package org.codefeedr.plugins.mongodb.stages
 
 import java.time.{LocalDateTime, ZoneId}
 import java.util
 
-import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
-import org.scalatest.FunSuite
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.stages.utilities.{StringInput, StringType}
+import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
+import org.codefeedr.plugins.mongodb.MongoQuery
+import org.codefeedr.stages.utilities.{SeqInput, StringInput, StringType}
 import org.mongodb.scala.MongoClient
+import org.scalatest.FunSuite
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-class MongoInputOutputStageTest extends FunSuite {
+class MongoInputOutputTest extends FunSuite {
 
   val server = "mongodb://localhost:27017"
   val longString =
@@ -58,7 +58,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
     val pipeline = new PipelineBuilder()
       .append(new StringInput(longString))
-      .append(new MongoOutputStage[StringType]("db", "collection"))
+      .append(new MongoOutput[StringType]("db", "collection"))
       .build()
 
     pipeline.startMock()
@@ -68,7 +68,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     StringCollectSink.reset()
 
     val pipeline = new PipelineBuilder()
-      .append(new MongoInputStage[StringType]("db", "collection"))
+      .append(new MongoInput[StringType]("db", "collection"))
       .append({ x : DataStream[StringType] =>
         x.addSink(new StringCollectSink).setParallelism(1)
       })
@@ -86,7 +86,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
   test("Throws when connection string is incorrect") {
     val pipeline = new PipelineBuilder()
-      .append(new MongoInputStage[StringType]("db", "collection", "aaa"))
+      .append(new MongoInput[StringType]("db", "collection", "aaa"))
       .append({ x : DataStream[StringType] =>
         x.addSink(new StringCollectSink).setParallelism(1)
       })
@@ -103,7 +103,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     val pipeline = new PipelineBuilder()
       .append(new StringInput(longString))
       .append { e: DataStream[StringType] => e.assignAscendingTimestamps(_ => LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond) }
-      .append(new MongoOutputStage[StringType]("db", "collection"))
+      .append(new MongoOutput[StringType]("db", "collection"))
       .build()
 
     pipeline.startMock()
@@ -113,7 +113,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     StringCollectSink.reset()
 
     val pipeline = new PipelineBuilder()
-      .append(new MongoInputStage[StringType]("db", "collection"))
+      .append(new MongoInput[StringType]("db", "collection"))
       .append({ x : DataStream[StringType] =>
         x.addSink(new StringCollectSink).setParallelism(1)
       })
@@ -124,8 +124,46 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     assert(StringCollectSink.result.size == StringCollectSink.numEventTimes)
   }
 
+  test("Can filter on event time (1)") {
+    clearDatabase()
+
+    val list = Seq[TestEvent](
+      TestEvent("klaas", LocalDateTime.of(1998, 6, 1, 0, 0)),
+      TestEvent("nagellak", LocalDateTime.of(1999, 9, 1, 0, 0)),
+      TestEvent("verdieping", LocalDateTime.of(1997, 9, 12, 0, 0))
+    )
+
+    val pipeline = new PipelineBuilder()
+      .append(new SeqInput[TestEvent](list))
+      .append { e: DataStream[TestEvent] => e.assignAscendingTimestamps(x => x.time.atZone(ZoneId.systemDefault()).toEpochSecond) }
+      .append(new MongoOutput[TestEvent]("db", "collection"))
+      .build()
+
+    pipeline.startMock()
+  }
+
+  test("Can filter on event time (2)") {
+    TestEventCollectSink.reset()
+
+    val query = MongoQuery.from(LocalDateTime.of(1998, 1, 1, 0, 0))
+
+    val pipeline = new PipelineBuilder()
+      .append(new MongoInput[TestEvent]("db", "collection", "mongodb://localhost:27017", query))
+      .append({ x : DataStream[TestEvent] =>
+        x.addSink(new TestEventCollectSink).setParallelism(1)
+      })
+      .build()
+
+    pipeline.startMock()
+
+    println(TestEventCollectSink.result)
+    assert(TestEventCollectSink.result.size == 2)
+    assert(TestEventCollectSink.result.containsAll(Seq("klaas", "nagellak")))
+  }
+
 }
 
+case class TestEvent(name: String, time: LocalDateTime) extends PipelineItem
 
 object StringCollectSink {
   var result = new util.ArrayList[String]() //mutable list
@@ -147,6 +185,32 @@ class StringCollectSink extends SinkFunction[StringType] {
 
       if (context.timestamp() != null) {
         StringCollectSink.numEventTimes += 1
+      }
+    }
+  }
+}
+
+
+object TestEventCollectSink {
+  var result = new util.ArrayList[String]() //mutable list
+  var numEventTimes = 0
+
+  def reset(): Unit = {
+    result = new util.ArrayList[String]()
+    numEventTimes = 0
+  }
+
+  def asList: List[String] = result.toList
+}
+
+class TestEventCollectSink extends SinkFunction[TestEvent] {
+
+  override def invoke(value: TestEvent, context: Context[_]): Unit = {
+    synchronized {
+      TestEventCollectSink.result.add(value.name)
+
+      if (context.timestamp() != null) {
+        TestEventCollectSink.numEventTimes += 1
       }
     }
   }
