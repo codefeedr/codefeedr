@@ -20,9 +20,9 @@ package org.codefeedr.buffer
 
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.{CollectSink, PipelineBuilder, WordCount}
+import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.utilities.{StringInput, StringType}
-import org.codefeedr.testUtils.{CodeHitException, StringCollectSink}
+import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.apache.flink.api.scala._
 
@@ -53,8 +53,6 @@ class RabbitMQBufferTest extends FunSuite with BeforeAndAfter {
 
     assertThrows[JobExecutionException] {
       pipeline.startLocal()
-
-//      val res = StringCollectSink.result
     }
   }
 
