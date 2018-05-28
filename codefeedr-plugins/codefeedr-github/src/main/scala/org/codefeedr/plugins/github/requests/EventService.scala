@@ -26,13 +26,9 @@ import util.control.Breaks._
 import org.json4s.jackson.JsonMethods._
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.plugins.github.GitHubProtocol.Event
-import org.codefeedr.plugins.github.util.FiniteQueue
 import org.codefeedr.stages.utilities.DuplicateFilter
-import org.codehaus.jackson.map.ext.JodaSerializers
-import org.codehaus.jackson.map.ext.JodaSerializers.LocalDateTimeSerializer
 import org.json4s.ext.JavaTimeSerializers
 
-import scala.collection.mutable.Queue
 /**
   * Represents a link header from the GitHub API.
   * This shows the previous/next/last page you can retrieve from.
