@@ -18,8 +18,12 @@
 
 package org.codefeedr.stages.rabbitmq
 
+import java.net.URI
+
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.buffer.serialization.AvroSerde
+import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
+import org.codefeedr.buffer.{RMQSinkDurable, RabbitMQBuffer}
+import org.codefeedr.buffer.serialization.{AbstractSerde, AvroSerde, Serializer}
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 
@@ -32,10 +36,30 @@ import scala.reflect.runtime.universe._
   * @param stageAttributes Optional stage attributes
   * @tparam T
   */
-class RabbitMQOutput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](stageAttributes: StageAttributes = StageAttributes())
+class RabbitMQOutput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](queue: String,
+                                                                         server: URI = new URI("amqp://localhost:5672"),
+                                                                         stageAttributes: StageAttributes = StageAttributes())
   extends OutputStage[T](stageAttributes) {
 
   override def main(source: DataStream[T]): Unit = {
+    val config = new RMQConnectionConfig.Builder()
+      .setUri(server.toString)
+      .build
 
+    // Use a durable sink to match the RabbitMQInput version
+    new RMQSinkDurable[T](config, queue, getSerializer)
+  }
+
+  /**
+    * The serializer to use for sending data to RabbitMQ.
+    *
+    * Override to use a different serialization than JSON.
+    *
+    * @return Serializer
+    */
+  protected def getSerializer: AbstractSerde[T] = {
+    val serializer = Serializer.JSON
+
+    Serializer.getSerde[T](serializer)
   }
 }

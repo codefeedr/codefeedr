@@ -18,13 +18,20 @@
 
 package org.codefeedr.stages.rabbitmq
 
+import java.net.URI
+
+import org.apache.flink.api.common.typeinfo.TypeInformation
+
 import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.buffer.serialization.AvroSerde
+import org.apache.flink.streaming.connectors.rabbitmq.RMQSource
+import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
+import org.codefeedr.buffer.serialization.{AbstractSerde, AvroSerde, Serializer}
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.{InputStage, StageAttributes}
+import org.apache.flink.api.scala._
 
-import scala.reflect.ClassTag
+import scala.reflect.{ClassTag, classTag}
 
 /**
   * Input stage pulling data from a RabbitMQ queue.
@@ -32,10 +39,40 @@ import scala.reflect.ClassTag
   * @param stageAttributes Optional attributes
   * @tparam T Type of value to pull from the queue
   */
-class RabbitMQInput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](stageAttributes: StageAttributes = StageAttributes())
+class RabbitMQInput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](queue: String,
+                                                                        server: URI = new URI("amqp://localhost:5672"),
+                                                                        stageAttributes: StageAttributes = StageAttributes())
   extends InputStage[T](stageAttributes) {
 
+  //Get type of the class at run time
+  val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
+
+  //get TypeInformation of generic (case) class
+  implicit val typeInfo = TypeInformation.of(inputClassType)
+
   override def main(): DataStream[T] = {
-    null
+    val config = new RMQConnectionConfig.Builder()
+      .setUri(server.toString)
+      .build
+
+    // Create a source with correlation id usage enabled for exactly once guarantees
+    val source = new RMQSource[T](config, queue, true, getSerializer)
+
+    pipeline.environment
+      .addSource(source)
+      .setParallelism(1) // Needed for exactly one guarantees
+  }
+
+  /**
+    * The serializer to use for reading data from RabbitMQ.
+    *
+    * Override to use a different serialization than JSON.
+    *
+    * @return Serializer
+    */
+  protected def getSerializer: AbstractSerde[T] = {
+    val serializer = Serializer.JSON
+
+    Serializer.getSerde[T](serializer)
   }
 }

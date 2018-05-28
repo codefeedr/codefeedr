@@ -63,7 +63,7 @@ class RabbitMQBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pip
   override def getSource: DataStream[T] = {
     val connectionConfig = createConfig()
 
-    // Create a source with corellection id usage enabled for exactly once guarantees
+    // Create a source with correlation id usage enabled for exactly once guarantees
     val source = new RMQSource[T](connectionConfig, queueName, true, getSerializer)
 
     pipeline.environment
