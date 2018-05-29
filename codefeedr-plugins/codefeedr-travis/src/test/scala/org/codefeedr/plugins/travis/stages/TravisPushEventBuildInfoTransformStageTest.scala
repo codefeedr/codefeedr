@@ -47,6 +47,7 @@ class TravisPushEventBuildInfoTransformStageTest extends FunSuite with MockFacto
 
     while(iterable == null) {
       Thread.sleep(100)
+      println("waiting for iterable")
     }
 
     assert(iterable.head.state == "passed")
