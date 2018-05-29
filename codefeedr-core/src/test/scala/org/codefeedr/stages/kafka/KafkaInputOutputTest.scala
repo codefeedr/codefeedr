@@ -31,8 +31,12 @@ import org.codefeedr.testUtils.JobFinishedException
 import org.scalatest.FunSuite
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
+import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
+import org.codefeedr.buffer.KafkaBuffer
 
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+
 
 class KafkaInputOutputTest extends FunSuite {
 
@@ -45,6 +49,7 @@ class KafkaInputOutputTest extends FunSuite {
     properties.put("auto.commit.interval.ms", "10")
 
     val topic = UUID.randomUUID().toString
+    checkAndCreateSubject(topic, "localhost:9092")
 
     val pipeline =
       new PipelineBuilder()
@@ -58,6 +63,34 @@ class KafkaInputOutputTest extends FunSuite {
 
 
     assert(KafkaStringCollectSink.result.size() == 7)
+  }
+
+  def checkAndCreateSubject(topic: String, connection: String): Unit = {
+    //set all the correct properties
+    val props = new Properties()
+    props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, connection)
+
+    //connect with Kafka
+    val adminClient = AdminClient.create(props)
+
+    //check if topic already exists
+    val alreadyCreated = adminClient
+      .listTopics()
+      .names()
+      .get()
+      .contains(topic)
+
+    //if topic doesnt exist yet, create it
+    if (!alreadyCreated) {
+      //the topic configuration will probably be overwritten by the producer
+      //TODO check this ^
+      println(s"Topic $topic doesn't exist yet, now creating it.")
+      val newTopic = new NewTopic(topic, 1, 1)
+      adminClient.
+        createTopics(List(newTopic).asJavaCollection)
+        .all()
+        .get() //this blocks the method until the topic is created
+    }
   }
 
 }
@@ -76,7 +109,7 @@ class KafkaStringCollectSink(amount : Int) extends SinkFunction[StringType] {
     synchronized {
       KafkaStringCollectSink.result.add(value.value)
 
-      amountLeft -= 1
+      println(s"Added new element ${value.value}, amountLeft: ${amountLeft -= 1}")
       if (amountLeft == 0) throw new JobFinishedException()
     }
   }
