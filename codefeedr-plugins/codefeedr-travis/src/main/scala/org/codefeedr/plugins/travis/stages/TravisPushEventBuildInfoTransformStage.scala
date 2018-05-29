@@ -1,7 +1,24 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package org.codefeedr.plugins.travis.stages
 
-import java.util.concurrent.{Executors, TimeUnit}
-
+import java.util.concurrent.TimeUnit
 import org.apache.flink.streaming.api.scala.async.{AsyncFunction, ResultFuture}
 import org.apache.flink.streaming.api.scala.{AsyncDataStream, DataStream, _}
 import org.codefeedr.pipeline.TransformStage
@@ -13,6 +30,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
+/**
+  * TransformStage that takes push events from Repositories that are active on Travis and outputs
+  * the build information of those push events. If the build is not completed yet it will wait until it is
+  * completed
+  * @param travis TravisService used to make requests to Travis
+  * @param capacity Limit on how many builds can be requested simultaneously
+  */
 class TravisPushEventBuildInfoTransformStage(travis: TravisService, capacity: Int = 100) extends TransformStage[PushEventFromActiveTravisRepo, TravisBuild]{
 
   override def transform(source: DataStream[PushEventFromActiveTravisRepo]): DataStream[TravisBuild] = {
@@ -22,6 +46,12 @@ class TravisPushEventBuildInfoTransformStage(travis: TravisService, capacity: In
   }
 }
 
+/**
+  * AsyncFunction that takes a push event from a repository that is active on Travis and outputs
+  * the build information of that push event. If the build is not completed yet it will wait until it is
+  * completed
+  * @param travis TravisService used to make requests to Travis
+  */
 class TravisBuildStatusRequest(travis: TravisService) extends AsyncFunction[PushEvent, TravisBuild] {
 
   override def asyncInvoke(input: PushEvent, resultFuture: ResultFuture[TravisBuild]): Unit = {
