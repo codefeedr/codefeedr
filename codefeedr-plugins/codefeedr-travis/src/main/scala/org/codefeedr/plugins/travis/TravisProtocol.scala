@@ -86,11 +86,11 @@ object TravisProtocol {
                              )
 
   case class TravisBranch(name: String,
-                          repositoy: Option[TravisRepository],
+//                          repositoy: Option[TravisRepository],
                           default_branch: Option[Boolean],
-                          exists_on_github: Option[Boolean],
-                          last_build: Option[TravisBuild],
-                          recent_builds: Option[List[TravisBuild]])
+                          exists_on_github: Option[Boolean])
+//                          last_build: Option[TravisBuild],
+//                          recent_builds: Option[List[TravisBuild]])
 
   case class TravisCommit(id: Int,
                           sha: String,

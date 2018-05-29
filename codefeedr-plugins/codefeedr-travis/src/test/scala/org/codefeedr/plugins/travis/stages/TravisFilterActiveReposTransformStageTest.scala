@@ -7,12 +7,13 @@ import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.StaticKeyManager
-import org.codefeedr.pipeline.{InputStage, PipelineBuilder}
+import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.requests.EventService
 import org.codefeedr.plugins.github.stages.GitHubEventToPushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.PushEventFromActiveTravisRepo
 import org.codefeedr.plugins.travis.util.TravisService
+import org.codefeedr.stages.InputStage
 import org.scalatest.FunSuite
 import org.mockito.Mockito._
 

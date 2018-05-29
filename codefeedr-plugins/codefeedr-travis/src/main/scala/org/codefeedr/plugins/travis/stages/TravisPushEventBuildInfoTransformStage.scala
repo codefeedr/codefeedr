@@ -22,12 +22,13 @@ import java.util.concurrent.TimeUnit
 
 import org.apache.flink.streaming.api.scala.async.{AsyncFunction, ResultFuture}
 import org.apache.flink.streaming.api.scala.{AsyncDataStream, DataStream, _}
+import org.codefeedr.buffer.serialization.AvroSerde
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.{PushEventFromActiveTravisRepo, TravisBuild}
 import org.codefeedr.plugins.travis.util.{TravisBuildCollector, TravisService}
 import org.codefeedr.stages.TransformStage
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
@@ -40,13 +41,12 @@ import scala.util.{Failure, Success}
   */
 class TravisPushEventBuildInfoTransformStage(travis: TravisService, capacity: Int = 100) extends TransformStage[PushEventFromActiveTravisRepo, TravisBuild]{
 
-  override def transform(source: DataStream[PushEventFromActiveTravisRepo]): DataStream[TravisBuild] = {
+  def transform(source: DataStream[PushEventFromActiveTravisRepo]): DataStream[TravisBuild] = {
 
     AsyncDataStream.unorderedWait(source.map(x => x.pushEventItem), new TravisBuildStatusRequest(travis),
       20, TimeUnit.MINUTES, capacity)
   }
 }
-
 /**
   * AsyncFunction that takes a push event from a repository that is active on Travis and outputs
   * the build information of that push event. If the build is not completed yet it will wait until it is
@@ -54,6 +54,8 @@ class TravisPushEventBuildInfoTransformStage(travis: TravisService, capacity: In
   * @param travis TravisService used to make requests to Travis
   */
 class TravisBuildStatusRequest(travis: TravisService) extends AsyncFunction[PushEvent, TravisBuild] {
+
+  implicit val executor: ExecutionContext =  ExecutionContext.global
 
   override def asyncInvoke(input: PushEvent, resultFuture: ResultFuture[TravisBuild]): Unit = {
     // If there are no commits in the push then there will be no build
