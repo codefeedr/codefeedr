@@ -21,11 +21,12 @@ package org.codefeedr.plugins.github.stages
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.InputStage
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.events.EventSource
 import org.codefeedr.plugins.github.requests.EventService
 import org.apache.flink.api.scala._
+import org.codefeedr.plugins.github._
+import org.codefeedr.stages.InputStage
 
 /**
   * Input stage which requests GitHubEvents.

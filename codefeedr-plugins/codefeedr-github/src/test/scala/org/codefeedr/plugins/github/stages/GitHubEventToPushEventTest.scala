@@ -24,9 +24,10 @@ import java.util
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.{InputStage, PipelineBuilder}
+import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.plugins.github.GitHubProtocol.{Event, PushEvent}
 import org.codefeedr.plugins.github.requests.EventService
+import org.codefeedr.stages.InputStage
 import org.scalatest.FunSuite
 
 import scala.io.Source

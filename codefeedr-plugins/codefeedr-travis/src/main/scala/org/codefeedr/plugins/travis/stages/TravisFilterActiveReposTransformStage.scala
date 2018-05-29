@@ -19,10 +19,10 @@
 package org.codefeedr.plugins.travis.stages
 
 import org.apache.flink.streaming.api.scala.{DataStream, _}
-import org.codefeedr.pipeline.TransformStage
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.PushEventFromActiveTravisRepo
 import org.codefeedr.plugins.travis.util.TravisService
+import org.codefeedr.stages.TransformStage
 
 
 /**

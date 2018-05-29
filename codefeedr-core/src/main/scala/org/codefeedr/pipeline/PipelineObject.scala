@@ -18,23 +18,25 @@
  */
 package org.codefeedr.pipeline
 
-import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.Properties
-import org.codefeedr.pipeline.buffer.BufferFactory
+import org.codefeedr.buffer.BufferFactory
+import org.codefeedr.buffer.serialization.{AvroSerde}
+import org.codefeedr.stages.StageAttributes
+
 
 import scala.reflect.{ClassTag, Manifest}
 import scala.reflect.runtime.universe._
 
+
 /**
   * This class represents a processing job within the pipeline.
-  *
+  *s
   * @tparam In  input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRecord, Out <: PipelineItem : ClassTag : Manifest : FromRecord](val attributes: StageAttributes = StageAttributes()) {
-
+abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag : AvroSerde, Out <: PipelineItem : ClassTag : TypeTag : AvroSerde](val attributes: StageAttributes = StageAttributes()) {
   var pipeline: Pipeline = _
 
   def id: String = attributes.id.getOrElse(getClass.getName)
@@ -142,7 +144,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : Manifest : FromRec
     */
   def getSinkSubject: String = this.getClass.getName
 
-  def getSource[T <: AnyRef : Manifest : FromRecord](parentNode: PipelineObject[PipelineItem, PipelineItem]): DataStream[T] = {
+  def getSource[T <: AnyRef : ClassTag : TypeTag : AvroSerde](parentNode: PipelineObject[PipelineItem, PipelineItem]): DataStream[T] = {
     assert(parentNode != null)
 
     val factory = new BufferFactory(pipeline, this, parentNode)

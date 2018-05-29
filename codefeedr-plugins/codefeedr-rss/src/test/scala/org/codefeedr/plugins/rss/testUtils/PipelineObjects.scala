@@ -7,7 +7,8 @@ import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.{PrintSinkFunction, SinkFunction}
 import org.codefeedr.pipeline._
-import org.codefeedr.plugins.StringType
+import org.codefeedr.stages.utilities.StringType
+import org.codefeedr.stages.{OutputStage, StageAttributes}
 
 //This will be thrown after the print sink received x elements.
 final case class JobFinishedException() extends JobExecutionException(new JobID(), "Job is finished.")

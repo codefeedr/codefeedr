@@ -1,13 +1,13 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.buffer.{BufferType, KafkaBuffer, NoAvroSerdeException}
-import org.codefeedr.plugins.{StringSource, StringType}
+import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
-import org.codefeedr.pipeline.buffer.serialization.Serializer
-import org.codefeedr.pipeline.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
+import org.codefeedr.buffer.serialization.Serializer
+import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
+import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils._
 
 import scala.collection.JavaConverters._
@@ -23,7 +23,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
   test("Simple pipeline test wordcount") {
     builder
-      .append(new StringSource(str = "hallo hallo doei doei doei"))
+      .append(new StringInput(str = "hallo hallo doei doei doei"))
       .append { x: DataStream[StringType] =>
         x.map(x => (x.value, 1))
           .keyBy(0)
@@ -44,7 +44,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
   test("Simple pipeline test") {
     builder
-      .append(new StringSource())
+      .append(new StringInput())
       .append { x: DataStream[StringType] =>
         x.map(x => WordCount(x.value, 1)).setParallelism(1)
           .addSink(new CollectSink).setParallelism(1)
@@ -79,7 +79,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     val pipeline = simpleDAGPipeline(2)
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
+      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
@@ -95,25 +95,12 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     assert(schema2.nonEmpty)
   }
 
-  test("Simple pipeline schema exposure and deserialization test with JSON (redis)") {
-    val pipeline = simpleDAGPipeline(2)
-      .setBufferType(BufferType.Kafka)
-      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.JSON)
-      .build()
-
-    assertThrows[NoAvroSerdeException] {
-      pipeline.startLocal()
-    }
-  }
-
   test("Simple pipeline schema exposure and deserialization test (redis)") {
     val pipeline = simpleDAGPipeline(2)
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
+      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
@@ -127,7 +114,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_SERVICE, "zookeeper")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, "localhost:2181")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
+      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {

@@ -22,8 +22,10 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.{PipelineObject, TransformStage}
+import org.codefeedr.pipeline.PipelineObject
 import org.codefeedr.plugins.github.GitHubProtocol.{Event, PushEvent, PushPayload}
+import org.codefeedr.stages.TransformStage
+import org.codefeedr.plugins.github._
 
 /**
   * Transform stage which reads from EventsInput and filters to PushEvents.
