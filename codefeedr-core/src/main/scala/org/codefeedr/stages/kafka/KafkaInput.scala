@@ -30,6 +30,13 @@ import org.codefeedr.stages.{InputStage, StageAttributes}
 import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
 
+/**
+  * KafkaInput stage, which reads from a Kafka topic.
+  * @param topic the topic to read from.
+  * @param properties kafka properties, see https://kafka.apache.org/documentation/#consumerconfigs
+  * @param serializer the serializer to use for deserialization of the data, see [[Serializer]].
+  * @param stageAttributes attributes of this stage.
+  */
 class KafkaInput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](topic: String,
                                                                      properties: Properties,
                                                                      serializer: String = Serializer.JSON,
@@ -44,6 +51,7 @@ class KafkaInput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](topic: Stri
   //get correct serde, will fallback to JSON
   private val serde = Serializer.getSerde[T](serializer)
 
+  //add flink kafka consumer
   override def main(): DataStream[T] = {
     pipeline.environment
       .addSource(new FlinkKafkaConsumer011[T](topic, serde, properties))

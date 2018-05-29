@@ -29,6 +29,13 @@ import org.codefeedr.stages.{OutputStage, StageAttributes}
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
+/**
+  * KafkaOutput stage, which sends to a Kafka topic.
+  * @param topic the topic to send to.
+  * @param properties kafka properties, see https://kafka.apache.org/documentation/#consumerconfigs
+  * @param serializer the serializer to use for serialization of the data, see [[Serializer]].
+  * @param stageAttributes attributes of this stage.
+  */
 class KafkaOutput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](topic: String,
                                                                       properties: Properties,
                                                                       serializer: String = Serializer.JSON,
@@ -38,6 +45,7 @@ class KafkaOutput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](topic: Str
   //get correct serde, will fallback to JSON
   private val serde = Serializer.getSerde[T](serializer)
 
+  //add producer as sink
   override def main(source: DataStream[T]): Unit = {
     source.addSink(new FlinkKafkaProducer011[T](topic, serde, properties))
   }
