@@ -1,8 +1,6 @@
 package org.codefeedr.plugins.travis.stages
 
-import org.apache.flink.streaming.api.operators.async.queue.StreamRecordQueueEntry
 import org.apache.flink.streaming.api.scala.async.ResultFuture
-import org.apache.flink.streaming.runtime.streamrecord.StreamRecord
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.{TravisBuild, TravisBuilds}
@@ -15,7 +13,6 @@ import org.mockito.Matchers.any
 import org.scalamock.scalatest.MockFactory
 import org.mockito.Mockito._
 
-import scala.concurrent.Future
 import scala.io.Source
 
 class TravisPushEventBuildInfoTransformStageTest extends FunSuite with MockFactory {
@@ -53,8 +50,6 @@ class TravisPushEventBuildInfoTransformStageTest extends FunSuite with MockFacto
     }
 
     assert(iterable.head.state == "passed")
-
-
   }
 
 }

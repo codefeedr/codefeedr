@@ -2,13 +2,11 @@ package org.codefeedr.plugins.travis.stages
 
 import java.util
 
-import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
-import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent, PushEventCollectSink, SimpleEventSource}
+import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent}
 import org.codefeedr.plugins.travis.TravisProtocol.PushEventFromActiveTravisRepo
 import org.codefeedr.plugins.travis.util.TravisService
 import org.scalatest.FunSuite

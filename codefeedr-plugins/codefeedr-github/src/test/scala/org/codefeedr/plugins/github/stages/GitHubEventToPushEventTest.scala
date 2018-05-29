@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  */
-package org.codefeedr.plugins.github.stages
+package org.codefeedr.plugins.travis.stages
 
 import java.io.InputStream
 import java.util
@@ -27,6 +27,7 @@ import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.{InputStage, PipelineBuilder}
 import org.codefeedr.plugins.github.GitHubProtocol.{Event, PushEvent}
 import org.codefeedr.plugins.github.requests.EventService
+import org.codefeedr.plugins.github.stages.GitHubEventToPushEvent
 import org.scalatest.FunSuite
 
 import scala.io.Source
