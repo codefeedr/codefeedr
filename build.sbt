@@ -49,8 +49,10 @@ lazy val core = (project in file("codefeedr-core"))
       // Avro serialization
       dependencies.avro,
       dependencies.shapeless,
-      dependencies.reflectLang
+      dependencies.reflectLang,
 
+      //BSON serialization
+      dependencies.mongo
     )
   )
 

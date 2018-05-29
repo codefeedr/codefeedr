@@ -67,6 +67,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
   test("Non-sequential pipeline local test") {
     val pipeline = simpleDAGPipeline(1)
+        .setBufferProperty(Buffer.SERIALIZER, Serializer.BSON)
         .setBufferType(BufferType.Kafka)
         .build()
 
