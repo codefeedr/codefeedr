@@ -3,6 +3,7 @@ package org.codefeedr.plugins.travis.stages
 import java.io.InputStream
 import java.util
 
+import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.StaticKeyManager
