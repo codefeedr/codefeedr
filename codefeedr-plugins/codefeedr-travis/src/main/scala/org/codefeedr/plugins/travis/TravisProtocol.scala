@@ -19,6 +19,7 @@
 package org.codefeedr.plugins.travis
 
 import java.time.LocalDateTime
+
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 
@@ -86,11 +87,9 @@ object TravisProtocol {
                              )
 
   case class TravisBranch(name: String,
-//                          repositoy: Option[TravisRepository],
                           default_branch: Option[Boolean],
                           exists_on_github: Option[Boolean])
-//                          last_build: Option[TravisBuild],
-//                          recent_builds: Option[List[TravisBuild]])
+
 
   case class TravisCommit(id: Int,
                           sha: String,
@@ -98,12 +97,5 @@ object TravisProtocol {
                           message: String,
                           compare_url: String,
                           committed_at: String)
-
-//  case class TravisOwner(id: Int,
-//                         login: String,
-//                         name: Option[String],
-//                         github_id: Option[Int],
-//                         avatar_url: Option[String],
-//                         education: Option[Boolean])
 }
 

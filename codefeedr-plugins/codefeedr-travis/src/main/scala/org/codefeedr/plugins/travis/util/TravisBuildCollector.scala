@@ -49,16 +49,16 @@ class TravisBuildCollector(repoOwner: String,
 
 
   /**
-    * Keeps requesting the build until it is finished
-    * @return A finished Travis build
+    * Keeps requesting the build until it is finished asynchronously
+    * @return A Futre with a finished Travis build
     */
   def requestFinishedBuild(): Future[TravisBuild] = Future {
-    while (!isReady) {
+    while (!builtIsCompleted) {
 
       build = requestBuild
       checkIfBuildShouldBeKnownAlready()
 
-      if (!isReady) {
+      if (!builtIsCompleted) {
         blocking {
           Thread.sleep(pollingInterval)
         }
@@ -67,9 +67,13 @@ class TravisBuildCollector(repoOwner: String,
     build.get
   }
 
+  /**
+    * Checks if the timeout period for waiting before a build is created has passed.
+    * Throws an exception if this is the case.
+    */
   def checkIfBuildShouldBeKnownAlready(): Unit = {
-    val waitUntil = pushDate.plusSeconds(100 * timeoutSeconds)
-    if (build.isEmpty && waitUntil.isBefore(LocalDateTime.now(ZoneId.of("GMT")))) {
+    val waitUntil = pushDate.plusSeconds(timeoutSeconds)
+    if (build.isEmpty && waitUntil.isBefore(LocalDateTime.now())) {
       throw BuildNotFoundForTooLongException("Waited " + timeoutSeconds + " seconds for build, but still not found" +
         ", probably because " + repoOwner + "/" + repoName + "is not active on Travis")
     }
@@ -79,7 +83,7 @@ class TravisBuildCollector(repoOwner: String,
     * Checks whether or not a build is completed.
     * @return Whether or not a build is completed
     */
-  def isReady: Boolean = {
+  def builtIsCompleted: Boolean = {
     if (build.nonEmpty) {
       val state = build.get.state
       return state == "passed" || state == "failed" || state == "canceled" || state == "errored"
@@ -133,25 +137,22 @@ class TravisBuildCollector(repoOwner: String,
       while (buildIterator.hasNext) {
         val x = buildIterator.next()
 
-        // Remember the time at which the latest build has started
-        if (x.started_at.isDefined && x.started_at.get.isAfter(newestBuildDate)) {
-          newestBuildDate = x.started_at.get
+        // If the build is found return it
+        if (x.commit.sha == pushCommitSha) {
+          return Some(x)
         }
-
         // If a build has started before the earliest possible that for the target build then stop looking for it
         // and update the the minimum start date
-        if (x.started_at.getOrElse(LocalDateTime.MAX).isBefore(minimumStartDate)) {
+        else if (x.started_at.getOrElse(LocalDateTime.MAX).isBefore(minimumStartDate)) {
           minimumStartDate = newestBuildDate
           return None
         }
-
-        // If the build is found return it
-        else if (x.commit.sha == pushCommitSha) {
-          return Some(x)
+        // Remember the time at which the latest build has started
+        else if (x.started_at.isDefined && x.started_at.get.isAfter(newestBuildDate)) {
+          newestBuildDate = x.started_at.get
         }
       }
     } while (!builds.`@pagination`.is_last)
-
     None
   }
 

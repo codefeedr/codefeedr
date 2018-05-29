@@ -59,7 +59,10 @@ class TravisBuildStatusRequest(travis: TravisService) extends AsyncFunction[Push
 
   override def asyncInvoke(input: PushEvent, resultFuture: ResultFuture[TravisBuild]): Unit = {
     // If there are no commits in the push then there will be no build
-    if (input.payload.commits.isEmpty) return
+    if (input.payload.commits.isEmpty) {
+      resultFuture.complete(Iterable())
+      return
+    }
 
     val splittedSlug =  input.repo.name.split('/')
     val repoOwner = splittedSlug(0)
@@ -73,7 +76,8 @@ class TravisBuildStatusRequest(travis: TravisService) extends AsyncFunction[Push
 
     futureResultBuild.onComplete {
       case Success(result: TravisBuild) => resultFuture.complete(Iterable(result))
-      case Failure(e) => e.printStackTrace()
+      case Failure(e) => resultFuture.complete(Iterable())
+        e.printStackTrace()
     }
   }
 }
