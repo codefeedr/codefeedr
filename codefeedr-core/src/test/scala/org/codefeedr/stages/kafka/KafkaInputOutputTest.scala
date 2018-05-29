@@ -71,6 +71,7 @@ object KafkaStringCollectSink {
 class KafkaStringCollectSink(amount : Int) extends SinkFunction[StringType] {
 
   var amountLeft = amount
+
   override def invoke(value: StringType, context: Context[_]): Unit = {
     synchronized {
       KafkaStringCollectSink.result.add(value.value)
@@ -83,5 +84,5 @@ class KafkaStringCollectSink(amount : Int) extends SinkFunction[StringType] {
 }
 
 class KafkaStringOutput(amount : Int) extends OutputStage[StringType] {
-  override def main(source: DataStream[StringType]): Unit = source.addSink(new KafkaStringCollectSink(amount))
+  override def main(source: DataStream[StringType]): Unit = source.addSink(new KafkaStringCollectSink(amount)).setParallelism(1)
 }
