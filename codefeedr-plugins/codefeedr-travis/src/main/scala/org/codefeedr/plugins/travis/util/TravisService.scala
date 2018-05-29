@@ -110,9 +110,7 @@ class TravisService(keyManager: KeyManager) extends Serializable {
   @throws(classOf[CouldNotGetResourceException])
   def getTravisResource(endpoint: String): String = {
     try {
-      Http(url + endpoint)
-        .headers(getHeaders)
-        .asString.body
+      Http(url + endpoint).headers(getHeaders).asString.body
     } catch {
       case _: Throwable =>
         throw CouldNotGetResourceException("Could not get the requested resource from: " + url + endpoint)

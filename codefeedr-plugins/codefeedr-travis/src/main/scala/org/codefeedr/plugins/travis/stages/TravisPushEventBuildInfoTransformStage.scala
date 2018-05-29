@@ -17,12 +17,8 @@ class TravisPushEventBuildInfoTransformStage(travis: TravisService, capacity: In
 
   override def transform(source: DataStream[PushEventFromActiveTravisRepo]): DataStream[TravisBuild] = {
 
-    AsyncDataStream.unorderedWait(
-      source.map(x => x.pushEventItem),
-      new TravisBuildStatusRequest(travis),
-      20,
-      TimeUnit.MINUTES,
-      capacity)
+    AsyncDataStream.unorderedWait(source.map(x => x.pushEventItem), new TravisBuildStatusRequest(travis),
+      20, TimeUnit.MINUTES, capacity)
   }
 }
 
