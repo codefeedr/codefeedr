@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent}
+import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent, SimpleEventSource}
 import org.codefeedr.plugins.travis.TravisProtocol.PushEventFromActiveTravisRepo
 import org.codefeedr.plugins.travis.util.TravisService
 import org.scalatest.FunSuite
