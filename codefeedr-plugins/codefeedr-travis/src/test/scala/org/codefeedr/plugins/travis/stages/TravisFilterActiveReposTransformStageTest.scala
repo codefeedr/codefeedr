@@ -1,16 +1,21 @@
 package org.codefeedr.plugins.travis.stages
 
+import java.io.InputStream
 import java.util
 
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.StaticKeyManager
-import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.plugins.github.stages.{GitHubEventToPushEvent, SimpleEventSource}
+import org.codefeedr.pipeline.{InputStage, PipelineBuilder}
+import org.codefeedr.plugins.github.GitHubProtocol.Event
+import org.codefeedr.plugins.github.requests.EventService
+import org.codefeedr.plugins.github.stages.GitHubEventToPushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.PushEventFromActiveTravisRepo
 import org.codefeedr.plugins.travis.util.TravisService
 import org.scalatest.FunSuite
 import org.mockito.Mockito._
+
+import scala.io.Source
 
 class TravisFilterActiveReposTransformStageTest extends FunSuite {
 
@@ -47,4 +52,17 @@ class ActiveRepoPushEventCollectSink extends SinkFunction[PushEventFromActiveTra
     }
   }
 
+}
+
+class SimpleEventSource(fileName: String) extends InputStage[Event] {
+
+  val stream : InputStream = getClass.getResourceAsStream(fileName)
+  val sampleEvents : String = Source.fromInputStream(stream).getLines.mkString
+
+  override def main(): DataStream[Event] = {
+    val events = new EventService(false, null)
+      .parseEvents(sampleEvents)
+
+    pipeline.environment.fromCollection(events)
+  }
 }
