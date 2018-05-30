@@ -14,8 +14,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 package org.codefeedr.buffer.serialization
 
 import java.util.Date
@@ -23,17 +23,17 @@ import java.util.Date
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class BsonSerdeTest extends FunSuite with BeforeAndAfter {
+class KryoSerdeTest extends FunSuite with BeforeAndAfter {
 
   private case class SimpleCaseClass(str: String, i: Int)
   private case class ComplexCaseClass(str: String, i : Option[Int], l : List[Date])
 
-  private var serde : BsonSerde[SimpleCaseClass] = _
-  private var serde2 : BsonSerde[ComplexCaseClass] = _
+  private var serde : KryoSerde[SimpleCaseClass] = _
+  private var serde2 : KryoSerde[ComplexCaseClass] = _
 
   before {
-    serde = BsonSerde[SimpleCaseClass]
-    serde2 = BsonSerde[ComplexCaseClass]
+    serde = KryoSerde[SimpleCaseClass]
+    serde2 = KryoSerde[ComplexCaseClass]
   }
 
   test ("Deserializes complex serialized values") {

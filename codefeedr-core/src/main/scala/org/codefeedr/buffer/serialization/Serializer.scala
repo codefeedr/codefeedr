@@ -45,6 +45,12 @@ object Serializer {
   val BSON = "BSON"
 
   /**
+    * Kryo serde support.
+    * https://github.com/EsotericSoftware/kryo
+    */
+  val KRYO = "KRYO"
+
+  /**
     * Retrieve a serde.
     *
     * Default is JSONSerde.
@@ -52,10 +58,11 @@ object Serializer {
     * @tparam T the type which has to be serialized/deserialized.
     * @return the serde instance.
     */
-  def getSerde[T <: AnyRef : ClassTag : TypeTag : AvroSerde](name: String) = name match {
+  def getSerde[T <: AnyRef : ClassTag : TypeTag : AvroSerde](name: String): AbstractSerde[T] = name match {
     case "AVRO" => AvroSerde[T]
     case "JSON" => JSONSerde[T]
     case "BSON" => BsonSerde[T]
+    case "KRYO" => KryoSerde[T]
     case _ => JSONSerde[T] //default is JSON
   }
 
