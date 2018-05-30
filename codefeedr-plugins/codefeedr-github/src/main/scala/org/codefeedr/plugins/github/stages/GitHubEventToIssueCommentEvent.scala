@@ -18,9 +18,6 @@
  */
 package org.codefeedr.plugins.github.stages
 
-
-import java.time.LocalDateTime
-
 import org.apache.avro.Schema
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.plugins.github.GitHubProtocol._

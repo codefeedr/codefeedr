@@ -18,7 +18,7 @@
 
 package org.codefeedr.plugins.mongodb
 
-import java.time.{LocalDateTime, ZoneId}
+import java.util.Date
 
 import org.mongodb.scala.MongoClient
 import org.mongodb.scala.bson.BsonDocument
@@ -51,8 +51,8 @@ object MongoQuery {
     * @param time Time to start query at
     * @return Mongo Query wrapper
     */
-  def from(time: LocalDateTime): MongoQuery = {
-    val bson = gt("_eventTime", time.atZone(ZoneId.systemDefault()).toEpochSecond)
+  def from(time: Date): MongoQuery = {
+    val bson = gt("_eventTime", time.getTime / 1000)
 
     new MongoQuery(bson)
   }
