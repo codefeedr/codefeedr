@@ -26,9 +26,8 @@ import org.json4s.jackson.Serialization
 
 import scala.reflect.runtime.universe._
 import scala.reflect.ClassTag
-import scala.reflect.Manifest
 
-class BsonSerde[T  <: AnyRef : Manifest : ClassTag] extends AbstractSerde[T] {
+class BsonSerde[T  <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T] {
 
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
@@ -57,5 +56,5 @@ class BsonSerde[T  <: AnyRef : Manifest : ClassTag] extends AbstractSerde[T] {
 
 //companion object to simply instantiate bson serde
 object BsonSerde {
-  def apply[T  <: AnyRef : Manifest : ClassTag]: BsonSerde[T] = new BsonSerde[T]()
+  def apply[T  <: AnyRef : TypeTag : ClassTag]: BsonSerde[T] = new BsonSerde[T]()
 }

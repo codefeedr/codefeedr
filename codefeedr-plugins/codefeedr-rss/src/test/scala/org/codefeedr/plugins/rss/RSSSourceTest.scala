@@ -79,7 +79,7 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
     rssItemSource.run(ctxMock)
 
     //RSS items should already be in order
-    val orderedRSSItemList = rssItemList.sortWith((x,y) => y.pubDate.isBefore(x.pubDate))
+    val orderedRSSItemList = rssItemList.sortWith((x,y) => y.pubDate.before(x.pubDate))
     assert(rssItemList.equals(orderedRSSItemList))
   }
 

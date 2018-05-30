@@ -18,7 +18,7 @@
  */
 package org.codefeedr.plugins.travis
 
-import java.time.LocalDateTime
+import java.util.Date
 
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
@@ -45,8 +45,8 @@ object TravisProtocol {
                          previous_state: String,
                          pull_request_title: Option[String],
                          pull_request_number: Option[Int],
-                         started_at: Option[LocalDateTime],
-                         finished_at: Option[LocalDateTime],
+                         started_at: Option[Date],
+                         finished_at: Option[Date],
                          `private`: Boolean,
                          repository: TravisRepository,
                          branch: TravisBranch,
