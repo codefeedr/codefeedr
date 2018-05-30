@@ -1,7 +1,9 @@
-site_name: Documentation
+site_name: CodeFeedr
 theme:
   name: null
   custom_dir: 'docs/theme'
+repo_name: 'joskuijpers/bep_codefeedr'
+repo_url: 'https://github.com/joskuijpers/bep_codefeedr'
 pages:
 - Home: 'index.md'
 - Getting Started: 'getting_started.md'
