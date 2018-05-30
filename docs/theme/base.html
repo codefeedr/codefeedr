@@ -5,6 +5,19 @@
     {% block site_meta %}
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
+      {% if page and page.meta.description %}
+        <meta name="description" content="{{ page.meta.description | first }}">
+      {% elif config.site_description %}
+        <meta name="description" content="{{ config.site_description }}">
+      {% endif %}
+      {% if page.canonical_url %}
+        <link rel="canonical" href="{{ page.canonical_url }}">
+      {% endif %}
+      {% if page and page.meta.author %}
+        <meta name="author" content="{{ page.meta.author | first }}">
+      {% elif config.site_author %}
+        <meta name="author" content="{{ config.site_author }}">
+      {% endif %}
       {% if config.site_favicon %}
         <link rel="shortcut icon" href="{{ base_url }}/{{ config.site_favicon }}">
       {% else %}

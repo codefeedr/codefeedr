@@ -19,17 +19,17 @@ markdown_extensions:
   - pymdownx.tasklist(custom_checkbox=true)
   - pymdownx.tilde
 pages:
-- Home: 'index.md'
-- Getting Started: 'getting_started.md'
-- Core:
-  - 'Pipeline': 'core/pipeline.md'
-  - 'Buffers': 'core/buffers.md'
-  - 'Key Management':
-    - 'Key Manager': 'core/key-manager.md'
-    - 'redis': 'core/redis-key-manager.md'
-    - 'mongoDB': 'core/mongo-key-manager.md'
-- Plugins:
-  - 'GitHub': 'plugins/plugin-examples.md'
-  - 'RSS': 'plugins/plugin-examples.md'
-  - 'Apache Access Logs': 'plugins/plugin-examples.md'
-  - 'Historic data': 'plugins/historic-data.md'
+  - Home: 'index.md'
+  - Getting Started: 'getting_started.md'
+  - Core:
+    - 'Pipeline': 'core/pipeline.md'
+    - 'Buffers': 'core/buffers.md'
+    - 'Key Management':
+      - 'Key Manager': 'core/key-manager.md'
+      - 'redis': 'core/redis-key-manager.md'
+      - 'mongoDB': 'core/mongo-key-manager.md'
+  - Plugins:
+    - 'GitHub': 'plugins/plugin-examples.md'
+    - 'RSS': 'plugins/plugin-examples.md'
+    - 'Apache Access Logs': 'plugins/plugin-examples.md'
+    - 'Historic data': 'plugins/historic-data.md'
