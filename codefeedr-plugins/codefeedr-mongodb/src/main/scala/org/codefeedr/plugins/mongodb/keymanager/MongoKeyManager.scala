@@ -154,13 +154,6 @@ class MongoKeyManager(database: String = "db",
   }
 
   /**
-    * Clear all keys from a target.
-    * @param target
-    */
-  private[mongodb] def clear(target: String): Unit =
-    await(getCollection.deleteMany(equal("target", target)))
-
-  /**
     * Clear the whole key manager.
     */
   private[mongodb] def clear(): Unit =
