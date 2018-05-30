@@ -18,12 +18,13 @@
 
 package org.codefeedr.plugins.weblogs.stages
 
+import java.util
+
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.buffer.BufferType
 import org.codefeedr.pipeline._
 import org.codefeedr.plugins.weblogs.HttpdLogItem
-import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.testUtils.StringCollectSink
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class HttpdLogInputTest extends FunSuite with BeforeAndAfter {
@@ -32,23 +33,47 @@ class HttpdLogInputTest extends FunSuite with BeforeAndAfter {
     new PipelineBuilder()
       .setBufferType(BufferType.Kafka)
       .append(new HttpdLogInput(getClass.getResource("/access.log").getPath))
-      .append(new MyPipelineObject)
-      .append { x: DataStream[StringType] =>
-        x.addSink(new StringCollectSink)
+      .append { x: DataStream[HttpdLogItem] =>
+        x.addSink(new ActiveRepoPushEventCollectSink)
       }
       .build()
       .startMock()
 
-    val res = StringCollectSink.result
+    val res = ActiveRepoPushEventCollectSink.result
 
-    assert(res.contains("HttpdLogItem(46.72.177.4,2015-12-12T18:31:08,POST,/administrator/index.php,HTTP/1.1,200,4494,\"http://almhuette-raith.at/administrator/\",\"Mozilla/5.0 (Windows NT 6.0; rv:34.0) Gecko/20100101 Firefox/34.0\")"))
+    assert(res.size == 11)
+
+    assert(res.count(x => x.method == "POST") == 5)
+    assert(res.count(x => x.method == "GET") == 6)
+
+    println(res.filter(_.ip == "109.184.11.34"))
+
+    assert(res.count { x =>
+      x.ip == "109.184.11.34" &&
+        x.method == "POST" &&
+        x.path == "/administrator/index.php" &&
+        x.version == "HTTP/1.1" &&
+        x.status == 200 &&
+        x.amountOfBytes == 4494 &&
+        x.referer == "\"http://almhuette-raith.at/administrator/\"" &&
+        x.userAgent == "\"Mozilla/5.0 (Windows NT 6.0; rv:34.0) Gecko/20100101 Firefox/34.0\""
+    } == 1)
   }
 
 }
 
-class MyPipelineObject extends PipelineObject[HttpdLogItem, StringType] {
-  override def transform(source: DataStream[HttpdLogItem]): DataStream[StringType] = {
-    source.map(x => StringType(x.toString))
+object ActiveRepoPushEventCollectSink {
+  var result: List[HttpdLogItem] = List()
+
+  def add(item: HttpdLogItem): Unit = this.synchronized {
+    result :+= item
+  }
+}
+
+class ActiveRepoPushEventCollectSink extends SinkFunction[HttpdLogItem] {
+
+  override def invoke(value: HttpdLogItem): Unit = {
+    ActiveRepoPushEventCollectSink.add(value)
   }
 }
 
