@@ -5,6 +5,9 @@ mainRunner/
 project/project/
 target/
 
+#remove documentation build
+site/
+
 */.idea/*
 .idea/*
 
