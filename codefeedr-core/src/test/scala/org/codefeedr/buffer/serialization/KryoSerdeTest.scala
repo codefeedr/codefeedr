@@ -23,11 +23,10 @@ import java.util.Date
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
+case class SimpleCaseClass(str: String, i: Int)
+case class ComplexCaseClass(str: String, i : Option[Int], l : List[Date])
+
 class KryoSerdeTest extends FunSuite with BeforeAndAfter {
-
-  private case class SimpleCaseClass(str: String, i: Int)
-  private case class ComplexCaseClass(str: String, i : Option[Int], l : List[Date])
-
   private var serde : KryoSerde[SimpleCaseClass] = _
   private var serde2 : KryoSerde[ComplexCaseClass] = _
 

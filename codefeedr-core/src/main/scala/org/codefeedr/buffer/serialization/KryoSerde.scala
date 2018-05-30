@@ -18,11 +18,20 @@
 
 package org.codefeedr.buffer.serialization
 
-import com.twitter.chill.{Input, KryoPool, Output, ScalaKryoInstantiator}
+import java.io.ByteArrayOutputStream
+
+import com.twitter.chill.{Input, Output, ScalaKryoInstantiator}
 
 import scala.reflect.runtime.universe._
 import scala.reflect.ClassTag
 
+/**
+  * Serializer using the Kryo serialization framework for fast and small results.
+  *
+  * Cannot be used on innerclasses
+  *
+  * @tparam T
+  */
 class KryoSerde[T <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
 
   /**
@@ -32,8 +41,7 @@ class KryoSerde[T <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
     * @return a serialized byte array.
     */
   override def serialize(element: T): Array[Byte] = {
-//    ScalaKryoInstantiator.defaultPool.toBytesWithClass(element)
-    val buffer = new Array[Byte](4096)
+    val buffer = new Array[Byte](KryoSerde.BUFFER_SIZE)
     val output = new Output(buffer)
     kryo.writeObject(output, element)
 
@@ -47,15 +55,10 @@ class KryoSerde[T <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
     * @param message the message to deserialized.
     * @return a deserialized case class.
     */
-  override def deserialize(message: Array[Byte]): T = {
-    val input = new Input(message)
+  override def deserialize(message: Array[Byte]): T =
+    kryo.readObject(new Input(message), inputClassType)
 
-    kryo.readObject(input, inputClassType)
-
-//    ScalaKryoInstantiator.defaultPool.fromBytes(message).asInstanceOf[T]
-  }
-
-  def kryo = {
+  private def kryo = {
     val inst = new ScalaKryoInstantiator
     inst.setRegistrationRequired(false)
     inst.newKryo()
@@ -63,5 +66,7 @@ class KryoSerde[T <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
 }
 
 object KryoSerde {
+  val BUFFER_SIZE = 4096
+
   def apply[T <: AnyRef : ClassTag : TypeTag]: KryoSerde[T] = new KryoSerde[T]()
 }
