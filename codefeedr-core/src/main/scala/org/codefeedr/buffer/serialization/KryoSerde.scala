@@ -14,47 +14,59 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 package org.codefeedr.buffer.serialization
 
-import java.nio.charset.StandardCharsets
+import java.io.ByteArrayOutputStream
 
-import org.json4s.NoTypeHints
-import org.json4s.ext.JavaTimeSerializers
-import org.json4s.jackson.Serialization
-import shapeless.HList
+import com.twitter.chill.{Input, Output, ScalaKryoInstantiator}
 
-import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
+import scala.reflect.ClassTag
 
-class JSONSerde[T <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
-
-  //implicit serialization format
-  implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
+/**
+  * Serializer using the Kryo serialization framework for fast and small results.
+  *
+  * Cannot be used on innerclasses
+  *
+  * @tparam T
+  */
+class KryoSerde[T <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
 
   /**
-    * Serializes a (generic) element into a json format.
+    * Serializes a (generic) element using Kryo.
     *
     * @param element the element to serialized.
     * @return a serialized byte array.
     */
   override def serialize(element: T): Array[Byte] = {
-    val string = Serialization.write(element)(formats)
-    string.getBytes(StandardCharsets.UTF_8)
+    val buffer = new Array[Byte](KryoSerde.BUFFER_SIZE)
+    val output = new Output(buffer)
+    kryo.writeObject(output, element)
+
+    buffer
   }
 
+
   /**
-    * Deserializes a (JSON) message into a (generic) case class
+    * Deserializes a Kryo message
     *
     * @param message the message to deserialized.
     * @return a deserialized case class.
     */
-  override def deserialize(message: Array[Byte]): T = {
-    Serialization.read[T](new String(message, StandardCharsets.UTF_8))
+  override def deserialize(message: Array[Byte]): T =
+    kryo.readObject(new Input(message), inputClassType)
+
+  private def kryo = {
+    val inst = new ScalaKryoInstantiator
+    inst.setRegistrationRequired(false)
+    inst.newKryo()
   }
 }
 
-object JSONSerde {
-  def apply[T <: AnyRef : ClassTag : TypeTag]: JSONSerde[T] = new JSONSerde[T]()
+object KryoSerde {
+  val BUFFER_SIZE = 4096
+
+  def apply[T <: AnyRef : ClassTag : TypeTag]: KryoSerde[T] = new KryoSerde[T]()
 }

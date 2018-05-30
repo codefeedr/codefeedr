@@ -52,8 +52,11 @@ lazy val core = (project in file("codefeedr-core"))
       dependencies.shapeless,
       dependencies.reflectLang,
 
-      //BSON serialization
-      dependencies.mongo
+      // BSON serialization
+      dependencies.mongo,
+
+      // Kryo serialization
+      dependencies.kryoChill
     )
   )
 
@@ -175,6 +178,8 @@ lazy val dependencies =
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
     val shapeless          = "com.chuusai"               %% "shapeless"                      % "2.3.3"
     val reflectLang        = "org.scala-lang"             % "scala-reflect"                  % "2.11.11"
+
+    val kryoChill          = "com.twitter"               %% "chill"                          % "0.9.1"
 
     val scalactic          = "org.scalactic"             %% "scalactic"                      % "3.0.1"           % Test
     val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.0.1"           % Test
