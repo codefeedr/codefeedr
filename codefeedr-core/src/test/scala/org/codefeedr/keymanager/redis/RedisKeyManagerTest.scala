@@ -5,7 +5,7 @@ import java.util.Date
 
 import com.redis.RedisClient
 import org.codefeedr.keymanager.KeyManagerTest
-import org.scalatest.{BeforeAndAfter, FunSuite, PrivateMethodTester}
+import org.scalatest.{BeforeAndAfter, PrivateMethodTester}
 
 class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://localhost:6379", "cf_test"))
   with BeforeAndAfter
