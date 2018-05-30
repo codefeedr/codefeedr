@@ -19,6 +19,7 @@ lazy val root = (project in file("."))
     pluginMongodb,
     pluginElasticSearch,
     pluginGitHub,
+    pluginTravis,
     pluginWeblogs
   )
 
@@ -49,8 +50,10 @@ lazy val core = (project in file("codefeedr-core"))
       // Avro serialization
       dependencies.avro,
       dependencies.shapeless,
-      dependencies.reflectLang
+      dependencies.reflectLang,
 
+      //BSON serialization
+      dependencies.mongo
     )
   )
 
@@ -110,6 +113,20 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
     core
   )
 
+lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
+  .settings(
+    name := projectPrefix + "travis",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.httpj
+    )
+  )
+  .dependsOn(
+    core,
+    pluginGitHub
+  )
+
 lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs"))
   .settings(
     name := projectPrefix + "weblogs",
@@ -125,44 +142,44 @@ lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs")
 
 lazy val dependencies =
   new {
-    val flinkVersion              = "1.4.2"
-    val json4sVersion             = "3.6.0-M2"
-    val log4jVersion              = "2.11.0"
-    val log4jScalaVersion         = "11.0"
+    val flinkVersion       = "1.4.2"
+    val json4sVersion      = "3.6.0-M2"
+    val log4jVersion       = "2.11.0"
+    val log4jScalaVersion  = "11.0"
 
 
-    val loggingApi                = "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion
-    val loggingCore               = "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion    % Runtime
-    val loggingScala              = "org.apache.logging.log4j"  %% "log4j-api-scala"                % log4jScalaVersion
+    val loggingApi         = "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion
+    val loggingCore        = "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion      % Runtime
+    val loggingScala       = "org.apache.logging.log4j"  %% "log4j-api-scala"                % log4jScalaVersion
 
-    val flink                     = "org.apache.flink"  %% "flink-scala"                            % flinkVersion    % Compile
-    val flinkStreaming            = "org.apache.flink"  %% "flink-streaming-scala"                  % flinkVersion    % Compile
-    val flinkKafka                = "org.apache.flink"  %% "flink-connector-kafka-0.11"             % flinkVersion    % Compile
-    val flinkAvro                 = "org.apache.flink"  %% "flink-avro"                             % flinkVersion
-    val flinkRuntimeWeb           = "org.apache.flink"  %% "flink-runtime-web"                      % flinkVersion
-    val flinkElasticSearch        = "org.apache.flink"  %% "flink-connector-elasticsearch5"         % flinkVersion
-    val flinkRabbitMQ             = "org.apache.flink"  %% "flink-connector-rabbitmq"               % flinkVersion
+    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Compile
+    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Compile
+    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka-0.11"     % flinkVersion      % Compile
+    val flinkAvro          = "org.apache.flink"          %% "flink-avro"                     % flinkVersion
+    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion
+    val flinkElasticSearch = "org.apache.flink"          %% "flink-connector-elasticsearch5" % flinkVersion
+    val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion
 
-    val redis                     = "net.debasishg"     %% "redisclient"                            % "3.6"
-    val kafkaClient               = "org.apache.kafka"   % "kafka-clients"                          % "1.0.0"
-    val zookeeper                 = "org.apache.zookeeper" % "zookeeper"                            % "3.4.9"
+    val redis              = "net.debasishg"             %% "redisclient"                    % "3.6"
+    val kafkaClient        = "org.apache.kafka"           % "kafka-clients"                  % "1.0.0"
+    val zookeeper          = "org.apache.zookeeper"       % "zookeeper"                      % "3.4.9"
 
-    val json4s                    = "org.json4s"        %% "json4s-scalap"                          % json4sVersion
-    val jackson                   = "org.json4s"        %% "json4s-jackson"                         % json4sVersion
-    val json4sExt                 = "org.json4s"        %% "json4s-ext"                             % json4sVersion
+    val json4s             = "org.json4s"                %% "json4s-scalap"                  % json4sVersion
+    val jackson            = "org.json4s"                %% "json4s-jackson"                 % json4sVersion
+    val json4sExt          = "org.json4s"                %% "json4s-ext"                     % json4sVersion
 
-    val mongo                     = "org.mongodb.scala" %% "mongo-scala-driver"                     % "2.3.0"
+    val mongo              = "org.mongodb.scala"         %% "mongo-scala-driver"             % "2.3.0"
 
-    val httpj                     = "org.scalaj"        %% "scalaj-http"                            % "2.4.0"
+    val httpj              = "org.scalaj"                %% "scalaj-http"                    % "2.4.0"
 
-    val avro                      = "org.apache.avro"   % "avro"                                    % "1.8.2"
-    val shapeless                 = "com.chuusai"       %% "shapeless"                              % "2.3.3"
-    val reflectLang               = "org.scala-lang"    % "scala-reflect"                           % "2.11.11"
+    val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
+    val shapeless          = "com.chuusai"               %% "shapeless"                      % "2.3.3"
+    val reflectLang        = "org.scala-lang"             % "scala-reflect"                  % "2.11.11"
 
-    val scalactic                 = "org.scalactic"     %% "scalactic"                              % "3.0.1"         % Test
-    val scalatest                 = "org.scalatest"     %% "scalatest"                              % "3.0.1"         % Test
-    val scalamock                 = "org.scalamock"     %% "scalamock"                              % "4.1.0"         % Test
-    val mockito                   = "org.mockito"        % "mockito-all"                            % "1.10.19"       % Test
+    val scalactic          = "org.scalactic"             %% "scalactic"                      % "3.0.1"           % Test
+    val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.0.1"           % Test
+    val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
+    val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
 
   }
 

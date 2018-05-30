@@ -19,6 +19,12 @@ class SerializerTest extends FunSuite {
     assert(serde.isInstanceOf[JSONSerde[Item]])
   }
 
+  test("Should recognise Bson") {
+    val serde = Serializer.getSerde[Item](Serializer.BSON)
+
+    assert(serde.isInstanceOf[BsonSerde[Item]])
+  }
+
   test("Should default to JSON") {
     val serde = Serializer.getSerde[Item]("YAML")
 
