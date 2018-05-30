@@ -24,7 +24,6 @@ import java.util.Date
 import org.codefeedr.keymanager.{KeyManager, ManagedKey}
 import org.mongodb.scala.{FindObservable, MongoClient, MongoCollection, SingleObservable}
 import org.mongodb.scala.model.Filters._
-import org.mongodb.scala.model.Sorts._
 import org.mongodb.scala.model.Updates._
 
 import scala.concurrent.Await
