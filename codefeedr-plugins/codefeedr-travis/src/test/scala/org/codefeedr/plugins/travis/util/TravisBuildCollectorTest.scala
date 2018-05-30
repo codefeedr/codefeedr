@@ -1,6 +1,6 @@
 package org.codefeedr.plugins.travis.util
 
-import java.time.LocalDateTime
+import java.util.Date
 
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.plugins.travis.TravisProtocol.TravisBuild
@@ -30,7 +30,7 @@ class TravisBuildCollectorTest extends FunSuite{
       "name",
       "branch",
       "42e494344aae63b0994bc26d05ac2f68e84cb40e",
-      LocalDateTime.MIN,
+      new Date(0L),
       travis,
       0)
 
@@ -53,7 +53,7 @@ class TravisBuildCollectorTest extends FunSuite{
       "name",
       "branch",
       "nonExistingSha",
-      LocalDateTime.MIN,
+      new Date(0L),
       travis,
       0)
 
@@ -73,7 +73,7 @@ class TravisBuildCollectorTest extends FunSuite{
       "name",
       "branch",
       "sha",
-      LocalDateTime.MIN,
+      new Date(0L),
       travis,
       0)
 
@@ -91,7 +91,7 @@ class TravisBuildCollectorTest extends FunSuite{
       "name",
       "branch",
       "sha",
-      LocalDateTime.MIN,
+      new Date(0L),
       travis,
       0)
 

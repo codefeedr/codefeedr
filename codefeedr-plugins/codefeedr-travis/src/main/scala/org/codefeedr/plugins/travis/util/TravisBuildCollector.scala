@@ -18,11 +18,13 @@
  */
 package org.codefeedr.plugins.travis.util
 
-import java.time.{LocalDateTime, ZoneId}
+import java.util.Date
+
 import org.codefeedr.plugins.travis.TravisProtocol.{TravisBuild, TravisBuilds}
 import org.codefeedr.plugins.travis.util.TravisExceptions._
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{blocking, Future}
+import scala.concurrent.{Future, blocking}
 
 /**
   * Class that keeps querying Travis about a certain push event until it is found.
@@ -39,12 +41,12 @@ class TravisBuildCollector(repoOwner: String,
                            repoName: String,
                            branchName: String,
                            pushCommitSha: String,
-                           pushDate: LocalDateTime,
+                           pushDate: Date,
                            travis: TravisService,
                            pollingInterval: Int = 30000,
                            timeoutSeconds: Int = 60) {
 
-  private var minimumStartDate: LocalDateTime = pushDate
+  private var minimumStartDate: Date = pushDate
   private var build: Option[TravisBuild] = None
 
 
@@ -72,8 +74,8 @@ class TravisBuildCollector(repoOwner: String,
     * Throws an exception if this is the case.
     */
   def checkIfBuildShouldBeKnownAlready(): Unit = {
-    val waitUntil = pushDate.plusSeconds(timeoutSeconds)
-    if (build.isEmpty && waitUntil.isBefore(LocalDateTime.now())) {
+    val waitUntil = new Date(pushDate.getTime + timeoutSeconds)
+    if (build.isEmpty && new Date().after(waitUntil)) {
       throw BuildNotFoundForTooLongException("Waited " + timeoutSeconds + " seconds for build, but still not found" +
         ", probably because " + repoOwner + "/" + repoName + "is not active on Travis")
     }
@@ -125,7 +127,7 @@ class TravisBuildCollector(repoOwner: String,
     * @return A TravisBuild if it is found, None otherwise
     */
   def requestUnknownBuild(): Option[TravisBuild] = {
-    var newestBuildDate: LocalDateTime = LocalDateTime.MIN
+    var newestBuildDate: Date = new Date(0L)
     var builds: TravisBuilds = null
 
     do {
@@ -143,12 +145,12 @@ class TravisBuildCollector(repoOwner: String,
         }
         // If a build has started before the earliest possible that for the target build then stop looking for it
         // and update the the minimum start date
-        else if (x.started_at.getOrElse(LocalDateTime.MAX).isBefore(minimumStartDate)) {
+        else if (x.started_at.getOrElse(new Date(Long.MaxValue)).before(minimumStartDate)) {
           minimumStartDate = newestBuildDate
           return None
         }
         // Remember the time at which the latest build has started
-        else if (x.started_at.isDefined && x.started_at.get.isAfter(newestBuildDate)) {
+        else if (x.started_at.isDefined && x.started_at.get.after(newestBuildDate)) {
           newestBuildDate = x.started_at.get
         }
       }

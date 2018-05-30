@@ -18,8 +18,7 @@
  */
 package org.codefeedr.buffer
 
-import java.time.LocalDateTime
-import java.util.{Properties, UUID}
+import java.util.{Date, Properties, UUID}
 
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
@@ -80,4 +79,4 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
 
 }
 
-case class TestEvent(name: String, time: LocalDateTime) extends PipelineItem
+case class TestEvent(name: String, time: Date) extends PipelineItem

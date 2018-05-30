@@ -208,4 +208,5 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
 
     exposer
   }
+
 }
