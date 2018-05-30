@@ -18,9 +18,7 @@
  */
 package org.codefeedr.plugins.weblogs.stages
 
-import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, ZoneId}
-
+import java.text.SimpleDateFormat
 import org.apache.flink.api.common.functions.FlatMapFunction
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector
@@ -40,19 +38,19 @@ class HttpdLogInput(absolutePath: String, stageAttributes: StageAttributes = Sta
       .setParallelism(1)
       .flatMap(_.split('\n'))
       .flatMap(new LogMapper())
-      .assignAscendingTimestamps(_.date.atZone(ZoneId.systemDefault()).toEpochSecond)
+      .assignAscendingTimestamps(_.date.getTime / 1000)
   }
 
 }
 
 private class LogMapper extends FlatMapFunction[String, HttpdLogItem] {
 
-  lazy val dateFormatter = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z")
+  lazy val dateFormat = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z")
   lazy val pattern = """^(\S+) \S+ \S+ \[([\w:\/]+\s[+\-]\d{4})\] "(\S+)\s+(\S+)\s+(\S+)?\s*" (\d{3}) (\S+) ("[^"]*") ("[^"]*") ("[^"]*")""".r
 
   def flatMap(line: String, out: Collector[HttpdLogItem]): Unit = line match {
     case pattern(ipAddress, dateString, method, path, version, status, amountOfBytes, referer, userAgent, _*) => {
-      val date = LocalDateTime.parse(dateString, dateFormatter)
+      val date = dateFormat.parse(dateString)
       val amountOfBytesInt = if (amountOfBytes != "-") amountOfBytes.toInt else -1
 
       out.collect(HttpdLogItem(ipAddress, date, method, path, version, status.toInt, amountOfBytesInt, referer, userAgent))

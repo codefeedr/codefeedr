@@ -18,8 +18,7 @@
  */
 package org.codefeedr.plugins.github
 
-
-import java.time.LocalDateTime
+import java.util.Date
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.apache.avro.Schema
@@ -39,7 +38,7 @@ object GitHubProtocol {
                    organization: Option[Organization],
                    payload: String,
                    public: Boolean,
-                   created_at: LocalDateTime) extends PipelineItem
+                   created_at: Date) extends PipelineItem
 
   case class Actor(id: Long,
                    login: String,
@@ -72,7 +71,7 @@ object GitHubProtocol {
                        organization: Option[Organization],
                        payload: PushPayload,
                        public: Boolean,
-                       created_at: LocalDateTime) extends PipelineItem
+                       created_at: Date) extends PipelineItem
 
   case class PushPayload(push_id: Long,
                          size: Int,
@@ -104,7 +103,7 @@ object GitHubProtocol {
                          organization: Option[Organization],
                          payload: IssuesPayload,
                          public: Boolean,
-                         created_at: LocalDateTime) extends PipelineItem
+                         created_at: Date) extends PipelineItem
 
   case class IssuesPayload(action: String,
                            issue: Issue) extends Payload
@@ -121,9 +120,9 @@ object GitHubProtocol {
                    assignees: List[User],
                    milestone: Option[String],
                    comments: Double,
-                   created_at: Option[LocalDateTime],
-                   updated_at: Option[LocalDateTime],
-                   closed_at: Option[LocalDateTime],
+                   created_at: Option[Date],
+                   updated_at: Option[Date],
+                   closed_at: Option[Date],
                    author_association: String,
                    body: Option[String])
 
@@ -147,7 +146,7 @@ object GitHubProtocol {
                                organization: Option[Organization],
                                payload: IssueCommentPayload,
                                public: Boolean,
-                               created_at: LocalDateTime) extends PipelineItem
+                               created_at: Date) extends PipelineItem
 
   case class IssueCommentPayload(action: String,
                                  issue: Issue,
@@ -156,8 +155,8 @@ object GitHubProtocol {
   case class Comment(url: String,
                      id: Long,
                      user: User,
-                     created_at: Option[LocalDateTime],
-                     updated_at: Option[LocalDateTime],
+                     created_at: Option[Date],
+                     updated_at: Option[Date],
                      author_association: String,
                      body: Option[String])
 

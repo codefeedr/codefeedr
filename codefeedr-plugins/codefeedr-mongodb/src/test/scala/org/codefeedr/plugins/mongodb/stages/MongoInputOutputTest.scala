@@ -17,8 +17,8 @@
  */
 package org.codefeedr.plugins.mongodb.stages
 
-import java.time.{LocalDateTime, ZoneId}
 import java.util
+import java.util.Date
 
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
@@ -30,6 +30,8 @@ import org.codefeedr.plugins.mongodb.MongoQuery
 import org.codefeedr.stages.utilities.{SeqInput, StringInput, StringType}
 import org.mongodb.scala.MongoClient
 import org.scalatest.FunSuite
+import java.util.Calendar
+import java.util.GregorianCalendar
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
@@ -102,7 +104,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
     val pipeline = new PipelineBuilder()
       .append(new StringInput(longString))
-      .append { e: DataStream[StringType] => e.assignAscendingTimestamps(_ => LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond) }
+      .append { e: DataStream[StringType] => e.assignAscendingTimestamps(_ => new Date().getTime / 1000) }
       .append(new MongoOutput[StringType]("db", "collection"))
       .build()
 
@@ -128,14 +130,16 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     clearDatabase()
 
     val list = Seq[TestEvent](
-      TestEvent("klaas", LocalDateTime.of(1998, 6, 1, 0, 0)),
-      TestEvent("nagellak", LocalDateTime.of(1999, 9, 1, 0, 0)),
-      TestEvent("verdieping", LocalDateTime.of(1997, 9, 12, 0, 0))
+
+
+      TestEvent("klaas", new GregorianCalendar(1998, Calendar.JUNE, 1).getTime),
+      TestEvent("nagellak", new GregorianCalendar(1998, Calendar.SEPTEMBER, 1).getTime),
+      TestEvent("verdieping", new GregorianCalendar(1997, Calendar.SEPTEMBER, 12).getTime)
     )
 
     val pipeline = new PipelineBuilder()
       .append(new SeqInput[TestEvent](list))
-      .append { e: DataStream[TestEvent] => e.assignAscendingTimestamps(x => x.time.atZone(ZoneId.systemDefault()).toEpochSecond) }
+      .append { e: DataStream[TestEvent] => e.assignAscendingTimestamps(x => x.time.getTime / 1000) }
       .append(new MongoOutput[TestEvent]("db", "collection"))
       .build()
 
@@ -145,7 +149,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
   test("Can filter on event time (2)") {
     TestEventCollectSink.reset()
 
-    val query = MongoQuery.from(LocalDateTime.of(1998, 1, 1, 0, 0))
+    val query = MongoQuery.from(new GregorianCalendar(1998, Calendar.JANUARY, 1).getTime)
 
     val pipeline = new PipelineBuilder()
       .append(new MongoInput[TestEvent]("db", "collection", "mongodb://localhost:27017", query))
@@ -162,7 +166,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
 }
 
-case class TestEvent(name: String, time: LocalDateTime) extends PipelineItem
+case class TestEvent(name: String, time: Date) extends PipelineItem
 
 object StringCollectSink {
   var result = new util.ArrayList[String]() //mutable list
