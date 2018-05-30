@@ -22,8 +22,10 @@ import java.net.URI
 import java.util.Date
 
 import org.codefeedr.keymanager.{KeyManager, ManagedKey}
-import org.mongodb.scala.{MongoClient, MongoCollection, SingleObservable}
+import org.mongodb.scala.{FindObservable, MongoClient, MongoCollection, SingleObservable}
 import org.mongodb.scala.model.Filters._
+import org.mongodb.scala.model.Sorts._
+import org.mongodb.scala.model.Updates._
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -31,6 +33,7 @@ import org.mongodb.scala.bson.codecs.Macros._
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.bson.collection.immutable.Document
+import org.mongodb.scala.model.{UpdateOneModel, WriteModel}
 
 /**
   * Key manager implementation using mongoDB as a backend.
@@ -52,7 +55,8 @@ class MongoKeyManager(database: String = "db",
 
     // Find the best fitting key
     val search = and(equal("target", target), gte("numCallsLeft", numberOfCalls))
-    val update = Document("$inc" -> Document("numCallsLeft" -> -numberOfCalls))
+    val update = inc("numCallsLeft", -numberOfCalls)
+
     val action = getCollection
         .findOneAndUpdate(search, update)
 
@@ -67,42 +71,52 @@ class MongoKeyManager(database: String = "db",
   }
 
   def refreshKeys(target: String): Unit = {
-    // TODO
+    val col = getCollection
+    val now = new Date()
+
+    // For target, get all keys that can be refreshed
+    val toRefresh = awaitMany(col.find(and(equal("target", target), lt("refreshTime", now))))
+
+    val updates: Seq[WriteModel[_ <: MongoManagedKey]] = toRefresh.map { managedKey =>
+      // Find next date in the future
+      var newTime = managedKey.refreshTime.getTime
+      while (newTime < now.getTime) {
+        newTime += managedKey.interval
+      }
+
+      UpdateOneModel(
+        Document("_id" -> managedKey._id),
+        combine(
+          set("numCallsLeft", managedKey.limit),
+          set("refreshTime", new Date(newTime))
+        )
+      )
+    }
+
+    if (updates.nonEmpty) {
+      await(col.bulkWrite(updates))
+    }
   }
 
+  /**
+    * Waits syncronously on the result of an observable with a single result.
+    *
+    * @param value Observable
+    * @tparam T Type of result
+    * @return Result
+    */
   private def await[T](value: SingleObservable[T]) =
     Await.result(value.toFuture(), Duration.Inf)
 
   /**
-    * Add a key to the key manager
+    * Waits syncronously on the result of an observable with many results.
     *
-    * @param target Target
-    * @param key The key
-    * @param limit Number of calls per interval
-    * @param interval Interval of key refreshes
-    * @param refreshTime Next refresh time
-    * @return
+    * @param value Observable
+    * @tparam T Type of result in the list
+    * @return List of result
     */
-  def add(target: String, key: String, limit: Int, interval: Int, refreshTime: Date): Unit = {
-    val col = getCollection
-
-    val managedKey = MongoManagedKey(target, key, limit, limit, interval, refreshTime)
-
-    await(getCollection.insertOne(managedKey))
-  }
-
-  /**
-    * Clear all keys from a target.
-    * @param target
-    */
-  def clear(target: String): Unit =
-    await(getCollection.deleteMany(equal("target", target)))
-
-  /**
-    * Clear the whole key manager.
-    */
-  def clear(): Unit =
-    await(getCollection.drop())
+  private def awaitMany[T](value: FindObservable[T]) =
+    Await.result(value.toFuture(), Duration.Inf)
 
   /**
     * Get the mongo collection.
@@ -118,4 +132,38 @@ class MongoKeyManager(database: String = "db",
 
     databaseObject.getCollection(collection)
   }
+
+  /**
+    * Add a key to the key manager
+    *
+    * @param target Target
+    * @param key The key
+    * @param limit Number of calls per interval
+    * @param interval Interval of key refreshes in ms
+    * @param refreshTime Next refresh time
+    * @return
+    */
+  private[mongodb] def add(target: String, key: String, limit: Int, interval: Int, refreshTime: Date = null): Unit = {
+    val time = if (refreshTime == null) {
+      new Date(new Date().getTime() + interval)
+    } else
+      refreshTime
+
+    val managedKey = MongoManagedKey(target, key, limit, limit, interval, time)
+
+    await(getCollection.insertOne(managedKey))
+  }
+
+  /**
+    * Clear all keys from a target.
+    * @param target
+    */
+  private[mongodb] def clear(target: String): Unit =
+    await(getCollection.deleteMany(equal("target", target)))
+
+  /**
+    * Clear the whole key manager.
+    */
+  private[mongodb] def clear(): Unit =
+    await(getCollection.drop())
 }

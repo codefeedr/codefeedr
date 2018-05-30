@@ -44,7 +44,7 @@ class MongoKeyManagerTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Should update number of calls left") {
-    km.add("github", "myKey", 10, 60, new Date())
+    km.add("github", "myKey", 10, 60000)
 
     km.request("github", 1)
     val key = km.request("github", 1)
@@ -82,5 +82,44 @@ class MongoKeyManagerTest extends FunSuite with BeforeAndAfter {
     assertThrows[IllegalArgumentException] {
       km.request(null, 1)
     }
+  }
+
+  test("Keys should refresh after interval") {
+    km.add("testTarget", "testKey", 10, 500)
+
+    km.request("testTarget", 3)
+
+    // Wait 2 seconds to make the keys pass
+    Thread.sleep(2000)
+
+    val key = km.request(target = "testTarget", numberOfCalls = 8)
+
+    assert(key.isDefined)
+    assert(key.get.value == "testKey")
+  }
+
+  test("Refreshing should reset number of calls to limit") {
+    km.add("testTarget", "testKey", 15, 500)
+    km.request("testTarget", 15)
+
+    Thread.sleep(2000)
+
+    // Refresh is only needed after new key
+    val key = km.request("testTarget", 1)
+
+    assert(key.isDefined)
+    assert(key.get.remainingCalls == (15 - 1))
+  }
+
+  test("Should give key when multiple are in the list (with refresh)") {
+    km.add("testTarget", "testKey", 10, 500)
+    km.add("testTarget", "testKey2", 10, 500)
+
+    Thread.sleep(1000)
+
+    val key = km.request(target = "testTarget", numberOfCalls = 8)
+
+    assert(key.isDefined)
+    assert(key.get.value == "testKey" || key.get.value == "testKey2")
   }
 }
