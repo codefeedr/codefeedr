@@ -205,7 +205,7 @@ lazy val commonSettings = Seq(
 //  organization := "org.codefeedr",
 //  version := "0.1.0-SNAPSHOT",
 //  scalaVersion := "2.11.11",
-
+  test in assembly := {},
   scalacOptions ++= compilerOptions,
   resolvers ++= Seq(
     "confluent"                               at "http://packages.confluent.io/maven/",
