@@ -39,6 +39,12 @@ object Serializer {
   val JSON = "JSON"
 
   /**
+    * BSON serde support.
+    * See: http://bsonspec.org/
+    */
+  val BSON = "BSON"
+
+  /**
     * Retrieve a serde.
     *
     * Default is JSONSerde.
@@ -49,6 +55,7 @@ object Serializer {
   def getSerde[T <: AnyRef : ClassTag : TypeTag : AvroSerde](name: String) = name match {
     case "AVRO" => AvroSerde[T]
     case "JSON" => JSONSerde[T]
+    case "BSON" => BsonSerde[T]
     case _ => JSONSerde[T] //default is JSON
   }
 
