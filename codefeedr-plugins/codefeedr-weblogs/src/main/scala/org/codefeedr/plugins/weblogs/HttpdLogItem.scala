@@ -18,7 +18,7 @@
  */
 package org.codefeedr.plugins.weblogs
 
-import java.time.LocalDateTime
+import java.util.Date
 
 import org.codefeedr.pipeline.PipelineItem
 
@@ -35,7 +35,7 @@ import org.codefeedr.pipeline.PipelineItem
   * @param userAgent Information about the user agent that made the request
   */
 case class HttpdLogItem(ip: String,
-                        date: LocalDateTime,
+                        date: Date,
                         method: String,
                         path: String,
                         version: String,

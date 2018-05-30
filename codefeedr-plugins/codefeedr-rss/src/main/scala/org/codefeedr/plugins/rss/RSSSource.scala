@@ -18,9 +18,10 @@
  */
 package org.codefeedr.plugins.rss
 
+import java.text.SimpleDateFormat
+
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 import org.apache.logging.log4j.scala.Logging
@@ -81,10 +82,10 @@ class RSSSource(url: String,
     items
       .filter((x: RSSItem) => {
         if (lastItem.isDefined)
-          lastItem.get.pubDate.isBefore(x.pubDate) && lastItem.get.guid != x.guid
+          lastItem.get.pubDate.before(x.pubDate) && lastItem.get.guid != x.guid
         else
           true
-      }).sortWith((x: RSSItem, y: RSSItem) => x.pubDate.isBefore(y.pubDate))
+      }).sortWith((x: RSSItem, y: RSSItem) => x.pubDate.before(y.pubDate))
   }
 
   /**
@@ -146,8 +147,8 @@ class RSSSource(url: String,
     val link = (node \ "link").text
     val guid = (node \ "guid").text
 
-    val formatter = DateTimeFormatter.ofPattern(dateFormat)
-    val pubDate = LocalDateTime.parse((node \ "pubDate").text, formatter)
+    val formatter = new SimpleDateFormat(dateFormat)
+    val pubDate = formatter.parse((node \ "pubDate").text)
 
     RSSItem(title, description, link, pubDate, guid)
   }
@@ -165,7 +166,7 @@ class RSSSource(url: String,
     * Wait a certain amount of times the polling interval
     * @param times Times the polling interval should be waited
     */
-  def waitPollingInterval(times: Int = 1) = {
+  def waitPollingInterval(times: Int = 1): Unit = {
     Thread.sleep(times * pollingInterval)
   }
 
