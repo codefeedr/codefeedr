@@ -23,20 +23,20 @@ import java.util.Date
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-case class SimpleCaseClass(str: String, i: Int)
-case class ComplexCaseClass(str: String, i : Option[Int], l : List[Date])
+case class KryoSimpleCaseClass(str: String, i: Int)
+case class KryoComplexCaseClass(str: String, i : Option[Int], l : List[Date])
 
 class KryoSerdeTest extends FunSuite with BeforeAndAfter {
-  private var serde : KryoSerde[SimpleCaseClass] = _
-  private var serde2 : KryoSerde[ComplexCaseClass] = _
+  private var serde : KryoSerde[KryoSimpleCaseClass] = _
+  private var serde2 : KryoSerde[KryoComplexCaseClass] = _
 
   before {
-    serde = KryoSerde[SimpleCaseClass]
-    serde2 = KryoSerde[ComplexCaseClass]
+    serde = KryoSerde[KryoSimpleCaseClass]
+    serde2 = KryoSerde[KryoComplexCaseClass]
   }
 
   test ("Deserializes complex serialized values") {
-    val value = ComplexCaseClass("hello", Some(42), List(new Date, new Date))
+    val value = KryoComplexCaseClass("hello", Some(42), List(new Date, new Date))
 
     val serialized = serde2.serialize(value)
     val deserialized = serde2.deserialize(serialized)
@@ -45,7 +45,7 @@ class KryoSerdeTest extends FunSuite with BeforeAndAfter {
   }
 
   test ("Deserializes complex serialized values 2") {
-    val value = ComplexCaseClass("hello", None, List())
+    val value = KryoComplexCaseClass("hello", None, List())
 
     val serialized = serde2.serialize(value)
     val deserialized = serde2.deserialize(serialized)
@@ -54,7 +54,7 @@ class KryoSerdeTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Deserializes simple serialized values") {
-    val value = SimpleCaseClass("hello", 42)
+    val value = KryoSimpleCaseClass("hello", 42)
 
     val serialized = serde.serialize(value)
     val deserialized = serde.deserialize(serialized)
@@ -63,7 +63,7 @@ class KryoSerdeTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Simple typeinformation check") {
-    val typeInformation = TypeInformation.of(classOf[SimpleCaseClass])
+    val typeInformation = TypeInformation.of(classOf[KryoSimpleCaseClass])
 
     assert(typeInformation == serde.getProducedType)
   }
