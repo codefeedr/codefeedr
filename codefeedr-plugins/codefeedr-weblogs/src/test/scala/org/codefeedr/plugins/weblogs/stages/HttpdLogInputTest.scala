@@ -45,9 +45,7 @@ class HttpdLogInputTest extends FunSuite with BeforeAndAfter {
 
     assert(res.count(x => x.method == "POST") == 5)
     assert(res.count(x => x.method == "GET") == 6)
-
-    println(res.filter(_.ip == "109.184.11.34"))
-
+    
     assert(res.count { x =>
       x.ip == "109.184.11.34" &&
         x.method == "POST" &&
