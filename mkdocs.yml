@@ -1,6 +1,7 @@
 site_name: Documentation
 theme:
-  name: 'material'
+  name: null
+  custom_dir: 'docs/theme'
 pages:
 - Home: 'index.md'
 - Getting Started: 'getting_started.md'
