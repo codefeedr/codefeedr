@@ -2,6 +2,7 @@ site_name: CodeFeedr
 theme:
   name: null
   custom_dir: 'docs/theme'
+theme_dir: 'docs/theme'
 repo_name: 'joskuijpers/bep_codefeedr'
 repo_url: 'https://github.com/joskuijpers/bep_codefeedr'
 pages:
