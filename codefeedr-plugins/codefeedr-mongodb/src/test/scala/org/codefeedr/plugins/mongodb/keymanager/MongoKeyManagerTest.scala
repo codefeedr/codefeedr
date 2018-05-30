@@ -18,7 +18,9 @@
 
 package org.codefeedr.plugins.mongodb.keymanager
 
+import java.net.URI
 import java.util.Date
+import java.util.concurrent.TimeoutException
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
@@ -121,5 +123,14 @@ class MongoKeyManagerTest extends FunSuite with BeforeAndAfter {
 
     assert(key.isDefined)
     assert(key.get.value == "testKey" || key.get.value == "testKey2")
+  }
+
+  test("Should use server argument") {
+    val km = new MongoKeyManager("myDb", "myCol", new URI("mongodb://myServer:12345"))
+
+    // Throws due to no-connection
+    assertThrows[TimeoutException] {
+      km.request("x", 1)
+    }
   }
 }

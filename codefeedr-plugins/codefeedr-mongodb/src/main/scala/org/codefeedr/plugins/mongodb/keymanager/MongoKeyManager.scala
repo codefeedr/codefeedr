@@ -69,7 +69,12 @@ class MongoKeyManager(database: String = "db",
     Some(ManagedKey(result.key, result.numCallsLeft - numberOfCalls))
   }
 
-  def refreshKeys(target: String): Unit = {
+  /**
+    * Refreshes all keys of the target that need refreshing.
+    *
+    * @param target Target
+    */
+  private def refreshKeys(target: String): Unit = {
     val col = getCollection
     val now = new Date()
 
@@ -105,7 +110,7 @@ class MongoKeyManager(database: String = "db",
     * @return Result
     */
   private def await[T](value: SingleObservable[T]) =
-    Await.result(value.toFuture(), Duration.Inf)
+    Await.result(value.toFuture(), Duration("10s"))
 
   /**
     * Waits syncronously on the result of an observable with many results.
@@ -115,7 +120,7 @@ class MongoKeyManager(database: String = "db",
     * @return List of result
     */
   private def awaitMany[T](value: FindObservable[T]) =
-    Await.result(value.toFuture(), Duration.Inf)
+    Await.result(value.toFuture(), Duration("10s"))
 
   /**
     * Get the mongo collection.
