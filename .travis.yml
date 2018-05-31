@@ -47,7 +47,7 @@ deploy:
   provider: script
   script: sbt publish
   on:
-    branch: improvement/artifactory
+    branch: develop
 
 notifications:
   email: false
