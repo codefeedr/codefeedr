@@ -67,7 +67,6 @@ lazy val pluginRss = (project in file("codefeedr-plugins/codefeedr-rss"))
       dependencies.httpj
     )
   )
-  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
@@ -81,7 +80,6 @@ lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb")
       dependencies.mongo
     )
   )
-  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
@@ -95,7 +93,6 @@ lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-ela
       dependencies.flinkElasticSearch
     )
   )
-  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
@@ -113,7 +110,6 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
       dependencies.json4sExt
     )
   )
-  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
@@ -127,7 +123,6 @@ lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
       dependencies.httpj
     )
   )
-  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core,
     pluginGitHub
@@ -141,7 +136,6 @@ lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs")
     libraryDependencies ++= commonDependencies ++ Seq(
     )
   )
-  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
