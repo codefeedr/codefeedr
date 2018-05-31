@@ -255,5 +255,5 @@ Global / cancelable := true
 assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
 
 // Deploying
-publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-release")
+publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-dev")
 credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))
