@@ -38,7 +38,7 @@ import org.codefeedr.stages.InputStage
   */
 class GitHubEventsInput(numOfPolls : Int = -1,
                         waitTime : Int = 1000,
-                        duplicateFilter: Boolean = false,
+                        duplicateFilter: Boolean = true,
                         duplicateCheckSize : Int = 1000000) extends InputStage[Event] {
 
   /**
