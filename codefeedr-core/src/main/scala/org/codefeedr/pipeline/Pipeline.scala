@@ -35,17 +35,18 @@ case class Pipeline(bufferType: BufferType,
                     keyManager: KeyManager,
                     objectProperties: Map[String, Properties]) {
   var _environment: StreamExecutionEnvironment = _
-  //StreamExecutionEnvironment.getExecutionEnvironment
-
-//  val environment: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
   val environment: StreamExecutionEnvironment = {
     if (_environment == null) {
-      val conf = new Configuration()
+      if (false) {
+        val conf = new Configuration()
 
-      conf.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true)
+        conf.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true)
 
-      _environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf)
+        _environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf)
+      } else {
+        _environment = StreamExecutionEnvironment.getExecutionEnvironment
+      }
 
       _environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
     }
