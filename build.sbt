@@ -27,6 +27,7 @@ lazy val core = (project in file("codefeedr-core"))
   .settings(
     name := projectPrefix + "core",
     settings,
+    assemblySettings,
     unmanagedBase := baseDirectory.value / "../lib",
     libraryDependencies ++= commonDependencies ++ Seq(
       // JSONBuffer
@@ -66,6 +67,7 @@ lazy val pluginRss = (project in file("codefeedr-plugins/codefeedr-rss"))
       dependencies.httpj
     )
   )
+  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
@@ -79,6 +81,7 @@ lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb")
       dependencies.mongo
     )
   )
+  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
@@ -92,6 +95,7 @@ lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-ela
       dependencies.flinkElasticSearch
     )
   )
+  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
@@ -109,6 +113,7 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
       dependencies.json4sExt
     )
   )
+  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
@@ -122,6 +127,7 @@ lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
       dependencies.httpj
     )
   )
+  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core,
     pluginGitHub
@@ -135,6 +141,7 @@ lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs")
     libraryDependencies ++= commonDependencies ++ Seq(
     )
   )
+  .disablePlugins(AssemblyPlugin)
   .dependsOn(
     core
   )
@@ -205,13 +212,13 @@ lazy val commonSettings = Seq(
 //  organization := "org.codefeedr",
 //  version := "0.1.0-SNAPSHOT",
 //  scalaVersion := "2.11.11",
-
   scalacOptions ++= compilerOptions,
   resolvers ++= Seq(
     "confluent"                               at "http://packages.confluent.io/maven/",
     "Apache Development Snapshot Repository"  at "https://repository.apache.org/content/repositories/snapshots/",
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
-    Resolver.mavenLocal
+    Resolver.mavenLocal,
+    "Artifactory" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-release/"
   )
 )
 
@@ -229,9 +236,13 @@ lazy val compilerOptions = Seq(
 
 lazy val assemblySettings = Seq(
   assemblyJarName in assembly := name.value + ".jar",
+  test in assembly := {},
   assemblyMergeStrategy in assembly := {
-    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-    case _                             => MergeStrategy.first
+    case PathList("META-INF", xs @ _*)  => MergeStrategy.discard
+    case "log4j.properties"             => MergeStrategy.first
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
   }
 )
 
@@ -249,3 +260,7 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
+
+// Deploying
+publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-release")
+credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))
