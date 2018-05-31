@@ -19,7 +19,6 @@
 package org.codefeedr.stages
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.buffer.serialization.{AvroSerde}
 import org.codefeedr.pipeline.{NoType, PipelineItem, PipelineObject}
 
 import scala.reflect.{ClassTag, Manifest}
@@ -32,7 +31,7 @@ import scala.reflect.runtime.universe._
   *
   * @tparam Out the output type of the job.
   */
-abstract class InputStage[Out <: PipelineItem : ClassTag : TypeTag : AvroSerde](attributes: StageAttributes = StageAttributes()) extends PipelineObject[NoType, Out](attributes) {
+abstract class InputStage[Out <: PipelineItem : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject[NoType, Out](attributes) {
 
   override def transform(source: DataStream[NoType]): DataStream[Out] = {
     main()

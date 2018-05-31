@@ -21,11 +21,9 @@ package org.codefeedr.plugins.github
 import java.util.Date
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.apache.avro.Schema
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.Payload
 import org.json4s.JObject
-import shapeless.datatype.avro.AvroType
 
 object GitHubProtocol {
   /**

@@ -20,7 +20,6 @@ package org.codefeedr.stages.utilities
 
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.buffer.serialization.{AvroSerde}
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.OutputStage
 import org.json4s._
@@ -29,7 +28,7 @@ import org.json4s.jackson.Serialization
 import scala.reflect.{ClassTag, Manifest}
 import scala.reflect.runtime.universe._
 
-class JsonPrinterOutput[T <: PipelineItem : ClassTag : TypeTag :  AvroSerde] extends OutputStage[T] {
+class JsonPrinterOutput[T <: PipelineItem : ClassTag : TypeTag] extends OutputStage[T] {
 
   override def main(source: DataStream[T]): Unit = {
     source

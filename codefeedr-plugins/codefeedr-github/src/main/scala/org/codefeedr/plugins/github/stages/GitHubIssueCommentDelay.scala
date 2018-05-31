@@ -18,22 +18,17 @@
  */
 package org.codefeedr.plugins.github.stages
 
-import java.time.ZoneOffset
-import java.time.temporal.ChronoUnit
-import java.util.{Date, TimeZone}
+import java.util.Date
 
-import org.apache.avro.Schema
 import org.apache.flink.api.common.functions.JoinFunction
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.api.windowing.assigners.{EventTimeSessionWindows, TumblingEventTimeWindows}
+import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.{IssueCommentEvent, IssuesEvent}
 import org.apache.flink.api.scala._
-import org.codefeedr.plugins.github._
 import org.codefeedr.stages.TransformStage2
-import shapeless.datatype.avro.AvroType
 
 case class IssueOpenedReply(id: Double,
                             secondsDelay: Long) extends PipelineItem

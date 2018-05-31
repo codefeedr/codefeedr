@@ -18,7 +18,6 @@
  */
 package org.codefeedr.buffer.serialization.schema_exposure
 
-import org.apache.avro.Schema
 import org.apache.zookeeper._
 import collection.JavaConverters._
 
@@ -65,23 +64,24 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     * @param subject the subject belonging to that schema.
     * @return true if correctly saved.
     */
-  override def put(schema: Schema, subject: String): Boolean = {
-    val path = s"$root/$subject"
-
-    //check if already exist, if so update data
-    val exists = client.exists(path, false)
-    if (exists != null) {
-      client.setData(path, schema.toString(true).getBytes(), -1)
-      return true
-    }
-
-    //create new node and set if it doesn't exist
-    val createdPath = client.create(path,
-      schema.toString(true).getBytes,
-      ZooDefs.Ids.OPEN_ACL_UNSAFE,
-      CreateMode.PERSISTENT)
-
-    path == createdPath
+  override def put(schema: AnyRef, subject: String): Boolean = {
+//    val path = s"$root/$subject"
+//
+//    //check if already exist, if so update data
+//    val exists = client.exists(path, false)
+//    if (exists != null) {
+//      client.setData(path, schema.toString(true).getBytes(), -1)
+//      return true
+//    }
+//
+//    //create new node and set if it doesn't exist
+//    val createdPath = client.create(path,
+//      schema.toString(true).getBytes,
+//      ZooDefs.Ids.OPEN_ACL_UNSAFE,
+//      CreateMode.PERSISTENT)
+//
+//    path == createdPath
+    false
   }
 
   /**
@@ -90,7 +90,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     * @param subject the subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
-  override def get(subject: String): Option[Schema] = {
+  override def get(subject: String): Option[AnyRef] = {
     try {
       //get the data from ZK
       val data = client.getData(s"$root/$subject", null, null)

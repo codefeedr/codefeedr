@@ -24,7 +24,6 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.rabbitmq.{RMQSink, RMQSource}
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
-import org.codefeedr.buffer.serialization.AvroSerde
 import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.stages.StageAttributes
 
@@ -47,7 +46,7 @@ object RabbitMQBuffer {
   * @param queueName Name of the RabbitMQ queue to read from/write to
   * @tparam T Element type of the buffer
   */
-class RabbitMQBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, queueName: String)
+class RabbitMQBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, queueName: String)
   extends Buffer[T](pipeline, properties) {
 
   private object RabbitMQBufferDefaults {

@@ -49,11 +49,6 @@ lazy val core = (project in file("codefeedr-core"))
       // Schema exposure
       dependencies.zookeeper,
 
-      // Avro serialization
-      dependencies.avro,
-      dependencies.shapeless,
-      dependencies.reflectLang,
-
       //BSON serialization
       dependencies.mongo
     )
@@ -157,8 +152,7 @@ lazy val dependencies =
     val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided
     val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Provided
     val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka-0.11"     % flinkVersion      % Provided
-    val flinkAvro          = "org.apache.flink"          %% "flink-avro"                     % flinkVersion
-    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion
+    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion      % Provided
     val flinkElasticSearch = "org.apache.flink"          %% "flink-connector-elasticsearch5" % flinkVersion
     val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion
 
@@ -173,10 +167,6 @@ lazy val dependencies =
     val mongo              = "org.mongodb.scala"         %% "mongo-scala-driver"             % "2.3.0"
 
     val httpj              = "org.scalaj"                %% "scalaj-http"                    % "2.4.0"
-
-    val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
-    val shapeless          = "com.chuusai"               %% "shapeless"                      % "2.3.3"
-    val reflectLang        = "org.scala-lang"             % "scala-reflect"                  % "2.11.11"
 
     val scalactic          = "org.scalactic"             %% "scalactic"                      % "3.0.1"           % Test
     val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.0.1"           % Test

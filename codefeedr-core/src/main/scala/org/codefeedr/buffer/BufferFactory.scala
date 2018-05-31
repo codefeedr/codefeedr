@@ -18,7 +18,6 @@
  */
 package org.codefeedr.buffer
 
-import org.codefeedr.buffer.serialization.{AvroSerde}
 import org.codefeedr.pipeline.{Pipeline, PipelineItem, PipelineObject}
 
 import scala.reflect.{ClassTag, Manifest}
@@ -45,7 +44,7 @@ class BufferFactory[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <
     * @throws IllegalArgumentException When sinkObject is null
     * @throws IllegalStateException When buffer could not be instantiated due to bad configuration
     */
-  def create[T <: AnyRef : ClassTag : TypeTag : AvroSerde](): Buffer[T] = {
+  def create[T <: AnyRef : ClassTag : TypeTag](): Buffer[T] = {
     if (sinkObject == null) {
       throw new IllegalArgumentException("Buffer factory requires a sink object to determine buffer location")
     }

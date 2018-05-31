@@ -22,7 +22,6 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferFactory
-import org.codefeedr.buffer.serialization.{AvroSerde}
 import org.codefeedr.stages.StageAttributes
 
 
@@ -36,7 +35,7 @@ import scala.reflect.runtime.universe._
   * @tparam In  input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag : AvroSerde, Out <: PipelineItem : ClassTag : TypeTag : AvroSerde](val attributes: StageAttributes = StageAttributes()) {
+abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: PipelineItem : ClassTag : TypeTag](val attributes: StageAttributes = StageAttributes()) {
   var pipeline: Pipeline = _
 
   def id: String = attributes.id.getOrElse(getClass.getName)
@@ -144,7 +143,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag : AvroSerd
     */
   def getSinkSubject: String = this.getClass.getName
 
-  def getSource[T <: AnyRef : ClassTag : TypeTag : AvroSerde](parentNode: PipelineObject[PipelineItem, PipelineItem]): DataStream[T] = {
+  def getSource[T <: AnyRef : ClassTag : TypeTag](parentNode: PipelineObject[PipelineItem, PipelineItem]): DataStream[T] = {
     assert(parentNode != null)
 
     val factory = new BufferFactory(pipeline, this, parentNode)

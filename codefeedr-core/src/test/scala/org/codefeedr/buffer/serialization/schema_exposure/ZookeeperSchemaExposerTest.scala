@@ -19,5 +19,5 @@
 package org.codefeedr.buffer.serialization.schema_exposure
 
 class ZookeeperSchemaExposerTest extends SchemaExposerTest {
-  override def getSchemaExposer(): SchemaExposer = new ZookeeperSchemaExposer("localhost:2181")
+//  override def getSchemaExposer(): SchemaExposer = new ZookeeperSchemaExposer("localhost:2181")
 }

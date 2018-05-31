@@ -26,7 +26,7 @@ import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.rabbitmq.RMQSource
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
-import org.codefeedr.buffer.serialization.{AbstractSerde, AvroSerde, Serializer}
+import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
 import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.{InputStage, StageAttributes}
 import org.apache.flink.api.scala._
@@ -39,7 +39,7 @@ import scala.reflect.{ClassTag, classTag}
   * @param stageAttributes Optional attributes
   * @tparam T Type of value to pull from the queue
   */
-class RabbitMQInput[T <: PipelineItem : ClassTag : TypeTag : AvroSerde](queue: String,
+class RabbitMQInput[T <: PipelineItem : ClassTag : TypeTag](queue: String,
                                                                         server: URI = new URI("amqp://localhost:5672"),
                                                                         stageAttributes: StageAttributes = StageAttributes())
   extends InputStage[T](stageAttributes) {
