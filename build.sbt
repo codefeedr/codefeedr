@@ -50,7 +50,7 @@ lazy val core = (project in file("codefeedr-core"))
       dependencies.zookeeper,
 
       //BSON serialization
-      dependencies.mongo
+      dependencies.mongo,
 
       // BSON serialization
       dependencies.mongo,
