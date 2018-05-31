@@ -51,6 +51,12 @@ lazy val core = (project in file("codefeedr-core"))
 
       //BSON serialization
       dependencies.mongo
+
+      // BSON serialization
+      dependencies.mongo,
+
+      // Kryo serialization
+      dependencies.kryoChill
     )
   )
 
@@ -168,6 +174,8 @@ lazy val dependencies =
 
     val httpj              = "org.scalaj"                %% "scalaj-http"                    % "2.4.0"
 
+    val kryoChill          = "com.twitter"               %% "chill"                          % "0.9.1"
+
     val scalactic          = "org.scalactic"             %% "scalactic"                      % "3.0.1"           % Test
     val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.0.1"           % Test
     val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
@@ -197,6 +205,7 @@ lazy val commonSettings = Seq(
 //  organization := "org.codefeedr",
 //  version := "0.1.0-SNAPSHOT",
 //  scalaVersion := "2.11.11",
+  test in assembly := {},
   scalacOptions ++= compilerOptions,
   resolvers ++= Seq(
     "confluent"                               at "http://packages.confluent.io/maven/",

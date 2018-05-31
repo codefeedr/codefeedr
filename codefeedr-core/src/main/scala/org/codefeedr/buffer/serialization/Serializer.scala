@@ -39,6 +39,12 @@ object Serializer {
   val BSON = "BSON"
 
   /**
+    * Kryo serde support.
+    * https://github.com/EsotericSoftware/kryo
+    */
+  val KRYO = "KRYO"
+
+  /**
     * Retrieve a serde.
     *
     * Default is JSONSerde.
@@ -49,6 +55,7 @@ object Serializer {
   def getSerde[T <: AnyRef : ClassTag : TypeTag](name: String) = name match {
     case "JSON" => JSONSerde[T]
     case "BSON" => BsonSerde[T]
+    case "KRYO" => KryoSerde[T]
     case _ => JSONSerde[T] //default is JSON
   }
 

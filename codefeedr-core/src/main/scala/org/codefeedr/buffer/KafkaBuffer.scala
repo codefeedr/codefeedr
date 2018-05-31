@@ -205,3 +205,4 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
 //    exposer
 //  }
 }
+
