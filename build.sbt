@@ -1,4 +1,5 @@
-import sbt.Keys.name
+import sbt.Credentials
+import sbt.Keys.{credentials, name}
 
 name := "codefeedr"
 ThisBuild / version := "0.1-SNAPSHOT"
@@ -153,9 +154,9 @@ lazy val dependencies =
     val loggingCore        = "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion      % Runtime
     val loggingScala       = "org.apache.logging.log4j"  %% "log4j-api-scala"                % log4jScalaVersion
 
-    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Compile
-    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Compile
-    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka-0.11"     % flinkVersion      % Compile
+    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided
+    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Provided
+    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka-0.11"     % flinkVersion      % Provided
     val flinkAvro          = "org.apache.flink"          %% "flink-avro"                     % flinkVersion
     val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion
     val flinkElasticSearch = "org.apache.flink"          %% "flink-connector-elasticsearch5" % flinkVersion
@@ -212,7 +213,11 @@ lazy val commonSettings = Seq(
     "Apache Development Snapshot Repository"  at "https://repository.apache.org/content/repositories/snapshots/",
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
     Resolver.mavenLocal
-  )
+  ),
+
+  // Deploying. NOTE: when releasing, do not add the timestamp
+  publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-dev;build.timestamp=" + new java.util.Date().getTime),
+  credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))
 )
 
 lazy val compilerOptions = Seq(
@@ -253,7 +258,3 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
-
-// Deploying
-publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-dev")
-credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))

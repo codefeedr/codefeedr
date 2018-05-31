@@ -38,10 +38,16 @@ before_script:
   - sleep 10
 
 script:
-  - sbt -Dsbt.override.build.repos=true 'set parallelExecution in ThisBuild := false' clean coverage test coverageReport && sbt coverageAggregate
+  - sbt 'set parallelExecution in ThisBuild := false' clean coverage test coverageReport && sbt coverageAggregate
 
 after_success:
   - sbt coveralls
+
+deploy:
+  provider: script
+  script: sbt publish
+  on:
+    branch: improvement/artifactory
 
 notifications:
   email: false
