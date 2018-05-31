@@ -211,8 +211,7 @@ lazy val commonSettings = Seq(
     "confluent"                               at "http://packages.confluent.io/maven/",
     "Apache Development Snapshot Repository"  at "https://repository.apache.org/content/repositories/snapshots/",
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
-    Resolver.mavenLocal,
-    "Artifactory" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-release/"
+    Resolver.mavenLocal
   )
 )
 
@@ -257,4 +256,4 @@ assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScal
 
 // Deploying
 publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-release")
-credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))
+credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", "travis", "AP2WVw4Ud9QTwgYu6da6hKBTtUE1jZaRBu1m4V") // sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))
