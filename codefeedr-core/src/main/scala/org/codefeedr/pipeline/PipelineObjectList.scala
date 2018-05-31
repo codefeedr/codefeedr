@@ -37,8 +37,8 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     new PipelineObjectList(list :+ obj)
 
   /**
-    * Selects the first element of this $coll.
-    * $orderDependent
+    * Selects the first element of this List.
+    *
     * @return  the first element of this list.
     * @throws NoSuchElementException if the list is empty.
     */
@@ -47,7 +47,7 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
 
   /**
     * Selects the last element.
-    * $orderDependent
+    *
     * @return The last element of this list.
     * @throws NoSuchElementException If the list is empty.
     */
@@ -56,7 +56,7 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
 
   /**
     * Selects all elements except the first.
-    * $orderDependent
+    *
     * @return  a list consisting of all elements of this list
     *          except the first one.
     * @throws UnsupportedOperationException if the list is empty.
