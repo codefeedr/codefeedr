@@ -21,6 +21,8 @@ package org.codefeedr.buffer.serialization.schema_exposure
 import java.net.URI
 
 import com.redis.RedisClient
+import org.apache.avro.Schema
+
 /**
   * Exposes (Avro) schema's to Redis.
   * @param host the server host of Redis.
@@ -49,9 +51,8 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
     * @param subject the subject belonging to that schema.
     * @return true if correctly saved
     */
-  override def put(schema: AnyRef, subject: String): Boolean = {
-//    connection.set(s"$root:$subject", schema.toString(true))
-    false
+  override def put(schema: Schema, subject: String): Boolean = {
+    connection.set(s"$root:$subject", schema.toString(true))
   }
 
   /**
@@ -60,7 +61,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
     * @param subject the subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
-  override def get(subject: String): Option[AnyRef] = {
+  override def get(subject: String): Option[Schema] = {
     val schemaString = connection.get[String](s"$root:$subject")
 
     //if no string is found, return None

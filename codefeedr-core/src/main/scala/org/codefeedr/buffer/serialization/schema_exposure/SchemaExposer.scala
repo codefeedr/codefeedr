@@ -1,5 +1,7 @@
 package org.codefeedr.buffer.serialization.schema_exposure
 
+import org.apache.avro.Schema
+
 trait SchemaExposer {
 
   /**
@@ -9,7 +11,7 @@ trait SchemaExposer {
     * @param subject the subject belonging to that schema.
     * @return true if correctly saved.
     */
-  def put(schema : AnyRef, subject : String) : Boolean
+  def put(schema : Schema, subject : String) : Boolean
 
   /**
     * Get a schema based on a subject.
@@ -17,7 +19,7 @@ trait SchemaExposer {
     * @param subject the subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
-  def get(subject : String) : Option[AnyRef]
+  def get(subject : String) : Option[Schema]
 
   /**
     * Deletes a Schema.
@@ -38,13 +40,12 @@ trait SchemaExposer {
     * @param schemaString the schema string.
     * @return an option of a Schema.
     */
-  def parse(schemaString: String) : Option[AnyRef] = {
-//    try {
-//      val schema = new Schema.Parser().parse(schemaString)
-//      Some(schema)
-//    } catch {
-//      case x : Throwable => None
-//    }
-     None
+  def parse(schemaString: String) : Option[Schema] = {
+    try {
+      val schema = new Schema.Parser().parse(schemaString)
+      Some(schema)
+    } catch {
+      case x : Throwable => None
+    }
   }
 }

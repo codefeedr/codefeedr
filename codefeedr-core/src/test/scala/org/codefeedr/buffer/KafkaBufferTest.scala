@@ -42,7 +42,7 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
 
     //setup simple kafkabuffer
     val pipeline = new PipelineBuilder().append(new SimpleSourcePipelineObject()).build()
-    kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, StageAttributes(),"test-subject")
+    kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, StageAttributes(),"test-subject", "")
   }
 
 

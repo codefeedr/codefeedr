@@ -20,6 +20,8 @@ package org.codefeedr.buffer
 
 import java.util.Properties
 
+import org.apache.avro.Schema
+import org.apache.avro.reflect.ReflectData
 import org.codefeedr.Properties._
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
@@ -29,6 +31,7 @@ import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
+import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
 import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.stages.StageAttributes
 
@@ -95,7 +98,7 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     if (properties.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE)
       .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE)) {
 
-//      exposeSchema()
+      exposeSchema()
     }
 
     val producer = new FlinkKafkaProducer011[T](topic, getSerializer, getKafkaProperties)
@@ -155,55 +158,55 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     }
   }
 
-//  /**
-//    * Exposes the Avro schema to an external service (like redis/zookeeper).
-//    */
-//  def exposeSchema(): Boolean = {
-//    //get the schema
-//    val schema = AvroSchema[T]
-//
-//    //expose the schema
-//    getExposer.put(schema, topic)
-//  }
-//
-//  /**
-//    * Get Schema of the subject.
-//    *
-//    * @return the schema.
-//    */
-//  def getSchema(subject: String): Schema = {
-//    //get the schema corresponding to the topic
-//    val schema = getExposer.get(subject)
-//
-//    //if not found throw exception
-//    if (schema.isEmpty) {
-//      throw SchemaNotFoundException(s"Schema for topic $topic not found.")
-//    }
-//
-//    schema.get
-//  }
-//
-//  /**
-//    * Get schema exposer based on configuration.
-//    *
-//    * @return a schema exposer.
-//    */
-//  def getExposer: SchemaExposer = {
-//    val exposeName = properties.
-//      get[String](KafkaBuffer.SCHEMA_EXPOSURE_SERVICE).
-//      getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_SERVICE)
-//
-//    val exposeHost = properties.
-//      get[String](KafkaBuffer.SCHEMA_EXPOSURE_HOST).
-//      getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_HOST)
-//
-//    //get exposer
-//    val exposer = exposeName match {
-//      case "zookeeper" => new ZookeeperSchemaExposer(exposeHost)
-//      case _ => new RedisSchemaExposer(exposeHost) //default is redis
-//    }
-//
-//    exposer
-//  }
+  /**
+    * Exposes the Avro schema to an external service (like redis/zookeeper).
+    */
+  def exposeSchema(): Boolean = {
+    //get the schema
+    val schema = ReflectData.get().getSchema(inputClassType);
+
+    //expose the schema
+    getExposer.put(schema, topic)
+  }
+
+  /**
+    * Get Schema of the subject.
+    *
+    * @return the schema.
+    */
+  def getSchema(subject: String): Schema = {
+    //get the schema corresponding to the topic
+    val schema = getExposer.get(subject)
+
+    //if not found throw exception
+    if (schema.isEmpty) {
+      throw SchemaNotFoundException(s"Schema for topic $topic not found.")
+    }
+
+    schema.get
+  }
+
+  /**
+    * Get schema exposer based on configuration.
+    *
+    * @return a schema exposer.
+    */
+  def getExposer: SchemaExposer = {
+    val exposeName = properties.
+      get[String](KafkaBuffer.SCHEMA_EXPOSURE_SERVICE).
+      getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_SERVICE)
+
+    val exposeHost = properties.
+      get[String](KafkaBuffer.SCHEMA_EXPOSURE_HOST).
+      getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_HOST)
+
+    //get exposer
+    val exposer = exposeName match {
+      case "zookeeper" => new ZookeeperSchemaExposer(exposeHost)
+      case _ => new RedisSchemaExposer(exposeHost) //default is redis
+    }
+
+    exposer
+  }
 }
 

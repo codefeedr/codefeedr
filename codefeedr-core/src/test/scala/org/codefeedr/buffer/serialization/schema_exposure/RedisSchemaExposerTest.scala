@@ -19,6 +19,5 @@
 package org.codefeedr.buffer.serialization.schema_exposure
 
 class RedisSchemaExposerTest extends SchemaExposerTest {
-
-//  override def getSchemaExposer(): SchemaExposer = new RedisSchemaExposer("redis://localhost:6379")
+ override def getSchemaExposer(): SchemaExposer = new RedisSchemaExposer("redis://localhost:6379")
 }
