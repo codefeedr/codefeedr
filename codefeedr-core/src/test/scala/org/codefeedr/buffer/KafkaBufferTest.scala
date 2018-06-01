@@ -123,7 +123,7 @@ class StringCollectSink extends SinkFunction[StringType] {
   override def invoke(value: StringType, context: Context[_]): Unit = {
     synchronized {
       StringCollectSink.result.add(value.value)
-      if (StringCollectSink.result.size() == 50) {
+      if (StringCollectSink.result.size() == 50 || StringCollectSink.result.size() == 100) {
         throw JobFinishedException()
       }
     }
@@ -141,7 +141,6 @@ class NumberSource extends SourceFunction[StringType] {
     for (i <- 1 to 100) {
       ctx.collect(StringType(i.toString))
     }
-    throw JobFinishedException()
   }
   override def cancel(): Unit = {}
 }
