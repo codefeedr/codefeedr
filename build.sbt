@@ -56,7 +56,10 @@ lazy val core = (project in file("codefeedr-core"))
       dependencies.mongo,
 
       // Kryo serialization
-      dependencies.kryoChill
+      dependencies.kryoChill,
+
+      //avro
+      dependencies.avro
     )
   )
 
@@ -181,6 +184,7 @@ lazy val dependencies =
     val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
 
+    val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
   }
 
 lazy val commonDependencies = Seq(

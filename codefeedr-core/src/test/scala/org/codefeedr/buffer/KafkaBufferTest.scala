@@ -51,6 +51,7 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
     //setup simple kafkabuffer
     val pipeline = new PipelineBuilder().append(new SimpleSourcePipelineObject()).build()
     kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, StageAttributes(),"test-subject", null)
+
   }
 
 
@@ -63,13 +64,13 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
   }
 
   test ("A non-existent schema should throw an exception") {
-//    assertThrows[SchemaNotFoundException] {
-//      kafkaBuffer.getSchema("nOnExistent")
-//    }
+    assertThrows[SchemaNotFoundException] {
+      kafkaBuffer.getSchema("nOnExistent")
+    }
   }
 
   test ("A schema should correctly be exposed") {
-//    assert(kafkaBuffer.exposeSchema())
+    assert(kafkaBuffer.exposeSchema())
   }
 
   /**

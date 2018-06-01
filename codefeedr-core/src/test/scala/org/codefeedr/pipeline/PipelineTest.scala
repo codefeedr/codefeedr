@@ -76,60 +76,57 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     }
   }
 
-//  test("Simple pipeline schema exposure test (redis)") {
-//    val pipeline = simpleDAGPipeline(2)
-//      .setBufferType(BufferType.Kafka)
-//      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-//      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
-//      .build()
-//
-//    assertThrows[JobExecutionException] {
-//      pipeline.start(Array("-runtime", "local"))
-//    }
-//
-//    val exposer = new RedisSchemaExposer("redis://localhost:6379")
-//
-//    val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
-//    val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
-//
-//    assert(schema1.nonEmpty)
-//    assert(schema2.nonEmpty)
-//  }
-//
-//  test("Simple pipeline schema exposure and deserialization test (redis)") {
-//    val pipeline = simpleDAGPipeline(2)
-//      .setBufferType(BufferType.Kafka)
-//      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-//      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
-//      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
-//      .build()
-//
-//    assertThrows[JobExecutionException] {
-//      pipeline.startLocal()
-//    }
-//  }
-//
-//  test("Simple pipeline schema exposure test (zookeeper)") {
-//    val pipeline = simpleDAGPipeline(2)
-//      .setBufferType(BufferType.Kafka)
-//      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-//      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_SERVICE, "zookeeper")
-//      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, "localhost:2181")
-//      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
-//      .build()
-//
-//    assertThrows[JobExecutionException] {
-//      pipeline.startLocal()
-//    }
-//
-//    val exposer = new ZookeeperSchemaExposer("localhost:2181")
-//
-//    val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
-//    val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
-//
-//    assert(schema1.nonEmpty)
-//    assert(schema2.nonEmpty)
-//  }
+  test("Simple pipeline schema exposure test (redis)") {
+    val pipeline = simpleDAGPipeline(2)
+      .setBufferType(BufferType.Kafka)
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
+      .build()
+
+    assertThrows[JobExecutionException] {
+      pipeline.start(Array("-runtime", "local"))
+    }
+
+    val exposer = new RedisSchemaExposer("redis://localhost:6379")
+
+    val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
+    val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
+
+    assert(schema1.nonEmpty)
+    assert(schema2.nonEmpty)
+  }
+
+  test("Simple pipeline schema exposure and deserialization test (redis)") {
+    val pipeline = simpleDAGPipeline(2)
+      .setBufferType(BufferType.Kafka)
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
+      .build()
+
+    assertThrows[JobExecutionException] {
+      pipeline.startLocal()
+    }
+  }
+
+  test("Simple pipeline schema exposure test (zookeeper)") {
+    val pipeline = simpleDAGPipeline(2)
+      .setBufferType(BufferType.Kafka)
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_SERVICE, "zookeeper")
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, "localhost:2181")
+      .build()
+
+    assertThrows[JobExecutionException] {
+      pipeline.startLocal()
+    }
+
+    val exposer = new ZookeeperSchemaExposer("localhost:2181")
+
+    val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
+    val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
+
+    assert(schema1.nonEmpty)
+    assert(schema2.nonEmpty)
+  }
 
   /**
     * Builds a really simple (DAG) graph
