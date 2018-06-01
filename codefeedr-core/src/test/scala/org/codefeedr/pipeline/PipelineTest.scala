@@ -7,7 +7,7 @@ import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
-import org.codefeedr.stages.utilities.{StringInput, StringType}
+import org.codefeedr.stages.utilities.{JsonPrinterOutput, StringInput, StringType}
 import org.codefeedr.testUtils._
 
 import scala.collection.JavaConverters._
@@ -207,5 +207,22 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     assertThrows[IllegalArgumentException] {
       pipeline.propertiesOf(null)
     }
+  }
+
+  test("Show list of pipeline item ids") {
+    val pipeline = builder
+      .append(new StringInput())
+      .append(new JsonPrinterOutput())
+      .build()
+
+    val stream = new java.io.ByteArrayOutputStream()
+    Console.withOut(stream) {
+      pipeline.showList()
+    }
+
+    val output = stream.toString
+    
+    assert(output.split("\n").length == 2)
+    assert(output.startsWith("org.codefeedr.stages.utilities.StringInput"))
   }
 }

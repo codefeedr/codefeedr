@@ -92,7 +92,21 @@ case class Pipeline(bufferType: BufferType,
       case _ => runtime
     }
 
-    start(runtime, stage)
+    if (params.has("list")) {
+      showList()
+    } else {
+      start(runtime, stage)
+    }
+  }
+
+  def showList(): Unit = {
+    // Get a list of stages
+    // Print their names
+
+    val list = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
+    for (node <- list) {
+      println(node.id)
+    }
   }
 
   /**
