@@ -48,7 +48,7 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE_DESERIALIZATION = "SCHEMA_EXPOSURE_SERIALIZATION"
 }
 
-class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String)
+class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String, groupId: String)
   extends Buffer[T](pipeline, properties) {
 
   private object KafkaBufferDefaults {
@@ -116,6 +116,7 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     kafkaProp.put("auto.offset.reset", "earliest")
     kafkaProp.put("auto.commit.interval.ms", "100")
     kafkaProp.put("enable.auto.commit", "true")
+    kafkaProp.put("group.id", groupId)
 
     kafkaProp
   }

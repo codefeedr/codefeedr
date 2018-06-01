@@ -54,7 +54,7 @@ class BufferFactory[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <
     pipeline.bufferType match {
       case BufferType.Kafka => {
         val cleanedSubject = subject.replace("$", "-")
-        new KafkaBuffer[T](pipeline, pipeline.bufferProperties, stage.attributes, cleanedSubject)
+        new KafkaBuffer[T](pipeline, pipeline.bufferProperties, stage.attributes, cleanedSubject, stage.id)
       }
       case BufferType.RabbitMQ => {
         new RabbitMQBuffer[T](pipeline, pipeline.bufferProperties, stage.attributes, subject)
