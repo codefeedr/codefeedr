@@ -34,7 +34,7 @@ import scala.reflect.runtime.universe._
   * @param pipeline Pipeline
   * @param sinkObject Object that writes to the buffer
   */
-class BufferFactory[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](pipeline: Pipeline, stage: PipelineObject[X, Y], sinkObject: PipelineObject[U, V]) {
+class BufferFactory[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](pipeline: Pipeline, stage: PipelineObject[X, Y], sinkObject: PipelineObject[U, V], groupId: String = null) {
 
   /**
     * Create a new buffer

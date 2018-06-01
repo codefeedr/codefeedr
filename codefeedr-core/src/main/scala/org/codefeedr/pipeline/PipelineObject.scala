@@ -101,7 +101,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: Pi
     *
     * @return the DataStream resulting from the buffer.
     */
-  def getMainSource: DataStream[In] = {
+  def getMainSource(groupId: String = null): DataStream[In] = {
     assert(pipeline != null)
 
     if (!hasMainSource) {
@@ -110,7 +110,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: Pi
 
     val parentNode = getParents(0)
 
-    val factory = new BufferFactory(pipeline, this, parentNode)
+    val factory = new BufferFactory(pipeline, this, parentNode, groupId)
     val buffer = factory.create[In]()
 
     buffer.getSource
@@ -121,14 +121,14 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: Pi
     *
     * @return the SinkFunction resulting from the buffer.
     */
-  def getSink: SinkFunction[Out] = {
+  def getSink(groupId: String = null): SinkFunction[Out] = {
     assert(pipeline != null)
 
     if (!hasSink) {
       throw NoSinkException("PipelineObject defined NoType as Out type. Buffer can't be created.")
     }
 
-    val factory = new BufferFactory(pipeline, this,this)
+    val factory = new BufferFactory(pipeline, this,this, groupId)
     val buffer = factory.create[Out]()
 
     buffer.getSink

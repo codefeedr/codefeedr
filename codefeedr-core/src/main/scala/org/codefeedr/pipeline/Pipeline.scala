@@ -95,7 +95,7 @@ case class Pipeline(bufferType: BufferType,
     if (params.has("list")) {
       showList()
     } else {
-      start(runtime, stage)
+      start(runtime, stage, params.get("groupId"))
     }
   }
 
@@ -115,11 +115,11 @@ case class Pipeline(bufferType: BufferType,
     * @param runtime Runtime type
     * @param stage Stage of a cluster run
     */
-  def start(runtime: RuntimeType, stage: String = null): Unit = {
+  def start(runtime: RuntimeType, stage: String = null, groupId: String = null): Unit = {
     runtime match {
       case RuntimeType.Mock => startMock()
       case RuntimeType.Local => startLocal()
-      case RuntimeType.Cluster => startClustered(stage)
+      case RuntimeType.Cluster => startClustered(stage, groupId)
     }
   }
 
@@ -175,7 +175,7 @@ case class Pipeline(bufferType: BufferType,
     *
     * @param stage Stage to run
     */
-  def startClustered(stage: String): Unit = {
+  def startClustered(stage: String, groupId: String = null): Unit = {
     val optObj = graph.nodes.find(node => node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id == stage)
 
     if (optObj.isEmpty) {
@@ -185,7 +185,7 @@ case class Pipeline(bufferType: BufferType,
     val obj = optObj.get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
     obj.setUp(this)
-    runObject(obj)
+    runObject(obj, groupId)
 
     environment.execute("CodeFeedr Cluster Job")
   }
@@ -196,9 +196,9 @@ case class Pipeline(bufferType: BufferType,
     * Creates a source and sink for the object and then runs the transform function.
     * @param obj
     */
-  private def runObject(obj: PipelineObject[PipelineItem, PipelineItem]): Unit = {
-    lazy val source = if (obj.hasMainSource) obj.getMainSource else null
-    lazy val sink = if (obj.hasSink) obj.getSink else null
+  private def runObject(obj: PipelineObject[PipelineItem, PipelineItem], groupId: String = null): Unit = {
+    lazy val source = if (obj.hasMainSource) obj.getMainSource(groupId) else null
+    lazy val sink = if (obj.hasSink) obj.getSink(groupId) else null
 
     val transformed = obj.transform(source)
 

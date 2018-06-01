@@ -221,7 +221,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     }
 
     val output = stream.toString
-    
+
     assert(output.split("\n").length == 2)
     assert(output.startsWith("org.codefeedr.stages.utilities.StringInput"))
   }
