@@ -165,7 +165,7 @@ class PipelineBuilder() {
     * @return Builder
     */
   def append[U <: PipelineItem : ClassTag : TypeTag, V <: PipelineItem : ClassTag : TypeTag](trans : DataStream[U] => DataStream[V]): PipelineBuilder = {
-    val pipelineItem = new PipelineObject[U, V](null) {
+    val pipelineItem = new PipelineObject[U, V] {
       override def transform(source: DataStream[U]): DataStream[V] = trans(source)
     }
 
@@ -179,7 +179,7 @@ class PipelineBuilder() {
     * @return Builder
     */
   def append[U <: PipelineItem : ClassTag : TypeTag](trans : DataStream[U] => Any): PipelineBuilder = {
-    val pipelineItem = new OutputStage[U](null) {
+    val pipelineItem = new OutputStage[U] {
       override def main(source: DataStream[U]): Unit = trans(source)
     }
 

@@ -18,13 +18,21 @@
  */
 package org.codefeedr.buffer
 
+import java.util
 import java.util.{Date, Properties, UUID}
 
+import scala.collection.JavaConversions._
+import org.apache.flink.api.scala._
+import org.apache.flink.runtime.client.JobExecutionException
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
+import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
-import org.codefeedr.stages.StageAttributes
+import org.codefeedr.stages.{InputStage, StageAttributes}
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.testUtils.SimpleSourcePipelineObject
+import org.codefeedr.testUtils.{JobFinishedException, SimpleSourcePipelineObject}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class KafkaBufferTest extends FunSuite with BeforeAndAfter {
@@ -42,7 +50,7 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
 
     //setup simple kafkabuffer
     val pipeline = new PipelineBuilder().append(new SimpleSourcePipelineObject()).build()
-    kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, StageAttributes(),"test-subject")
+    kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, StageAttributes(),"test-subject", null)
   }
 
 
@@ -77,6 +85,64 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
       .contains(topic)
   }
 
+  test("Stage should read from kafka where it left off") {
+
+    val pipeline = new PipelineBuilder()
+      .append(new NumberInput)
+      .append{ x: DataStream[StringType] =>
+        x.addSink(new StringCollectSink)
+      }
+      .build()
+
+    assertThrows[JobExecutionException] {
+      pipeline.startLocal()
+    }
+
+    assertThrows[JobExecutionException] {
+      pipeline.startClustered("org.codefeedr.pipeline.PipelineBuilder$$anon$1")
+    }
+
+    assert(StringCollectSink.asList.distinct.size == 100)
+  }
+
+}
+
+object StringCollectSink {
+  var result = new util.ArrayList[String]() //mutable list
+
+  def reset(): Unit = {
+    result = new util.ArrayList[String]()
+  }
+
+  def asList: List[String] = result.toList
+}
+
+class StringCollectSink extends SinkFunction[StringType] {
+
+  override def invoke(value: StringType, context: Context[_]): Unit = {
+    synchronized {
+      StringCollectSink.result.add(value.value)
+      if (StringCollectSink.result.size() == 50) {
+        throw JobFinishedException()
+      }
+    }
+  }
+}
+
+class NumberInput extends InputStage[StringType] {
+  override def main(): DataStream[StringType] = {
+    pipeline.environment.addSource(new NumberSource)
+  }
+}
+
+class NumberSource extends SourceFunction[StringType] {
+  override def run(ctx: SourceFunction.SourceContext[StringType]): Unit = {
+    for (i <- 1 to 100) {
+      ctx.collect(StringType(i.toString))
+    }
+    throw JobFinishedException()
+  }
+  override def cancel(): Unit = {}
 }
 
 case class TestEvent(name: String, time: Date) extends PipelineItem

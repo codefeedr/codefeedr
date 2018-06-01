@@ -176,7 +176,10 @@ case class Pipeline(bufferType: BufferType,
     * @param stage Stage to run
     */
   def startClustered(stage: String, groupId: String = null): Unit = {
-    val optObj = graph.nodes.find(node => node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id == stage)
+    val optObj = graph.nodes.find { node =>
+      println(node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id, stage)
+      node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id == stage
+    }
 
     if (optObj.isEmpty) {
       throw StageNotFoundException()
