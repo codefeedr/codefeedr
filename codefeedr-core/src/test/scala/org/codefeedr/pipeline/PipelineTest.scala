@@ -80,7 +80,6 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     val pipeline = simpleDAGPipeline(2)
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
@@ -101,7 +100,6 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
-      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
@@ -115,7 +113,6 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_SERVICE, "zookeeper")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, "localhost:2181")
-      .setBufferProperty(Buffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
