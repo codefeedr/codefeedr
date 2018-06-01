@@ -18,14 +18,18 @@
  */
 package org.codefeedr.plugins.github.requests
 
+import java.net.SocketTimeoutException
+
+import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.plugins.github.GitHubEndpoints
 
 import scalaj.http.{Http, HttpRequest, HttpResponse}
 
 /**
   * Exception thrown when something goes wrong during a request to the GitHub API.
+  *
   * @param message the exception message.
-  * @param cause the exception cause.
+  * @param cause   the exception cause.
   */
 final case class GitHubRequestException(private val message: String = "",
                                         private val cause: Throwable = None.orNull)
@@ -33,13 +37,16 @@ final case class GitHubRequestException(private val message: String = "",
 
 /**
   * Handles a GitHubRequest.
-  * @param endpoint the request endpoint.
+  *
+  * @param endpoint       the request endpoint.
   * @param requestHeaders the request headers.
   */
-class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
+class GitHubRequest(endpoint: String, requestHeaders: List[Header]) extends Logging {
 
   //default accept header
   val ACCEPT_HEADER = ("Accept", "application/vnd.github.v3+json")
+
+  def TIMEOUT_CAP = 32
 
   /**
     * Request the data and parse the response.
@@ -47,7 +54,7 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     * @return a GitHubResponse object.
     */
   def request(): GitHubResponse = {
-    val request = buildRequest().asString
+    val request = retrieveResponse(buildRequest(), 1)
     val response = parseResponse(request)
 
     //handle invalid status codes
@@ -56,13 +63,29 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     response
   }
 
+  @throws(classOf[Exception])
+  def retrieveResponse(request: HttpRequest, timeOut: Int): HttpResponse[String] = {
+    try {
+      return request.asString
+    } catch {
+      case x: Exception if (x.getClass != classOf[GitHubRequestException]) =>
+      {
+        if (timeOut >= TIMEOUT_CAP) throw new GitHubRequestException(s"Requests timed out after $TIMEOUT_CAP seconds.")
+
+        println(s"Failed doing a request retrying in ${timeOut * 2} in seconds.")
+        Thread.sleep(timeOut * 2 * 1000)
+        return retrieveResponse(request, timeOut * 2)
+      }
+    }
+  }
+
   /**
     * Handle error codes.
     * Forwards only 200 and 304 status codes, otherwise it throws and exception.
     *
     * @param response the GitHub response to handle.
     */
-  def handleErrorCodes(response: GitHubResponse) : GitHubResponse = response.status match {
+  def handleErrorCodes(response: GitHubResponse): GitHubResponse = response.status match {
     case 200 | 304 => response
     case other => throw new GitHubRequestException(s"Undefined response code $other. Body: ${response.body} Endpoint: $endpoint")
   }
@@ -73,7 +96,7 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     * @param response the HttpResponse to parse.
     * @return a GitHubResponse.
     */
-  def parseResponse(response : HttpResponse[String]) : GitHubResponse = {
+  def parseResponse(response: HttpResponse[String]): GitHubResponse = {
     val responseHeaders = response
       .headers
       .map(x => Header(x._1, x._2.toArray))
@@ -88,7 +111,7 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     *
     * @return the HttpRequest
     */
-  def buildRequest() : HttpRequest = {
+  def buildRequest(): HttpRequest = {
     val headers = requestHeaders
       .map(h => (h.key, h.value.reduce(_ + "," + _)))
       .toMap + ACCEPT_HEADER
@@ -99,9 +122,6 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
 
     http
   }
-
-
-
 
 
 }
