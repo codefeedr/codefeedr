@@ -214,7 +214,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
     val stream = new java.io.ByteArrayOutputStream()
     Console.withOut(stream) {
-      pipeline.showList()
+      pipeline.start(Array("--list"))
     }
 
     val output = stream.toString
