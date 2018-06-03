@@ -30,7 +30,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
-import org.codefeedr.stages.{InputStage, StageAttributes}
+import org.codefeedr.stages.{InputStage, OutputStage, StageAttributes}
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.{JobFinishedException, SimpleSourcePipelineObject}
 import org.scalatest.{BeforeAndAfter, FunSuite}
@@ -87,12 +87,13 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Stage should read from kafka where it left off") {
+    val id = UUID.randomUUID().toString
+    val numberOutput = new NumberOutput(StageAttributes(Some(id)))
+    val numberInput = new NumberInput()
 
     val pipeline = new PipelineBuilder()
-      .append(new NumberInput)
-      .append{ x: DataStream[StringType] =>
-        x.addSink(new StringCollectSink)
-      }
+      .append(numberInput) //pushes 1 till 50
+      .append(numberOutput) //reads and crashes
       .build()
 
     assertThrows[JobExecutionException] {
@@ -100,7 +101,12 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
     }
 
     assertThrows[JobExecutionException] {
-      pipeline.startClustered("org.codefeedr.pipeline.PipelineBuilder$$anon$1")
+      numberInput.numberSource.switch = false
+      val pipeline = new PipelineBuilder()
+        .append(numberInput) //pushes 51 till 100
+        .append(numberOutput) //reads and crashes
+        .build()
+        .startLocal()
     }
 
     assert(StringCollectSink.asList.distinct.size == 100)
@@ -130,19 +136,38 @@ class StringCollectSink extends SinkFunction[StringType] {
   }
 }
 
-class NumberInput extends InputStage[StringType] {
+class NumberInput() extends InputStage[StringType] {
+  val idd = UUID.randomUUID().toString
+  val numberSource = new NumberSource()
+
   override def main(): DataStream[StringType] = {
-    pipeline.environment.addSource(new NumberSource)
+    pipeline.environment.addSource(numberSource)
+  }
+
+  override def getSinkSubject: String = {
+    idd
   }
 }
 
-class NumberSource extends SourceFunction[StringType] {
+class NumberSource() extends SourceFunction[StringType] {
+  var switch = true
   override def run(ctx: SourceFunction.SourceContext[StringType]): Unit = {
-    for (i <- 1 to 100) {
-      ctx.collect(StringType(i.toString))
+    println(s"Now here, switch is $switch")
+    if (switch) {
+      for (i <- 1 to 50) {
+        ctx.collect(StringType(i.toString))
+      }
+    } else {
+      for (i <- 51 to 100) {
+        ctx.collect(StringType(i.toString))
+      }
     }
   }
   override def cancel(): Unit = {}
+}
+
+class NumberOutput(stageAttributes: StageAttributes) extends OutputStage[StringType](stageAttributes) {
+  override def main(source: DataStream[StringType]): Unit = source.addSink(new StringCollectSink)
 }
 
 case class TestEvent(name: String, time: Date) extends PipelineItem
