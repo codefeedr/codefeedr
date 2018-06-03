@@ -65,7 +65,6 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     val SCHEMA_EXPOSURE = false
     val SCHEMA_EXPOSURE_SERVICE = "redis"
     val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
-    val SCHEMA_EXPOSURE_DESERIALIZATION = false
   }
 
   //Get type of the class at run time
@@ -80,14 +79,6 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     //make sure the topic already exists
     checkAndCreateSubject(topic, properties.get[String](KafkaBuffer.BROKER).
       getOrElse(KafkaBufferDefaults.BROKER))
-
-    //check if a schema should be used for deserialization
-    if (properties.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION)
-      .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_DESERIALIZATION)) {
-
-      //get the schema
-//      val schema = getSchema(topic)
-    }
 
     pipeline.environment.
       addSource(new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties))
@@ -163,27 +154,10 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     */
   def exposeSchema(): Boolean = {
     //get the schema
-    val schema = ReflectData.get().getSchema(inputClassType);
+    val schema = ReflectData.get().getSchema(inputClassType)
 
     //expose the schema
     getExposer.put(schema, topic)
-  }
-
-  /**
-    * Get Schema of the subject.
-    *
-    * @return the schema.
-    */
-  def getSchema(subject: String): Schema = {
-    //get the schema corresponding to the topic
-    val schema = getExposer.get(subject)
-
-    //if not found throw exception
-    if (schema.isEmpty) {
-      throw SchemaNotFoundException(s"Schema for topic $topic not found.")
-    }
-
-    schema.get
   }
 
   /**
