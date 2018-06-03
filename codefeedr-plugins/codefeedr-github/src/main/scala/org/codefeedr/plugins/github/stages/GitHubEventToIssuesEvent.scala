@@ -18,7 +18,6 @@
  */
 package org.codefeedr.plugins.github.stages
 
-import org.apache.avro.Schema
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.plugins.github.GitHubProtocol.{Event, IssuesEvent, IssuesPayload}
 import org.json4s._

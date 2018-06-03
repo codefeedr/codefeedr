@@ -22,7 +22,6 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferFactory
-import org.codefeedr.buffer.serialization.{AvroSerde}
 import org.codefeedr.stages.StageAttributes
 
 
@@ -36,7 +35,7 @@ import scala.reflect.runtime.universe._
   * @tparam In  input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag : AvroSerde, Out <: PipelineItem : ClassTag : TypeTag : AvroSerde](val attributes: StageAttributes = StageAttributes()) {
+abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: PipelineItem : ClassTag : TypeTag](val attributes: StageAttributes = StageAttributes()) {
   var pipeline: Pipeline = _
 
   def id: String = attributes.id.getOrElse(getClass.getName)
@@ -102,7 +101,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag : AvroSerd
     *
     * @return the DataStream resulting from the buffer.
     */
-  def getMainSource: DataStream[In] = {
+  def getMainSource(groupId: String = null): DataStream[In] = {
     assert(pipeline != null)
 
     if (!hasMainSource) {
@@ -111,7 +110,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag : AvroSerd
 
     val parentNode = getParents(0)
 
-    val factory = new BufferFactory(pipeline, this, parentNode)
+    val factory = new BufferFactory(pipeline, this, parentNode, groupId)
     val buffer = factory.create[In]()
 
     buffer.getSource
@@ -122,14 +121,14 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag : AvroSerd
     *
     * @return the SinkFunction resulting from the buffer.
     */
-  def getSink: SinkFunction[Out] = {
+  def getSink(groupId: String = null): SinkFunction[Out] = {
     assert(pipeline != null)
 
     if (!hasSink) {
       throw NoSinkException("PipelineObject defined NoType as Out type. Buffer can't be created.")
     }
 
-    val factory = new BufferFactory(pipeline, this,this)
+    val factory = new BufferFactory(pipeline, this,this, groupId)
     val buffer = factory.create[Out]()
 
     buffer.getSink
@@ -144,7 +143,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag : AvroSerd
     */
   def getSinkSubject: String = this.getClass.getName
 
-  def getSource[T <: AnyRef : ClassTag : TypeTag : AvroSerde](parentNode: PipelineObject[PipelineItem, PipelineItem]): DataStream[T] = {
+  def getSource[T <: AnyRef : ClassTag : TypeTag](parentNode: PipelineObject[PipelineItem, PipelineItem]): DataStream[T] = {
     assert(parentNode != null)
 
     val factory = new BufferFactory(pipeline, this, parentNode)

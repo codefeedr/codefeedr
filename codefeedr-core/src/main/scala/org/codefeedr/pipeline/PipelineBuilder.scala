@@ -24,7 +24,6 @@ import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.buffer.BufferType
 import org.codefeedr.buffer.BufferType.BufferType
-import org.codefeedr.buffer.serialization.{AvroSerde}
 import org.codefeedr.stages.OutputStage
 
 import scala.collection.mutable
@@ -165,8 +164,8 @@ class PipelineBuilder() {
     * @param trans Function
     * @return Builder
     */
-  def append[U <: PipelineItem : ClassTag : TypeTag : AvroSerde, V <: PipelineItem : ClassTag : TypeTag :AvroSerde](trans : DataStream[U] => DataStream[V]): PipelineBuilder = {
-    val pipelineItem = new PipelineObject[U, V](null) {
+  def append[U <: PipelineItem : ClassTag : TypeTag, V <: PipelineItem : ClassTag : TypeTag](trans : DataStream[U] => DataStream[V]): PipelineBuilder = {
+    val pipelineItem = new PipelineObject[U, V] {
       override def transform(source: DataStream[U]): DataStream[V] = trans(source)
     }
 
@@ -179,8 +178,8 @@ class PipelineBuilder() {
     * @param trans Function
     * @return Builder
     */
-  def append[U <: PipelineItem : ClassTag : TypeTag : AvroSerde](trans : DataStream[U] => Any): PipelineBuilder = {
-    val pipelineItem = new OutputStage[U](null) {
+  def append[U <: PipelineItem : ClassTag : TypeTag](trans : DataStream[U] => Any): PipelineBuilder = {
+    val pipelineItem = new OutputStage[U] {
       override def main(source: DataStream[U]): Unit = trans(source)
     }
 

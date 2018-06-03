@@ -1,4 +1,5 @@
-import sbt.Keys.name
+import sbt.Credentials
+import sbt.Keys.{credentials, name}
 
 name := "codefeedr"
 ThisBuild / version := "0.1-SNAPSHOT"
@@ -27,6 +28,7 @@ lazy val core = (project in file("codefeedr-core"))
   .settings(
     name := projectPrefix + "core",
     settings,
+    assemblySettings,
     unmanagedBase := baseDirectory.value / "../lib",
     libraryDependencies ++= commonDependencies ++ Seq(
       // JSONBuffer
@@ -47,16 +49,17 @@ lazy val core = (project in file("codefeedr-core"))
       // Schema exposure
       dependencies.zookeeper,
 
-      // Avro serialization
-      dependencies.avro,
-      dependencies.shapeless,
-      dependencies.reflectLang,
+      //BSON serialization
+      dependencies.mongo,
 
       // BSON serialization
       dependencies.mongo,
 
       // Kryo serialization
-      dependencies.kryoChill
+      dependencies.kryoChill,
+
+      //avro
+      dependencies.avro
     )
   )
 
@@ -155,11 +158,10 @@ lazy val dependencies =
     val loggingCore        = "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion      % Runtime
     val loggingScala       = "org.apache.logging.log4j"  %% "log4j-api-scala"                % log4jScalaVersion
 
-    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Compile
-    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Compile
-    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka-0.11"     % flinkVersion      % Compile
-    val flinkAvro          = "org.apache.flink"          %% "flink-avro"                     % flinkVersion
-    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion
+    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided
+    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Provided
+    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka-0.11"     % flinkVersion
+    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion      % Provided
     val flinkElasticSearch = "org.apache.flink"          %% "flink-connector-elasticsearch5" % flinkVersion
     val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion
 
@@ -175,10 +177,6 @@ lazy val dependencies =
 
     val httpj              = "org.scalaj"                %% "scalaj-http"                    % "2.4.0"
 
-    val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
-    val shapeless          = "com.chuusai"               %% "shapeless"                      % "2.3.3"
-    val reflectLang        = "org.scala-lang"             % "scala-reflect"                  % "2.11.11"
-
     val kryoChill          = "com.twitter"               %% "chill"                          % "0.9.1"
 
     val scalactic          = "org.scalactic"             %% "scalactic"                      % "3.0.1"           % Test
@@ -186,6 +184,7 @@ lazy val dependencies =
     val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
 
+    val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
   }
 
 lazy val commonDependencies = Seq(
@@ -217,7 +216,11 @@ lazy val commonSettings = Seq(
     "Apache Development Snapshot Repository"  at "https://repository.apache.org/content/repositories/snapshots/",
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
     Resolver.mavenLocal
-  )
+  ),
+
+  // Deploying. NOTE: when releasing, do not add the timestamp
+  publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-dev-local;build.timestamp=" + new java.util.Date().getTime),
+  credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))
 )
 
 lazy val compilerOptions = Seq(
@@ -234,9 +237,13 @@ lazy val compilerOptions = Seq(
 
 lazy val assemblySettings = Seq(
   assemblyJarName in assembly := name.value + ".jar",
+  test in assembly := {},
   assemblyMergeStrategy in assembly := {
-    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-    case _                             => MergeStrategy.first
+    case PathList("META-INF", xs @ _*)  => MergeStrategy.discard
+    case "log4j.properties"             => MergeStrategy.first
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
   }
 )
 

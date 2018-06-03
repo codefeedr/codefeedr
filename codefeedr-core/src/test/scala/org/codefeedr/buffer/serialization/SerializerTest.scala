@@ -7,12 +7,6 @@ class SerializerTest extends FunSuite {
 
   case class Item() extends PipelineItem
 
-  test("Should recognise AVRO") {
-    val serde = Serializer.getSerde[Item](Serializer.AVRO)
-
-    assert(serde.isInstanceOf[AvroSerde[Item]])
-  }
-
   test("Should recognise JSON") {
     val serde = Serializer.getSerde[Item](Serializer.JSON)
 

@@ -27,12 +27,6 @@ import scala.reflect.runtime.universe._
 object Serializer {
 
   /**
-    * AVRO serde support.
-    * See: https://avro.apache.org/
-    */
-  val AVRO = "AVRO"
-
-  /**
     * JSON serde support.
     * See: http://json4s.org/
     */
@@ -58,8 +52,7 @@ object Serializer {
     * @tparam T the type which has to be serialized/deserialized.
     * @return the serde instance.
     */
-  def getSerde[T <: AnyRef : ClassTag : TypeTag : AvroSerde](name: String): AbstractSerde[T] = name match {
-    case "AVRO" => AvroSerde[T]
+  def getSerde[T <: AnyRef : ClassTag : TypeTag](name: String) = name match {
     case "JSON" => JSONSerde[T]
     case "BSON" => BsonSerde[T]
     case "KRYO" => KryoSerde[T]

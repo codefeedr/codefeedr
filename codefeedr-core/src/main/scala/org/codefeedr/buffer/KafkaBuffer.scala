@@ -21,20 +21,19 @@ package org.codefeedr.buffer
 import java.util.Properties
 
 import org.apache.avro.Schema
+import org.apache.avro.reflect.ReflectData
 import org.codefeedr.Properties._
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
-import org.codefeedr.buffer.serialization._
 
 import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
-import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
+import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.stages.StageAttributes
-import shapeless.datatype.avro.AvroSchema
 
 import scala.collection.JavaConverters._
 
@@ -52,7 +51,7 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE_DESERIALIZATION = "SCHEMA_EXPOSURE_SERIALIZATION"
 }
 
-class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String)
+class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String, groupId: String)
   extends Buffer[T](pipeline, properties) {
 
   private object KafkaBufferDefaults {
@@ -66,7 +65,6 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
     val SCHEMA_EXPOSURE = false
     val SCHEMA_EXPOSURE_SERVICE = "redis"
     val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
-    val SCHEMA_EXPOSURE_DESERIALIZATION = false
   }
 
   //Get type of the class at run time
@@ -81,14 +79,6 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
     //make sure the topic already exists
     checkAndCreateSubject(topic, properties.get[String](KafkaBuffer.BROKER).
       getOrElse(KafkaBufferDefaults.BROKER))
-
-    //check if a schema should be used for deserialization
-    if (properties.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION)
-      .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_DESERIALIZATION)) {
-
-      //get the schema
-      val schema = getSchema(topic)
-    }
 
     pipeline.environment.
       addSource(new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties))
@@ -120,6 +110,7 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
     kafkaProp.put("auto.offset.reset", "earliest")
     kafkaProp.put("auto.commit.interval.ms", "100")
     kafkaProp.put("enable.auto.commit", "true")
+    kafkaProp.put("group.id", groupId)
 
     kafkaProp
   }
@@ -163,27 +154,10 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
     */
   def exposeSchema(): Boolean = {
     //get the schema
-    val schema = AvroSchema[T]
+    val schema = ReflectData.get().getSchema(inputClassType)
 
     //expose the schema
     getExposer.put(schema, topic)
-  }
-
-  /**
-    * Get Schema of the subject.
-    *
-    * @return the schema.
-    */
-  def getSchema(subject: String): Schema = {
-    //get the schema corresponding to the topic
-    val schema = getExposer.get(subject)
-
-    //if not found throw exception
-    if (schema.isEmpty) {
-      throw SchemaNotFoundException(s"Schema for topic $topic not found.")
-    }
-
-    schema.get
   }
 
   /**
@@ -208,5 +182,5 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag : AvroSerde](pipeline: Pipeli
 
     exposer
   }
-
 }
+

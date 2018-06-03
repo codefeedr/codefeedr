@@ -18,13 +18,21 @@
  */
 package org.codefeedr.buffer
 
+import java.util
 import java.util.{Date, Properties, UUID}
 
+import scala.collection.JavaConversions._
+import org.apache.flink.api.scala._
+import org.apache.flink.runtime.client.JobExecutionException
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
+import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
-import org.codefeedr.stages.StageAttributes
+import org.codefeedr.stages.{InputStage, OutputStage, StageAttributes}
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.testUtils.SimpleSourcePipelineObject
+import org.codefeedr.testUtils.{JobFinishedException, SimpleSourcePipelineObject}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class KafkaBufferTest extends FunSuite with BeforeAndAfter {
@@ -42,7 +50,8 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
 
     //setup simple kafkabuffer
     val pipeline = new PipelineBuilder().append(new SimpleSourcePipelineObject()).build()
-    kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, StageAttributes(),"test-subject")
+    kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, StageAttributes(),"test-subject", null)
+
   }
 
 
@@ -52,12 +61,6 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
     assert(!exists(uuid))
     kafkaBuffer.checkAndCreateSubject(uuid, "localhost:9092")
     assert(exists(uuid))
-  }
-
-  test ("A non-existent schema should throw an exception") {
-    assertThrows[SchemaNotFoundException] {
-      kafkaBuffer.getSchema("nOnExistent")
-    }
   }
 
   test ("A schema should correctly be exposed") {
@@ -77,6 +80,88 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
       .contains(topic)
   }
 
+  test("Stage should read from kafka where it left off") {
+    val id = UUID.randomUUID().toString
+    val numberOutput = new NumberOutput(StageAttributes(Some(id)))
+    val numberInput = new NumberInput()
+
+    val pipeline = new PipelineBuilder()
+      .append(numberInput) //pushes 1 till 50
+      .append(numberOutput) //reads and crashes
+      .build()
+
+    assertThrows[JobExecutionException] {
+      pipeline.startLocal()
+    }
+
+    assertThrows[JobExecutionException] {
+      numberInput.numberSource.switch = false
+      val pipeline = new PipelineBuilder()
+        .append(numberInput) //pushes 51 till 100
+        .append(numberOutput) //reads and crashes
+        .build()
+        .startLocal()
+    }
+
+    assert(StringCollectSink.asList.distinct.size == 100)
+  }
+
+}
+
+object StringCollectSink {
+  var result = new util.ArrayList[String]() //mutable list
+
+  def reset(): Unit = {
+    result = new util.ArrayList[String]()
+  }
+
+  def asList: List[String] = result.toList
+}
+
+class StringCollectSink extends SinkFunction[StringType] {
+
+  override def invoke(value: StringType, context: Context[_]): Unit = {
+    synchronized {
+      StringCollectSink.result.add(value.value)
+      if (StringCollectSink.result.size() == 50 || StringCollectSink.result.size() == 100) {
+        throw JobFinishedException()
+      }
+    }
+  }
+}
+
+class NumberInput() extends InputStage[StringType] {
+  val idd = UUID.randomUUID().toString
+  val numberSource = new NumberSource()
+
+  override def main(): DataStream[StringType] = {
+    pipeline.environment.addSource(numberSource)
+  }
+
+  override def getSinkSubject: String = {
+    idd
+  }
+}
+
+class NumberSource() extends SourceFunction[StringType] {
+  var switch = true
+  override def run(ctx: SourceFunction.SourceContext[StringType]): Unit = {
+    println(s"Now here, switch is $switch")
+    if (switch) {
+      for (i <- 1 to 50) {
+        ctx.collect(StringType(i.toString))
+      }
+    } else {
+      for (i <- 51 to 100) {
+        ctx.collect(StringType(i.toString))
+      }
+    }
+  }
+  override def cancel(): Unit = {}
+}
+
+class NumberOutput(stageAttributes: StageAttributes) extends OutputStage[StringType](stageAttributes) {
+  override def main(source: DataStream[StringType]): Unit = source.addSink(new StringCollectSink)
 }
 
 case class TestEvent(name: String, time: Date) extends PipelineItem

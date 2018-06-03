@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit
 
 import org.apache.flink.streaming.api.scala.async.{AsyncFunction, ResultFuture}
 import org.apache.flink.streaming.api.scala.{AsyncDataStream, DataStream, _}
-import org.codefeedr.buffer.serialization.AvroSerde
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.{PushEventFromActiveTravisRepo, TravisBuild}
 import org.codefeedr.plugins.travis.util.{TravisBuildCollector, TravisService}

@@ -19,7 +19,6 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.buffer.serialization.{AvroSerde}
 import org.codefeedr.stages.StageAttributes
 
 import scala.reflect.{ClassTag, Manifest}
@@ -32,7 +31,7 @@ import scala.reflect.runtime.universe._
   * @tparam In2 second input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject2[In <: PipelineItem : ClassTag :TypeTag : AvroSerde, In2 <: PipelineItem : ClassTag : TypeTag : AvroSerde, Out <: PipelineItem : ClassTag : TypeTag : AvroSerde](attributes: StageAttributes = StageAttributes()) extends PipelineObject[In, Out](attributes) {
+abstract class PipelineObject2[In <: PipelineItem : ClassTag :TypeTag, In2 <: PipelineItem : ClassTag : TypeTag, Out <: PipelineItem : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject[In, Out](attributes) {
 
   override def transform(source: DataStream[In]): DataStream[Out] =
     transform(source, getSource[In2](getParents(1)))
@@ -66,7 +65,7 @@ abstract class PipelineObject2[In <: PipelineItem : ClassTag :TypeTag : AvroSerd
   * @tparam In3 third input type of this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject3[In <: PipelineItem : ClassTag :TypeTag : AvroSerde, In2 <: PipelineItem : ClassTag : TypeTag : AvroSerde, In3 <: PipelineItem : ClassTag :TypeTag : AvroSerde, Out <: PipelineItem : ClassTag : TypeTag : AvroSerde](attributes: StageAttributes = StageAttributes()) extends PipelineObject2[In, In2, Out](attributes) {
+abstract class PipelineObject3[In <: PipelineItem : ClassTag :TypeTag, In2 <: PipelineItem : ClassTag : TypeTag, In3 <: PipelineItem : ClassTag :TypeTag, Out <: PipelineItem : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject2[In, In2, Out](attributes) {
 
   override def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[Out] =
     transform(source, secondSource, getSource[In3](getParents(2)))
@@ -104,7 +103,7 @@ abstract class PipelineObject3[In <: PipelineItem : ClassTag :TypeTag : AvroSerd
   * @tparam In4 fourth input type of this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject4[In <: PipelineItem : ClassTag :TypeTag : AvroSerde, In2 <: PipelineItem : ClassTag :TypeTag : AvroSerde, In3 <: PipelineItem : ClassTag :TypeTag : AvroSerde, In4 <: PipelineItem : ClassTag :TypeTag : AvroSerde, Out <: PipelineItem : ClassTag :TypeTag : AvroSerde](attributes: StageAttributes = StageAttributes()) extends PipelineObject3[In, In2, In3, Out](attributes) {
+abstract class PipelineObject4[In <: PipelineItem : ClassTag :TypeTag, In2 <: PipelineItem : ClassTag :TypeTag, In3 <: PipelineItem : ClassTag :TypeTag, In4 <: PipelineItem : ClassTag :TypeTag, Out <: PipelineItem : ClassTag :TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject3[In, In2, In3, Out](attributes) {
 
   override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[Out] =
     transform(source, secondSource, thirdSource, getSource[In4](getParents(3)))

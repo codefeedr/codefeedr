@@ -28,7 +28,7 @@ class PipelineObjectTest extends FunSuite {
 
   class BadSourceObject extends PipelineObject[NoType, StringType] {
     override def transform(source: DataStream[NoType]): DataStream[StringType] = {
-      getMainSource
+      getMainSource()
 
       null
     }
@@ -36,7 +36,7 @@ class PipelineObjectTest extends FunSuite {
 
   class BadSinkObject extends PipelineObject[StringType, NoType] {
     override def transform(source: DataStream[StringType]): DataStream[NoType] = {
-      getSink
+      getSink()
 
       null
     }
