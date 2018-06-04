@@ -21,6 +21,7 @@ package org.codefeedr.plugins.travis.util
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.plugins.travis.TravisProtocol.{TravisBuild, TravisBuilds, TravisRepository}
 import org.codefeedr.plugins.travis.util.TravisExceptions.{CouldNotExtractException, CouldNotGetResourceException}
+import org.codefeedr.stages.utilities.HttpRequester
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.{DefaultFormats, Formats, JValue}
@@ -127,12 +128,14 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     */
   @throws(classOf[CouldNotGetResourceException])
   def getTravisResource(endpoint: String): String = {
-    try {
-      Http(url + endpoint).headers(getHeaders).asString.body
+    val response = try {
+      val request = Http(url + endpoint).headers(getHeaders)
+      new HttpRequester().retrieveResponse(request)
     } catch {
       case _: Throwable =>
         throw CouldNotGetResourceException("Could not get the requested resource from: " + url + endpoint)
     }
+    response.body
   }
 
   /**

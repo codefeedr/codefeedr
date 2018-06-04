@@ -128,6 +128,29 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     assert(schema2.nonEmpty)
   }
 
+  test("A pipeline name can be set through args") {
+    val name = "nice pipeline"
+    val pipeline = builder
+      .append(new SimpleSourcePipelineObject())
+      .append(new SimpleSinkPipelineObject())
+      .build()
+
+    pipeline.start(Array[String]("-runtime", "mock", "-name", name))
+
+    assert(pipeline.name == name)
+  }
+
+  test("A pipeline has a default name") {
+    val pipeline = builder
+      .append(new SimpleSourcePipelineObject())
+      .append(new SimpleSinkPipelineObject())
+      .build()
+
+    pipeline.startMock()
+
+    assert(pipeline.name == "CodeFeedr pipeline")
+  }
+
   /**
     * Builds a really simple (DAG) graph
     * @param expectedMessages after the job will finish.
