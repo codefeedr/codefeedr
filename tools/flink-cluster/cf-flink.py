@@ -58,6 +58,8 @@ def get_stages_from_jar(programId):
     return result
 
 def upload_jar(jar):
+    print('Uploading jar...')
+
     files = {'file': (os.path.basename(jar), open(jar, 'rb'), 'application/x-java-archive')}
 
     r = requests.post(get_url(args, '/jars/upload'), files=files)
@@ -80,11 +82,10 @@ def start_stage(programId, stage):
     return None
 
 def cancel_job(jobId):
-    r = requests.patch(get_url(args, '/jobs/' + jobId))
-    if r.status_code == 202:
+    r = requests.delete(get_url(args, '/jobs/' + jobId + '/cancel'))
+    if r.status_code == 200:
         return True
-    print(r)
-    print(r.text)
+
     return False
 
 def get_job(jobId):
@@ -94,13 +95,7 @@ def get_job(jobId):
 
     return r.json()
 
-################################################
-### COMMANDS
-################################################
-
-# List jobs. Arguments: -a to show inactive jobs too
-# cf jobs
-def cmd_list_jobs(args):
+def get_jobs():
     r = requests.get(get_url(args, '/jobs'))
     if r.status_code is not 200:
         print("Could not connect to host")
@@ -114,13 +109,54 @@ def cmd_list_jobs(args):
         for job in list:
             jobs.append({"id": job, "status": type[5:]})
 
+    return jobs
+
+def get_stage_from_job_name(name):
+    nameInfo = name.split(": ")
+    if len(nameInfo) > 1:
+        return nameInfo[1]
+    return ""
+
+def get_active_stages():
+    # Get list of running jobs
+    jobs = get_jobs()
+
+    # For each, get name
+    filtered = filter(lambda job: job["status"] == "running", jobs)
+
+    for job in filtered:
+        info = get_job(job["id"])
+        job["name"] = info["name"]
+        job["stage"] = get_stage_from_job_name(info["name"])
+
+    return filter(lambda job: job["name"] is not "", filtered)
+
+def delete_program(programId):
+    r = requests.delete(get_url(args, '/jars/' + programId))
+
+    return r.status_code == 200
+
+
+################################################
+### COMMANDS
+################################################
+
+# List jobs. Arguments: -a to show inactive jobs too
+# cf jobs
+def cmd_list_jobs(args):
+    jobs = get_jobs()
+
+    if args.q is False:
+        print("JOBID\t\t\t\t\tSTATUS\t\tSTAGE")
+
     for job in jobs:
         if job["status"] == "running" or args.a is True:
             if args.q is True:
                 print(job["id"])
             else:
                 info = get_job(job["id"])
-                print(job["id"] + "\t" + job["status"] + "\t\t" + info["name"])
+                stage = get_stage_from_job_name(info["name"])
+                print(job["id"] + "\t" + job["status"] + "\t\t" + stage)
 
 def cmd_list_programs(args):
     r = requests.get(get_url(args, '/jars'))
@@ -149,6 +185,8 @@ def cmd_list_stages(args):
     stages = get_stages_from_jar(programId)
     print('Found ' + str(len(stages)) + ' stages')
 
+    delete_program(programId)
+
     if len(stages) == 0:
         return
 
@@ -161,7 +199,6 @@ def cmd_get_pipeline_info(args):
 def cmd_start_pipeline(args):
     print('Starting pipeline in ' + args.jar + '...')
 
-    print('Uploading jar...')
     programId = upload_jar(args.jar)
     if programId is None:
         print('Failed to upload jar to Flink')
@@ -187,11 +224,31 @@ def cmd_start_pipeline(args):
     print('Done')
 
 def cmd_stop_pipeline(args):
-    print('stop pipeline')
+    print('Starting pipeline in ' + args.jar + '...')
+
+    programId = upload_jar(args.jar)
+    if programId is None:
+        print('Failed to upload jar to Flink')
+        return
+    else:
+        print("Uploaded program with id '" + programId + "'")
 
     # Get list of stages form jar
+    stagesInJar = get_stages_from_jar(programId)
+    print('Found ' + str(len(stagesInJar)) + ' stages')
 
-    # for each stage, stop job
+    delete_program(programId)
+
+    # Get the jobs
+    jobsInFlink = get_active_stages()
+    toCancel = filter(lambda job: job["stage"] in stagesInJar, jobsInFlink)
+
+    print('Found ' + str(len(toCancel)) + ' jobs to stop')
+
+    for job in toCancel:
+        print("Stopping job '" + job["id"] + "' for stage " + job["stage"])
+        if not cancel_job(job["id"]):
+            print("ERROR: Failed to stop job " + job["id"])
 
 def cmd_cancel_job(args):
     jobId = args.jobId
