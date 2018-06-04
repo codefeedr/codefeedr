@@ -29,7 +29,8 @@ import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.buffer.BufferType.BufferType
 import org.codefeedr.pipeline.RuntimeType.RuntimeType
 
-case class Pipeline(bufferType: BufferType,
+case class Pipeline(var name: String,
+                    bufferType: BufferType,
                     bufferProperties: Properties,
                     graph: DirectedAcyclicGraph,
                     keyManager: KeyManager,
@@ -92,6 +93,9 @@ case class Pipeline(bufferType: BufferType,
       case _ => runtime
     }
 
+    //set name if specified
+    if (params.has("name")) name = params.get("name")
+
     if (params.has("list")) {
       showList()
     } else {
@@ -113,7 +117,7 @@ case class Pipeline(bufferType: BufferType,
     * Start the pipeline with a run configuration
     *
     * @param runtime Runtime type
-    * @param stage Stage of a cluster run
+    * @param stage   Stage of a cluster run
     */
   def start(runtime: RuntimeType, stage: String = null, groupId: String = null): Unit = {
     runtime match {
@@ -146,7 +150,7 @@ case class Pipeline(bufferType: BufferType,
       buffer = obj.transform(buffer)
     }
 
-    environment.execute("CodeFeedr Mock Job")
+    environment.execute(s"$name: mock")
   }
 
   /**
@@ -167,7 +171,7 @@ case class Pipeline(bufferType: BufferType,
       runObject(obj)
     }
 
-    environment.execute("CodeFeedr Local Job")
+    environment.execute(s"$name: local")
   }
 
   /**
@@ -190,13 +194,14 @@ case class Pipeline(bufferType: BufferType,
     obj.setUp(this)
     runObject(obj, groupId)
 
-    environment.execute("CodeFeedr Cluster Job")
+    environment.execute(s"$name: ${stage}")
   }
 
   /**
     * Run a pipeline object.
     *
     * Creates a source and sink for the object and then runs the transform function.
+    *
     * @param obj
     */
   private def runObject(obj: PipelineObject[PipelineItem, PipelineItem], groupId: String = null): Unit = {
