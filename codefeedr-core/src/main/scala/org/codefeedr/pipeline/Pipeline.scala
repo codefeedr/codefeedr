@@ -93,19 +93,23 @@ case class Pipeline(bufferType: BufferType,
     }
 
     if (params.has("list")) {
-      showList()
+      showList(params.has("asException"))
     } else {
       start(runtime, stage, params.get("groupId"))
     }
   }
 
-  def showList(): Unit = {
-    // Get a list of stages
-    // Print their names
-
+  def showList(asException: Boolean): Unit = {
     val list = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
-    for (node <- list) {
-      println(node.id)
+
+    if (asException) {
+      val contents = list.map { item => '"' + item.id + '"' }
+        .mkString(",")
+      val json = s"[$contents]"
+
+      throw PipelineListException(json)
+    } else {
+      list.foreach(item => println(item.id))
     }
   }
 

@@ -33,3 +33,6 @@ final case class NoSinkException(private val message: String = "",
 final case class StageNotFoundException(private val message: String = "",
                                         private val cause: Throwable = None.orNull)
   extends Exception(message, cause)
+
+final case class PipelineListException(private val json: String)
+  extends Exception(json, null)
