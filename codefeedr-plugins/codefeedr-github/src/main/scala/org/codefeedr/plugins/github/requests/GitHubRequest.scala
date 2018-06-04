@@ -22,7 +22,7 @@ import java.net.SocketTimeoutException
 
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.plugins.github.GitHubEndpoints
-
+import org.codefeedr.stages.utilities.{HttpRequester, RequestException}
 import scalaj.http.{Http, HttpRequest, HttpResponse}
 
 /**
@@ -41,12 +41,10 @@ final case class GitHubRequestException(private val message: String = "",
   * @param endpoint       the request endpoint.
   * @param requestHeaders the request headers.
   */
-class GitHubRequest(endpoint: String, requestHeaders: List[Header]) extends Logging {
+class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
 
   //default accept header
   val ACCEPT_HEADER = ("Accept", "application/vnd.github.v3+json")
-
-  def TIMEOUT_CAP = 32
 
   /**
     * Request the data and parse the response.
@@ -63,19 +61,11 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) extends Logg
     response
   }
 
-  @throws(classOf[Exception])
-  def retrieveResponse(request: HttpRequest, timeOut: Int): HttpResponse[String] = {
+  def retrieveResponse(request: HttpRequest, timeoutCap: Int = 32): HttpResponse[String] = {
     try {
-      return request.asString
+      new HttpRequester(timeoutCap).retrieveResponse(request)
     } catch {
-      case x: Exception if (x.getClass != classOf[GitHubRequestException]) =>
-      {
-        if (timeOut >= TIMEOUT_CAP) throw new GitHubRequestException(s"Requests timed out after $TIMEOUT_CAP seconds.")
-
-        println(s"Failed doing a request retrying in ${timeOut * 2} in seconds.")
-        Thread.sleep(timeOut * 2 * 1000)
-        return retrieveResponse(request, timeOut * 2)
-      }
+      case RequestException(message, cause) => throw GitHubRequestException(message, cause)
     }
   }
 
@@ -87,7 +77,7 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) extends Logg
     */
   def handleErrorCodes(response: GitHubResponse): GitHubResponse = response.status match {
     case 200 | 304 => response
-    case other => throw new GitHubRequestException(s"Undefined response code $other. Body: ${response.body} Endpoint: $endpoint")
+    case other => throw GitHubRequestException(s"Undefined response code $other. Body: ${response.body} Endpoint: $endpoint")
   }
 
   /**
