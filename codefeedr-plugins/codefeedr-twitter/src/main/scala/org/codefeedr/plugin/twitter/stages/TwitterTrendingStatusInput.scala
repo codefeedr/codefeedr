@@ -91,7 +91,7 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
       logger.info(s"Retrieved new trends: $currentTrends")
 
       //close the old stream
-      if (stream != null) stream.close()
+      if (stream != null) Await.result(stream.close(), Duration.Inf)
 
       //start new stream
       stream = Await.result(startStream(currentTrends, ctx), Duration.Inf)
@@ -112,7 +112,7 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
   def startStream(trending: List[String], ctx: SourceFunction.SourceContext[TweetWrapper]): Future[TwitterStream] = {
     getStreamingClient.filterStatuses(tracks = trending) {
       case tweet: Tweet => ctx.collectWithTimestamp(TweetWrapper(tweet), tweet.created_at.getTime)
-      case x => logger.info(x)
+      case x => println(x)
     }
   }
 
