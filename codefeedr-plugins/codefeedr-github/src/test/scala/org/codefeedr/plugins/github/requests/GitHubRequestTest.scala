@@ -99,14 +99,12 @@ class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     val mockHttp = mock[HttpRequest]
     val request = spy(defaultRequest)
 
-    when(request.TIMEOUT_CAP).thenReturn(4)
-
     when(mockHttp.asString)
       .thenThrow(new RuntimeException())
 
 
     assertThrows[GitHubRequestException] {
-      request.retrieveResponse(mockHttp, 1)
+      request.retrieveResponse(mockHttp, 4)
     }
 
   }
