@@ -36,7 +36,9 @@ import scala.reflect.runtime.universe._
   * @tparam Out output type for this pipeline object.
   */
 abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: PipelineItem : ClassTag : TypeTag](val attributes: StageAttributes = StageAttributes()) {
+
   var pipeline: Pipeline = _
+  def environment = pipeline.environment
 
   def id: String = attributes.id.getOrElse(getClass.getName)
 
