@@ -49,8 +49,11 @@ class PipelineBuilder() {
   /** Graph of the pipeline */
   protected[pipeline] var graph = new DirectedAcyclicGraph()
 
-  /** Last inserted pipeline obejct, used to convert sequential to dag. */
+  /** Last inserted pipeline object, used to convert sequential to dag. */
   private var lastObject: AnyRef = _
+
+  /** The name of the pipeline, "CodeFeedr pipeline" by default. */
+  protected var name = "CodeFeedr pipeline"
 
   /**
     * Get the type of the buffer
@@ -132,6 +135,18 @@ class PipelineBuilder() {
     */
   def setKeyManager(km: KeyManager): PipelineBuilder = {
     keyManager = km
+
+    this
+  }
+
+  /**
+    * Set name of the pipeline.
+    *
+    * @param n name of the pipeline.
+    * @return This builder.
+    */
+  def setPipelineName(n: String): PipelineBuilder = {
+    name = n
 
     this
   }
@@ -262,6 +277,6 @@ class PipelineBuilder() {
 
     graph.nodes.foreach(_.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].verifyGraph(graph))
 
-    Pipeline(bufferType, bufferProperties, graph, keyManager, stageProperties.toMap)
+    Pipeline(name, bufferType, bufferProperties, graph, keyManager, stageProperties.toMap)
   }
 }
