@@ -53,16 +53,13 @@ lazy val core = (project in file("codefeedr-core"))
       // Schema exposure
       dependencies.zookeeper,
 
-      //BSON serialization
-      dependencies.mongo,
-
       // BSON serialization
       dependencies.mongo,
 
       // Kryo serialization
       dependencies.kryoChill,
 
-      //avro
+      // Avro schema exposure
       dependencies.avro
     )
   )
