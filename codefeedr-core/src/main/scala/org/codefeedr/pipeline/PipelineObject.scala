@@ -143,7 +143,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: Pi
     *
     * @return Sink subject
     */
-  def getSinkSubject: String = this.getClass.getName
+  def getSinkSubject: String = this.id
 
   def getSource[T <: AnyRef : ClassTag : TypeTag](parentNode: PipelineObject[PipelineItem, PipelineItem]): DataStream[T] = {
     assert(parentNode != null)
