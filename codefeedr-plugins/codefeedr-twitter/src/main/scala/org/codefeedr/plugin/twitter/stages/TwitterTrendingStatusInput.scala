@@ -32,6 +32,7 @@ import org.apache.flink.api.scala._
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 
 /**
   * InputStage which retrieves tweets based on current trending topics.
@@ -91,10 +92,10 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
       logger.info(s"Retrieved new trends: $currentTrends")
 
       //close the old stream
-      if (stream != null) Await.result(stream.close(), Duration.Inf)
+      if (stream != null) Await.result(stream.close(), 10 seconds)
 
       //start new stream
-      stream = Await.result(startStream(currentTrends, ctx), Duration.Inf)
+      stream = Await.result(startStream(currentTrends, ctx), 10 seconds)
 
       //time to sleep
       logger.info(s"Started new stream, now sleeping for $sleepTime minute(s).")
@@ -122,7 +123,7 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
     * @return the list of trending topics (empty if none found).
     */
   def requestTrending(): List[String] = {
-    val trends = Await.result(getRestClient.globalTrends(), Duration.Inf)
+    val trends = Await.result(getRestClient.globalTrends(), 10 seconds)
 
     //get and return the trends
     trends match {
