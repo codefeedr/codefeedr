@@ -53,7 +53,8 @@ class TwitterStatusInput(consumerToken: ConsumerToken,
                          languages: Seq[Language] = Seq.empty,
                          stall_warnings: Boolean = false,
                          filter_level: FilterLevel = FilterLevel.None,
-                         attributes: StageAttributes = StageAttributes()) extends InputStage[TweetWrapper](attributes) {
+                         attributes: StageAttributes = StageAttributes())
+  extends InputStage[TweetWrapper](attributes) {
 
   def main(): DataStream[TweetWrapper] = {
     environment.addSource(new TwitterStatusSource(consumerToken, accessToken, follow, tracks, locations, languages, stall_warnings, filter_level))
