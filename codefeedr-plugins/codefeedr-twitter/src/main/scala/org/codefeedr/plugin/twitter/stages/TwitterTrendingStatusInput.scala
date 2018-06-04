@@ -112,7 +112,7 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
   def startStream(trending: List[String], ctx: SourceFunction.SourceContext[TweetWrapper]): Future[TwitterStream] = {
     getStreamingClient.filterStatuses(tracks = trending) {
       case tweet: Tweet => ctx.collectWithTimestamp(TweetWrapper(tweet), tweet.created_at.getTime)
-      case x => println(x)
+      case x => logger.info(x)
     }
   }
 
