@@ -106,6 +106,40 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
     assert(StringCollectSink.asList.distinct.size == 100)
   }
 
+  test("Giving properties with a kafka buffer should override default properties") {
+    val emptyProperties = new org.codefeedr.Properties()
+
+    val kafkaBuffer = new KafkaBuffer[StringType](null, emptyProperties, null, null, "test")
+    val correctDefaultProperties = new java.util.Properties()
+    correctDefaultProperties.put("bootstrap.servers", "localhost:9092")
+    correctDefaultProperties.put("zookeeper.connect", "localhost:2181")
+    correctDefaultProperties.put("auto.offset.reset", "earliest")
+    correctDefaultProperties.put("auto.commit.interval.ms", "100")
+    correctDefaultProperties.put("enable.auto.commit", "true")
+    correctDefaultProperties.put("group.id", "test")
+    assert(kafkaBuffer.getKafkaProperties == correctDefaultProperties)
+
+
+    val properties = new org.codefeedr.Properties()
+      .set(KafkaBuffer.BROKER, "nonlocalhost:9092")
+      .set(KafkaBuffer.ZOOKEEPER, "nonlocalhost:2181")
+      .set("auto.commit.interval.ms", "200")
+      .set("some.other.property", "some-value")
+
+
+    val kafkaBuffer2 = new KafkaBuffer[StringType](null, properties, null, null, "test")
+    val correctProperties = new java.util.Properties()
+    correctProperties.put("bootstrap.servers", "nonlocalhost:9092")
+    correctProperties.put("zookeeper.connect", "nonlocalhost:2181")
+    correctProperties.put("auto.offset.reset", "earliest")
+    correctProperties.put("auto.commit.interval.ms", "200")
+    correctProperties.put("enable.auto.commit", "true")
+    correctProperties.put("group.id", "test")
+    correctProperties.put("some.other.property", "some-value")
+    assert(kafkaBuffer2.getKafkaProperties == correctProperties)
+
+  }
+
 }
 
 object StringCollectSink {

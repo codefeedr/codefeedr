@@ -41,8 +41,8 @@ object KafkaBuffer {
   /**
     * PROPERTIES
     */
-  val BROKER = "HOST"
-  val ZOOKEEPER = "ZOOKEEPER"
+  val BROKER = "bootstrap.servers"
+  val ZOOKEEPER = "zookeeper.connect"
 
   //SCHEMA EXPOSURE
   val SCHEMA_EXPOSURE = "SCHEMA_EXPOSURE"
@@ -105,12 +105,14 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     */
   def getKafkaProperties: java.util.Properties = {
     val kafkaProp = new java.util.Properties()
-    kafkaProp.put("bootstrap.servers", properties.getOrElse[String](KafkaBuffer.BROKER, KafkaBufferDefaults.BROKER))
-    kafkaProp.put("zookeeper.connect", properties.getOrElse[String](KafkaBuffer.ZOOKEEPER, KafkaBufferDefaults.ZOOKEEPER))
+    kafkaProp.put("bootstrap.servers", KafkaBufferDefaults.BROKER)
+    kafkaProp.put("zookeeper.connect", KafkaBufferDefaults.ZOOKEEPER)
     kafkaProp.put("auto.offset.reset", "earliest")
     kafkaProp.put("auto.commit.interval.ms", "100")
     kafkaProp.put("enable.auto.commit", "true")
     kafkaProp.put("group.id", groupId)
+
+    kafkaProp.putAll(properties.toJavaProperties)
 
     kafkaProp
   }
