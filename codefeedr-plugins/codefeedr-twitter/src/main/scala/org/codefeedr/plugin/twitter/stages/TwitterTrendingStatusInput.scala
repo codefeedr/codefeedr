@@ -33,6 +33,16 @@ import org.apache.flink.api.scala._
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
+/**
+  * InputStage which retrieves tweets based on current trending topics.
+  * Refreshes topics after $sleepTime minutes.
+  *
+  * @param consumerToken  Consumer Token of your application.
+  * @param accessToken  Access Token of your application.
+  * @param sleepTime Time in minutes to refresh trending topics and restart stream.
+  *                  Trending topics are cached for 5 minutes, so you shouldn't set this lower than that.
+  *                  Consider that there is some overhead in stopping and restarting the stream.
+  */
 class TwitterTrendingStatusInput(consumerToken: ConsumerToken,
                                  accessToken: AccessToken,
                                  sleepTime: Int = 15,
@@ -44,6 +54,16 @@ class TwitterTrendingStatusInput(consumerToken: ConsumerToken,
   }
 }
 
+/**
+  * Flink source which retrieves tweets based on current trending topics.
+  * Refreshes topics after $sleepTime minutes.
+  *
+  * @param consumerToken  Consumer Token of your application.
+  * @param accessToken  Access Token of your application.
+  * @param sleepTime Time in minutes to refresh trending topics and restart stream.
+  *                  Trending topics are cached for 5 minutes, so you shouldn't set this lower than that.
+  *                  Consider that there is some overhead in stopping and restarting the stream.
+  */
 class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
                                   accessToken: AccessToken,
                                   sleepTime: Int)
@@ -56,19 +76,11 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
 
   var isRunning: Boolean = false
 
-  def getRestClient: TwitterRestClient =
-    TwitterRestClient(consumerToken, accessToken)
+  def getRestClient: TwitterRestClient = TwitterRestClient(consumerToken, accessToken)
+  def getStreamingClient: TwitterStreamingClient = TwitterStreamingClient(consumerToken, accessToken)
 
-  def getStreamingClient: TwitterStreamingClient =
-    TwitterStreamingClient(consumerToken, accessToken)
-
-  override def open(parameters: Configuration): Unit = {
-    isRunning = true
-  }
-
-  override def cancel(): Unit = {
-    isRunning = false
-  }
+  override def open(parameters: Configuration) = isRunning = true
+  override def cancel(): Unit = isRunning = false
 
   override def run(ctx: SourceFunction.SourceContext[TweetWrapper]): Unit = {
     var stream: TwitterStream = null
