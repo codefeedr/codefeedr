@@ -68,6 +68,17 @@ class TwitterStatusInputTest extends FunSuite with MockitoSugar {
     //return mocked stream
     doReturn(twitterClient).when(source).getClient
 
+    //open the source
+    source.open(new Configuration())
+
+    //cancel the source after 1 second
+    new Thread() {
+      override def run: Unit = {
+        Thread.sleep(1000)
+        source.cancel()
+      }
+    }.start()
+
     //run the source
     source.run(context)
 
@@ -82,7 +93,6 @@ class TwitterStatusInputTest extends FunSuite with MockitoSugar {
 
     //ensure there is only collected once
     verify(context, times(2)).collect(any(classOf[TweetWrapper]))
-
   }
 
 }
