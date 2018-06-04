@@ -19,6 +19,5 @@
 package org.codefeedr.stages
 
 case class StageAttributes(
-                            id: Option[String] = None,
-                            sinkAvroSchemaPath: Option[String] = None
+                            id: Option[String] = None
                           )
