@@ -91,6 +91,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val name = "Simple pipeline"
 
     val pipeline = builder
+      .append(new SimpleSourcePipelineObject())
       .setPipelineName(name)
       .build()
 
