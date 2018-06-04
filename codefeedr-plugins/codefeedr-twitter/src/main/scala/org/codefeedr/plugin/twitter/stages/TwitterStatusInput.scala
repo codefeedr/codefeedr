@@ -36,7 +36,7 @@ import scala.concurrent.blocking
 /**
   * InputStage which retrieves tweets based on some filters.
   * @param consumerToken Consumer Token of your application.
-  * @param accesToken Access Token of your application.
+  * @param accessToken Access Token of your application.
   * @param follow  List of user IDs, indicating the users whose Tweets should be delivered on the stream.
   * @param tracks List of phrases which will be used to determine what Tweets will be delivered on the stream.
   * @param locations Specifies a set of bounding boxes to track.
@@ -45,7 +45,7 @@ import scala.concurrent.blocking
   * @param filter_level Set the minimum value of the filter_level Tweet attribute required to be included in the stream.
   */
 class TwitterStatusInput(consumerToken: ConsumerToken,
-                         accesToken: AccessToken,
+                         accessToken: AccessToken,
                          follow: Seq[Long] = Seq.empty,
                          tracks: Seq[String] = Seq.empty,
                          locations: Seq[Double] = Seq.empty,
@@ -55,14 +55,14 @@ class TwitterStatusInput(consumerToken: ConsumerToken,
                          attributes: StageAttributes = StageAttributes()) extends InputStage[TweetWrapper](attributes) {
 
   def main(): DataStream[TweetWrapper] = {
-    pipeline.environment.addSource(new TwitterStatusSource(consumerToken, accesToken, follow, tracks, locations, languages, stall_warnings, filter_level))
+    environment.addSource(new TwitterStatusSource(consumerToken, accessToken, follow, tracks, locations, languages, stall_warnings, filter_level))
   }
 }
 
 /**
   * Flink source which retrieves tweets based on some filters.
   * @param consumerToken Consumer Token of your application.
-  * @param accesToken Access Token of your application.
+  * @param accessToken Access Token of your application.
   * @param follow  List of user IDs, indicating the users whose Tweets should be delivered on the stream.
   * @param tracks List of phrases which will be used to determine what Tweets will be delivered on the stream.
   * @param locations Specifies a set of bounding boxes to track.
@@ -71,7 +71,7 @@ class TwitterStatusInput(consumerToken: ConsumerToken,
   * @param filter_level Set the minimum value of the filter_level Tweet attribute required to be included in the stream.
   */
 class TwitterStatusSource(consumerToken: ConsumerToken,
-                          accesToken: AccessToken,
+                          accessToken: AccessToken,
                           follow: Seq[Long],
                           tracks: Seq[String],
                           locations: Seq[Double],
@@ -86,7 +86,7 @@ class TwitterStatusSource(consumerToken: ConsumerToken,
     * Retrieves a new TwitterStream instance.
     * @return a new TwitterStream.
     */
-  def getClient = new TwitterStreamingClient(consumerToken, accesToken)
+  def getClient = new TwitterStreamingClient(consumerToken, accessToken)
 
   /**
     * Opens the source function.

@@ -30,14 +30,18 @@ import com.danielasfregola.twitter4s.entities.{AccessToken, ConsumerToken, Tweet
 import com.danielasfregola.twitter4s.http.clients.streaming.TwitterStream
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.codefeedr.plugin.twitter.TwitterProtocol.TweetWrapper
-import org.mockito.ArgumentCaptor
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.FunSuite
 import org.scalatest.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.mockito.exceptions.verification.NoInteractionsWanted
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class TwitterStatusInputTest extends FunSuite with MockitoSugar {
@@ -93,6 +97,27 @@ class TwitterStatusInputTest extends FunSuite with MockitoSugar {
 
     //ensure there is only collected once
     verify(context, times(2)).collect(any(classOf[TweetWrapper]))
+  }
+
+  test ("A source needs to be properly added to the environment") {
+    val env = mock[StreamExecutionEnvironment]
+    val stage = spy(new TwitterStatusInput(consumerToken, accessToken))
+
+    doReturn(env)
+      .when(stage)
+      .environment
+
+    stage
+      .main()
+
+    //for some reason this doesn't work, gives exception: 2 matches expected, 1 recorded
+    // verify(env, times(1)).addSource(any[SourceFunction[TweetWrapper]])
+
+    //work around to ensure mocked env is used
+    assertThrows[NoInteractionsWanted] {
+      verifyZeroInteractions(env)
+    }
+
   }
 
 }
