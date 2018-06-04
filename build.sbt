@@ -36,6 +36,9 @@ lazy val core = (project in file("codefeedr-core"))
       dependencies.jackson,
       dependencies.json4sExt,
 
+      // Http
+      dependencies.httpj,
+
       // KafkaBuffer
       dependencies.kafkaClient,
       dependencies.flinkKafka,
