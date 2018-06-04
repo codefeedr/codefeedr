@@ -41,7 +41,7 @@ final case class GitHubRequestException(private val message: String = "",
   * @param endpoint       the request endpoint.
   * @param requestHeaders the request headers.
   */
-class GitHubRequest(endpoint: String, requestHeaders: List[Header]) extends Logging {
+class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
 
   //default accept header
   val ACCEPT_HEADER = ("Accept", "application/vnd.github.v3+json")

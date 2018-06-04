@@ -1,5 +1,6 @@
 package org.codefeedr.stages.utilities
 
+import org.apache.logging.log4j.scala.Logging
 import scalaj.http.{HttpRequest, HttpResponse}
 
 /**
@@ -16,7 +17,7 @@ final case class RequestException(private val message: String = "",
   * Requests http requests multiple times until it succeeds or the timeoutCap is exceeded.
   * @param timeoutCap Cap at which the timeout stops growing and stops trying instead.
   */
-class HttpRequester(timeoutCap: Int = 32) {
+class HttpRequester(timeoutCap: Int = 32) extends Logging {
 
   @throws(classOf[Exception])
   def retrieveResponse(request: HttpRequest, timeOut: Int = 1): HttpResponse[String] = {
@@ -27,7 +28,7 @@ class HttpRequester(timeoutCap: Int = 32) {
       {
         if (timeOut >= timeoutCap) throw RequestException(s"Requests timed out after $timeoutCap seconds.")
 
-        println(s"Failed doing a request retrying in ${timeOut * 2} in seconds.")
+        logger.info(s"Failed doing a request retrying in ${timeOut * 2} in seconds.")
         Thread.sleep(timeOut * 2 * 1000)
         retrieveResponse(request, timeOut * 2)
       }
