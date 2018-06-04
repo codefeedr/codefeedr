@@ -87,6 +87,17 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assert(pipeline.keyManager == km)
   }
 
+  test("A pipeline name should be set") {
+    val name = "Simple pipeline"
+
+    val pipeline = builder
+      .append(new SimpleSourcePipelineObject())
+      .setPipelineName(name)
+      .build()
+
+    assert(pipeline.name == name)
+  }
+
   test("A DAG pipeline can't be appeneded to") {
     builder.edge(new SimpleSourcePipelineObject(), new SimpleTransformPipelineObject())
 
@@ -160,7 +171,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("Append an anonymous pipeline item") {
     val pipeline = builder.append(new SimpleSourcePipelineObject())
-      .append { x : DataStream[StringType] =>
+      .append { x: DataStream[StringType] =>
         x.map(x => x)
       }.build()
 
@@ -172,7 +183,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("Append an anonymous pipeline job") {
     val pipeline = builder.append(new SimpleSourcePipelineObject())
-      .append { x : DataStream[StringType] =>
+      .append { x: DataStream[StringType] =>
         x.addSink(new SinkFunction[StringType] {})
       }.build()
 
@@ -215,11 +226,11 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val b = new SimpleTransformPipelineObject()
 
     val pipeline = builder
-        .append(a)
-//      .addStage(a)
-//      .usingId("AnId")
-//      .setProperty("foo", "bar")
-//      .setProperty("hello", "world")
+      .append(a)
+      //      .addStage(a)
+      //      .usingId("AnId")
+      //      .setProperty("foo", "bar")
+      //      .setProperty("hello", "world")
 
       .build()
 
