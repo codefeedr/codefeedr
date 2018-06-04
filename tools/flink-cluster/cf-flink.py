@@ -28,14 +28,14 @@ def get_job_exceptions(jobId):
 
     return result["all-exceptions"]
 
-def wait_for_job_exception(jobId):
+def wait_for_job_exceptions(jobId):
     while True:
         time.sleep(5)
 
         print("  Getting job status...")
         state = get_job_state(jobId)
         if state == "FAILED":
-            return get_job_exception(jobId)
+            return get_job_exceptions(jobId)
 
         if state != "RUNNING":
             return None
@@ -69,7 +69,7 @@ def upload_jar(jar):
     return result["filename"]
 
 def start_stage(programId, stage):
-    params = {"program-args": "--stage " + stage}
+    params = {"program-args": "--stage " + stage, "parallelism": 1}
     r = requests.post(get_url(args, '/jars/' + programId + '/run'), params=params)
     if r.status_code == 200:
         return r.json()["jobid"]
@@ -78,6 +78,21 @@ def start_stage(programId, stage):
     print(r.text)
 
     return None
+
+def cancel_job(jobId):
+    r = requests.patch(get_url(args, '/jobs/' + jobId))
+    if r.status_code == 202:
+        return True
+    print(r)
+    print(r.text)
+    return False
+
+def get_job(jobId):
+    r = requests.get(get_url(args, '/jobs/' + jobId))
+    if r.status_code != 200:
+        return None
+
+    return r.json()
 
 ################################################
 ### COMMANDS
@@ -93,8 +108,6 @@ def cmd_list_jobs(args):
 
     data = r.json()
 
-    print(args)
-
     # Switch to a job+info format
     jobs = []
     for type, list in data.iteritems():
@@ -106,7 +119,8 @@ def cmd_list_jobs(args):
             if args.q is True:
                 print(job["id"])
             else:
-                print(job["id"] + "\t\t" + job["status"])
+                info = get_job(job["id"])
+                print(job["id"] + "\t" + job["status"] + "\t\t" + info["name"])
 
 def cmd_list_programs(args):
     r = requests.get(get_url(args, '/jars'))
@@ -138,7 +152,7 @@ def cmd_list_stages(args):
     if len(stages) == 0:
         return
 
-    for (stage in stages):
+    for stage in stages:
         print(stage)
 
 def cmd_get_pipeline_info(args):
@@ -179,14 +193,14 @@ def cmd_stop_pipeline(args):
 
     # for each stage, stop job
 
-
 def cmd_cancel_job(args):
-    print('Cancel job')
+    jobId = args.jobId
 
-# cf stage list
-# cf stage start
-# cf stage restart
-# cf stage stop
+    if cancel_job(jobId):
+        print("Cancelled job '" + jobId + "'")
+    else:
+        print("Failed to cancel job '" + jobId + "'")
+
 
 
 if __name__ == '__main__':
@@ -200,6 +214,11 @@ if __name__ == '__main__':
     parser_jobs.add_argument('-q', help="Only show job IDs", action='store_true')
     parser_jobs.set_defaults(func=cmd_list_jobs)
 
+    # cf cancel
+    parser_cancel_job = subparsers.add_parser('cancel', help="cancel job")
+    parser_cancel_job.add_argument('jobId', help="JobID")
+    parser_cancel_job.set_defaults(func=cmd_cancel_job)
+
     # cf program
     parser_program = subparsers.add_parser('program', help='program (jar) commands')
     parser_program.add_argument('--jar', type=str, help='Jar file of the program')
@@ -210,12 +229,8 @@ if __name__ == '__main__':
     parser_program_list.set_defaults(func=cmd_list_programs)
 
     # cf program stages
-    # parser_program_stages = subparsers_program.add_parser('stages', help="list stages in program")
-    # parser_program_stages.set_defaults(func=list_stages)
-
-    # cf program upload
-    # parser_program_upload = subparsers_program.add_parser('upload', help="upload program")
-    # parser_program_upload.set_defaults(func=upload_program)
+    parser_program_stages = subparsers_program.add_parser('stages', help="list stages in program")
+    parser_program_stages.set_defaults(func=cmd_list_stages)
 
     # cf pipeline
     parser_pipeline = subparsers.add_parser('pipeline', help='pipeline commands')
