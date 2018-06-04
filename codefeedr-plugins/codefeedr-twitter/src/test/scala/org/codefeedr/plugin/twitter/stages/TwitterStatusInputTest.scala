@@ -123,8 +123,8 @@ class TwitterStatusInputTest extends FunSuite with MockitoSugar {
     val source = spy(new TwitterStatusSource(consumerToken, accessToken, Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty, false, FilterLevel.None))
     val client = source.getClient
 
-    //assert(client.consumerToken == consumerToken)
-    //assert(client.accessToken == accessToken)
+    assert(client.consumerToken == consumerToken)
+    assert(client.accessToken == accessToken)
   }
 
 }

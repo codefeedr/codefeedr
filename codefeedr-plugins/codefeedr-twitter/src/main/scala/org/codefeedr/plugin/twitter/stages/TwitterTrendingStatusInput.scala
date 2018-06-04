@@ -28,23 +28,25 @@ import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, Sour
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.plugin.twitter.TwitterProtocol.TweetWrapper
 import org.codefeedr.stages.{InputStage, StageAttributes}
+import org.apache.flink.api.scala._
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
 class TwitterTrendingStatusInput(consumerToken: ConsumerToken,
                                  accessToken: AccessToken,
+                                 sleepTime: Int = 15,
                                  stageAttributes: StageAttributes = StageAttributes())
   extends InputStage[TweetWrapper](stageAttributes) {
 
   override def main(): DataStream[TweetWrapper] = {
-    environment.addSource(new TwitterTrendingStatusSource(consumerToken, accessToken))
+    environment.addSource(new TwitterTrendingStatusSource(consumerToken, accessToken, sleepTime))
   }
 }
 
 class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
                                   accessToken: AccessToken,
-                                  sleepTime: Int = 15)
+                                  sleepTime: Int)
   extends RichSourceFunction[TweetWrapper] with Logging {
 
   //amount of time to sleep after each trending call
@@ -69,16 +71,15 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
   }
 
   override def run(ctx: SourceFunction.SourceContext[TweetWrapper]): Unit = {
-    var currentTrends = requestTrending()
-    var stream: TwitterStream = Await.result(startStream(currentTrends, ctx), Duration.Inf)
+    var stream: TwitterStream = null
 
     while (isRunning) {
       //get stream
-      currentTrends = requestTrending()
+      val currentTrends = requestTrending()
       logger.info(s"Retrieved new trends: $currentTrends")
 
       //close the old stream
-      stream.close()
+      if (stream != null) stream.close()
 
       //start new stream
       stream = Await.result(startStream(currentTrends, ctx), Duration.Inf)
