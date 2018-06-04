@@ -12,7 +12,11 @@ final case class RequestException(private val message: String = "",
                                         private val cause: Throwable = None.orNull)
   extends Exception(message, cause)
 
-class HttpRequester(timoutCap: Int = 32) {
+/**
+  * Requests http requests multiple times until it succeeds or the timeoutCap is exceeded.
+  * @param timeoutCap Cap at which the timeout stops growing and stops trying instead.
+  */
+class HttpRequester(timeoutCap: Int = 32) {
 
   @throws(classOf[Exception])
   def retrieveResponse(request: HttpRequest, timeOut: Int = 1): HttpResponse[String] = {
@@ -21,7 +25,7 @@ class HttpRequester(timoutCap: Int = 32) {
     } catch {
       case x: Exception if  x.getClass != classOf[RequestException] =>
       {
-        if (timeOut >= timoutCap) throw RequestException(s"Requests timed out after $timoutCap seconds.")
+        if (timeOut >= timeoutCap) throw RequestException(s"Requests timed out after $timeoutCap seconds.")
 
         println(s"Failed doing a request retrying in ${timeOut * 2} in seconds.")
         Thread.sleep(timeOut * 2 * 1000)
