@@ -14,10 +14,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
+package org.codefeedr.plugin.twitter
 
-package org.codefeedr.stages
+import com.danielasfregola.twitter4s.entities.Tweet
+import org.codefeedr.pipeline.PipelineItem
 
-case class StageAttributes(
-                            id: Option[String] = None
-                          )
+object TwitterProtocol {
+
+  /**
+    * Wraps a (pipelined) case class around a tweet.
+    *
+    * @param tweet the wrapped tweet.
+    */
+  case class TweetWrapper(tweet: Tweet)
+    extends PipelineItem
+
+}

@@ -148,6 +148,23 @@ lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs")
     core
   )
 
+lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter"))
+  .settings(
+    name := projectPrefix + "twitter",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.twitter
+    ),
+    dependencyOverrides ++= Seq( //override json4s dependencies
+      "org.json4s" %% "json4s-scalap" % "3.5.3",
+      "org.json4s" %% "json4s-jackson" % "3.5.3",
+      "org.json4s" %% "json4s-ext" % "3.5.3"
+    )
+  )
+  .dependsOn(
+    core
+  )
 
 lazy val dependencies =
   new {
@@ -188,6 +205,7 @@ lazy val dependencies =
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
 
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
+    val twitter            = "com.danielasfregola"        %% "twitter4s"                     % "5.5"
   }
 
 lazy val commonDependencies = Seq(
