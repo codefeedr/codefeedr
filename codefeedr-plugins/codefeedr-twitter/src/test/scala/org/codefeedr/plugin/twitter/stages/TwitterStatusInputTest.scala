@@ -46,8 +46,8 @@ import scala.concurrent.Future
 
 class TwitterStatusInputTest extends FunSuite with MockitoSugar {
 
-  val consumerToken = ConsumerToken("", "")
-  val accessToken = AccessToken("", "")
+  val consumerToken = ConsumerToken("Consumer Key", "Consumer Secrect")
+  val accessToken = AccessToken("Access Key", "Access Secret")
 
   val simpleTweet = Tweet(created_at = new Date(), id = 1, id_str = "1", source = "", text = "")
 
@@ -117,7 +117,14 @@ class TwitterStatusInputTest extends FunSuite with MockitoSugar {
     assertThrows[NoInteractionsWanted] {
       verifyZeroInteractions(env)
     }
+  }
 
+  test ("A TwitterClient should be created correctly") {
+    val source = spy(new TwitterStatusSource(consumerToken, accessToken, Seq.empty,  Seq.empty,  Seq.empty,  Seq.empty, false, FilterLevel.None))
+    val client = source.getClient
+
+    //assert(client.consumerToken == consumerToken)
+    //assert(client.accessToken == accessToken)
   }
 
 }

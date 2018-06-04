@@ -152,6 +152,11 @@ lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter")
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
       dependencies.twitter
+    ),
+    dependencyOverrides ++= Seq( //override json4s dependencies
+      "org.json4s" %% "json4s-scalap" % "3.5.3",
+      "org.json4s" %% "json4s-jackson" % "3.5.3",
+      "org.json4s" %% "json4s-ext" % "3.5.3"
     )
   )
   .dependsOn(

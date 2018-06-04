@@ -35,14 +35,15 @@ import scala.concurrent.blocking
 
 /**
   * InputStage which retrieves tweets based on some filters.
-  * @param consumerToken Consumer Token of your application.
-  * @param accessToken Access Token of your application.
-  * @param follow  List of user IDs, indicating the users whose Tweets should be delivered on the stream.
-  * @param tracks List of phrases which will be used to determine what Tweets will be delivered on the stream.
-  * @param locations Specifies a set of bounding boxes to track.
-  * @param languages List of 'BCP 47' language identifiers.
+  *
+  * @param consumerToken  Consumer Token of your application.
+  * @param accessToken    Access Token of your application.
+  * @param follow         List of user IDs, indicating the users whose Tweets should be delivered on the stream.
+  * @param tracks         List of phrases which will be used to determine what Tweets will be delivered on the stream.
+  * @param locations      Specifies a set of bounding boxes to track.
+  * @param languages      List of 'BCP 47' language identifiers.
   * @param stall_warnings Specifies whether stall warnings (`WarningMessage`) should be delivered as part of the updates.
-  * @param filter_level Set the minimum value of the filter_level Tweet attribute required to be included in the stream.
+  * @param filter_level   Set the minimum value of the filter_level Tweet attribute required to be included in the stream.
   */
 class TwitterStatusInput(consumerToken: ConsumerToken,
                          accessToken: AccessToken,
@@ -61,14 +62,15 @@ class TwitterStatusInput(consumerToken: ConsumerToken,
 
 /**
   * Flink source which retrieves tweets based on some filters.
-  * @param consumerToken Consumer Token of your application.
-  * @param accessToken Access Token of your application.
-  * @param follow  List of user IDs, indicating the users whose Tweets should be delivered on the stream.
-  * @param tracks List of phrases which will be used to determine what Tweets will be delivered on the stream.
-  * @param locations Specifies a set of bounding boxes to track.
-  * @param languages List of 'BCP 47' language identifiers.
+  *
+  * @param consumerToken  Consumer Token of your application.
+  * @param accessToken    Access Token of your application.
+  * @param follow         List of user IDs, indicating the users whose Tweets should be delivered on the stream.
+  * @param tracks         List of phrases which will be used to determine what Tweets will be delivered on the stream.
+  * @param locations      Specifies a set of bounding boxes to track.
+  * @param languages      List of 'BCP 47' language identifiers.
   * @param stall_warnings Specifies whether stall warnings (`WarningMessage`) should be delivered as part of the updates.
-  * @param filter_level Set the minimum value of the filter_level Tweet attribute required to be included in the stream.
+  * @param filter_level   Set the minimum value of the filter_level Tweet attribute required to be included in the stream.
   */
 class TwitterStatusSource(consumerToken: ConsumerToken,
                           accessToken: AccessToken,
@@ -84,12 +86,15 @@ class TwitterStatusSource(consumerToken: ConsumerToken,
 
   /**
     * Retrieves a new TwitterStream instance.
+    *
     * @return a new TwitterStream.
     */
-  def getClient = new TwitterStreamingClient(consumerToken, accessToken)
+  def getClient: TwitterStreamingClient =
+    TwitterStreamingClient(consumerToken, accessToken)
 
   /**
     * Opens the source function.
+    *
     * @param parameters
     */
   override def open(parameters: Configuration): Unit = {
@@ -105,6 +110,7 @@ class TwitterStatusSource(consumerToken: ConsumerToken,
 
   /**
     * Starts and opens a twitter stream retrieving statuses.
+    *
     * @param ctx the context to collect to.
     */
   override def run(ctx: SourceFunction.SourceContext[TweetWrapper]): Unit = {
