@@ -21,7 +21,7 @@ package org.codefeedr.pipeline
 /**
   * This class is used for the InputStage input and for the OutputStage output.
   */
-case class NoType() extends Serializable
+case class NoType()
 
 object RuntimeType extends Enumeration {
   type RuntimeType = Value
