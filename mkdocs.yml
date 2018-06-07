@@ -43,5 +43,8 @@ pages:
   - Plugins:
     - 'GitHub': 'plugins/plugin-examples.md'
     - 'RSS': 'plugins/plugin-examples.md'
-    - 'Apache Access Logs': 'plugins/plugin-examples.md'
+    - 'Apache httpd Access Logs': 'plugins/plugin-examples.md'
     - 'Historic data': 'plugins/historic-data.md'
+  - Orchestration:
+    - 'Docker': 'orchestration/docker.md'
+    - 'Cluster Tool': 'orchestration/tool.md'

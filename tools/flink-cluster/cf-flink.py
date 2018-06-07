@@ -177,35 +177,10 @@ def cmd_list_programs(args):
 
     data = r.json()
 
+    print("JARID\t\tFILENAME\tTIMESTAMP")
+
     for jar in data["files"]:
         print(jar["id"] + "\t\t" + jar["name"] + "\t" + str(jar["uploaded"]))
-
-def cmd_list_stages(args):
-    if args.jar is None:
-        print("No jar specified")
-        return
-
-    programId = upload_jar(args.jar)
-    if programId is None:
-        print("Failed to upload jar to Flink")
-        return
-    else:
-        print("Uploaded program with id '" + programId + "'")
-
-    stages = get_stages_from_jar(programId)
-    if stages is None:
-        delete_program(programId)
-        return
-
-    print("Found " + str(len(stages)) + " stages")
-
-    delete_program(programId)
-
-    if len(stages) == 0:
-        return
-
-    for stage in stages:
-        print(stage)
 
 def cmd_get_pipeline_info(args):
     programId = upload_jar(args.jar)
@@ -226,7 +201,6 @@ def cmd_get_pipeline_info(args):
 
     print("\nRemoving JAR...")
     delete_program(programId)
-
 
 def cmd_start_pipeline(args):
     print("Starting pipeline in " + args.jar + "...")
@@ -384,10 +358,6 @@ if __name__ == "__main__":
     # cf program list
     parser_program_list = subparsers_program.add_parser("list", help="list programs on server")
     parser_program_list.set_defaults(func=cmd_list_programs)
-
-    # cf program stages
-    parser_program_stages = subparsers_program.add_parser("stages", help="list stages in program")
-    parser_program_stages.set_defaults(func=cmd_list_stages)
 
     # cf pipeline
     parser_pipeline = subparsers.add_parser("pipeline", help="pipeline commands")
