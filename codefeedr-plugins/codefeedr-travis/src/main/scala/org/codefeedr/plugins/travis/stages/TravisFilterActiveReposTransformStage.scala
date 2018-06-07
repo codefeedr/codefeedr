@@ -28,9 +28,11 @@ import org.codefeedr.stages.TransformStage
 /**
   * TransformStage that takes push events from github and filters the push events from repositories
   * that are active on Travis
-  * @param travis TravisService used to make requests to Travis
   */
-class TravisFilterActiveReposTransformStage(travis: TravisService) extends TransformStage[PushEvent, PushEventFromActiveTravisRepo] {
+class TravisFilterActiveReposTransformStage() extends TransformStage[PushEvent, PushEventFromActiveTravisRepo] {
+
+  lazy val travisService: TravisService = new TravisService(pipeline.keyManager)
+  def travis: TravisService = travisService
 
   override def transform(source: DataStream[PushEvent]): DataStream[PushEventFromActiveTravisRepo] = {
 

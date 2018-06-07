@@ -35,10 +35,12 @@ import scala.util.{Failure, Success}
   * TransformStage that takes push events from Repositories that are active on Travis and outputs
   * the build information of those push events. If the build is not completed yet it will wait until it is
   * completed
-  * @param travis TravisService used to make requests to Travis
   * @param capacity Limit on how many builds can be requested simultaneously
   */
-class TravisPushEventBuildInfoTransformStage(travis: TravisService, capacity: Int = 100) extends TransformStage[PushEventFromActiveTravisRepo, TravisBuild]{
+class TravisPushEventBuildInfoTransformStage(capacity: Int = 100) extends TransformStage[PushEventFromActiveTravisRepo, TravisBuild]{
+
+  lazy val travisService: TravisService = new TravisService(pipeline.keyManager)
+  def travis: TravisService = travisService
 
   def transform(source: DataStream[PushEventFromActiveTravisRepo]): DataStream[TravisBuild] = {
 
