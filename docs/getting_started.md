@@ -1,13 +1,19 @@
 ## Setup
 To use the framework import the following dependency in your project: 
 
-## Example
-This sections offers some examples for creating a simple pipeline. To create more complex pipelines, see the [pipeline section](#pipeline).
-### WordCount
-```scala
-case class StringType(value: String) extends PipelineItem
+## Template
+If you want to start from scratch, you can download our template using [Giter8](http://www.foundweekends.org/giter8/):
 
-class SimpleOutput extends OutputStage[StringType] {
+`sbt new Jorisq/bep_codefeedr-project.g8`
+
+This template contains a simple WordCount example, which is discussed below.
+## Example
+This sections offers a WordCount example also available in the [template](#template). For more in-depth explanation on how to create stages for a pipeline, see the pipeline section.
+### WordCount
+First of all an OutputStage is created, this is a stage which reads from a buffer but doesn't write to one. 
+In this OutputStage a simple WordCount is executed using the Flink DataStream API.
+```scala
+class WordCountOutput extends OutputStage[StringType] {
   override def main(source: DataStream[StringType]): Unit = {
     source
       .map { item => (item.value, 1) }
@@ -15,31 +21,48 @@ class SimpleOutput extends OutputStage[StringType] {
       .sum(1)
       .print()
   }
-
 }
+```
+The `StringType` is a simple case class already defined in our framework:
 
+```scala
+case class StringType(value: String) extends PipelineItem
+```
+
+**Note**: Every case class used as input or output for a buffer needs to extend `PipelineItem`.
+To add Kafka as a buffer simple change the BufferType and add a Kafka broker:
+
+To run this stage, it needs to be added to a pipeline. You can do this using the `PipelineBuilder`,
+in a sequential pipeline you simple use the `append` method to add new stages to the pipeline.
+Finally the pipeline is `build` and then started.
+
+```scala
 object Main {
   def main(args: Array[String]): Unit = {
     new PipelineBuilder()
-      .append(new StringSource("Simple WordCount example example"))
-      .append(new MyJob())
+      .append(new StringInput("Hello\n" +
+        "World!\n" +
+        "How\n" +
+        "are\n" +
+        "you\n" +
+        "doing?"))
+      .append (new WordCountOutput)
       .build()
       .start(args)
   }
 }
 ```
-To add Kafka as a buffer simple change the BufferType and add a Kafka broker:
-```scala
-pipelineBuilder
-  .setBufferType(BufferType.Kafka)
-  .setBufferProperty(KafkaBuffer.HOST, "localhost:9092")
-```
+The StringInput is a stage pre-defined in the CodeFeedr framework, it simple converts a string into words and parses it to the `StringType` case class.
+By default a Kafka buffer is used. Starting this pipeline will result in the following data flow:
+<p align="center"><img src="https://i.imgur.com/LOGmdK2.png" width="400"></p> 
 
 ## How To Run
 Currently three running modes are supported.
-- Mock: Each plugin is pipelined into **one** Flink job, no buffer is used.
-    **Note**: A DAG pipeline is not supported in this mode.
+
+- Mock: Each plugin is pipelined into **one** Flink job, no buffer is used. <br>
+**Note**: A DAG pipeline is not supported in this mode.
 - Local: Each plugin is run in one Flink execution environment, however a buffer is used.
 - Cluster: TODO
 
-It can be started from the code using `pipeline.runMock()`, `pipeline.runLocal()` or `pipeline.runClustered()`
+It can be started from the code using `pipeline.runMock()`, `pipeline.runLocal()`, `pipeline.runClustered()`
+or via start arguments using: `pipeline.start(args)`. 

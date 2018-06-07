@@ -53,12 +53,11 @@ class RabbitMQBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipelin
     val URI = "amqp://localhost:5672"
   }
 
-  //Get type of the class at run time
-  val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
-
-  //get TypeInformation of generic (case) class
-  implicit val typeInfo = TypeInformation.of(inputClassType)
-
+  /**
+    * Get a RMQSource for the Buffer.
+    *
+    * @return Source stream the RMQSource.
+    */
   override def getSource: DataStream[T] = {
     val connectionConfig = createConfig()
 
@@ -70,6 +69,11 @@ class RabbitMQBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipelin
       .setParallelism(1) // Needed for exactly one guarantees
   }
 
+  /**
+    * Get a RMQSink for the Buffer.
+    *
+    * @return Sink function
+    */
   override def getSink: SinkFunction[T] = {
     val connectionConfig = createConfig()
 
