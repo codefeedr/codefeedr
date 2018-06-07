@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import requests
 import argparse
 import os
@@ -147,6 +149,29 @@ def delete_program(programId):
 
     return r.status_code == 200
 
+def print_table(table):
+    if len(table) == 0 or len(table[0]) == 0:
+        return
+
+    # for each column, find max size
+    columnLengths = [0] * len(table[0])
+
+    for row in table:
+        for idx, column in enumerate(row):
+            columnLengths[idx] = max(columnLengths[idx], len(column))
+
+    # for each column, increase max size to upper-8, with at least 1 space
+    columnLengths = map(lambda l: ((l + 1) / 8 + 1) * 8, columnLengths)
+
+    # No adjustment needed on last column
+    columnLengths[-1] = 0
+
+    # print each row with spacing added
+    for row in table:
+        line = ""
+        for idx, column in enumerate(row):
+            line = line + column.ljust(columnLengths[idx])
+        print(line)
 
 ################################################
 ### COMMANDS
@@ -157,17 +182,21 @@ def delete_program(programId):
 def cmd_list_jobs(args):
     jobs = get_jobs()
 
+    table = []
+
     if args.q is False:
-        print("JOBID\t\t\t\t\tSTATUS\t\tSTAGE")
+        table.append(["JOBID", "STATUS", "STAGE"])
 
     for job in jobs:
         if job["status"] == "running" or args.a is True:
             if args.q is True:
-                print(job["id"])
+                table.append([job["id"]])
             else:
                 info = get_job(job["id"])
                 stage = get_stage_from_job_name(info["name"])
-                print(job["id"] + "\t" + job["status"] + "\t\t" + stage)
+                table.append([job["id"], job["status"], stage])
+
+    print_table(table)
 
 def cmd_list_programs(args):
     r = requests.get(get_url(args, "/jars"))
@@ -177,10 +206,13 @@ def cmd_list_programs(args):
 
     data = r.json()
 
-    print("JARID\t\tFILENAME\tTIMESTAMP")
+    table = []
+    table.append(["JARID", "FILENAME", "TIMESTAMP"])
 
     for jar in data["files"]:
-        print(jar["id"] + "\t\t" + jar["name"] + "\t" + str(jar["uploaded"]))
+        table.append([jar["id"], jar["name"], str(jar["uploaded"])])
+
+    print_table(table)
 
 def cmd_get_pipeline_info(args):
     programId = upload_jar(args.jar)
