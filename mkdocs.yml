@@ -41,9 +41,10 @@ pages:
       - 'redis': 'core/redis-key-manager.md'
       - 'mongoDB': 'core/mongo-key-manager.md'
   - Plugins:
-    - 'GitHub': 'plugins/plugin-examples.md'
-    - 'RSS': 'plugins/plugin-examples.md'
-    - 'Apache httpd Access Logs': 'plugins/plugin-examples.md'
+    - 'GitHub': 'plugins/github.md'
+    - 'Travis': 'plugins/travis.md'
+    - 'RSS': 'plugins/rss.md'
+    - 'Apache Access Logs': 'plugins/apache-access-logs.md'
     - 'Historic data': 'plugins/historic-data.md'
   - Orchestration:
     - 'Docker': 'orchestration/docker.md'
