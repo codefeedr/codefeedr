@@ -38,7 +38,7 @@ pipelineBuilder
 | URI  | The RabbitMQ connection URI. | amqp://localhost:5672 |
 
 ## Serialization
-Before data is send to a buffer it is serialized first (and deserialized if read out of the buffer). Currently we offer the following ways of serializing: 
+Before data is send to a buffer it is serialized first (and deserialized if read from the buffer). Currently we offer the following ways of serializing: 
 
 - [JSON](https://www.json.org/)
 - [Kryo](https://github.com/EsotericSoftware/kryo)
