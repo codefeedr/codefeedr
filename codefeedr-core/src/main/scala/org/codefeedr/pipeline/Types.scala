@@ -18,12 +18,6 @@
  */
 package org.codefeedr.pipeline
 
-///**
-//  * Generic item that will be pushed througout the pipeline.
-//  * Each case-class read/send from the buffer, should extend this.
-//  */
-//trait PipelineItem extends Serializable
-
 /**
   * This class is used for the InputStage input and for the OutputStage output.
   */
