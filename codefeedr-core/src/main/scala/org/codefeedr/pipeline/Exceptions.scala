@@ -36,3 +36,6 @@ final case class StageNotFoundException(private val message: String = "",
 
 final case class PipelineListException(private val json: String)
   extends Exception(json, null)
+
+final case class StageIdsNotUniqueException(private val stage: String)
+  extends Exception(stage, null)
