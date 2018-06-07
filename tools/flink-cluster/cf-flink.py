@@ -44,12 +44,23 @@ def get_stages_from_jar(programId):
     params = {"program-args": "--list --asException"}
     r = requests.post(get_url(args, "/jars/" + programId + "/run"), params=params)
 
+    uniquenessPrefix = "Caused by: org.codefeedr.pipeline.StageIdsNotUniqueException: "
     prefix = "Caused by: org.codefeedr.pipeline.PipelineListException: "
+
     result = None
+    badStage = None
+
     for line in r.text.split("\n"):
         if line.startswith(prefix):
             text = line[len(prefix):]
             result = json.loads(text)
+        if line.startswith(uniquenessPrefix):
+            text = line[len(uniquenessPrefix):]
+            badStage = text
+
+    if badStage is not None:
+        print("ERROR: List of stages in program is not unique. Stage '" + badStage + "' appears more than once.")
+        return None
 
     if result is None:
         print("ERROR: Could not find list of stages in output")
@@ -182,6 +193,10 @@ def cmd_list_stages(args):
         print("Uploaded program with id '" + programId + "'")
 
     stages = get_stages_from_jar(programId)
+    if stages is None:
+        delete_program(programId)
+        return
+
     print("Found " + str(len(stages)) + " stages")
 
     delete_program(programId)
@@ -201,6 +216,9 @@ def cmd_get_pipeline_info(args):
         print("Uploaded program with id '" + programId + "'")
 
     stages = get_stages_from_jar(programId)
+    if stages is None:
+        delete_program(programId)
+        return
 
     print("\nFound " + str(len(stages)) + " stages in JAR:")
     for stage in stages:
@@ -221,6 +239,9 @@ def cmd_start_pipeline(args):
         print("Uploaded program with id '" + programId + "'")
 
     stages = get_stages_from_jar(programId)
+    if stages is None:
+        delete_program(programId)
+        return
     print("Found " + str(len(stages)) + " stages")
 
     if len(stages) == 0:
@@ -261,6 +282,9 @@ def cmd_stop_pipeline(args):
 
     # Get list of stages form jar
     stagesInJar = get_stages_from_jar(programId)
+    if stages is None:
+        delete_program(programId)
+        return
     print("Found " + str(len(stagesInJar)) + " stages")
 
     delete_program(programId)
