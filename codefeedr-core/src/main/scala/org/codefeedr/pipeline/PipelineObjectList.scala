@@ -33,7 +33,7 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     * @param obj Object to add
     * @return List with the object included at the end
     */
-  def add[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V]): PipelineObjectList =
+  def add[U <: Serializable with AnyRef, V <: Serializable with AnyRef](obj: PipelineObject[U, V]): PipelineObjectList =
     new PipelineObjectList(list :+ obj)
 
   /**
@@ -42,8 +42,8 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     * @return  the first element of this list.
     * @throws NoSuchElementException if the list is empty.
     */
-  def head: PipelineObject[PipelineItem, PipelineItem] =
-    list.head.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
+  def head: PipelineObject[Serializable with AnyRef, Serializable with AnyRef] =
+    list.head.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]
 
   /**
     * Selects the last element.
@@ -51,8 +51,8 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     * @return The last element of this list.
     * @throws NoSuchElementException If the list is empty.
     */
-  def last: PipelineObject[PipelineItem, PipelineItem] =
-    list.last.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
+  def last: PipelineObject[Serializable with AnyRef, Serializable with AnyRef] =
+    list.last.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]
 
   /**
     * Selects all elements except the first.
@@ -81,9 +81,9 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     */
   def nonEmpty: Boolean = list.nonEmpty
 
-  def foreach(f: PipelineObject[PipelineItem, PipelineItem] ⇒ Unit): Unit = {
+  def foreach(f: PipelineObject[Serializable with AnyRef, Serializable with AnyRef] ⇒ Unit): Unit = {
     for (obj <- list) {
-      f(obj.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]])
+      f(obj.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]])
     }
   }
 
@@ -98,7 +98,7 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     * @param obj Element
     * @return New list with element appended
     */
-  def :+[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V]): PipelineObjectList =
+  def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](obj: PipelineObject[U, V]): PipelineObjectList =
     add(obj)
 
   /**

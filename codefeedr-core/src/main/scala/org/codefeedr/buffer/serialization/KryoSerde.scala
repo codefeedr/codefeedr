@@ -32,7 +32,7 @@ import scala.reflect.ClassTag
   *
   * @tparam T
   */
-class KryoSerde[T <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
+class KryoSerde[T <: Serializable : TypeTag : ClassTag] extends AbstractSerde[T]{
 
   /**
     * Serializes a (generic) element using Kryo.
@@ -68,5 +68,5 @@ class KryoSerde[T <: AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
 object KryoSerde {
   val BUFFER_SIZE = 4096
 
-  def apply[T <: AnyRef : ClassTag : TypeTag]: KryoSerde[T] = new KryoSerde[T]()
+  def apply[T <: Serializable : ClassTag : TypeTag]: KryoSerde[T] = new KryoSerde[T]()
 }

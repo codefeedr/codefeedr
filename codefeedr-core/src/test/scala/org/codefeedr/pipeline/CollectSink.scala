@@ -22,7 +22,7 @@ import java.util
 
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 
-case class WordCount(str : String, count : Int) extends PipelineItem
+case class WordCount(str : String, count : Int)
 
 object CollectSink {
   val result = new util.ArrayList[WordCount]() //mutable list

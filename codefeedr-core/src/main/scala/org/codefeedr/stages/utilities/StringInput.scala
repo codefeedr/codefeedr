@@ -19,10 +19,9 @@
 package org.codefeedr.stages.utilities
 
 import org.apache.flink.streaming.api.scala.{DataStream, _}
-import org.codefeedr.pipeline._
 import org.codefeedr.stages.{InputStage, StageAttributes}
 
-case class StringType(value: String) extends PipelineItem
+case class StringType(value: String) extends Serializable
 
 class StringInput(str: String = "", stageAttributes: StageAttributes = StageAttributes()) extends InputStage[StringType](stageAttributes) {
 

@@ -25,7 +25,7 @@ import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
+import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.plugins.mongodb.MongoQuery
 import org.codefeedr.stages.utilities.{SeqInput, StringInput, StringType}
 import org.mongodb.scala.MongoClient
@@ -166,7 +166,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
 }
 
-case class TestEvent(name: String, time: Date) extends PipelineItem
+case class TestEvent(name: String, time: Date)
 
 object StringCollectSink {
   var result = new util.ArrayList[String]() //mutable list

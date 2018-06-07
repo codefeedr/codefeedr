@@ -22,8 +22,8 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
 import org.codefeedr.pipeline.Pipeline
-import scala.reflect.runtime.universe._
 
+import scala.reflect.runtime.universe._
 import scala.reflect.ClassTag
 
 /**
@@ -35,7 +35,7 @@ import scala.reflect.ClassTag
   * @param properties Buffer properties
   * @tparam T Element type of the buffer
   */
-abstract class Buffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties) {
+abstract class Buffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties) {
 
   /**
     * Get the source for this buffer. The buffer ereads from this
