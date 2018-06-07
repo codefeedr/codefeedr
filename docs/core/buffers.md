@@ -1,9 +1,20 @@
-Between each stage a buffer is added. These buffers are necessary to allow a directed acylic graph as pipeline where a plugin might read from multiple other stages (using this buffer). Currently [Kafka](https://kafka.apache.org/) and [RabbitMQ](https://www.rabbitmq.com/) are supported as buffers.  
+Between each stage a buffer is added. These buffers are necessary to allow a directed acylic graph as pipeline where a plugin might read from multiple other stages (using this buffer). Currently [Kafka](https://kafka.apache.org/) and [RabbitMQ](https://www.rabbitmq.com/) are supported as buffers.
 ## KafkaBuffer
-### Serialization
-Before data is send to the Kafka buffer it is serialized. Currently we offer two ways of serializing: [JSON](https://www.json.org/) and [Avro](https://avro.apache.org/). This can be configured through the buffer properties: `pipeline.setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)`. The default serializer is JSON. 
+## Serialization
+Before data is send to a buffer it is serialized first (and deserialized if read out of the buffer). Currently we offer the following ways of serializing: 
 
-We recommend to use the Avro serializer since the data is compressed and send in binary. However, for debugging purposes you might want to use JSON since it offers readability.
+- [JSON](https://www.json.org/)
+- [Kryo](https://github.com/EsotericSoftware/kryo)
+- [BSON](http://bsonspec.org/)
+
+The serializer can be configured through the buffer properties: 
+
+```scala
+pipeline.setBufferProperty(Buffer.SERIALIZER, Serializer.KRYO)
+```
+
+The default serializer is JSON. 
+We recommend to use the Kryo serializer since it has the best compression and speed. However, for debugging purposes you might want to use JSON since it offers readability.
 
 ### Schema exposure
 Kafka buffers offer functionality to expose the Avro schema of your data type to an external service. Currently we provide [redis](https://redis.io/) and [Zookeeper](https://zookeeper.apache.org/) to expose those schemas. If schema exposure is enabled each plugin will expose its type (in the form of an Avro schema) to the external service. The schemas are generated on run-time based on its (case) class. Schemas are stored as k/v pairs with the topic as key and value as schema. You can configure if you want to deserialize from the buffer using the exposed schema or infer a schema based on the (case) class defined. In the image below you can see a simple visualization of schema exposure including deserialization of the exposed schema.
