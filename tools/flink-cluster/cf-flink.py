@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 
@@ -118,9 +118,9 @@ def get_jobs():
 
     # Switch to a job+info format
     jobs = []
-    for type, list in data.iteritems():
-        for job in list:
-            jobs.append({"id": job, "status": type[5:]})
+    for k, v in data.items():
+        for job in v:
+            jobs.append({"id": job, "status": k[5:]})
 
     return jobs
 
@@ -135,14 +135,14 @@ def get_active_stages():
     jobs = get_jobs()
 
     # For each, get name
-    filtered = filter(lambda job: job["status"] == "running", jobs)
+    filtered = list(filter(lambda job: job["status"] == "running", jobs))
 
     for job in filtered:
         info = get_job(job["id"])
         job["name"] = info["name"]
         job["stage"] = get_stage_from_job_name(info["name"])
 
-    return filter(lambda job: job["name"] is not "", filtered)
+    return list(filter(lambda job: job["name"] is not "", filtered))
 
 def delete_program(programId):
     r = requests.delete(get_url(args, "/jars/" + programId))
@@ -161,7 +161,7 @@ def print_table(table):
             columnLengths[idx] = max(columnLengths[idx], len(column))
 
     # for each column, increase max size to upper-8, with at least 1 space
-    columnLengths = map(lambda l: ((l + 1) / 8 + 1) * 8, columnLengths)
+    columnLengths = list(map(lambda l: int((l + 1) / 8 + 1) * 8, columnLengths))
 
     # No adjustment needed on last column
     columnLengths[-1] = 0
@@ -254,7 +254,7 @@ def cmd_start_pipeline(args):
         return
 
     # Find all stages that already run
-    activeStages = map(lambda x: x["stage"], get_active_stages())
+    activeStages = list(map(lambda x: x["stage"], get_active_stages()))
 
     # For each item in list, start a flink job
     totalNewJobs = 0
@@ -288,7 +288,7 @@ def cmd_stop_pipeline(args):
 
     # Get list of stages form jar
     stagesInJar = get_stages_from_jar(programId)
-    if stages is None:
+    if stagesInJar is None:
         delete_program(programId)
         return
     print("Found " + str(len(stagesInJar)) + " stages")
@@ -297,7 +297,7 @@ def cmd_stop_pipeline(args):
 
     # Get the jobs
     jobsInFlink = get_active_stages()
-    toCancel = filter(lambda job: job["stage"] in stagesInJar, jobsInFlink)
+    toCancel = list(filter(lambda job: job["stage"] in stagesInJar, jobsInFlink))
 
     print("Found " + str(len(toCancel)) + " jobs to stop")
 
@@ -325,7 +325,7 @@ def cmd_start_stage(args):
         print("Uploaded program with id '" + programId + "'")
 
     # Find all stages that already run
-    activeStages = map(lambda x: x["stage"], get_active_stages())
+    activeStages = list(map(lambda x: x["stage"], get_active_stages()))
 
     # For each item in list, start a flink job
     totalNewJobs = 0
