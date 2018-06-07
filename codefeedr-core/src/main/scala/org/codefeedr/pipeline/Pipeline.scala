@@ -104,7 +104,7 @@ case class Pipeline(var name: String,
   }
 
   def showList(asException: Boolean): Unit = {
-    val list = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
+    val list = graph.nodes.asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
 
     if (asException) {
       val contents = list.map { item => '"' + item.id + '"' }
