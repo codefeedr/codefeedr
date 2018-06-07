@@ -26,12 +26,9 @@ import util.control.Breaks._
 import org.json4s.jackson.JsonMethods._
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.plugins.github.GitHubProtocol.Event
-import org.codefeedr.plugins.github.util.FiniteQueue
-import org.codehaus.jackson.map.ext.JodaSerializers
-import org.codehaus.jackson.map.ext.JodaSerializers.LocalDateTimeSerializer
+import org.codefeedr.stages.utilities.DuplicateService
 import org.json4s.ext.JavaTimeSerializers
 
-import scala.collection.mutable.Queue
 /**
   * Represents a link header from the GitHub API.
   * This shows the previous/next/last page you can retrieve from.
@@ -54,7 +51,9 @@ class EventService(duplicateFilter: Boolean,
   //events size
   val EVENTS_SIZE = 100
 
-  var queue : FiniteQueue[String] = new FiniteQueue[String]()
+  //duplicate filter
+  val dupCheck = new DuplicateService[String](duplicateCheckSize)
+
   var requestHeaders: List[Header] = List()
 
   /**
@@ -86,7 +85,7 @@ class EventService(duplicateFilter: Boolean,
 
         //add new events
         val newEvents = parseEvents(response.body)
-        events = (if (duplicateFilter) duplicateCheck(newEvents) else newEvents) ::: events
+        events = (if (duplicateFilter) dupCheck.deduplicate[Event](newEvents, _.id) else newEvents) ::: events
 
         if (nextPage == lastPage) break
 
@@ -98,20 +97,6 @@ class EventService(duplicateFilter: Boolean,
     }
 
     events
-  }
-
-  /**
-    * Checks for duplicates. Assumes the event list doesn't contain any duplicates!
-    * @param events events to check.
-    * @return non-duplicated events.
-    */
-  def duplicateCheck(events : List[Event]) : List[Event] = {
-    events
-      .filter(x => !queue.contains(x.id))
-      .map { x =>
-        queue.enqueueFinite(x.id, duplicateCheckSize)
-        x
-      }
   }
 
   /**

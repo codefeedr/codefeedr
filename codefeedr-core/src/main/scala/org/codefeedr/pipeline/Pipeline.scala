@@ -29,23 +29,25 @@ import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.buffer.BufferType.BufferType
 import org.codefeedr.pipeline.RuntimeType.RuntimeType
 
-case class Pipeline(bufferType: BufferType,
+case class Pipeline(var name: String,
+                    bufferType: BufferType,
                     bufferProperties: Properties,
                     graph: DirectedAcyclicGraph,
                     keyManager: KeyManager,
                     objectProperties: Map[String, Properties]) {
   var _environment: StreamExecutionEnvironment = _
-  //StreamExecutionEnvironment.getExecutionEnvironment
-
-//  val environment: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
   val environment: StreamExecutionEnvironment = {
     if (_environment == null) {
-      val conf = new Configuration()
+      if (false) {
+        val conf = new Configuration()
 
-      conf.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true)
+        conf.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true)
 
-      _environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf)
+        _environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf)
+      } else {
+        _environment = StreamExecutionEnvironment.getExecutionEnvironment
+      }
 
       _environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
     }
@@ -91,20 +93,37 @@ case class Pipeline(bufferType: BufferType,
       case _ => runtime
     }
 
-    start(runtime, stage)
+    //set name if specified
+    if (params.has("name")) name = params.get("name")
+
+    if (params.has("list")) {
+      showList()
+    } else {
+      start(runtime, stage, params.get("groupId"))
+    }
+  }
+
+  def showList(): Unit = {
+    // Get a list of stages
+    // Print their names
+
+    val list = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
+    for (node <- list) {
+      println(node.id)
+    }
   }
 
   /**
     * Start the pipeline with a run configuration
     *
     * @param runtime Runtime type
-    * @param stage Stage of a cluster run
+    * @param stage   Stage of a cluster run
     */
-  def start(runtime: RuntimeType, stage: String = null): Unit = {
+  def start(runtime: RuntimeType, stage: String = null, groupId: String = null): Unit = {
     runtime match {
       case RuntimeType.Mock => startMock()
       case RuntimeType.Local => startLocal()
-      case RuntimeType.Cluster => startClustered(stage)
+      case RuntimeType.Cluster => startClustered(stage, groupId)
     }
   }
 
@@ -131,7 +150,7 @@ case class Pipeline(bufferType: BufferType,
       buffer = obj.transform(buffer)
     }
 
-    environment.execute("CodeFeedr Mock Job")
+    environment.execute(s"$name: mock")
   }
 
   /**
@@ -152,7 +171,7 @@ case class Pipeline(bufferType: BufferType,
       runObject(obj)
     }
 
-    environment.execute("CodeFeedr Local Job")
+    environment.execute(s"$name: local")
   }
 
   /**
@@ -160,8 +179,11 @@ case class Pipeline(bufferType: BufferType,
     *
     * @param stage Stage to run
     */
-  def startClustered(stage: String): Unit = {
-    val optObj = graph.nodes.find(node => node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id == stage)
+  def startClustered(stage: String, groupId: String = null): Unit = {
+    val optObj = graph.nodes.find { node =>
+      println(node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id, stage)
+      node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id == stage
+    }
 
     if (optObj.isEmpty) {
       throw StageNotFoundException()
@@ -170,20 +192,21 @@ case class Pipeline(bufferType: BufferType,
     val obj = optObj.get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
 
     obj.setUp(this)
-    runObject(obj)
+    runObject(obj, groupId)
 
-    environment.execute("CodeFeedr Cluster Job")
+    environment.execute(s"$name: ${stage}")
   }
 
   /**
     * Run a pipeline object.
     *
     * Creates a source and sink for the object and then runs the transform function.
+    *
     * @param obj
     */
-  private def runObject(obj: PipelineObject[PipelineItem, PipelineItem]): Unit = {
-    lazy val source = if (obj.hasMainSource) obj.getMainSource else null
-    lazy val sink = if (obj.hasSink) obj.getSink else null
+  private def runObject(obj: PipelineObject[PipelineItem, PipelineItem], groupId: String = null): Unit = {
+    lazy val source = if (obj.hasMainSource) obj.getMainSource(groupId) else null
+    lazy val sink = if (obj.hasSink) obj.getSink(groupId) else null
 
     val transformed = obj.transform(source)
 

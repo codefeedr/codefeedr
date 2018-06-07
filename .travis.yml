@@ -7,6 +7,7 @@ services:
   - docker
   - redis
   - mongodb
+  - rabbitmq
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -41,6 +42,12 @@ script:
 
 after_success:
   - sbt coveralls
+
+deploy:
+  provider: script
+  script: sbt publish
+  on:
+    branch: develop
 
 notifications:
   email: false

@@ -21,8 +21,3 @@ package org.codefeedr.buffer
 final case class SchemaNotFoundException(private val message: String = "",
                                         private val cause: Throwable = None.orNull)
   extends Exception(message, cause)
-
-final case class NoAvroSerdeException(private val message: String = "",
-                                         private val cause: Throwable = None.orNull)
-  extends Exception(message, cause)
-

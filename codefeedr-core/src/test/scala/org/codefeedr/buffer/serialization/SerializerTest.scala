@@ -7,16 +7,22 @@ class SerializerTest extends FunSuite {
 
   case class Item() extends PipelineItem
 
-  test("Should recognise AVRO") {
-    val serde = Serializer.getSerde[Item](Serializer.AVRO)
-
-    assert(serde.isInstanceOf[AvroSerde[Item]])
-  }
-
   test("Should recognise JSON") {
     val serde = Serializer.getSerde[Item](Serializer.JSON)
 
     assert(serde.isInstanceOf[JSONSerde[Item]])
+  }
+
+  test("Should recognise Bson") {
+    val serde = Serializer.getSerde[Item](Serializer.BSON)
+
+    assert(serde.isInstanceOf[BsonSerde[Item]])
+  }
+
+  test("Should recognise Kryo") {
+    val serde = Serializer.getSerde[Item](Serializer.KRYO)
+
+    assert(serde.isInstanceOf[KryoSerde[Item]])
   }
 
   test("Should default to JSON") {

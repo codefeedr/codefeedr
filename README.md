@@ -11,8 +11,9 @@ Bachelor Project Codefeedr
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![University](https://img.shields.io/badge/university-tudelft-blue.svg)](http://swerl.tudelft.nl/bin/view/Main/WebHome)
 ![Modularized](https://img.shields.io/badge/modularized-right%20proper-green.svg)
+[![Documentation](https://readthedocs.org/projects/codefeedr/badge/?version=latest)](https://codefeedr.readthedocs.io/en/latest/)
 
-A framework for pipelining and combining Flink jobs. See the [wiki](https://github.com/joskuijpers/bep_codefeedr/wiki) for documentation.
+A framework for pipelining and combining Flink jobs. Documentation can be found [here](https://codefeedr.readthedocs.io/en/latest/)
 
 ## Configuring the build environment
 

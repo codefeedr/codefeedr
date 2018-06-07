@@ -1,4 +1,5 @@
-import sbt.Keys.name
+import sbt.Credentials
+import sbt.Keys.{credentials, name}
 
 name := "codefeedr"
 ThisBuild / version := "0.1-SNAPSHOT"
@@ -20,13 +21,15 @@ lazy val root = (project in file("."))
     pluginElasticSearch,
     pluginGitHub,
     pluginWeblogs,
-    pluginCratesIO
+    pluginCratesIO,
+    pluginTravis
   )
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
     name := projectPrefix + "core",
     settings,
+    assemblySettings,
     unmanagedBase := baseDirectory.value / "../lib",
     libraryDependencies ++= commonDependencies ++ Seq(
       // JSONBuffer
@@ -34,9 +37,15 @@ lazy val core = (project in file("codefeedr-core"))
       dependencies.jackson,
       dependencies.json4sExt,
 
+      // Http
+      dependencies.httpj,
+
       // KafkaBuffer
       dependencies.kafkaClient,
       dependencies.flinkKafka,
+
+      // RabbitMQBuffer
+      dependencies.flinkRabbitMQ,
 
       // RedisKeyManager
       dependencies.redis,
@@ -44,7 +53,17 @@ lazy val core = (project in file("codefeedr-core"))
       // Schema exposure
       dependencies.zookeeper,
 
-      "me.lyh" %% "shapeless-datatype-avro" % "0.1.9"
+      //BSON serialization
+      dependencies.mongo,
+
+      // BSON serialization
+      dependencies.mongo,
+
+      // Kryo serialization
+      dependencies.kryoChill,
+
+      // Avro schema exposure
+      dependencies.avro
     )
   )
 
@@ -90,6 +109,7 @@ lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-ela
 lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
   .settings(
     name := projectPrefix + "github",
+    description := "GitHub plugin",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -101,6 +121,20 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
   )
   .dependsOn(
     core
+  )
+
+lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
+  .settings(
+    name := projectPrefix + "travis",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.httpj
+    )
+  )
+  .dependsOn(
+    core,
+    pluginGitHub
   )
 
 lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs"))
@@ -131,46 +165,73 @@ lazy val pluginCratesIO = (project in file("codefeedr-plugins/codefeedr-cratesio
     core, pluginGitHub
   )
 
+lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter"))
+  .settings(
+    name := projectPrefix + "twitter",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.twitter
+    ),
+    dependencyOverrides ++= Seq( //override json4s dependencies
+      "org.json4s" %% "json4s-scalap" % "3.5.3",
+      "org.json4s" %% "json4s-jackson" % "3.5.3",
+      "org.json4s" %% "json4s-ext" % "3.5.3"
+    )
+  )
+  .dependsOn(
+    core
+  )
 
 lazy val dependencies =
   new {
-    val flinkVersion    = "1.4.2"
-    val avroVersion     = ""
-    val json4sVersion   = "3.6.0-M2"
+    val flinkVersion       = "1.4.2"
+    val json4sVersion      = "3.6.0-M2"
+    val log4jVersion       = "2.11.0"
+    val log4jScalaVersion  = "11.0"
 
-//    "org.apache.logging.log4j" % "log4j-api" % "2.11.0",
-//    "org.apache.logging.log4j" % "log4j-core" % "2.11.0",
 
-    val flink                     = "org.apache.flink"  %% "flink-scala"                            % flinkVersion    % "compile"
-    val flinkStreaming            = "org.apache.flink"  %% "flink-streaming-scala"                  % flinkVersion    % "compile"
-    val flinkKafka                = "org.apache.flink"  %% "flink-connector-kafka-0.11"             % flinkVersion    % "compile"
-    val flinkAvro                 = "org.apache.flink"  %% "flink-avro"                             % flinkVersion
-    val flinkRuntimeWeb           = "org.apache.flink"  %% "flink-runtime-web"                      % flinkVersion
-    val flinkElasticSearch        = "org.apache.flink"  %% "flink-connector-elasticsearch5"         % flinkVersion
+    val loggingApi         = "org.apache.logging.log4j"   % "log4j-api"                      % log4jVersion
+    val loggingCore        = "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion      % Runtime
+    val loggingScala       = "org.apache.logging.log4j"  %% "log4j-api-scala"                % log4jScalaVersion
 
-    val redis                     = "net.debasishg"     %% "redisclient"                            % "3.6"
-    val kafkaClient               = "org.apache.kafka"   % "kafka-clients"                          % "1.0.0"
-    val zookeeper                 = "org.apache.zookeeper" % "zookeeper"                            % "3.4.9"
+    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided
+    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Provided
+    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka-0.11"     % flinkVersion
+    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion      % Provided
+    val flinkElasticSearch = "org.apache.flink"          %% "flink-connector-elasticsearch5" % flinkVersion
+    val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion
 
-    val json4s                    = "org.json4s"        %% "json4s-scalap"                          % json4sVersion
-    val jackson                   = "org.json4s"        %% "json4s-jackson"                         % json4sVersion
-    val json4sExt                 = "org.json4s"        %% "json4s-ext"                             % json4sVersion
+    val redis              = "net.debasishg"             %% "redisclient"                    % "3.6"
+    val kafkaClient        = "org.apache.kafka"           % "kafka-clients"                  % "1.0.0"
+    val zookeeper          = "org.apache.zookeeper"       % "zookeeper"                      % "3.4.9"
 
-    val mongo                     = "org.mongodb.scala" %% "mongo-scala-driver"                     % "2.3.0"
+    val json4s             = "org.json4s"                %% "json4s-scalap"                  % json4sVersion
+    val jackson            = "org.json4s"                %% "json4s-jackson"                 % json4sVersion
+    val json4sExt          = "org.json4s"                %% "json4s-ext"                     % json4sVersion
 
-    val httpj                     = "org.scalaj"        %% "scalaj-http"                            % "2.4.0"
+    val mongo              = "org.mongodb.scala"         %% "mongo-scala-driver"             % "2.3.0"
 
-    val scalactic                 = "org.scalactic"     %% "scalactic"                              % "3.0.1"         % "test"
-    val scalatest                 = "org.scalatest"     %% "scalatest"                              % "3.0.1"         % "test"
-    val scalamock                 = "org.scalamock"     %% "scalamock"                              % "4.1.0"         % "test"
-    val mockito                   = "org.mockito"        % "mockito-all"                            % "1.10.19"       % "test"
+    val httpj              = "org.scalaj"                %% "scalaj-http"                    % "2.4.0"
+
+    val kryoChill          = "com.twitter"               %% "chill"                          % "0.9.1"
+
+    val scalactic          = "org.scalactic"             %% "scalactic"                      % "3.0.1"           % Test
+    val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.0.1"           % Test
+    val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
+    val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
+
+    val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
+    val twitter            = "com.danielasfregola"        %% "twitter4s"                     % "5.5"
   }
 
 lazy val commonDependencies = Seq(
   dependencies.flink,
   dependencies.flinkStreaming,
 
-  // avro
+  dependencies.loggingApi,
+  dependencies.loggingCore,
+  dependencies.loggingScala,
 
   dependencies.scalactic,
   dependencies.scalatest,
@@ -183,17 +244,21 @@ lazy val commonDependencies = Seq(
 lazy val settings = commonSettings
 
 lazy val commonSettings = Seq(
-  organization := "com.example",
-  version := "0.1.0-SNAPSHOT",
-  scalaVersion := "2.11.11",
-
+//  organization := "org.codefeedr",
+//  version := "0.1.0-SNAPSHOT",
+//  scalaVersion := "2.11.11",
+  test in assembly := {},
   scalacOptions ++= compilerOptions,
   resolvers ++= Seq(
     "confluent"                               at "http://packages.confluent.io/maven/",
     "Apache Development Snapshot Repository"  at "https://repository.apache.org/content/repositories/snapshots/",
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
     Resolver.mavenLocal
-  )
+  ),
+
+  // Deploying. NOTE: when releasing, do not add the timestamp
+  publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-dev-local;build.timestamp=" + new java.util.Date().getTime),
+  credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))
 )
 
 lazy val compilerOptions = Seq(
@@ -210,9 +275,13 @@ lazy val compilerOptions = Seq(
 
 lazy val assemblySettings = Seq(
   assemblyJarName in assembly := name.value + ".jar",
+  test in assembly := {},
   assemblyMergeStrategy in assembly := {
-    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-    case _                             => MergeStrategy.first
+    case PathList("META-INF", xs @ _*)  => MergeStrategy.discard
+    case "log4j.properties"             => MergeStrategy.first
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
   }
 )
 

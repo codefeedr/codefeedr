@@ -26,6 +26,8 @@ import org.json4s.jackson.JsonMethods._
 import org.apache.flink.api.scala._
 import org.codefeedr.stages.TransformStage
 
+
+
 /**
   * Transform stage which reads from EventsInput and filters to IssuesEvent.
   */

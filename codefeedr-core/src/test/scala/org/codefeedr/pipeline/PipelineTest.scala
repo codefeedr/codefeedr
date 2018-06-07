@@ -1,13 +1,13 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.buffer.{BufferType, KafkaBuffer, NoAvroSerdeException}
+import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
-import org.codefeedr.stages.utilities.{StringInput, StringType}
+import org.codefeedr.stages.utilities.{JsonPrinterOutput, StringInput, StringType}
 import org.codefeedr.testUtils._
 
 import scala.collection.JavaConverters._
@@ -67,6 +67,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
   test("Non-sequential pipeline local test") {
     val pipeline = simpleDAGPipeline(1)
+        .setBufferProperty(Buffer.SERIALIZER, Serializer.BSON)
         .setBufferType(BufferType.Kafka)
         .build()
 
@@ -79,7 +80,6 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     val pipeline = simpleDAGPipeline(2)
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
@@ -95,25 +95,11 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     assert(schema2.nonEmpty)
   }
 
-  test("Simple pipeline schema exposure and deserialization test with JSON (redis)") {
-    val pipeline = simpleDAGPipeline(2)
-      .setBufferType(BufferType.Kafka)
-      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.JSON)
-      .build()
-
-    assertThrows[NoAvroSerdeException] {
-      pipeline.startLocal()
-    }
-  }
-
   test("Simple pipeline schema exposure and deserialization test (redis)") {
     val pipeline = simpleDAGPipeline(2)
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
@@ -127,7 +113,6 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_SERVICE, "zookeeper")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, "localhost:2181")
-      .setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)
       .build()
 
     assertThrows[JobExecutionException] {
@@ -141,6 +126,29 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
 
     assert(schema1.nonEmpty)
     assert(schema2.nonEmpty)
+  }
+
+  test("A pipeline name can be set through args") {
+    val name = "nice pipeline"
+    val pipeline = builder
+      .append(new SimpleSourcePipelineObject())
+      .append(new SimpleSinkPipelineObject())
+      .build()
+
+    pipeline.start(Array[String]("-runtime", "mock", "-name", name))
+
+    assert(pipeline.name == name)
+  }
+
+  test("A pipeline has a default name") {
+    val pipeline = builder
+      .append(new SimpleSourcePipelineObject())
+      .append(new SimpleSinkPipelineObject())
+      .build()
+
+    pipeline.startMock()
+
+    assert(pipeline.name == "CodeFeedr pipeline")
   }
 
   /**
@@ -219,5 +227,22 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     assertThrows[IllegalArgumentException] {
       pipeline.propertiesOf(null)
     }
+  }
+
+  test("Show list of pipeline item ids") {
+    val pipeline = builder
+      .append(new StringInput())
+      .append(new JsonPrinterOutput())
+      .build()
+
+    val stream = new java.io.ByteArrayOutputStream()
+    Console.withOut(stream) {
+      pipeline.start(Array("--list"))
+    }
+
+    val output = stream.toString
+
+    assert(output.split("\n").length == 2)
+    assert(output.startsWith("org.codefeedr.stages.utilities.StringInput"))
   }
 }

@@ -18,7 +18,6 @@
  */
 package org.codefeedr.pipeline
 
-import com.sksamuel.avro4s.FromRecord
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.Properties
 import org.codefeedr.keymanager.KeyManager
@@ -29,10 +28,11 @@ import org.codefeedr.stages.OutputStage
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 
 class PipelineBuilder() {
   /** Type of buffer used in the pipeline */
-  protected var bufferType: BufferType = BufferType.None
+  protected var bufferType: BufferType = BufferType.Kafka
 
   /** Type of the pipeline graph */
   protected var pipelineType: PipelineType = PipelineType.Sequential
@@ -49,8 +49,11 @@ class PipelineBuilder() {
   /** Graph of the pipeline */
   protected[pipeline] var graph = new DirectedAcyclicGraph()
 
-  /** Last inserted pipeline obejct, used to convert sequential to dag. */
+  /** Last inserted pipeline object, used to convert sequential to dag. */
   private var lastObject: AnyRef = _
+
+  /** The name of the pipeline, "CodeFeedr pipeline" by default. */
+  protected var name = "CodeFeedr pipeline"
 
   /**
     * Get the type of the buffer
@@ -137,6 +140,18 @@ class PipelineBuilder() {
   }
 
   /**
+    * Set name of the pipeline.
+    *
+    * @param n name of the pipeline.
+    * @return This builder.
+    */
+  def setPipelineName(n: String): PipelineBuilder = {
+    name = n
+
+    this
+  }
+
+  /**
     * Append a node to the sequential pipeline.
     */
   def append[U <: PipelineItem, V <: PipelineItem](item: PipelineObject[U, V]): PipelineBuilder = {
@@ -164,8 +179,8 @@ class PipelineBuilder() {
     * @param trans Function
     * @return Builder
     */
-  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord, V <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => DataStream[V]): PipelineBuilder = {
-    val pipelineItem = new PipelineObject[U, V](null) {
+  def append[U <: PipelineItem : ClassTag : TypeTag, V <: PipelineItem : ClassTag : TypeTag](trans : DataStream[U] => DataStream[V]): PipelineBuilder = {
+    val pipelineItem = new PipelineObject[U, V] {
       override def transform(source: DataStream[U]): DataStream[V] = trans(source)
     }
 
@@ -178,8 +193,8 @@ class PipelineBuilder() {
     * @param trans Function
     * @return Builder
     */
-  def append[U <: PipelineItem : ClassTag : Manifest : FromRecord](trans : DataStream[U] => Any): PipelineBuilder = {
-    val pipelineItem = new OutputStage[U](null) {
+  def append[U <: PipelineItem : ClassTag : TypeTag](trans : DataStream[U] => Any): PipelineBuilder = {
+    val pipelineItem = new OutputStage[U] {
       override def main(source: DataStream[U]): Unit = trans(source)
     }
 
@@ -262,6 +277,6 @@ class PipelineBuilder() {
 
     graph.nodes.foreach(_.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].verifyGraph(graph))
 
-    Pipeline(bufferType, bufferProperties, graph, keyManager, stageProperties.toMap)
+    Pipeline(name, bufferType, bufferProperties, graph, keyManager, stageProperties.toMap)
   }
 }

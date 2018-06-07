@@ -1,0 +1,93 @@
+{
+  "@type": "builds",
+  "@href": "/repo/joskuijpers%2Fbep_codefeedr/builds",
+  "@representation": "standard",
+  "@pagination": {
+    "limit": 25,
+    "offset": 0,
+    "count": 572,
+    "is_first": true,
+    "is_last": false,
+    "next": {
+      "@href": "/repo/joskuijpers%2Fbep_codefeedr/builds?limit=25&offset=25",
+      "offset": 25,
+      "limit": 25
+    },
+    "prev": null,
+    "first": {
+      "@href": "/repo/joskuijpers%2Fbep_codefeedr/builds",
+      "offset": 0,
+      "limit": 25
+    },
+    "last": {
+      "@href": "/repo/joskuijpers%2Fbep_codefeedr/builds?limit=25&offset=550",
+      "offset": 550,
+      "limit": 25
+    }
+  },
+  "builds": [
+    {
+      "@type": "build",
+      "@href": "/build/384776738",
+      "@representation": "standard",
+      "@permissions": {
+        "read": true,
+        "cancel": true,
+        "restart": true
+      },
+      "id": 384776738,
+      "number": "572",
+      "state": "passed",
+      "duration": null,
+      "event_type": "pull_request",
+      "previous_state": "passed",
+      "pull_request_title": "Mongo Key Manager",
+      "pull_request_number": 86,
+      "started_at": "2018-05-28T14:48:18Z",
+      "finished_at": null,
+      "private": false,
+      "repository": {
+        "@type": "repository",
+        "@href": "/repo/18915453",
+        "@representation": "minimal",
+        "id": 18915453,
+        "name": "bep_codefeedr",
+        "slug": "joskuijpers/bep_codefeedr"
+      },
+      "branch": {
+        "@type": "branch",
+        "@href": "/repo/18915453/branch/develop",
+        "@representation": "minimal",
+        "name": "develop"
+      },
+      "tag": null,
+      "commit": {
+        "@type": "commit",
+        "@representation": "minimal",
+        "id": 115168920,
+        "sha": "4b623394d8aa1f68c71a69a69dc6dd16258515c8",
+        "ref": "refs/pull/86/merge",
+        "message": "Merge branch 'develop' into feature/mongo-km2",
+        "compare_url": "https://github.com/joskuijpers/bep_codefeedr/pull/86",
+        "committed_at": "2018-05-28T14:47:44Z"
+      },
+      "jobs": [
+        {
+          "@type": "job",
+          "@href": "/job/384776739",
+          "@representation": "minimal",
+          "id": 384776739
+        }
+      ],
+      "stages": [],
+      "created_by": {
+        "@type": "user",
+        "@href": "/user/74694",
+        "@representation": "minimal",
+        "id": 74694,
+        "login": "joskuijpers"
+      },
+      "updated_at": "2018-05-28T14:48:18.253Z"
+    }
+  ]
+}

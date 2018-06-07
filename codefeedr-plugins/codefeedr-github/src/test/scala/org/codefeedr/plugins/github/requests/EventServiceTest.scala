@@ -21,6 +21,7 @@ package org.codefeedr.plugins.github.requests
 import java.io.InputStream
 
 import org.codefeedr.keymanager.StaticKeyManager
+import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -116,8 +117,8 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     val events = service.parseEvents(sampleEvents)
     val events2 = service.parseEvents(sampleEvents)
 
-    val n1 = service.duplicateCheck(events)
-    val n2 = service.duplicateCheck(events2)
+    val n1 = service.dupCheck.deduplicate[Event](events, _.id)
+    val n2 = service.dupCheck.deduplicate[Event](events2, _.id)
     assert((n1 ::: n2).size == 2)
   }
 
@@ -127,9 +128,9 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     //ids: 7688205336 and 7688205331
     val events = service2.parseEvents(sampleEvents)
 
-    val n1 = service2.duplicateCheck(events) //7688205331 is in the queue, both will be returned
-    val n2 = service2.duplicateCheck(events) //7688205336 is in the queue, 7688205336 will be returned
-    val n3 = service2.duplicateCheck(events) //7688205331 is in the queue, 7688205331 will be returned
+    val n1 = service2.dupCheck.deduplicate[Event](events, _.id) //7688205331 is in the queue, both will be returned
+    val n2 = service2.dupCheck.deduplicate[Event](events, _.id) //7688205336 is in the queue, 7688205336 will be returned
+    val n3 = service2.dupCheck.deduplicate[Event](events, _.id) //7688205331 is in the queue, 7688205331 will be returned
 
     val nonDuplicates = (n1 ::: n2 ::: n3).map(_.id)
 

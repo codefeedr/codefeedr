@@ -18,25 +18,31 @@
  */
 package org.codefeedr.buffer.serialization
 
-import com.sksamuel.avro4s.FromRecord
-
 import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
+
 /**
   * Keeps track of all types of serde's and creates instances of serdes.
   */
 object Serializer {
 
   /**
-    * AVRO serde support.
-    * See: https://avro.apache.org/
-    */
-  val AVRO = "AVRO"
-
-  /**
     * JSON serde support.
     * See: http://json4s.org/
     */
   val JSON = "JSON"
+
+  /**
+    * BSON serde support.
+    * See: http://bsonspec.org/
+    */
+  val BSON = "BSON"
+
+  /**
+    * Kryo serde support.
+    * https://github.com/EsotericSoftware/kryo
+    */
+  val KRYO = "KRYO"
 
   /**
     * Retrieve a serde.
@@ -46,10 +52,11 @@ object Serializer {
     * @tparam T the type which has to be serialized/deserialized.
     * @return the serde instance.
     */
-  def getSerde[T <: AnyRef : ClassTag : FromRecord : Manifest](name: String) = name match {
-    case "AVRO" => new AvroSerde[T]
-    case "JSON" => new JSONSerde[T]
-    case _ => new JSONSerde[T] //default is JSON
+  def getSerde[T <: AnyRef : ClassTag : TypeTag](name: String) = name match {
+    case "JSON" => JSONSerde[T]
+    case "BSON" => BsonSerde[T]
+    case "KRYO" => KryoSerde[T]
+    case _ => JSONSerde[T] //default is JSON
   }
 
 }

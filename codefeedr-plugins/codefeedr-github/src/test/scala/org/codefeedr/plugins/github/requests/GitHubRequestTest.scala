@@ -18,8 +18,10 @@
  */
 package org.codefeedr.plugins.github.requests
 
+import java.net.SocketTimeoutException
+
 import org.codefeedr.plugins.github.GitHubEndpoints
-import org.mockito.Mockito.{spy, when}
+import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
@@ -91,6 +93,20 @@ class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     assert(response.headers(0).key == "testHeader")
     assert(response.headers(0).value.size == 1)
     assert(response.headers(0).value.contains("test"))
+  }
+
+  test("There should be a proper timeout if a request fails") {
+    val mockHttp = mock[HttpRequest]
+    val request = spy(defaultRequest)
+
+    when(mockHttp.asString)
+      .thenThrow(new RuntimeException())
+
+
+    assertThrows[GitHubRequestException] {
+      request.retrieveResponse(mockHttp, 4)
+    }
+
   }
 
 }
