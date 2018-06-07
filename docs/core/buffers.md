@@ -1,4 +1,4 @@
-Between each plugin (PipelineObject) a buffer is added. These buffers are necessary to allow a directed acylic graph as pipeline where a plugin might read from multiple other plugins (using this buffer). Currently only a [Kafka](https://kafka.apache.org/) buffer is supported.  
+Between each stage a buffer is added. These buffers are necessary to allow a directed acylic graph as pipeline where a plugin might read from multiple other stages (using this buffer). Currently [Kafka](https://kafka.apache.org/) and [RabbitMQ](https://www.rabbitmq.com/) are supported as buffers.  
 ## KafkaBuffer
 ### Serialization
 Before data is send to the Kafka buffer it is serialized. Currently we offer two ways of serializing: [JSON](https://www.json.org/) and [Avro](https://avro.apache.org/). This can be configured through the buffer properties: `pipeline.setBufferProperty(KafkaBuffer.SERIALIZER, Serializer.AVRO)`. The default serializer is JSON. 
