@@ -41,6 +41,7 @@ pages:
       - 'redis': 'core/redis-key-manager.md'
       - 'mongoDB': 'core/mongo-key-manager.md'
   - Plugins:
+    - 'What Are Plugins?': 'plugins/plugins.md'
     - 'GitHub': 'plugins/github.md'
     - 'Travis': 'plugins/travis.md'
     - 'RSS': 'plugins/rss.md'
