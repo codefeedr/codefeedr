@@ -25,13 +25,18 @@ class TravisFilterActiveReposTransformStageTest extends FunSuite {
 
     val travis = spy(new TravisService(new StaticKeyManager()))
     val filter = (_: String) => {true}
-
     doReturn(filter).when(travis).repoIsActiveFilter
+
+    val travisFilterActiveReposTransformStage: TravisFilterActiveReposTransformStage =
+      spy(new TravisFilterActiveReposTransformStage())
+    doReturn(travis).when(travisFilterActiveReposTransformStage).travis
+
+    println(travisFilterActiveReposTransformStage.travis)
 
     new PipelineBuilder()
       .append(new SimpleEventSource("/sample_events.json"))
       .append(new GitHubEventToPushEvent())
-      .append(new TravisFilterActiveReposTransformStage(travis))
+      .append(travisFilterActiveReposTransformStage)
       .append { x : DataStream[PushEventFromActiveTravisRepo] =>
         x.addSink(new ActiveRepoPushEventCollectSink)
       }
