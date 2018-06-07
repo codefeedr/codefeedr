@@ -6,11 +6,9 @@ Pipeline programs for a Flink cluster are to be JARs without any external depend
 but without Scala and the core Flink dependencies. The codefeedr example project is correctly
 configured to supply a JAR when running `sbt assembly`.
 
-### Arguments
+### Setting the Flink server
 
-Setting an environment variable FLINK_HOST
-
-Passing as argument --host
+The tool accepts a `--host` parameter to set the Flink host. It is also possible to use the `FLINK_HOST` environment variable. This environment variable is overwritten by any supplied host. If no host configuration is found, `localhost:8081` is used.
 
 ### Commands
 
