@@ -20,12 +20,11 @@ package org.codefeedr.stages.utilities
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.InputStage
 
 import scala.reflect.{ClassTag, Manifest}
 
-class SeqInput[T <: PipelineItem : ClassTag : Manifest : TypeInformation](seq: Seq[T]) extends InputStage[T] {
+class SeqInput[T <: Serializable with AnyRef : ClassTag : Manifest : TypeInformation](seq: Seq[T]) extends InputStage[T] {
 
   override def main(): DataStream[T] = {
     pipeline.environment.fromCollection(seq)

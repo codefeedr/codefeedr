@@ -36,7 +36,7 @@ import scala.reflect.{ClassTag, classTag}
   * @param properties Buffer properties
   * @tparam T Element type of the buffer
   */
-abstract class Buffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties) {
+abstract class Buffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties) {
 
   //Get type of the class at run time
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]

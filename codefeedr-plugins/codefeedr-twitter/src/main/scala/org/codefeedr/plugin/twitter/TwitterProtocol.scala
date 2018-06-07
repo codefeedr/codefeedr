@@ -19,7 +19,6 @@
 package org.codefeedr.plugin.twitter
 
 import com.danielasfregola.twitter4s.entities.Tweet
-import org.codefeedr.pipeline.PipelineItem
 
 object TwitterProtocol {
 
@@ -29,6 +28,5 @@ object TwitterProtocol {
     * @param tweet the wrapped tweet.
     */
   case class TweetWrapper(tweet: Tweet)
-    extends PipelineItem
 
 }

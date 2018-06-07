@@ -21,7 +21,6 @@ package org.codefeedr.plugins.github
 import java.util.Date
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.Payload
 import org.json4s.JObject
 
@@ -36,7 +35,7 @@ object GitHubProtocol {
                    organization: Option[Organization],
                    payload: String,
                    public: Boolean,
-                   created_at: Date) extends PipelineItem
+                   created_at: Date)
 
   case class Actor(id: Long,
                    login: String,
@@ -69,7 +68,7 @@ object GitHubProtocol {
                        organization: Option[Organization],
                        payload: PushPayload,
                        public: Boolean,
-                       created_at: Date) extends PipelineItem
+                       created_at: Date)
 
   case class PushPayload(push_id: Long,
                          size: Int,
@@ -101,7 +100,7 @@ object GitHubProtocol {
                          organization: Option[Organization],
                          payload: IssuesPayload,
                          public: Boolean,
-                         created_at: Date) extends PipelineItem
+                         created_at: Date)
 
   case class IssuesPayload(action: String,
                            issue: Issue) extends Payload
@@ -144,7 +143,7 @@ object GitHubProtocol {
                                organization: Option[Organization],
                                payload: IssueCommentPayload,
                                public: Boolean,
-                               created_at: Date) extends PipelineItem
+                               created_at: Date)
 
   case class IssueCommentPayload(action: String,
                                  issue: Issue,
@@ -173,7 +172,7 @@ object GitHubProtocol {
                     committer: Option[User],
                     parents: List[Parent],
                     stats: Stats,
-                    files: List[File]) extends PipelineItem
+                    files: List[File])
 
   case class CommitData(author: CommitUser,
                         committer: CommitUser,

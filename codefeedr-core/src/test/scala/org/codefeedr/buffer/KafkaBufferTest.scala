@@ -29,7 +29,7 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
-import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
+import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.{InputStage, OutputStage, StageAttributes}
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.{JobFinishedException, SimpleSourcePipelineObject}
@@ -198,4 +198,4 @@ class NumberOutput(stageAttributes: StageAttributes) extends OutputStage[StringT
   override def main(source: DataStream[StringType]): Unit = source.addSink(new StringCollectSink)
 }
 
-case class TestEvent(name: String, time: Date) extends PipelineItem
+case class TestEvent(name: String, time: Date)

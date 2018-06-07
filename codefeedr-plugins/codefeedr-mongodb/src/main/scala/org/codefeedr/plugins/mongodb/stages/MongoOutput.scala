@@ -37,7 +37,6 @@
 package org.codefeedr.plugins.mongodb.stages
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.mongodb.BaseMongoSink
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 
@@ -54,7 +53,7 @@ import scala.reflect.{ClassTag, Manifest}
   * @param stageAttributes Extra stage attributes
   * @tparam T Type of output
   */
-class MongoOutput[T <: PipelineItem : ClassTag : Manifest](database: String,
+class MongoOutput[T <: Serializable with AnyRef : ClassTag : Manifest](database: String,
                                                                         collection: String,
                                                                         server: String = "mongodb://localhost:27017",
                                                                         stageAttributes: StageAttributes = StageAttributes())

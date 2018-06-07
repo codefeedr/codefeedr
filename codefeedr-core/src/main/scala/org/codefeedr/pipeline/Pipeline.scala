@@ -61,7 +61,7 @@ case class Pipeline(var name: String,
     * @param obj Stage
     * @return Properties
     */
-  def propertiesOf[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V]): Properties = {
+  def propertiesOf[U <: Serializable with AnyRef, V <: Serializable with AnyRef](obj: PipelineObject[U, V]): Properties = {
     if (obj == null) {
       throw new IllegalArgumentException("Object can't be null")
     }
@@ -107,7 +107,7 @@ case class Pipeline(var name: String,
     // Get a list of stages
     // Print their names
 
-    val list = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
+    val list = graph.nodes.asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
     for (node <- list) {
       println(node.id)
     }
@@ -137,7 +137,7 @@ case class Pipeline(var name: String,
       throw new IllegalStateException("Mock runtime can't run non-sequential pipelines")
     }
 
-    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
+    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
 
     // Run all setups
     for (obj <- objects) {
@@ -145,7 +145,7 @@ case class Pipeline(var name: String,
     }
 
     // Connect each object by getting a starting buffer, if any, and sending it to the next.
-    var buffer: DataStream[PipelineItem] = null
+    var buffer: DataStream[Serializable with AnyRef] = null
     for (obj <- objects) {
       buffer = obj.transform(buffer)
     }
@@ -159,7 +159,7 @@ case class Pipeline(var name: String,
     * Starts every stage in the same Flink environment but with buffers.
     */
   def startLocal(): Unit = {
-    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
+    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
 
     // Run all setups
     for (obj <- objects) {
@@ -181,15 +181,15 @@ case class Pipeline(var name: String,
     */
   def startClustered(stage: String, groupId: String = null): Unit = {
     val optObj = graph.nodes.find { node =>
-      println(node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id, stage)
-      node.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]].id == stage
+      println(node.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]].id, stage)
+      node.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]].id == stage
     }
 
     if (optObj.isEmpty) {
       throw StageNotFoundException()
     }
 
-    val obj = optObj.get.asInstanceOf[PipelineObject[PipelineItem, PipelineItem]]
+    val obj = optObj.get.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]
 
     obj.setUp(this)
     runObject(obj, groupId)
@@ -204,7 +204,7 @@ case class Pipeline(var name: String,
     *
     * @param obj
     */
-  private def runObject(obj: PipelineObject[PipelineItem, PipelineItem], groupId: String = null): Unit = {
+  private def runObject(obj: PipelineObject[Serializable with AnyRef, Serializable with AnyRef], groupId: String = null): Unit = {
     lazy val source = if (obj.hasMainSource) obj.getMainSource(groupId) else null
     lazy val sink = if (obj.hasSink) obj.getSink(groupId) else null
 

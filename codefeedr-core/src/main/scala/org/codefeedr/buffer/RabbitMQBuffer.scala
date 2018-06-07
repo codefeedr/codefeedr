@@ -46,7 +46,7 @@ object RabbitMQBuffer {
   * @param queueName Name of the RabbitMQ queue to read from/write to
   * @tparam T Element type of the buffer
   */
-class RabbitMQBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, queueName: String)
+class RabbitMQBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, queueName: String)
   extends Buffer[T](pipeline, properties) {
 
   private object RabbitMQBufferDefaults {

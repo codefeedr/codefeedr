@@ -20,7 +20,6 @@ package org.codefeedr.plugins.weblogs
 
 import java.util.Date
 
-import org.codefeedr.pipeline.PipelineItem
 
 /**
   * Pipeline item that contains an entrie from an Apache Request log.
@@ -42,4 +41,4 @@ case class HttpdLogItem(ip: String,
                         status: Int,
                         amountOfBytes: Int,
                         referer: String,
-                        userAgent: String) extends PipelineItem
+                        userAgent: String)
