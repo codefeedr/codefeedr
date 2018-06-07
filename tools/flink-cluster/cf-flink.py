@@ -11,7 +11,7 @@ import json
 ################################################
 
 def get_url(args, path):
-    host = args.host or 'localhost:8081'
+    host = args.host or os.environ['FLINK_HOST'] or 'localhost:8081'
     return 'http://' + host + path
 
 def get_job_state(jobId):
@@ -212,14 +212,26 @@ def cmd_start_pipeline(args):
     if len(stages) == 0:
         return
 
-    # For each item in list, start a flink job
-    for stage in stages:
-        print('Starting stage ' + stage)
-        jobId = start_stage(programId, stage)
-        if jobId is None:
-            return
+    # Find all stages that already run
+    activeStages = map(lambda x: x["stage"], get_active_stages())
 
-        print("Started with jobId '" + jobId + "'")
+    # For each item in list, start a flink job
+    totalNewJobs = 0
+    for stage in stages:
+        if stage in activeStages:
+            print('Stage already running: ' + stage)
+        else:
+            print('Starting stage: ' + stage)
+            jobId = start_stage(programId, stage)
+            totalNewJobs = totalNewJobs + 1
+            if jobId is None:
+                return
+
+            print("Started with jobId '" + jobId + "'")
+
+    if totalNewJobs == 0:
+        print("Removing JAR...")
+        delete_program(programId)
 
     print('Done')
 
@@ -259,6 +271,12 @@ def cmd_cancel_job(args):
         print("Failed to cancel job '" + jobId + "'")
 
 
+# TODO
+def cmd_start_stage(stage):
+    print("Start stage")
+
+def cmd_stop_stage(stage):
+    print("Stop stage")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Communicate with Flink.')
