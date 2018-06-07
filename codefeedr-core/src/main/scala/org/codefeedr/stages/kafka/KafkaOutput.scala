@@ -22,8 +22,7 @@ import java.util.Properties
 
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
-import org.codefeedr.buffer.serialization.{Serializer}
-import org.codefeedr.pipeline.PipelineItem
+import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 
 import scala.reflect.ClassTag
@@ -36,7 +35,7 @@ import scala.reflect.runtime.universe._
   * @param serializer the serializer to use for serialization of the data, see [[Serializer]].
   * @param stageAttributes attributes of this stage.
   */
-class KafkaOutput[T <: PipelineItem : ClassTag : TypeTag](topic: String,
+class KafkaOutput[T <: Serializable with AnyRef : ClassTag : TypeTag](topic: String,
                                                                       properties: Properties,
                                                                       serializer: String = Serializer.JSON,
                                                                       stageAttributes: StageAttributes = StageAttributes())

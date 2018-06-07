@@ -1,11 +1,10 @@
 package org.codefeedr.buffer.serialization
 
-import org.codefeedr.pipeline.PipelineItem
 import org.scalatest.FunSuite
 
 class SerializerTest extends FunSuite {
 
-  case class Item() extends PipelineItem
+  case class Item()
 
   test("Should recognise JSON") {
     val serde = Serializer.getSerde[Item](Serializer.JSON)

@@ -35,7 +35,7 @@ import scala.reflect.runtime.universe._
   * @tparam In  input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: PipelineItem : ClassTag : TypeTag](val attributes: StageAttributes = StageAttributes()) {
+abstract class PipelineObject[In <: Serializable with AnyRef : ClassTag : TypeTag, Out <: Serializable with AnyRef : ClassTag : TypeTag](val attributes: StageAttributes = StageAttributes()) {
 
   var pipeline: Pipeline = _
   def environment = pipeline.environment
@@ -80,8 +80,8 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: Pi
     *
     * @return set of parents. Can be empty
     */
-  def getParents: Vector[PipelineObject[PipelineItem, PipelineItem]] =
-    pipeline.graph.getParents(this).asInstanceOf[Vector[PipelineObject[PipelineItem, PipelineItem]]]
+  def getParents: Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]] =
+    pipeline.graph.getParents(this).asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
 
   /**
     * Check if this pipeline object is sourced from a Buffer.
@@ -145,7 +145,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: Pi
     */
   def getSinkSubject: String = this.id
 
-  def getSource[T <: AnyRef : ClassTag : TypeTag](parentNode: PipelineObject[PipelineItem, PipelineItem]): DataStream[T] = {
+  def getSource[T <: Serializable with AnyRef : ClassTag : TypeTag](parentNode: PipelineObject[Serializable with AnyRef, Serializable with AnyRef]): DataStream[T] = {
     assert(parentNode != null)
 
     val factory = new BufferFactory(pipeline, this, parentNode)
@@ -160,7 +160,7 @@ abstract class PipelineObject[In <: PipelineItem : ClassTag : TypeTag, Out <: Pi
     * @param obj Other object
     * @return List with this and other
     */
-  def :+[U <: PipelineItem, V <: PipelineItem](obj: PipelineObject[U, V]): PipelineObjectList =
+  def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](obj: PipelineObject[U, V]): PipelineObjectList =
     inList.add(obj)
 
   /**

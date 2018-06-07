@@ -24,7 +24,7 @@ import java.util.{Properties, UUID}
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.{PipelineBuilder, PipelineItem}
+import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.{InputStage, OutputStage}
 import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils.JobFinishedException

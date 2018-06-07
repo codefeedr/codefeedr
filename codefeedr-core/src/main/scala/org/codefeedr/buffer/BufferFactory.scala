@@ -18,7 +18,7 @@
  */
 package org.codefeedr.buffer
 
-import org.codefeedr.pipeline.{Pipeline, PipelineItem, PipelineObject}
+import org.codefeedr.pipeline.{Pipeline, PipelineObject}
 
 import scala.reflect.{ClassTag, Manifest}
 import scala.reflect.runtime.universe._
@@ -34,7 +34,8 @@ import scala.reflect.runtime.universe._
   * @param pipeline Pipeline
   * @param sinkObject Object that writes to the buffer
   */
-class BufferFactory[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <: PipelineItem](pipeline: Pipeline, stage: PipelineObject[X, Y], sinkObject: PipelineObject[U, V], groupId: String = null) {
+class BufferFactory[U <: Serializable with AnyRef,V <: Serializable with AnyRef, X <: Serializable with AnyRef, Y <: Serializable with AnyRef]
+    (pipeline: Pipeline, stage: PipelineObject[X, Y], sinkObject: PipelineObject[U, V], groupId: String = null) {
 
   /**
     * Create a new buffer
@@ -44,7 +45,7 @@ class BufferFactory[U <: PipelineItem, V <: PipelineItem, X <: PipelineItem, Y <
     * @throws IllegalArgumentException When sinkObject is null
     * @throws IllegalStateException When buffer could not be instantiated due to bad configuration
     */
-  def create[T <: AnyRef : ClassTag : TypeTag](): Buffer[T] = {
+  def create[T <: Serializable with AnyRef : ClassTag : TypeTag](): Buffer[T] = {
     if (sinkObject == null) {
       throw new IllegalArgumentException("Buffer factory requires a sink object to determine buffer location")
     }

@@ -26,7 +26,6 @@ import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
 import org.apache.flink.streaming.connectors.elasticsearch5.ElasticsearchSink
 import org.apache.logging.log4j.scala.Logging
-import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.Requests
@@ -45,7 +44,7 @@ import scala.reflect.{ClassTag, Manifest}
   * @param attributes Optional stage attributes
   * @tparam T Input type
   */
-class ElasticSearchOutput[T <: PipelineItem : ClassTag : Manifest](index: String,
+class ElasticSearchOutput[T <: Serializable with AnyRef : ClassTag : Manifest](index: String,
                                                                                servers: Set[String] = Set(),
                                                                                config: Map[String, String] = Map(),
                                                                                attributes: StageAttributes = StageAttributes())
@@ -100,7 +99,7 @@ class ElasticSearchOutput[T <: PipelineItem : ClassTag : Manifest](index: String
   * @param index Index to be used in ElasticSearch
   * @tparam T Type of input
   */
-private class ElasticSearchSink[T <: PipelineItem : ClassTag : Manifest](index: String) extends ElasticsearchSinkFunction[T] {
+private class ElasticSearchSink[T <: Serializable with AnyRef : ClassTag : Manifest](index: String) extends ElasticsearchSinkFunction[T] {
 
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
