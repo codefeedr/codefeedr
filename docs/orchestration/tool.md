@@ -2,6 +2,8 @@
 
 This Flink cluster tool, named `cf-flink`, helps with starting and managing CodeFeedr pipelines. 
 
+The 8081 port of the Flink Job Manager needs to be open (or mapped to another port).
+
 Pipeline programs for a Flink cluster are to be JARs without any external dependencies,
 but without Scala and the core Flink dependencies. The codefeedr example project is correctly
 configured to supply a JAR when running `sbt assembly`.

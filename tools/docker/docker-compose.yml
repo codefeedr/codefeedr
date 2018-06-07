@@ -10,8 +10,8 @@ services:
     volumes:
       - mongodb:/data/db
 
-  # redis:
-  #   image: redis
+#   redis:
+#     image: redis
 
   zookeeper:
     image: zookeeper
