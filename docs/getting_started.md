@@ -8,7 +8,7 @@ If you want to start from scratch, you can download our template using [Giter8](
 
 This template contains a simple WordCount example, which is discussed below.
 ## Example
-This sections offers a WordCount example also available in the [template](#template). For more in-depth explanation on how to create stages for a pipeline, see the pipeline section.
+This sections offers a WordCount example also available in the [template](#template). For more in-depth explanation on how to create stages for a pipeline, see the [pipeline](core/pipeline) section.
 ### WordCount
 First of all an OutputStage is created, this is a stage which reads from a buffer but doesn't write to one. 
 In this OutputStage a simple WordCount is executed using the Flink DataStream API.
@@ -26,11 +26,8 @@ class WordCountOutput extends OutputStage[StringType] {
 The `StringType` is a simple case class already defined in our framework:
 
 ```scala
-case class StringType(value: String) extends PipelineItem
+case class StringType(value: String)
 ```
-
-**Note**: Every case class used as input or output for a buffer needs to extend `PipelineItem`.
-To add Kafka as a buffer simple change the BufferType and add a Kafka broker:
 
 To run this stage, it needs to be added to a pipeline. You can do this using the `PipelineBuilder`,
 in a sequential pipeline you simple use the `append` method to add new stages to the pipeline.
@@ -59,10 +56,10 @@ By default a Kafka buffer is used. Starting this pipeline will result in the fol
 ## How To Run
 Currently three running modes are supported.
 
-- Mock: Each plugin is pipelined into **one** Flink job, no buffer is used. <br>
+- Mock: Each stage is pipelined into **one** Flink job, no buffer is used. <br>
 **Note**: A DAG pipeline is not supported in this mode.
-- Local: Each plugin is run in one Flink execution environment, however a buffer is used.
-- Cluster: TODO
+- Local: Each stage is run in one Flink execution environment, however a buffer is used.
+- Cluster: A stage is run individually, you have to specify which stage. 
 
-It can be started from the code using `pipeline.runMock()`, `pipeline.runLocal()`, `pipeline.runClustered()`
+The pipeline can be started from the code using `pipeline.runMock()`, `pipeline.runLocal()`, `pipeline.runClustered()`
 or via start arguments using: `pipeline.start(args)`. 

@@ -4,6 +4,7 @@ The GitHub plugin has several stages. In the section below each stage will be di
 ### Stages
 #### GitHubEventsInput
 Reads events from the '/event' endpoint of GitHub. Per poll often around +- 300 events are included, which means around 3 GitHub requests (100 per request). In the list below the constructor parameters are explained:
+
 - `numOfPolls`: to specify the amount of polls before it stops, `-1` for unbounded (`-1` is default).
 - `waitTime`: to specify the amount of milliseconds it should wait before doing a new poll. Make sure choose a wait time based on the amount of keys/request you have available. E.g. if you have `5000` request p/h, you can make around `5000/3 = 1666` polls p/h, `3600/1666= 2.16` seconds between each poll. (`1000` is default).
 -  `duplicateFilter`: to enable a duplicate filter. This source runs single-threaded, so the event id's can be cached to check for duplicates. (`false` is default).
