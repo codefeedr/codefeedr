@@ -58,10 +58,10 @@ class CratesIOAPIServiceTest extends FunSuite with BeforeAndAfter {
         "Updating crate `sbr#0.1.1`" -> Try("sbr"),
         "Updating crate `error-chain-mini-derive#0.2.0`" -> Try("error-chain-mini-derive"),
         "Updating crate `error-chain-mini-derive#0.2.0" -> Try("error-chain-mini-derive")
-    ).foreach(x => assert(service.extactCrateFromCommitMsg(x._1) == x._2))
+    ).foreach(x => assert(service.extractCrateFromCommitMsg(x._1) == x._2))
 
-    service.extactCrateFromCommitMsg("#0.2.0") shouldBe 'failure
-    service.extactCrateFromCommitMsg("test#0.2.0") shouldBe 'failure
+    service.extractCrateFromCommitMsg("#0.2.0") shouldBe 'failure
+    service.extractCrateFromCommitMsg("test#0.2.0") shouldBe 'failure
   }
 
   test ("Request to the crates.io API") {

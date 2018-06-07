@@ -34,20 +34,46 @@ class CratesIOAPIService {
 
   val BASE_URL = "https://crates.io/api/v1/crates/"
 
+  //necessary for JSON parsing
   implicit val defaultFormats = DefaultFormats
 
+  /**
+    * Retrieve CrateInfo from crates API.
+    *
+    * @param crateName the name of the crate.
+    * @return its CrateInfo.
+    */
   def crateInfo(crateName: String) : CrateInfo =
     parseRespose(crateAPIRequest(crateName).body)
 
+  /**
+    * Requests crate from the crates API.
+    *
+    * @param crate the crate name.
+    * @return a http response.
+    */
   def crateAPIRequest(crate: String): HttpResponse[String] =
     Http(BASE_URL + crate).
         timeout(connTimeoutMs = 10000, readTimeoutMs = 15000).
         asString
 
+  /**
+    * Parses JSON response.
+    *
+    * @param crateInfoJSON the JSON string.
+    * @return parsed CrateInfo.
+    */
   def parseRespose(crateInfoJSON: String): CrateInfo =
     parse(crateInfoJSON).extract[CrateInfo]
 
-  def extactCrateFromCommitMsg(msg: String) : Try[String] =
+
+  /**
+    * Extract the crate from a commit message.
+    *
+    * @param msg the commit message.
+    * @return a potential crate.
+    */
+  def extractCrateFromCommitMsg(msg: String) : Try[String] =
     try {
       Success(msg.split("`")(1).split("#")(0))
     } catch {
