@@ -18,13 +18,14 @@
  */
 package org.codefeedr.buffer
 
+import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
 import org.codefeedr.pipeline.Pipeline
-import scala.reflect.runtime.universe._
 
-import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
+import scala.reflect.{ClassTag, classTag}
 
 /**
   * A pipeline buffer.
@@ -36,6 +37,13 @@ import scala.reflect.ClassTag
   * @tparam T Element type of the buffer
   */
 abstract class Buffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties) {
+
+  //Get type of the class at run time
+  val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
+
+  //get TypeInformation of generic (case) class
+  implicit val typeInfo = TypeInformation.of(inputClassType)
+
 
   /**
     * Get the source for this buffer. The buffer ereads from this

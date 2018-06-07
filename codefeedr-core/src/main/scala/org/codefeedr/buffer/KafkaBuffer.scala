@@ -20,7 +20,6 @@ package org.codefeedr.buffer
 
 import java.util.Properties
 
-import org.apache.avro.Schema
 import org.apache.avro.reflect.ReflectData
 import org.codefeedr.Properties._
 import org.apache.flink.api.common.typeinfo.TypeInformation
@@ -31,6 +30,7 @@ import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
+import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
 import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.stages.StageAttributes
@@ -52,14 +52,16 @@ object KafkaBuffer {
 }
 
 class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String, groupId: String)
-  extends Buffer[T](pipeline, properties) {
+  extends Buffer[T](pipeline, properties) with Logging {
 
   private object KafkaBufferDefaults {
-    /**
-      * DEFAULT VALUES
-      */
+    //KAFKA RELATED
     val BROKER = "localhost:9092"
     val ZOOKEEPER = "localhost:2181"
+
+    val AUTO_OFFSET_RESET = "earliest"
+    val AUTO_COMMIT_INTERVAL_MS = "100"
+    val ENABLE_AUTO_COMMIT = "true"
 
     //SCHEMA EXPOSURE
     val SCHEMA_EXPOSURE = false
@@ -67,12 +69,11 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
   }
 
-  //Get type of the class at run time
-  val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
-
-  //get TypeInformation of generic (case) class
-  implicit val typeInfo = TypeInformation.of(inputClassType)
-
+  /**
+    * Get a Kafka Producer as source for the buffer.
+    *
+    * @return Source stream the Kafka Consumer.
+    */
   override def getSource: DataStream[T] = {
     val serde = getSerializer
 
@@ -84,6 +85,11 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
       addSource(new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties))
   }
 
+  /**
+    * Gets a Kafka Producer as sink for the buffer.
+    *
+    * @return Sink function the Kafka Producer.
+    */
   override def getSink: SinkFunction[T] = {
     //check if a schema should be exposed
     if (properties.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE)
@@ -99,7 +105,7 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
   }
 
   /**
-    * Get all the kafka properties.
+    * Get all the Kafka properties.
     *
     * @return a map with all the properties.
     */
@@ -107,9 +113,9 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     val kafkaProp = new java.util.Properties()
     kafkaProp.put("bootstrap.servers", KafkaBufferDefaults.BROKER)
     kafkaProp.put("zookeeper.connect", KafkaBufferDefaults.ZOOKEEPER)
-    kafkaProp.put("auto.offset.reset", "earliest")
-    kafkaProp.put("auto.commit.interval.ms", "100")
-    kafkaProp.put("enable.auto.commit", "true")
+    kafkaProp.put("auto.offset.reset", KafkaBufferDefaults.AUTO_OFFSET_RESET)
+    kafkaProp.put("auto.commit.interval.ms", KafkaBufferDefaults.AUTO_COMMIT_INTERVAL_MS)
+    kafkaProp.put("enable.auto.commit", KafkaBufferDefaults.ENABLE_AUTO_COMMIT)
     kafkaProp.put("group.id", groupId)
 
     kafkaProp.putAll(properties.toJavaProperties)
@@ -142,7 +148,7 @@ class KafkaBuffer[T <: AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properti
     if (!alreadyCreated) {
       //the topic configuration will probably be overwritten by the producer
       //TODO check this ^
-      println(s"Topic $topic doesn't exist yet, now creating it.")
+      logger.info(s"Topic $topic doesn't exist yet, now creating it.")
       val newTopic = new NewTopic(topic, 1, 1)
       adminClient.
         createTopics(List(newTopic).asJavaCollection)
