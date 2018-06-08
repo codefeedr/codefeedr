@@ -1,4 +1,3 @@
-# GitHub
 The GitHub plugin provides stages for interaction with the [GitHubAPI](https://developer.github.com/v3/?). 
 ### Installation
 
