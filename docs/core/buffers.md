@@ -53,7 +53,7 @@ pipeline.setBufferProperty(Buffer.SERIALIZER, Serializer.KRYO)
 The default serializer is JSON. 
 We recommend to use the Kryo serializer since it has the best compression and speed. However, for debugging purposes you might want to use JSON since it offers readability.
 
-## Kafka GroupID
+## Kafka Group Id/Name
 If a stage reads from a buffer (transform/output stage), then the group id of its Kafka consumer is equal to the stage id.
 To override this, set the `StageAttributes` and pass it to constructor of the stage. 
 
