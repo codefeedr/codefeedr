@@ -1,5 +1,3 @@
-# ElasticSearch
-
 A plugin with an output stage for ElasticSearch, based on the sink from the Apache Flink project.
 
 ___NOTE___: The Apache Flink sink uses the ElasticSearch Java API which has been removed in version 5.2. To use this

@@ -39,7 +39,6 @@ pages:
     - 'Key Management':
       - 'Key Manager': 'core/key-manager.md'
       - 'redis': 'core/redis-key-manager.md'
-      - 'mongoDB': 'core/mongo-key-manager.md'
   - Plugins:
     - 'What Are Plugins?': 'plugins/plugins.md'
     - 'GitHub': 'plugins/github.md'
@@ -47,7 +46,7 @@ pages:
     - 'RSS': 'plugins/rss.md'
     - 'Apache Access Logs': 'plugins/apache-access-logs.md'
     - 'ElasticSearch': 'plugins/elasticsearch.md'
-    - 'Historic data': 'plugins/historic-data.md'
+    - 'MongoDB': 'plugins/mongodb.md'
   - Orchestration:
     - 'Docker': 'orchestration/docker.md'
     - 'Cluster Tool': 'orchestration/tool.md'
