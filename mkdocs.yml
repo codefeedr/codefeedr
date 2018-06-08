@@ -46,6 +46,7 @@ pages:
     - 'Travis': 'plugins/travis.md'
     - 'RSS': 'plugins/rss.md'
     - 'Apache Access Logs': 'plugins/apache-access-logs.md'
+    - 'ElasticSearch': 'plugins/elasticsearch.md'
     - 'Historic data': 'plugins/historic-data.md'
   - Orchestration:
     - 'Docker': 'orchestration/docker.md'
