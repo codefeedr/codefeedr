@@ -24,8 +24,8 @@ Configuring a mongo stage only requires the database and collection names to rea
 Optionally a server address can be supplied. It defaults to localhost on the default mongo port.
 
 ```scala
-val mongoIn = new MongoInput("db", "myCollection", "mongodb://mongo:1234")
-val mongoOut = new MongoOutput("db", "myCollection", "mongodb://mongo:1234")
+val mongoIn = new MongoInput[MyEvent]("db", "myCollection", "mongodb://mongo:1234")
+val mongoOut = new MongoOutput[MyEvent]("db", "myCollection", "mongodb://mongo:1234")
 ```
 
 #### Filtering input
@@ -41,7 +41,7 @@ val query = MongoQuery.from(new GregorianCalendar(2018, Calendar.JANUARY, 1).get
 // Custom query
 val query = new MongoQuery(eq("myKey", "myVal"))
 
-val mongoIn = new MongoInput("db", "myCollection", query = query)
+val mongoIn = new MongoInput[MyEvent]("db", "myCollection", query = query)
 ```
 
 ### Notes
