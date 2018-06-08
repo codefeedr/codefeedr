@@ -19,13 +19,12 @@
 package org.codefeedr.stages.utilities
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.OutputStage
 
 import scala.reflect.{ClassTag, Manifest}
 import scala.reflect.runtime.universe._
 
-class PrinterOutput[T <: PipelineItem : ClassTag : TypeTag] extends OutputStage[T] {
+class PrinterOutput[T <: Serializable with AnyRef : ClassTag : TypeTag] extends OutputStage[T] {
 
   override def main(source: DataStream[T]): Unit = {
     source.print()

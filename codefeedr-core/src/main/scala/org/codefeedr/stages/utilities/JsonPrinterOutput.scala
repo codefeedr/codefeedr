@@ -20,21 +20,20 @@ package org.codefeedr.stages.utilities
 
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.stages.OutputStage
 import org.json4s._
 import org.json4s.jackson.Serialization
 
-import scala.reflect.{ClassTag, Manifest}
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-class JsonPrinterOutput[T <: PipelineItem : ClassTag : TypeTag] extends OutputStage[T] {
+class JsonPrinterOutput[T <: Serializable with AnyRef: ClassTag : TypeTag] extends OutputStage[T] {
 
   override def main(source: DataStream[T]): Unit = {
     source
-      .map { x =>
+      .map { x: T =>
         implicit lazy val formats = Serialization.formats(NoTypeHints)
-        new String(Serialization.write[T](x)(formats))
+        new String(Serialization.write(x)(formats))
       }.print()
   }
 }

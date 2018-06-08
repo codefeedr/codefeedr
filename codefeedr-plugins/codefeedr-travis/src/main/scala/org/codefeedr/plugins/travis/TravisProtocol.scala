@@ -20,12 +20,11 @@ package org.codefeedr.plugins.travis
 
 import java.util.Date
 
-import org.codefeedr.pipeline.PipelineItem
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 
 object TravisProtocol {
 
-  case class PushEventFromActiveTravisRepo(pushEventItem: PushEvent) extends PipelineItem
+  case class PushEventFromActiveTravisRepo(pushEventItem: PushEvent)
 
   case class TravisBuilds(`@type`: String,
                           `@href`: String,
@@ -51,7 +50,7 @@ object TravisProtocol {
                          repository: TravisRepository,
                          branch: TravisBranch,
                          tag: String,
-                         commit: TravisCommit) extends PipelineItem
+                         commit: TravisCommit)
 
   case class TravisPermissions(read: Boolean,
                                cancel: Boolean,

@@ -1,25 +1,25 @@
-The pipeline system is the core of our framework. It allows you to combine and pipeline multiple Flink jobs using a configurable buffer. 
+The pipeline system is the core of the framework. It allows you to combine and pipeline multiple Flink jobs using a configurable buffer. 
 
 ## Stages
-Each pipeline consists of multiple stages. Currently there are three types of stages:
+Each pipeline consists of multiple stages whereas each stage is a Flink job. There are three types of stages:
+
 - InputStage: does not retrieve any input from a different stage but does write to 1 or more stages.
 - TransformStage: retrieves from or 1 or more stages and writes to 1 or more stages.
 - OutputStage: retrieves from 1 or more stages but does not write to any stages
 
-Stages are linked to each other through [buffers](#buffers)
+Stages are linked to each other through [buffers](buffers). 
 ### InputStage
-The InputStage will push data into your pipeline using a Flink source. To retrieve the Flink `StreamExecutionEnviroment` use `pipeline.environment`.  
+The InputStage will push data into your pipeline using a Flink source. To retrieve the Flink `StreamExecutionEnviroment` use `environment`.  
 
 A simple example of an InputStage:
 ```scala
-case class SimpleData(str: String) extends PipelineItem
+case class SimpleData(str: String)
 
 class SimpleInputStage(stageAttributes: StageAttributes = StageAttributes()) 
                        extends InputStage[SimpleData](stageAttributes) {
 
   override def main(): DataStream[String] = {
-    pipeline
-      .environment
+    environment
       .fromCollection(Seq(SimpleData("Simple"), SimpleData("data"), SimpleData("set")))
   }
 }
@@ -29,8 +29,8 @@ In the TransformStage data is read from 1 or more stages, transformed using a Fl
 
 A simple example of a TransformStage: 
 ```scala
-case class SimpleData(str: String) extends PipelineItem
-case class SimpleDataReduce(str: String, amount: Int) extends PipelineItem
+case class SimpleData(str: String)
+case class SimpleDataReduce(str: String, amount: Int)
 
 class SimpleTransformStage(stageAttributes: StageAttributes = StageAttributes()) 
                        extends TransformStage[SimpleData, SimpleDataReduce](stageAttributes) {
@@ -48,7 +48,7 @@ In the OutputStage data is read from 1 or more stages and then transformed using
 
 A simple example of an OutputStage:
 ```scala
-case class SimpleDataReduce(str: String, amount: Int) extends PipelineItem
+case class SimpleDataReduce(str: String, amount: Int)
 
 class SimpleOutputStage(stageAttributes: StageAttributes = StageAttributes()) 
                        extends OutputStage[SimpleDataReduce](stageAttributes) {
@@ -61,7 +61,7 @@ class SimpleOutputStage(stageAttributes: StageAttributes = StageAttributes())
 
 ### Create Your Own Stage
 In order to create your own stage, consider the following:
-- The input and output case classes should extend **PipelineItem**. 
+
 - The stage should extend the correct base (either InputStage, TransformStage, OutputStage).
 - If the stage needs to read from multiple other stages (and perform for instance a join), extend the base stage suffixed with the amount of stages it reads from; e.g. TransformStage3 to read from 3 sources. This is only applicable for the Transform and Output stage. Currently up until 4 input stages are supported. 
 - Make sure the stage is **serializable**. This is a Flink requirement. 
@@ -70,6 +70,7 @@ In order to create your own stage, consider the following:
 Remember that stages run as independent Flink jobs with buffers (like Kafka), this creates overhead. Consider if your stage is worth this overhead instead of combining multiple stages into one stage. 
 
 To have a better understanding of stages take a look at the plugins package which includes multiple (complex) stages.
+
 
 ## PipelineBuilder
 The PipelineBuilder is used to create a pipeline of stages. Next to that, it allows to set the buffer type (like Kafka), buffer properties and key management.  A simple sequential pipeline can be created like this:
@@ -99,8 +100,15 @@ However the actual architecture of this pipeline can be seen in this figure:
 
 **Note:** Type-safety is **NOT** guaranteed in between stages. E.g. if Stage1 outputs type `A` and Stage2 reads from Stage1, Stage2 is not explicitly required to have `A` as input type. As long as the serialization framework will support the conversion (if you remove fields, this is often supported)  or the type is the same, it will not give problems. 
 
+## Subjects
+In order to let the stages interact with each other they all have a subject. By default this subject is equal to the name of the class. 
+This subject is used to identify the name of the buffer and therefore this should be unique.
+If you have stages with the same name which should **not** share the same buffer, you should override its subject by using the `StageAttributes` and passing it to the constructor of the Stage.
+
+
 ### Start the pipeline
 If the Pipeline is properly build using the PipelineBuilder, it can be started in three modes:
+
 - mock: creates one Flink `DataStream` of all the stages and runs it without buffer. Only works for **sequential** pipelines.
 - local: start all stages in different threads.
 - clustered: start each stage individually.
