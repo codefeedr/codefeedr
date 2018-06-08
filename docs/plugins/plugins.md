@@ -10,7 +10,6 @@ A plugin is a simple Scala project without a main class. It must depend on `code
 project has put its plugins in the `org.codefeedr.plugins` package, and their stages into a `stages` 
 subpackage. This is not required.
 
-
 ### Creating a plugin
 
 It is naturally possible to create a new plugin.
