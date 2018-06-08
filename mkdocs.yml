@@ -47,3 +47,6 @@ pages:
     - 'RSS': 'plugins/rss.md'
     - 'Apache Access Logs': 'plugins/apache-access-logs.md'
     - 'Historic data': 'plugins/historic-data.md'
+  - Orchestration:
+    - 'Docker': 'orchestration/docker.md'
+    - 'Cluster Tool': 'orchestration/tool.md'

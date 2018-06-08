@@ -245,4 +245,15 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     assert(output.split("\n").length == 2)
     assert(output.startsWith("org.codefeedr.stages.utilities.StringInput"))
   }
+
+  test("Show list of pipeline item ids in an exception") {
+    val pipeline = builder
+      .append(new StringInput())
+      .append(new JsonPrinterOutput())
+      .build()
+
+    assertThrows[PipelineListException] {
+      pipeline.start(Array("--list", "--asException"))
+    }
+  }
 }

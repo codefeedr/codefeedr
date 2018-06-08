@@ -94,22 +94,50 @@ case class Pipeline(var name: String,
     }
 
     //set name if specified
-    if (params.has("name")) name = params.get("name")
+    if (params.has("name")) {
+      name = params.get("name")
+    }
+
+    if (params.has("list") || runtime == RuntimeType.Cluster) {
+      validateUniqueness()
+    }
 
     if (params.has("list")) {
-      showList()
+      showList(params.has("asException"))
     } else {
       start(runtime, stage, params.get("groupId"))
     }
   }
 
-  def showList(): Unit = {
-    // Get a list of stages
-    // Print their names
+  private def getNodes: Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]] =
+    graph.nodes.asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
 
-    val list = graph.nodes.asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
-    for (node <- list) {
-      println(node.id)
+  /**
+    * Validates the uniqueness of the stage IDs, needed for clustered running
+    */
+  def validateUniqueness(): Unit = {
+    val list = getNodes.map(_.id)
+    val uniqList = list.distinct
+    val overlap = list.diff(uniqList)
+
+    if (overlap.nonEmpty) {
+      throw StageIdsNotUniqueException(overlap.head)
+    }
+  }
+
+  /**
+    * Shows a list of stages inside the pipeline. Option to throw an exception to get the data through Flink.
+    * @param asException
+    */
+  def showList(asException: Boolean): Unit = {
+    if (asException) {
+      val contents = getNodes.map { item => '"' + item.id + '"' }
+        .mkString(",")
+      val json = s"[$contents]"
+
+      throw PipelineListException(json)
+    } else {
+      getNodes.foreach(item => println(item.id))
     }
   }
 
@@ -137,7 +165,7 @@ case class Pipeline(var name: String,
       throw new IllegalStateException("Mock runtime can't run non-sequential pipelines")
     }
 
-    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
+    val objects = getNodes
 
     // Run all setups
     for (obj <- objects) {
@@ -159,7 +187,7 @@ case class Pipeline(var name: String,
     * Starts every stage in the same Flink environment but with buffers.
     */
   def startLocal(): Unit = {
-    val objects = graph.nodes.asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
+    val objects = getNodes
 
     // Run all setups
     for (obj <- objects) {
@@ -181,7 +209,6 @@ case class Pipeline(var name: String,
     */
   def startClustered(stage: String, groupId: String = null): Unit = {
     val optObj = graph.nodes.find { node =>
-      println(node.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]].id, stage)
       node.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]].id == stage
     }
 
