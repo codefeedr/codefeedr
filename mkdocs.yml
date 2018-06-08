@@ -46,6 +46,7 @@ pages:
     - 'MongoDB': 'plugins/mongodb.md'
     - 'RSS': 'plugins/rss.md'
     - 'Travis': 'plugins/travis.md'
+    - 'Twitter': 'plugins/twitter.md'
     - 'Weblogs': 'plugins/weblogs.md'
   - Orchestration:
     - 'Docker': 'orchestration/docker.md'

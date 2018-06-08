@@ -1,6 +1,25 @@
-## Travis
-The Travis plugin has several stages. In the section below each stage will be discussed and lastly some sample pipelines
-will be discussed. See [TravisProtocol](https://github.com/joskuijpers/bep_codefeedr/blob/develop/codefeedr-plugins/codefeedr-travis/src/main/scala/org/codefeedr/plugins/travis/TravisProtocol.scala) for all the case classes used.
+INTRO
+
+### Installation
+
+```scala
+dependencies += "org.codefeedr" %% "codefeedr-twitter" % "0.1-SNAPSHOT"
+```
+
+
+### Configuration
+
+
+**NOTE**: This plugin needs API access to TravisCI and requires keys. It will request keys from a key manager
+with the target `travis`.
+
+### Examples
+
+
+### Notes
+
+
+# OLD
 
 ### Stages
 #### TravisFilterActiveReposTransformStage

@@ -1,3 +1,22 @@
+INTRO
+
+### Installation
+
+```scala
+dependencies += "org.codefeedr" %% "codefeedr-github" % "0.1-SNAPSHOT"
+```
+
+
+### Configuration
+
+
+### Examples
+
+
+### Notes
+
+# OLD
+
 ## GitHub
 The GitHub plugin has several stages. In the section below each stage will be discussed and lastly some sample pipelines will be discussed. See [GitHubProtocol](https://github.com/joskuijpers/bep_codefeedr/blob/develop/src/main/scala/org/codefeedr/plugins/github/GitHubProtocol.scala) for all the case classes used.
 
