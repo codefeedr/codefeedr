@@ -41,12 +41,12 @@ pages:
       - 'redis': 'core/redis-key-manager.md'
   - Plugins:
     - 'What Are Plugins?': 'plugins/plugins.md'
-    - 'GitHub': 'plugins/github.md'
-    - 'Travis': 'plugins/travis.md'
-    - 'RSS': 'plugins/rss.md'
-    - 'Apache Access Logs': 'plugins/apache-access-logs.md'
     - 'ElasticSearch': 'plugins/elasticsearch.md'
+    - 'GitHub': 'plugins/github.md'
     - 'MongoDB': 'plugins/mongodb.md'
+    - 'RSS': 'plugins/rss.md'
+    - 'Travis': 'plugins/travis.md'
+    - 'Weblogs': 'plugins/weblogs.md'
   - Orchestration:
     - 'Docker': 'orchestration/docker.md'
     - 'Cluster Tool': 'orchestration/tool.md'
