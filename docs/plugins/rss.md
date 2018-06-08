@@ -1,37 +1,20 @@
-## RSS
-The RSS source has the following constructor:
-```scala
-class RSSSource(url: String, pollingInterval: Int) extends Source[RSSItem] {...}
-```
+A plugin with a stage for reading from a basic RSS feed using polling.
 
-It streams the RSS feed as RSSItems. These look like this:
+### Installation
 
 ```scala
-case class RSSItem(title: String,
-                   category: String,
-                   link: String
-                   pubDate: LocalDateTime,
-                   guid: String
-                  ) extends PipelineItem
+dependencies += "org.codefeedr" %% "codefeedr-rss" % "0.1-SNAPSHOT"
 ```
 
-A simple example job that creates a RSS source which polls every second and prints the result can be created as follows
+### Configuration
+
+An RSS input stage requires the address of the feed, the date format used in the `pubDate`, and the number of
+milliseconds between each poll.
 
 ```scala
-object Main{	
-  def main(args: Array[String]): Unit = {
-    new PipelineBuilder()
-      .setBufferType(BufferType.Kafka)
-      .append(new RSSSource("example.com", 1000))
-      .append(new MyRSSJob)
-      .build()
-      .start()
-  }
-}
-
-class MyRSSJob extends Job[RSSItem] {
-  override def main(source: DataStream[RSSItem]): Unit = {
-    source.print()
-  }
-}
+val dateFormat = "EEE, dd MMMM yyyy HH:mm:ss z"
+val pollingInterval = 1000 // once per second
+val rss = new RSSInput("http://example.com/feed.xml", dateFormat, pollingInterval)
 ```
+
+The result is a stream of `RSSItem` objects with title, date, link, category and guid.
