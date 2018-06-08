@@ -14,7 +14,7 @@ Buffer properties can be set through the pipeline builder, which are just simple
 pipelineBuilder
     .setBufferProperty("key", "value")
 ```
-The buffers have some default values (like the Kafka broker), to override these obtain the key through `KafkaBuffer` or `RabbitMQBuffer`:
+The buffers have some default values (like the Kafka broker), to override these values obtain the key through `KafkaBuffer` or `RabbitMQBuffer`:
 ```scala 
 pipelineBuilder
     .setBufferProperty(KafkaBuffer.BROKER, "localhost:9092")

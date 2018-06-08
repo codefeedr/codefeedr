@@ -1,12 +1,12 @@
 # What Are Plugins?
-A plugin is a set of stages which can be used in your pipeline.
+A plugin is a set of stages in a certain context which can be used in your pipeline.
 
 ## Current plugins
-We currently support the following plugins:
+We currently offer the following plugins:
 
 |      Name     | Description    |
 |:-------------:|----------------|
-| [GitHub](github)        | GitHub plugin  |
+| [GitHub](github)        | Stages related to the [GitHub API](https://developer.github.com/v3/?).  |
 | [Travis](travis)        | Travis plugin  |
 | Twitter       | Twitter plugin |
 | ElasticSearch | ES plugin      |
