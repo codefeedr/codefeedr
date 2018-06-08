@@ -38,7 +38,7 @@ pages:
     - 'Buffers': 'core/buffers.md'
     - 'Key Management':
       - 'Key Manager': 'core/key-manager.md'
-      - 'redis': 'core/redis-key-manager.md'
+      - 'Redis': 'core/redis-key-manager.md'
   - Plugins:
     - 'What Are Plugins?': 'plugins/plugins.md'
     - 'ElasticSearch': 'plugins/elasticsearch.md'

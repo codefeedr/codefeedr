@@ -1,26 +1,22 @@
-# What Are Plugins?
-A plugin is a set of stages in a certain context which can be used in your pipeline.
+Plugins are sets of stages and other pieces of code that plug into the CodeFeedr system. The CodeFeedr 
+repository contains a bunch of plugins already. All of them provide stages, and the MongoDB plugin 
+also provides a key manager.
 
-## Current plugins
-We currently offer the following plugins:
+To use a plugin, simply add the project as a dependency in your SBT build file.
 
-<center>
+### What a plugin looks like
 
-|      Name     | Description    |
-|:-------------:|----------------|
-| [GitHub](github)        | Stages related to the [GitHub API](https://developer.github.com/v3/?).  |
-| [Travis](travis)        | Stages related to the [Travis API](https://docs.travis-ci.com/user/developer/) |
-| Twitter       | Twitter plugin |
-| ElasticSearch | ES plugin      |
-| [mongoDB](historic-data)       | mongoDB plugin |
-| [weblogs](apache-access-logs)       | weblogs plugin |
-| [rss](rss)          | rss plugin     |
-| crates.io     | crates.io      |
+A plugin is a simple Scala project without a main class. It must depend on `codefeedr-core`. The CodeFeedr 
+project has put its plugins in the `org.codefeedr.plugins` package, and their stages into a `stages` 
+subpackage. This is not required.
 
-</center>
+### Creating a plugin
 
-For implementation details see the [repository](https://github.com/joskuijpers/bep_codefeedr/tree/develop/codefeedr-plugins). 
+It is naturally possible to create a new plugin.
 
+Most of the time a plugin would have stages. For each input and output stage you likely need a Flink Source and
+Flink SinkFunction. These are normal implementations as per the Flink infrastructure. Wrapping them in stages is then very easy.
 
-## Create Your Own Plugin
-You can also contribute to this project by creating plugins yourself.
+Adding transform stages is like writing any other stage, with inputs and an output with Flink processing in between.
+
+Look into the existing plugins for examples.
