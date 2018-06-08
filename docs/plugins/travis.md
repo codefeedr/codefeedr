@@ -10,14 +10,15 @@ dependencies += "org.codefeedr" %% "codefeedr-travis" % "0.1-SNAPSHOT"
 ## Stages
 
 The plugin contains two stages: 
+
 - The `TravisFilterActiveReposTransformStage` takes a push-event stream from the GitHubEventToPushEvent Stage (see
 [Github](github)) and filters it to only keep push events from repos that are active on Travis
  
 - The `TravisPushEventBuildInfoTransformStage` takes a push-event from active Travis repositories stream and requests
 the build information from Travis. The constructor only has one parameter:
   
-  - `capacity`: to specify the amount of builds that are simultaneously requested per Flink thread (`100` is the 
-  default).
+    - `capacity`: to specify the amount of builds that are simultaneously requested per Flink thread (`100` is the 
+    default).
 
 
 ### Configuration
@@ -38,6 +39,7 @@ new PipelineBuilder()
   .startLocal()
 ```
 This pipeline will create a real-time Travis build stream by:
+
 - Reading from a the `/events` endpoint (GitHubEventsInput stage)
 - Filter (& parse) the PushEvents (GitHubEventsToPushEvent stage)
 - Filter the push events from repositories that are active on Travis
