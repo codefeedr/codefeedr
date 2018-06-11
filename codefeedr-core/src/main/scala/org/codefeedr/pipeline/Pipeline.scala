@@ -21,7 +21,6 @@ package org.codefeedr.pipeline
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.configuration.{ConfigConstants, Configuration}
 import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.api.environment.LocalStreamEnvironment
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.codefeedr.Properties
 import org.codefeedr.keymanager.KeyManager
@@ -92,10 +91,8 @@ case class Pipeline(var name: String,
       case _ => runtime
     }
 
-    //set name if specified
-    if (params.has("name")) {
-      name = params.get("name")
-    }
+    // Set name if specified
+    name = params.get("name", name)
 
     if (params.has("list") || runtime == RuntimeType.Cluster) {
       validateUniqueness()
