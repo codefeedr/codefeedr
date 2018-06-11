@@ -7,7 +7,6 @@ import org.scalatest.{BeforeAndAfter, FunSuite}
 import org.mockito.Mockito._
 
 import scala.io.Source
-import scalaj.http.HttpResponse
 
 class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 
