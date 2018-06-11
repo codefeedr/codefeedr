@@ -46,7 +46,7 @@ class BufferFactory[U <: Serializable with AnyRef,V <: Serializable with AnyRef,
     * @throws IllegalStateException When buffer could not be instantiated due to bad configuration
     */
   def create[T <: Serializable with AnyRef : ClassTag : TypeTag](): Buffer[T] = {
-    assume(sinkObject != null, "Buffer factory requires a sink object to determine buffer location")
+    require(sinkObject != null, "Buffer factory requires a sink object to determine buffer location")
 
     val subject = sinkObject.getSinkSubject
     
