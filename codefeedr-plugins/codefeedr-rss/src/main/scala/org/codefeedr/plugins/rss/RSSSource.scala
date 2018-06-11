@@ -25,7 +25,7 @@ import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, Sour
 import java.time.format.DateTimeFormatter
 
 import org.apache.logging.log4j.scala.Logging
-import org.codefeedr.stages.utilities.HttpRequester
+import org.codefeedr.stages.utilities.{HttpRequester, RequestException}
 import scalaj.http.Http
 
 import scala.xml.XML
@@ -97,6 +97,7 @@ class RSSSource(url: String,
     * Will keep trying with increasing intervals if it doesn't succeed
     * @return Body of requested RSS feed
     */
+  @throws[RequestException]
   def getRSSAsString: String = {
     new HttpRequester().retrieveResponse(Http(url)).body
   }

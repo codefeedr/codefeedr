@@ -2,6 +2,7 @@ package org.codefeedr.plugins.rss
 
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.logging.log4j.scala.Logging
+import org.codefeedr.stages.utilities.RequestException
 import org.scalamock.function.FunctionAdapter1
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FunSuite}
@@ -116,20 +117,24 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter with L
     logger.info("RSS Test 4 stop")
   }
 
-  test("RSS source should collect all RSS items even when not receiving http responses"){
+  test("RSS source should collect all RSS items even when request gives exception"){
     logger.info("RSS Test 5 start")
     val fakeUrl = "http://www.example.com"
     val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",0, 2))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
-    val rssResponsesName = "/RSSItemSourceTestResponses"
+    val rssResponsesName = "/RSSItemSourceTestResponsesWithEmptyLine"
     val lines = Source.fromURL(getClass.getResource(rssResponsesName)).getLines
 
     var stubbing = when(rssItemSource.getRSSAsString)
 
     for (line <- lines) {
-      stubbing = stubbing.thenReturn(line)
+      if (line.isEmpty) {
+        stubbing = stubbing.thenThrow(RequestException())
+      } else {
+        stubbing = stubbing.thenReturn(line)
+      }
     }
 
     //Exactly 15 RSS items should be collected, because thats how many unique ones there are
@@ -137,8 +142,8 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter with L
 
     rssItemSource.open(null)
     rssItemSource.run(ctxMock)
+    assert(true)
     logger.info("RSS Test 5 stop")
-
   }
 
   test("Cancel should turn make isRunning false") {
