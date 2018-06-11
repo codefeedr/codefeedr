@@ -22,7 +22,6 @@ import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.configuration.{ConfigConstants, Configuration}
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment
-//import org.apache.flink.streaming.api.environment.{LocalStreamEnvironment, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.codefeedr.Properties
 import org.codefeedr.keymanager.KeyManager
