@@ -32,6 +32,7 @@ final case class JobFinishedException() extends JobExecutionException(new JobID(
 class RSSInputTest extends FunSuite {
 
   test("RSS source pipeline build test") {
+    println("RSS Test pipeline start")
     val rssURL = "http://lorem-rss.herokuapp.com/feed?unit=second"
     val source = new RSSInput(rssURL, "EEE, dd MMMM yyyy HH:mm:ss z", 1000)
     val sink = new LimitingSinkPipelineObject(12)
@@ -40,6 +41,7 @@ class RSSInputTest extends FunSuite {
       .append(source)
       .append(sink)
       .build()
+    println("RSS Test pipeline stop")
   }
 }
 
