@@ -1,30 +1,32 @@
 package org.codefeedr.plugins.rss
 
 import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.apache.logging.log4j.scala.Logging
+import org.codefeedr.stages.utilities.RequestException
 import org.scalamock.function.FunctionAdapter1
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.mockito.Mockito._
 
 import scala.io.Source
-import scalaj.http.HttpResponse
 
-class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
+class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter with Logging {
 
 
   test("RSS source should poll maxNumberOfRuns times") {
-
-    val httpMock = mock[Http]
+    logger.info("RSS Test 1 start")
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 2000, 2, httpMock)
+    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 0, 2))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
     val rssResponsesName = "/RSSItemSourceTestResponses"
     val lines = Source.fromURL(getClass.getResource(rssResponsesName)).getLines
 
+    var stubbing = when(rssItemSource.getRSSAsString)
+
     for (line <- lines) {
-      val response = HttpResponse[String](line, 0, null)
-      (httpMock.getResponse _).expects(*).returning(response).noMoreThanOnce()
+      stubbing = stubbing.thenReturn(line)
     }
 
     //Needed to tell ScalaMock that collect() will be called (without caring about the arguments and how often)
@@ -32,21 +34,24 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 
     rssItemSource.open(null)
     rssItemSource.run(ctxMock)
+
+    logger.info("RSS Test 1 stop")
   }
 
   test("RSS source should collect all RSS items"){
-    val httpMock = mock[Http]
+    logger.info("RSS Test 2 start")
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",2000, 2, httpMock)
+    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",0, 2))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
     val rssResponsesName = "/RSSItemSourceTestResponses"
     val lines = Source.fromURL(getClass.getResource(rssResponsesName)).getLines
 
+    var stubbing = when(rssItemSource.getRSSAsString)
+
     for (line <- lines) {
-      val response = HttpResponse[String](line, 0, null)
-      (httpMock.getResponse _).expects(*).returning(response).noMoreThanOnce()
+      stubbing = stubbing.thenReturn(line)
     }
 
     //Exactly 15 RSS items should be collected, because thats how many unique ones there are
@@ -54,21 +59,25 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 
     rssItemSource.open(null)
     rssItemSource.run(ctxMock)
+
+    logger.info("RSS Test 2 stop")
   }
 
   test("RSS source should collect RSS items in order"){
-    val httpMock = mock[Http]
+    logger.info("RSS Test 3 start")
+
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 2000, 2, httpMock)
+    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 0, 2))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
     val rssResponsesName = "/RSSItemSourceTestResponses"
     val lines = Source.fromURL(getClass.getResource(rssResponsesName)).getLines
 
+    var stubbing = when(rssItemSource.getRSSAsString)
+
     for (line <- lines) {
-      val response = HttpResponse[String](line, 0, null)
-      (httpMock.getResponse _).expects(*).returning(response).noMoreThanOnce()
+      stubbing = stubbing.thenReturn(line)
     }
 
     //Add RSS items to a list to check later
@@ -81,21 +90,23 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
     //RSS items should already be in order
     val orderedRSSItemList = rssItemList.sortWith((x,y) => y.pubDate.before(x.pubDate))
     assert(rssItemList.equals(orderedRSSItemList))
+    logger.info("RSS Test 3 stop")
   }
 
   test("RSS source should continue when recieving wrong xml"){
-    val httpMock = mock[Http]
+    logger.info("RSS Test 4 start")
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",2000, 5, httpMock)
+    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",0, 5))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
     val rssResponsesName = "/RSSItemSourceTestResponsesWithFailedXML"
     val lines = Source.fromURL(getClass.getResource(rssResponsesName)).getLines
 
+    var stubbing = when(rssItemSource.getRSSAsString)
+
     for (line <- lines) {
-      val response = HttpResponse[String](line, 0, null)
-      (httpMock.getResponse _).expects(*).returning(response).noMoreThanOnce()
+      stubbing = stubbing.thenReturn(line)
     }
 
     //Exactly 15 RSS items should be collected, because thats how many unique ones there are
@@ -103,24 +114,27 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 
     rssItemSource.open(null)
     rssItemSource.run(ctxMock)
+    logger.info("RSS Test 4 stop")
   }
 
-  test("RSS source should collect all RSS items even when not receiving http responses"){
-    val httpMock = mock[Http]
+  test("RSS source should collect all RSS items even when request gives exception"){
+    logger.info("RSS Test 5 start")
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",2000, 2, httpMock)
+    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",0, 2))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
-    val rssResponsesName = "/RSSItemSourceTestResponses"
+    val rssResponsesName = "/RSSItemSourceTestResponsesWithEmptyLine"
     val lines = Source.fromURL(getClass.getResource(rssResponsesName)).getLines
 
-
-    (httpMock.getResponse _).expects(*).throwing(null).repeated(3)
+    var stubbing = when(rssItemSource.getRSSAsString)
 
     for (line <- lines) {
-      val response = HttpResponse[String](line, 0, null)
-      (httpMock.getResponse _).expects(*).returning(response).noMoreThanOnce()
+      if (line.isEmpty) {
+        stubbing = stubbing.thenThrow(RequestException())
+      } else {
+        stubbing = stubbing.thenReturn(line)
+      }
     }
 
     //Exactly 15 RSS items should be collected, because thats how many unique ones there are
@@ -128,15 +142,19 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter {
 
     rssItemSource.open(null)
     rssItemSource.run(ctxMock)
+    assert(true)
+    logger.info("RSS Test 5 stop")
   }
 
   test("Cancel should turn make isRunning false") {
+    logger.info("RSS Test 6 start")
     val source = new RSSSource("", "EEE, dd MMMM yyyy HH:mm:ss z",0)
     assert(!source.getIsRunning)
     source.open(null)
     assert(source.getIsRunning)
     source.cancel()
     assert(!source.getIsRunning)
+    logger.info("RSS Test 6 stop")
   }
 
 }
