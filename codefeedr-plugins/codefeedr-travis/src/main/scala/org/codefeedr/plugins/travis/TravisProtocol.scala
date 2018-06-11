@@ -78,7 +78,6 @@ object TravisProtocol {
                               github_language: Option[String],
                               active: Option[Boolean],
                               `private`: Option[Boolean],
-//                              owner: Option[TravisOwner],
                               default_branch: Option[TravisBranch],
                               starred: Option[Boolean],
                               managed_by_installation: Option[Boolean],

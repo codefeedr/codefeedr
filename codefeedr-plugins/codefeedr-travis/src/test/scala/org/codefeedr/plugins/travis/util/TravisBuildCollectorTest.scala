@@ -45,7 +45,6 @@ class TravisBuildCollectorTest extends FunSuite{
     val travis = spy(new TravisService(new StaticKeyManager(Map("travis" -> "dummy_key"))))
 
     val firstReturn = Source.fromInputStream(getClass.getResourceAsStream("/codefeedr_builds")).getLines().next()
-//    val secondReturn = Source.fromInputStream(getClass.getResourceAsStream("/codefeedr_build")).getLines().next()
     doReturn(firstReturn).when(travis).getTravisResource(any(classOf[String]))
 
     val collector = new TravisBuildCollector(
