@@ -366,22 +366,24 @@ def cmd_stop_stage(args):
     print("Done")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Communicate with Flink.")
-    parser.add_argument("--host", help="host of Flink")
-    subparsers = parser.add_subparsers(title="commands")
+################################################
+### PARSERS
+################################################
 
+def add_parser_jobs(subparsers):
     # cf jobs
     parser_jobs = subparsers.add_parser("jobs", help="list jobs on server")
     parser_jobs.add_argument("-a", help="Also show inactive jobs", action="store_true")
     parser_jobs.add_argument("-q", help="Only show job IDs", action="store_true")
     parser_jobs.set_defaults(func=cmd_list_jobs)
 
+def add_parser_cancel(subparsers):
     # cf cancel
     parser_cancel_job = subparsers.add_parser("cancel", help="cancel job")
     parser_cancel_job.add_argument("jobId", help="JobID")
     parser_cancel_job.set_defaults(func=cmd_cancel_job)
 
+def add_parser_program(subparsers):
     # cf program
     parser_program = subparsers.add_parser("program", help="program (jar) commands")
     parser_program.add_argument("--jar", type=str, help="Jar file of the program")
@@ -391,6 +393,7 @@ if __name__ == "__main__":
     parser_program_list = subparsers_program.add_parser("list", help="list programs on server")
     parser_program_list.set_defaults(func=cmd_list_programs)
 
+def add_parser_pipeline(subparsers):
     # cf pipeline
     parser_pipeline = subparsers.add_parser("pipeline", help="pipeline commands")
     subparsers_pipeline = parser_pipeline.add_subparsers(title="sub-commands")
@@ -410,6 +413,7 @@ if __name__ == "__main__":
     parser_pipeline_stop.add_argument("jar", type=str, help="path to JAR of the pipeline")
     parser_pipeline_stop.set_defaults(func=cmd_stop_pipeline)
 
+def add_parser_stage(subparsers):
     # cf stage
     parser_stage = subparsers.add_parser("stage", help="stage commands")
     subparsers_stage = parser_stage.add_subparsers(title="sub-commands")
@@ -427,5 +431,19 @@ if __name__ == "__main__":
     parser_stage_stop.set_defaults(func=cmd_stop_stage)
 
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Communicate with Flink.")
+    parser.add_argument("--host", help="host of Flink")
+    subparsers = parser.add_subparsers(title="commands")
+
+    add_parser_jobs(subparsers)
+    add_parser_cancel(subparsers)
+    add_parser_program(subparsers)
+    add_parser_pipeline(subparsers)
+    add_parser_stage(subparsers)
+
     args = parser.parse_args()
-    args.func(args)
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        parser.print_help()
