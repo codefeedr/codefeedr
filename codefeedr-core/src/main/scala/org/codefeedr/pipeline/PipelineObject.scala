@@ -24,8 +24,7 @@ import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferFactory
 import org.codefeedr.stages.StageAttributes
 
-
-import scala.reflect.{ClassTag, Manifest}
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 

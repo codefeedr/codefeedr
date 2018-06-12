@@ -21,7 +21,6 @@ package org.codefeedr.buffer
 import java.util
 import java.util.{Date, Properties, UUID}
 
-import scala.collection.JavaConversions._
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
@@ -30,10 +29,12 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.stages.{InputStage, OutputStage, StageAttributes}
 import org.codefeedr.stages.utilities.StringType
+import org.codefeedr.stages.{InputStage, OutputStage, StageAttributes}
 import org.codefeedr.testUtils.{JobFinishedException, SimpleSourcePipelineObject}
 import org.scalatest.{BeforeAndAfter, FunSuite}
+
+import scala.collection.JavaConversions._
 
 class KafkaBufferTest extends FunSuite with BeforeAndAfter {
 

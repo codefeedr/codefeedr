@@ -19,15 +19,14 @@
 package org.codefeedr.buffer
 
 import org.apache.flink.api.common.serialization.SerializationSchema
-import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.connectors.rabbitmq.{RMQSink, RMQSource}
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
+import org.apache.flink.streaming.connectors.rabbitmq.{RMQSink, RMQSource}
 import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.stages.StageAttributes
 
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 object RabbitMQBuffer {

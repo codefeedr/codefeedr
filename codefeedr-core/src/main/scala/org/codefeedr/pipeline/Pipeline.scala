@@ -23,8 +23,8 @@ import org.apache.flink.configuration.{ConfigConstants, Configuration}
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 import org.codefeedr.Properties
-import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.buffer.BufferType.BufferType
+import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.RuntimeType.RuntimeType
 
 case class Pipeline(var name: String,

@@ -20,7 +20,7 @@ package org.codefeedr.buffer
 
 import org.codefeedr.pipeline.{Pipeline, PipelineObject}
 
-import scala.reflect.{ClassTag, Manifest}
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 /**
