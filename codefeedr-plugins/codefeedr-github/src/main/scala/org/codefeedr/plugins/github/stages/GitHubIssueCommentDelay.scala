@@ -21,12 +21,12 @@ package org.codefeedr.plugins.github.stages
 import java.util.Date
 
 import org.apache.flink.api.common.functions.JoinFunction
+import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.codefeedr.plugins.github.GitHubProtocol.{IssueCommentEvent, IssuesEvent}
-import org.apache.flink.api.scala._
 import org.codefeedr.stages.TransformStage2
 
 case class IssueOpenedReply(id: Double,
