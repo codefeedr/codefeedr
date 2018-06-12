@@ -138,11 +138,7 @@ class KafkaBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: 
     val adminClient = AdminClient.create(props)
 
     //check if topic already exists
-    val alreadyCreated = adminClient
-      .listTopics()
-      .names()
-      .get()
-      .contains(topic)
+    val alreadyCreated = doesTopicExist(adminClient, topic)
 
     //if topic doesnt exist yet, create it
     if (!alreadyCreated) {
@@ -150,11 +146,29 @@ class KafkaBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: 
       //TODO check this ^
       logger.info(s"Topic $topic doesn't exist yet, now creating it.")
       val newTopic = new NewTopic(topic, 1, 1)
-      adminClient.
-        createTopics(List(newTopic).asJavaCollection)
-        .all()
-        .get() //this blocks the method until the topic is created
+      createTopic(adminClient, newTopic)
     }
+  }
+
+  /**
+    * Tests if a topic exists
+    */
+  private def doesTopicExist(client: AdminClient, topic: String): Boolean = {
+    client
+      .listTopics()
+      .names()
+      .get()
+      .contains(topic)
+  }
+
+  /**
+    * Creates a new topic
+    */
+  private def createTopic(client: AdminClient, topic: NewTopic): Unit = {
+    client.
+      createTopics(List(topic).asJavaCollection)
+      .all()
+      .get() //this blocks the method until the topic is created
   }
 
   /**

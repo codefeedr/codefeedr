@@ -7,6 +7,7 @@ import argparse
 import os
 import time
 import json
+import sys
 
 ################################################
 ### FUNCTIONS
@@ -173,6 +174,24 @@ def print_table(table):
             line = line + column.ljust(columnLengths[idx])
         print(line)
 
+def upload_jar_or_exit(jar):
+    programId = upload_jar(jar)
+    if programId is None:
+        print("Failed to upload jar to Flink")
+        sys.exit(1)
+    else:
+        print("Uploaded program with id '" + programId + "'")
+    return programId
+
+def get_stages_from_jar_or_exit(programId):
+    stagesInJar = get_stages_from_jar(programId)
+    if stagesInJar is None:
+        print("Could not load stages")
+        delete_program(programId)
+        sys.exit(1)
+
+    return stagesInJar
+
 ################################################
 ### COMMANDS
 ################################################
@@ -215,12 +234,7 @@ def cmd_list_programs(args):
     print_table(table)
 
 def cmd_get_pipeline_info(args):
-    programId = upload_jar(args.jar)
-    if programId is None:
-        print("Failed to upload jar to Flink")
-        return
-    else:
-        print("Uploaded program with id '" + programId + "'")
+    programId = upload_jar_or_exit(args.jar)
 
     stages = get_stages_from_jar(programId)
     if stages is None:
@@ -237,17 +251,9 @@ def cmd_get_pipeline_info(args):
 def cmd_start_pipeline(args):
     print("Starting pipeline in " + args.jar + "...")
 
-    programId = upload_jar(args.jar)
-    if programId is None:
-        print("Failed to upload jar to Flink")
-        return
-    else:
-        print("Uploaded program with id '" + programId + "'")
+    programId = upload_jar_or_exit(args.jar)
 
-    stages = get_stages_from_jar(programId)
-    if stages is None:
-        delete_program(programId)
-        return
+    stages = get_stages_from_jar_or_exit(programId)
     print("Found " + str(len(stages)) + " stages")
 
     if len(stages) == 0:
@@ -279,18 +285,10 @@ def cmd_start_pipeline(args):
 def cmd_stop_pipeline(args):
     print("Starting pipeline in " + args.jar + "...")
 
-    programId = upload_jar(args.jar)
-    if programId is None:
-        print("Failed to upload jar to Flink")
-        return
-    else:
-        print("Uploaded program with id '" + programId + "'")
+    programId = upload_jar_or_exit(args.jar)
 
     # Get list of stages form jar
-    stagesInJar = get_stages_from_jar(programId)
-    if stagesInJar is None:
-        delete_program(programId)
-        return
+    stagesInJar = get_stages_from_jar_or_exit(programId)
     print("Found " + str(len(stagesInJar)) + " stages")
 
     delete_program(programId)
@@ -317,12 +315,7 @@ def cmd_cancel_job(args):
 def cmd_start_stage(args):
     print("Starting stage '" + args.stage + "' from jar " + args.jar + "...")
 
-    programId = upload_jar(args.jar)
-    if programId is None:
-        print("Failed to upload jar to Flink")
-        return
-    else:
-        print("Uploaded program with id '" + programId + "'")
+    programId = upload_jar_or_exit(args.jar)
 
     # Find all stages that already run
     activeStages = list(map(lambda x: x["stage"], get_active_stages()))
@@ -366,22 +359,24 @@ def cmd_stop_stage(args):
     print("Done")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Communicate with Flink.")
-    parser.add_argument("--host", help="host of Flink")
-    subparsers = parser.add_subparsers(title="commands")
+################################################
+### PARSERS
+################################################
 
+def add_parser_jobs(subparsers):
     # cf jobs
     parser_jobs = subparsers.add_parser("jobs", help="list jobs on server")
     parser_jobs.add_argument("-a", help="Also show inactive jobs", action="store_true")
     parser_jobs.add_argument("-q", help="Only show job IDs", action="store_true")
     parser_jobs.set_defaults(func=cmd_list_jobs)
 
+def add_parser_cancel(subparsers):
     # cf cancel
     parser_cancel_job = subparsers.add_parser("cancel", help="cancel job")
     parser_cancel_job.add_argument("jobId", help="JobID")
     parser_cancel_job.set_defaults(func=cmd_cancel_job)
 
+def add_parser_program(subparsers):
     # cf program
     parser_program = subparsers.add_parser("program", help="program (jar) commands")
     parser_program.add_argument("--jar", type=str, help="Jar file of the program")
@@ -391,6 +386,7 @@ if __name__ == "__main__":
     parser_program_list = subparsers_program.add_parser("list", help="list programs on server")
     parser_program_list.set_defaults(func=cmd_list_programs)
 
+def add_parser_pipeline(subparsers):
     # cf pipeline
     parser_pipeline = subparsers.add_parser("pipeline", help="pipeline commands")
     subparsers_pipeline = parser_pipeline.add_subparsers(title="sub-commands")
@@ -410,6 +406,7 @@ if __name__ == "__main__":
     parser_pipeline_stop.add_argument("jar", type=str, help="path to JAR of the pipeline")
     parser_pipeline_stop.set_defaults(func=cmd_stop_pipeline)
 
+def add_parser_stage(subparsers):
     # cf stage
     parser_stage = subparsers.add_parser("stage", help="stage commands")
     subparsers_stage = parser_stage.add_subparsers(title="sub-commands")
@@ -427,5 +424,19 @@ if __name__ == "__main__":
     parser_stage_stop.set_defaults(func=cmd_stop_stage)
 
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Communicate with Flink.")
+    parser.add_argument("--host", help="host of Flink")
+    subparsers = parser.add_subparsers(title="commands")
+
+    add_parser_jobs(subparsers)
+    add_parser_cancel(subparsers)
+    add_parser_program(subparsers)
+    add_parser_pipeline(subparsers)
+    add_parser_stage(subparsers)
+
     args = parser.parse_args()
-    args.func(args)
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        parser.print_help()

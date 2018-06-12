@@ -82,7 +82,11 @@ The PipelineBuilder is used to create a pipeline of stages. Next to that, it all
       .append(new SimpleOutputStage())
       .build()
 ```
-This will create and connect the stages like this: `SimpleInputStage -> SimpleTransformStage -> SimpleOutputStage` using Kafka as buffer in between. If you want to create more complex pipelines ([DAG's](https://en.wikipedia.org/wiki/Directed_acyclic_graph) are supported) make use of `edge` instead of `append`. The example above can be recreated using `edge` like this:
+This will create and connect the stages like this: 
+
+`SimpleInputStage -> SimpleTransformStage -> SimpleOutputStage` 
+
+using Kafka as buffer in between. If you want to create more complex pipelines ([DAG's](https://en.wikipedia.org/wiki/Directed_acyclic_graph) are supported) make use of `edge` instead of `append`. The example above can be recreated using `edge` like this:
 ```scala
  val stage2 = new SimpleTransformStage()
 
@@ -100,15 +104,15 @@ However the actual architecture of this pipeline can be seen in this figure:
 
 **Note:** Type-safety is **NOT** guaranteed in between stages. E.g. if Stage1 outputs type `A` and Stage2 reads from Stage1, Stage2 is not explicitly required to have `A` as input type. As long as the serialization framework will support the conversion (if you remove fields, this is often supported)  or the type is the same, it will not give problems. 
 
-## Subjects
-In order to let the stages interact with each other they all have a subject. By default this subject is equal to the name of the class. 
-This subject is used to identify the name of the buffer and therefore this should be unique.
-If you have stages with the same name which should **not** share the same buffer, you should override its subject by using the `StageAttributes` and passing it to the constructor of the Stage.
-
-
 ### Start the pipeline
 If the Pipeline is properly build using the PipelineBuilder, it can be started in three modes:
 
 - mock: creates one Flink `DataStream` of all the stages and runs it without buffer. Only works for **sequential** pipelines.
 - local: start all stages in different threads.
 - clustered: start each stage individually.
+
+
+## Subjects
+In order to let the stages interact with each other they all have a subject. By default this subject is equal to the name of the class. 
+This subject is used to identify the name of the buffer and therefore this should be unique.
+If you have stages with the same name which should **not** share the same buffer, you should override its subject by using the `StageAttributes` and passing it to the constructor of the Stage.
