@@ -20,13 +20,11 @@ package org.codefeedr.plugins.mongodb
 
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.sink.{RichSinkFunction, SinkFunction}
-import org.bson.BsonInt64
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
-import org.mongodb.scala.bson.{BsonDocument, BsonElement, BsonValue}
-import org.mongodb.scala.{MongoClient, MongoCollection}
 import org.mongodb.scala.bson.collection.mutable.Document
+import org.mongodb.scala.{MongoClient, MongoCollection}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration

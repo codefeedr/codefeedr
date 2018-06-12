@@ -18,13 +18,10 @@
  */
 package org.codefeedr.plugins.github.requests
 
-import java.net.SocketTimeoutException
-
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSuite}
-
 import scalaj.http.{HttpRequest, HttpResponse}
 
 class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {

@@ -19,15 +19,14 @@
 package org.codefeedr.plugins.github.requests
 
 import org.codefeedr.keymanager.{KeyManager, ManagedKey}
-import org.json4s._
-import org.json4s.FieldSerializer._
-
-import util.control.Breaks._
-import org.json4s.jackson.JsonMethods._
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.stages.utilities.DuplicateService
+import org.json4s._
 import org.json4s.ext.JavaTimeSerializers
+import org.json4s.jackson.JsonMethods._
+
+import scala.util.control.Breaks._
 
 /**
   * Represents a link header from the GitHub API.

@@ -21,18 +21,16 @@ package org.codefeedr.stages.kafka
 import java.util
 import java.util.{Properties, UUID}
 
+import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.stages.{InputStage, OutputStage}
+import org.codefeedr.stages.OutputStage
 import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils.JobFinishedException
 import org.scalatest.FunSuite
-import org.apache.flink.api.scala._
-import org.apache.flink.runtime.client.JobExecutionException
-import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
-import org.codefeedr.buffer.KafkaBuffer
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._

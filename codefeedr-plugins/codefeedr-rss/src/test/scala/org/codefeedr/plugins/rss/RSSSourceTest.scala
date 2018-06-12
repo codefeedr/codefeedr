@@ -20,10 +20,10 @@ package org.codefeedr.plugins.rss
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.stages.utilities.RequestException
+import org.mockito.Mockito._
 import org.scalamock.function.FunctionAdapter1
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FunSuite}
-import org.mockito.Mockito._
 
 import scala.io.Source
 

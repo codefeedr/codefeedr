@@ -20,10 +20,10 @@ package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.Properties
-import org.codefeedr.keymanager.KeyManager
-import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.buffer.BufferType
 import org.codefeedr.buffer.BufferType.BufferType
+import org.codefeedr.keymanager.KeyManager
+import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.stages.OutputStage
 
 import scala.collection.mutable

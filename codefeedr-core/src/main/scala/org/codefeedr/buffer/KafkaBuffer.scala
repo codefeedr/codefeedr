@@ -21,21 +21,19 @@ package org.codefeedr.buffer
 import java.util.Properties
 
 import org.apache.avro.reflect.ReflectData
-import org.codefeedr.Properties._
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
-
-import scala.reflect.{ClassTag, classTag}
-import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.apache.logging.log4j.scala.Logging
+import org.codefeedr.Properties._
 import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
 import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.stages.StageAttributes
 
 import scala.collection.JavaConverters._
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 
 object KafkaBuffer {
   /**

@@ -22,12 +22,12 @@ import java.util.Properties
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.stages.{InputStage, StageAttributes}
 
-import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
+import scala.reflect.{ClassTag, classTag}
 
 /**
   * KafkaInput stage, which reads from a Kafka topic.

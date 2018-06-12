@@ -22,8 +22,6 @@ import java.text.SimpleDateFormat
 
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
-import java.time.format.DateTimeFormatter
-
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.stages.utilities.{HttpRequester, RequestException}
 import scalaj.http.Http

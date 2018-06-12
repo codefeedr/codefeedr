@@ -20,17 +20,14 @@ package org.codefeedr.plugins.travis.util
 import java.util.Date
 
 import org.codefeedr.keymanager.StaticKeyManager
-import org.codefeedr.plugins.travis.TravisProtocol.TravisBuild
-import org.codefeedr.plugins.travis.util.TravisExceptions.{BuildNotFoundForTooLongException, CouldNotAccessTravisBuildInfo, CouldNotExtractException, CouldNotGetResourceException}
+import org.codefeedr.plugins.travis.util.TravisExceptions.{BuildNotFoundForTooLongException, CouldNotAccessTravisBuildInfo, CouldNotGetResourceException}
 import org.mockito.Matchers.any
-import org.scalatest.FunSuite
 import org.mockito.Mockito._
+import org.scalatest.FunSuite
 
 import scala.concurrent.Await
-import scala.io.Source
-import scala.util.Success
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
+import scala.io.Source
 
 class TravisBuildCollectorTest extends FunSuite{
 

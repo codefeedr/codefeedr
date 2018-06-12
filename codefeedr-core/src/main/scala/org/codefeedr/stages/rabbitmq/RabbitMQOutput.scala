@@ -22,7 +22,7 @@ import java.net.URI
 
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
-import org.codefeedr.buffer.{RMQSinkDurable, RabbitMQBuffer}
+import org.codefeedr.buffer.RMQSinkDurable
 import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 

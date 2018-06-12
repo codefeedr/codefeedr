@@ -22,13 +22,13 @@ import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.plugins.github.GitHubProtocol.PushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.{TravisBuild, TravisBuilds}
 import org.codefeedr.plugins.travis.util.TravisService
-import org.json4s.{DefaultFormats, Formats}
 import org.json4s.ext.JavaTimeSerializers
-import org.scalatest.FunSuite
 import org.json4s.jackson.JsonMethods.parse
+import org.json4s.{DefaultFormats, Formats}
 import org.mockito.Matchers.any
-import org.scalamock.scalatest.MockFactory
 import org.mockito.Mockito._
+import org.scalamock.scalatest.MockFactory
+import org.scalatest.FunSuite
 
 import scala.io.Source
 

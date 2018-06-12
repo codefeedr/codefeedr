@@ -21,15 +21,13 @@ package org.codefeedr.stages.rabbitmq
 import java.net.URI
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
-
-import scala.reflect.runtime.universe._
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.rabbitmq.RMQSource
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
 import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
 import org.codefeedr.stages.{InputStage, StageAttributes}
-import org.apache.flink.api.scala._
 
+import scala.reflect.runtime.universe._
 import scala.reflect.{ClassTag, classTag}
 
 /**

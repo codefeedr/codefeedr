@@ -31,8 +31,8 @@ import org.codefeedr.plugins.github.stages.GitHubEventToPushEvent
 import org.codefeedr.plugins.travis.TravisProtocol.PushEventFromActiveTravisRepo
 import org.codefeedr.plugins.travis.util.TravisService
 import org.codefeedr.stages.InputStage
-import org.scalatest.FunSuite
 import org.mockito.Mockito._
+import org.scalatest.FunSuite
 
 import scala.io.Source
 

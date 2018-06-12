@@ -21,18 +21,18 @@ package org.codefeedr.plugins.mongodb.keymanager
 import java.net.URI
 import java.util.Date
 
+import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.codefeedr.keymanager.{KeyManager, ManagedKey}
-import org.mongodb.scala.{FindObservable, MongoClient, MongoCollection, SingleObservable}
+import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
+import org.mongodb.scala.bson.codecs.Macros._
+import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model.Updates._
+import org.mongodb.scala.model.{UpdateOneModel, WriteModel}
+import org.mongodb.scala.{FindObservable, MongoClient, MongoCollection, SingleObservable}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import org.mongodb.scala.bson.codecs.Macros._
-import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
-import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
-import org.mongodb.scala.bson.collection.immutable.Document
-import org.mongodb.scala.model.{UpdateOneModel, WriteModel}
 
 /**
   * Key manager implementation using mongoDB as a backend.

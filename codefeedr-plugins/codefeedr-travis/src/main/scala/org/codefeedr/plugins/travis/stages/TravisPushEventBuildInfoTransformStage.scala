@@ -27,8 +27,7 @@ import org.codefeedr.plugins.travis.TravisProtocol.{PushEventFromActiveTravisRep
 import org.codefeedr.plugins.travis.util.{TravisBuildCollector, TravisService}
 import org.codefeedr.stages.TransformStage
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 /**

@@ -20,7 +20,8 @@ package org.codefeedr.buffer.serialization.schema_exposure
 
 import org.apache.avro.Schema
 import org.apache.zookeeper._
-import collection.JavaConverters._
+
+import scala.collection.JavaConverters._
 
 /**
   * Exposes (Avro) schema's to ZooKeeper.
