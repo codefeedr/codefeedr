@@ -84,8 +84,8 @@ def upload_jar(jar):
 
     return result["filename"]
 
-def start_stage(programId, stage):
-    params = {"program-args": "--stage " + stage, "parallelism": 1}
+def start_stage(programId, stage, scale):
+    params = {"program-args": "--stage " + stage, "parallelism": scale}
     r = requests.post(get_url(args, "/jars/" + programId + "/run"), params=params)
     if r.status_code == 200:
         return r.json()["jobid"]
@@ -313,7 +313,7 @@ def cmd_cancel_job(args):
         print("Failed to cancel job '" + jobId + "'")
 
 def cmd_start_stage(args):
-    print("Starting stage '" + args.stage + "' from jar " + args.jar + "...")
+    print("Starting stage '" + args.stage + "' from jar " + args.jar + " with scale " + str(args.scale) + "...")
 
     programId = upload_jar_or_exit(args.jar)
 
@@ -329,12 +329,12 @@ def cmd_start_stage(args):
         delete_program(programId)
     else:
         print("Starting stage: " + stage)
-        jobId = start_stage(programId, stage)
+        jobId = start_stage(programId, stage, args.scale)
         totalNewJobs = totalNewJobs + 1
         if jobId is None:
             print("Removing JAR...")
             delete_program(programId)
-            return
+            sys.exit(1)
 
         print("Started with jobId '" + jobId + "'")
 
@@ -358,6 +358,29 @@ def cmd_stop_stage(args):
 
     print("Done")
 
+def cmd_rescale_stage(args):
+    programId = upload_jar_or_exit(args.jar)
+
+    activeStages = get_active_stages()
+
+    for stage in activeStages:
+        if stage["stage"] == args.stage:
+            jobId = stage["id"]
+            if cancel_job(jobId):
+                print("Cancelled job '" + jobId + "'")
+            else:
+                print("Failed to cancel job '" + jobId + "'")
+                sys.exit(1)
+
+    # Start with new parallelism
+    jobId = start_stage(programId, args.stage, args.scale)
+
+    if jobId is None:
+        print("Removing JAR...")
+        delete_program(programId)
+        sys.exit(1)
+
+    print("Started with jobId '" + jobId + "'")
 
 ################################################
 ### PARSERS
@@ -415,6 +438,7 @@ def add_parser_stage(subparsers):
     parser_stage_start = subparsers_stage.add_parser("start", help="start a single stage")
     parser_stage_start.add_argument("jar", type=str, help="path to JAR of the pipeline")
     parser_stage_start.add_argument("stage", type=str, help="stage ID")
+    parser_stage_start.add_argument("-s", "--scale", type=int, help="Parallelism", default=1)
     parser_stage_start.set_defaults(func=cmd_start_stage)
 
     # cf stage stop
@@ -423,6 +447,12 @@ def add_parser_stage(subparsers):
     parser_stage_stop.add_argument("stage", type=str, help="stage ID")
     parser_stage_stop.set_defaults(func=cmd_stop_stage)
 
+    # cf stage rescale
+    parser_stage_rescale = subparsers_stage.add_parser("rescale", help="rescale a single stage")
+    parser_stage_rescale.add_argument("jar", type=str, help="path to JAR of the pipeline")
+    parser_stage_rescale.add_argument("stage", type=str, help="stage ID")
+    parser_stage_rescale.add_argument("-s", "--scale", type=int, help="Parallelism", default=1)
+    parser_stage_rescale.set_defaults(func=cmd_rescale_stage)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Communicate with Flink.")

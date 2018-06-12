@@ -1,6 +1,6 @@
 # Cluster Tool
 
-This Flink cluster tool, named `cf-flink`, helps with starting and managing CodeFeedr pipelines. 
+This Flink cluster tool, named `cf-flink`, helps with starting and managing CodeFeedr pipelines.
 
 The 8081 port of the Flink Job Manager needs to be open (or mapped to another port).
 
@@ -39,7 +39,7 @@ error will be thrown. Only non-running stages will start.
 
 `cf-flink pipeline start <jarfile>`
 
-The JAR is uploaded to the Flink server, after which a list of stages is retrieved. 
+The JAR is uploaded to the Flink server, after which a list of stages is retrieved.
 Then each stage will be started __if and only if_ not a job with such stage name is already running.
 
 #### Stopping a pipeline
@@ -57,10 +57,17 @@ Will not start the stage if it already running.
 
 `cf-flink stage start <jarfile> <stageId>`
 
+The `-s 5` optionl parameter will set parallism of the job to 5.
+
 #### Stopping a single stage
 Stop any job with given stage ID attached. (See 'Stopping a pipeline')
 
 `cf-flink stage stop <jarfile> <stageId>`
+
+#### Rescaling a single stage
+Set the parallism of a given stage by stopping and starting the job with the new scale.
+
+`cf-flink stage rescale -s <scale> <jarfile> <stageId>`
 
 #### Getting a list of all jobs
 Get a list of all jobs on the Flink server. By default shows only the jobs that are running.
