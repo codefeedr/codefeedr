@@ -20,10 +20,6 @@ package org.codefeedr.plugins.github
 
 import java.util.Date
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import org.codefeedr.plugins.github.GitHubProtocol.Payload
-import org.json4s.JObject
-
 object GitHubProtocol {
   /**
     * START /events

@@ -18,12 +18,10 @@
 
 package org.codefeedr.buffer.serialization
 
-import java.io.ByteArrayOutputStream
-
 import com.twitter.chill.{Input, Output, ScalaKryoInstantiator}
 
-import scala.reflect.runtime.universe._
 import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 
 /**
   * Serializer using the Kryo serialization framework for fast and small results.

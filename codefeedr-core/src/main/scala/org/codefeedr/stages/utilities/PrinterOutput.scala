@@ -21,7 +21,7 @@ package org.codefeedr.stages.utilities
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.stages.OutputStage
 
-import scala.reflect.{ClassTag, Manifest}
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 class PrinterOutput[T <: Serializable with AnyRef : ClassTag : TypeTag] extends OutputStage[T] {

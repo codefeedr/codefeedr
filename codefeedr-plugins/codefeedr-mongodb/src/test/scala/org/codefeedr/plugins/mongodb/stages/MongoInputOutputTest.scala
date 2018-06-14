@@ -18,7 +18,7 @@
 package org.codefeedr.plugins.mongodb.stages
 
 import java.util
-import java.util.Date
+import java.util.{Calendar, Date, GregorianCalendar}
 
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
@@ -30,8 +30,6 @@ import org.codefeedr.plugins.mongodb.MongoQuery
 import org.codefeedr.stages.utilities.{SeqInput, StringInput, StringType}
 import org.mongodb.scala.MongoClient
 import org.scalatest.FunSuite
-import java.util.Calendar
-import java.util.GregorianCalendar
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Await

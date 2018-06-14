@@ -18,13 +18,13 @@
 
 package org.codefeedr.buffer
 
+import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.{BeforeAndAfter, FunSuite}
-import org.apache.flink.api.scala._
 
 class RabbitMQBufferTest extends FunSuite with BeforeAndAfter {
 

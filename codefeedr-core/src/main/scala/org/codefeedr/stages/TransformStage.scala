@@ -17,10 +17,9 @@
  */
 package org.codefeedr.stages
 
-import org.codefeedr.buffer.serialization._
 import org.codefeedr.pipeline._
 
-import scala.reflect.{ClassTag, Manifest}
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 abstract class TransformStage[In <: Serializable with AnyRef : ClassTag: TypeTag, Out <: Serializable with AnyRef : ClassTag: TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject[In, Out](attributes)

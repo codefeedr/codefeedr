@@ -21,7 +21,7 @@ package org.codefeedr.pipeline
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.stages.StageAttributes
 
-import scala.reflect.{ClassTag, Manifest}
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 /**

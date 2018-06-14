@@ -20,13 +20,11 @@ package org.codefeedr.stages.rabbitmq
 
 import java.util
 
-import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.scalatest.FunSuite
-import org.apache.flink.api.scala._
-import org.apache.flink.streaming.api.functions.sink.SinkFunction
-import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
 
 import scala.collection.JavaConversions._
 

@@ -18,9 +18,6 @@
  */
 package org.codefeedr.plugins.github.requests
 
-import java.net.SocketTimeoutException
-
-import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.plugins.github.GitHubEndpoints
 import org.codefeedr.stages.utilities.{HttpRequester, RequestException}
 import scalaj.http.{Http, HttpRequest, HttpResponse}
