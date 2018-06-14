@@ -19,23 +19,19 @@
 
 package org.codefeedr.plugins.cratesio
 
-
 import org.codefeedr.plugins.cratesio.CargoProtocol.CrateInfo
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
-import scalaj.http.{Http, HttpResponse}
 
+import scalaj.http.{Http, HttpOptions, HttpResponse}
 import scala.util.{Failure, Success, Try}
 
 /**
   * A set of methods to query the crates.io API for a single package information
   */
-class CratesIOAPIService {
+class CratesIOAPIService extends Serializable {
 
   val BASE_URL = "https://crates.io/api/v1/crates/"
-
-  //necessary for JSON parsing
-  implicit val defaultFormats = DefaultFormats
 
   /**
     * Retrieve CrateInfo from crates API.
@@ -43,8 +39,8 @@ class CratesIOAPIService {
     * @param crateName the name of the crate.
     * @return its CrateInfo.
     */
-  def crateInfo(crateName: String) : CrateInfo =
-    parseRespose(crateAPIRequest(crateName).body)
+  def crateInfo(crateName: String) : Option[CrateInfo] =
+    parseResponse(crateAPIRequest(crateName).body)
 
   /**
     * Requests crate from the crates API.
@@ -53,8 +49,7 @@ class CratesIOAPIService {
     * @return a http response.
     */
   def crateAPIRequest(crate: String): HttpResponse[String] =
-    Http(BASE_URL + crate).
-        timeout(connTimeoutMs = 10000, readTimeoutMs = 15000).
+    Http(BASE_URL + crate).options(HttpOptions.allowUnsafeSSL).
         asString
 
   /**
@@ -63,8 +58,14 @@ class CratesIOAPIService {
     * @param crateInfoJSON the JSON string.
     * @return parsed CrateInfo.
     */
-  def parseRespose(crateInfoJSON: String): CrateInfo =
-    parse(crateInfoJSON).extract[CrateInfo]
+  def parseResponse(crateInfoJSON: String): Option[CrateInfo] = {
+    //necessary for JSON parsing
+    implicit val defaultFormats = DefaultFormats
+
+    if (crateInfoJSON == "") return None
+
+    Some(parse(crateInfoJSON).extract[CrateInfo])
+  }
 
 
   /**
@@ -75,8 +76,10 @@ class CratesIOAPIService {
     */
   def extractCrateFromCommitMsg(msg: String) : Try[String] =
     try {
+      println(msg)
       Success(msg.split("`")(1).split("#")(0))
     } catch {
       case e: Exception => Failure(e)
     }
 }
+

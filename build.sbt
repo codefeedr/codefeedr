@@ -22,7 +22,7 @@ lazy val root = (project in file("."))
     pluginGitHub,
     pluginWeblogs,
     pluginCratesIO,
-    pluginTravis
+    pluginTravis,
     pluginTwitter
   )
 

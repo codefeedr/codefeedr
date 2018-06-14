@@ -18,8 +18,8 @@
  */
 package org.codefeedr.plugins.cratesio
 
-import org.codefeedr.pipeline.PipelineItem
-
+import java.util.Date
+import java.util.Locale.Category
 
 /**
   * Classes for the crates.io response schema.
@@ -85,8 +85,15 @@ object CargoProtocol {
                      created_at: String,
                      crates_cnt: Double)
 
+  case class Category(id: String,
+                       category: String,
+                       slug: String,
+                       description: String,
+                       created_at: String,
+                       crates_cnt: Double)
+
   case class CrateInfo(crate: Crate,
                        versions: List[Version],
                        keywords: List[Keyword],
-                       categories: List[String]) extends PipelineItem
+                       categories: List[Category])
 }

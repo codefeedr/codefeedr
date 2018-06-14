@@ -44,7 +44,7 @@ class CratesIOAPIServiceTest extends FunSuite with BeforeAndAfter {
 
   test ("Parse Cargo.io JSON replies") {
 
-    val result = service.parseRespose(libcString)
+    val result = service.parseResponse(libcString).get
 
     assert(result.crate.versions.length == 55)
     assert(result.versions.length == 55)
@@ -73,6 +73,6 @@ class CratesIOAPIServiceTest extends FunSuite with BeforeAndAfter {
 
     val libc = apiService.crateAPIRequest("libc")
 
-    assert(apiService.parseRespose(libc.body).crate.name == "libc")
+    assert(apiService.parseResponse(libc.body).get.crate.name == "libc")
   }
 }
