@@ -65,14 +65,15 @@ class TravisBuildStatusRequest(travis: TravisService) extends AsyncFunction[Push
     }
 
     val splittedSlug =  input.repo.name.split('/')
-    val repoOwner = splittedSlug(0)
-    val repoName = splittedSlug(1)
-    val branchName = input.payload.ref.replace("refs/heads/", "")
-    val commitSHA = input.payload.head
-    val pushDate = input.created_at
-
     val futureResultBuild: Future[TravisBuild] =
-      new TravisBuildCollector(repoOwner, repoName, branchName, commitSHA, pushDate, travis).requestFinishedBuild()
+      new TravisBuildCollector(
+        splittedSlug(0),
+        splittedSlug(1),
+        input.payload.ref.replace("refs/heads/", ""),
+        input.payload.head,
+        input.created_at,
+        travis)
+        .requestFinishedBuild()
 
     futureResultBuild.onComplete {
       case Success(result: TravisBuild) => resultFuture.complete(Iterable(result))
