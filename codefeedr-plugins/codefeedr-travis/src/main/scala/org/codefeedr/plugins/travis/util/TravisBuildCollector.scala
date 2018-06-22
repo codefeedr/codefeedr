@@ -127,35 +127,50 @@ class TravisBuildCollector(repoOwner: String,
     * @return A TravisBuild if it is found, None otherwise
     */
   def requestUnknownBuild(): Option[TravisBuild] = {
-    var newestBuildDate: Date = new Date(0L)
     var builds: TravisBuilds = null
+    var build: Option[TravisBuild] = None
+    var newestBuildDate: Date = new Date(0L)
 
     do {
       val offset = if (builds == null) 0 else builds.`@pagination`.next.offset
       builds = travis.getTravisBuilds(repoOwner, repoName, branchName, offset, limit = 5)
 
-      val buildIterator = builds.builds.iterator
+      val (possibleBuild, possibleNewestBuildDate) = getBuildFromBuilds(builds)
+      build = possibleBuild
 
-      while (buildIterator.hasNext) {
-        val x = buildIterator.next()
+      if (possibleNewestBuildDate.after(newestBuildDate)) newestBuildDate = possibleNewestBuildDate
 
-        // If the build is found return it
-        if (x.commit.sha == pushCommitSha) {
-          return Some(x)
-        }
-        // If a build has started before the earliest possible that for the target build then stop looking for it
-        // and update the the minimum start date
-        else if (x.started_at.getOrElse(new Date(Long.MaxValue)).before(minimumStartDate)) {
-          minimumStartDate = newestBuildDate
-          return None
-        }
-        // Remember the time at which the latest build has started
-        else if (x.started_at.isDefined && x.started_at.get.after(newestBuildDate)) {
-          newestBuildDate = x.started_at.get
-        }
+    } while (!builds.`@pagination`.is_last && build.isEmpty)
+
+    if (newestBuildDate.after(minimumStartDate)) minimumStartDate = newestBuildDate
+
+    build
+  }
+
+  /**
+    * Tries to find the correct TravisBuild within a TravisBuilds object.
+    * Also returns the date of the latest Build.
+    * @param builds Builds to search in
+    * @return Correct Build if found and date newest seen build
+    */
+  def getBuildFromBuilds(builds: TravisBuilds): (Option[TravisBuild], Date) = {
+    var newestBuildDate: Date = new Date(0L)
+    var possibleBuild: Option[TravisBuild] = None
+    val buildIterator = builds.builds.iterator
+
+    while (buildIterator.hasNext) {
+      val x = buildIterator.next()
+
+      // Remember the time at which the latest build has started
+      if (x.started_at.isDefined && x.started_at.get.after(newestBuildDate)) {
+        newestBuildDate = x.started_at.get
       }
-    } while (!builds.`@pagination`.is_last)
-    None
+      // If the build is found return it
+      if (x.commit.sha == pushCommitSha) {
+        possibleBuild = Some(x)
+      }
+    }
+    (possibleBuild, newestBuildDate)
   }
 
 }
