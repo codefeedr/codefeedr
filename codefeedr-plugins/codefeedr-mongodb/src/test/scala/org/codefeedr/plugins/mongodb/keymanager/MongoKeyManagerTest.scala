@@ -18,6 +18,7 @@
 
 package org.codefeedr.plugins.mongodb.keymanager
 
+import java.io.ObjectOutputStream
 import java.net.URI
 import java.util.Date
 import java.util.concurrent.TimeoutException
@@ -132,5 +133,10 @@ class MongoKeyManagerTest extends FunSuite with BeforeAndAfter {
     assertThrows[TimeoutException] {
       km.request("x", 1)
     }
+  }
+
+  test("Serialization test") {
+    val oos = new ObjectOutputStream(System.out)
+    oos.writeObject(new MongoKeyManager())
   }
 }
