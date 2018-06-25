@@ -42,10 +42,10 @@ import scala.concurrent.duration.Duration
 class MongoKeyManager(database: String = "db",
                       collection: String = "codefeedrKeyManager",
                       server: URI = null)
-  extends KeyManager {
+  extends KeyManager with Serializable {
 
   // Serialization handling for Mongo BSON
-  private val codecRegistry = fromRegistries(fromProviders(classOf[MongoManagedKey]), DEFAULT_CODEC_REGISTRY )
+  private lazy val codecRegistry = fromRegistries(fromProviders(classOf[MongoManagedKey]), DEFAULT_CODEC_REGISTRY )
 
   override def request(target: String, numberOfCalls: Int): Option[ManagedKey] = {
     require(target != null, "target cannot be null")
