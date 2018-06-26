@@ -54,9 +54,6 @@ services:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
     networks:
       - overlay
-    links:
-      - zookeeper:zookeeper
-      - kafka:kafka
 
   taskrunner:
     image: flink:1.4.2-scala_2.11-alpine
@@ -67,10 +64,6 @@ services:
       - jobmanager
     restart: always
     command: taskmanager
-    links:
-      - jobmanager:jobmanager
-      - zookeeper:zookeeper
-      - kafka:kafka
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
     networks:
