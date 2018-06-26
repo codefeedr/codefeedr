@@ -269,7 +269,7 @@ def cmd_start_pipeline(args):
             print("Stage already running: " + stage)
         else:
             print("Starting stage: " + stage)
-            jobId = start_stage(programId, stage)
+            jobId = start_stage(programId, stage, 1)
             totalNewJobs = totalNewJobs + 1
             if jobId is None:
                 return
