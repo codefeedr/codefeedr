@@ -16,7 +16,7 @@ as they do not necessarily survive the pipeline buffer.
 
 If an event time is available to the output stage, it is automatically added to the document with the `_eventTime` key.
 This value is in turn used to re-create the event time for the stream when reading with the input stage. The
-store value is in milliseconds since epoch. 
+store value is in milliseconds since epoch.
 
 ### Configuration
 
@@ -27,6 +27,8 @@ Optionally a server address can be supplied. It defaults to localhost on the def
 val mongoIn = new MongoInput[MyEvent]("db", "myCollection", "mongodb://mongo:1234")
 val mongoOut = new MongoOutput[MyEvent]("db", "myCollection", "mongodb://mongo:1234")
 ```
+
+If the server requires authentication, use the URI format: `mongodb://username:password@mongo:1234`.
 
 #### Filtering input
 
@@ -55,7 +57,7 @@ The mongoDB key manager implements the full key manager for mongoDB. It supports
 
 ### Configuration
 
-Configuring the pipeline to use mongoDB is easy. All configuration is optional: by default, the manager looks for a local instance of mongoDB and uses the `codefeedrKeyManager` collection in the database `db`. 
+Configuring the pipeline to use mongoDB is easy. All configuration is optional: by default, the manager looks for a local instance of mongoDB and uses the `codefeedrKeyManager` collection in the database `db`.
 
 ```scala
 val km = new MongoKeyManager()
