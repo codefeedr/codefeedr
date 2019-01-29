@@ -43,11 +43,5 @@ script:
 after_success:
   - sbt coveralls
 
-deploy:
-  provider: script
-  script: sbt publish
-  on:
-    branch: develop
-
 notifications:
   email: false
