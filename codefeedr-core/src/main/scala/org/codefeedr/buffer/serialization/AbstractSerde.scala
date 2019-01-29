@@ -24,7 +24,7 @@ import org.apache.flink.api.java.typeutils.TypeExtractor
 
 import scala.reflect.{ClassTag, classTag}
 
-abstract class AbstractSerde[T <: Serializable : ClassTag] extends AbstractDeserializationSchema[T] with SerializationSchema[T] {
+abstract class AbstractSerde[T <: Serializable : ClassTag]() extends AbstractDeserializationSchema[T](TypeExtractor.createTypeInfo(classTag[T].runtimeClass.asInstanceOf[Class[T]])) with SerializationSchema[T] {
 
   // Get type of class
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
