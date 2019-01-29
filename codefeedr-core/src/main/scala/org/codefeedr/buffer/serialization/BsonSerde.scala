@@ -24,7 +24,7 @@ import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
 
-import scala.reflect.ClassTag
+import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
 
 class BsonSerde[T  <: Serializable with AnyRef : TypeTag : ClassTag] extends AbstractSerde[T] {
