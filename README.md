@@ -5,14 +5,21 @@
 Bachelor Project Codefeedr
 --------------------------
 
-[![Build Status](https://travis-ci.org/joskuijpers/bep_codefeedr.svg?branch=develop)](https://travis-ci.org/joskuijpers/bep_codefeedr)
-[![BCH compliance](https://bettercodehub.com/edge/badge/joskuijpers/bep_codefeedr?branch=develop)](https://bettercodehub.com/)
-[![Coverage Status](https://coveralls.io/repos/github/codefeedr/bep_codefeedr/badge.svg?branch=develop)](https://coveralls.io/github/codefeedr/bep_codefeedr?branch=develop)
+[![Build Status](https://travis-ci.org/joskuijpers/bep_codefeedr.svg?branch=master)](https://travis-ci.org/joskuijpers/bep_codefeedr)
+[![BCH compliance](https://bettercodehub.com/edge/badge/joskuijpers/bep_codefeedr?branch=master)](https://bettercodehub.com/)
+[![Coverage Status](https://coveralls.io/repos/github/joskuijpers/bep_codefeedr/badge.svg?branch=master)](https://coveralls.io/github/joskuijpers/bep_codefeedr?branch=master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![University](https://img.shields.io/badge/university-tudelft-blue.svg)](http://swerl.tudelft.nl/bin/view/Main/WebHome)
-[![Documentation](https://readthedocs.org/projects/codefeedr/badge/?version=latest)](https://codefeedr.readthedocs.io/en/latest/)
 
-A framework for pipelining and combining Flink jobs. Documentation can be found [here](https://codefeedr.readthedocs.io/en/latest/)
+A framework for easily building Flink streaming programs
+## Contributors
+Main contributors:
+- [Wouter Zorgdrager](https://www.linkedin.com/in/wouter-zorgdrager-a4746512a/)
+
+Former contributors:
+- [Jos Kuijpers](https://nl.linkedin.com/in/jos-kuijpers-4b714032)
+- [Joris Quist](https://www.linkedin.com/in/joris-quist-a44245170) 
+
 
 ## Configuring the build environment
 
