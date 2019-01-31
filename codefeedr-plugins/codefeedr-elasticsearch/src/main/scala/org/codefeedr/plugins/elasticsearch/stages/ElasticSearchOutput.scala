@@ -20,6 +20,7 @@ package org.codefeedr.plugins.elasticsearch.stages
 
 import java.net.{InetAddress, InetSocketAddress, URI}
 import java.nio.charset.StandardCharsets
+import java.util
 
 import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.runtime.rest.RestClient
@@ -31,9 +32,11 @@ import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.{Requests, RestClientBuilder}
+import org.elasticsearch.common.xcontent.XContentType
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
+import collection.JavaConversions._
 
 import scala.reflect.{ClassTag, Manifest}
 
@@ -78,7 +81,7 @@ class ElasticSearchOutput[T <: Serializable with AnyRef : ClassTag : Manifest](i
 
     if (servers.isEmpty) {
       logger.info("Transport address set is empty. Using localhost with default port 9300.")
-      transportAddresses.add(new HttpHost("127.0.0.1", 9300, "http"))
+      transportAddresses.add(new HttpHost("127.0.0.1", 9200, "http"))
     }
 
     for (server <- servers) {
@@ -111,7 +114,7 @@ private class ElasticSearchSink[T <: Serializable with AnyRef : ClassTag : Manif
     Requests.indexRequest()
       .index(index)
       .`type`("json")
-      .source(bytes)
+      .source(bytes, XContentType.JSON)
   }
 
   override def process(element: T, ctx: RuntimeContext, indexer: RequestIndexer): Unit = {
@@ -126,6 +129,7 @@ private class ElasticSearchSink[T <: Serializable with AnyRef : ClassTag : Manif
     */
   def serialize(element: T): Array[Byte] = {
     val bytes = Serialization.write[T](element)(formats)
+
     bytes.getBytes(StandardCharsets.UTF_8)
   }
 
