@@ -32,6 +32,8 @@ markdown_extensions:
   - pymdownx.tasklist:
        custom_checkbox: true
   - pymdownx.tilde
+theme:
+  name: 'material'
 pages:
   - Home: 'index.md'
   - Getting Started: 'getting_started.md'
