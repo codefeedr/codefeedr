@@ -81,7 +81,7 @@ class ElasticSearchOutput[T <: Serializable with AnyRef : ClassTag : Manifest](i
 
     if (servers.isEmpty) {
       logger.info("Transport address set is empty. Using localhost with default port 9300.")
-      transportAddresses.add(new HttpHost("127.0.0.1", 9200, "http"))
+      transportAddresses.add(new HttpHost("localhost", 9300, "http"))
     }
 
     for (server <- servers) {
