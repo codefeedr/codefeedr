@@ -19,17 +19,19 @@ repo_url: 'https://github.com/codefeedr/bep_codefeedr'
 markdown_extensions:
   - admonition
   - codehilite
-  - pymdownx.betterem(smart_enable=all)
+  - toc:
+      permalink: true
+  - pymdownx.betterem:
+      smart_enable: all
   - pymdownx.caret
   - pymdownx.critic
   - pymdownx.inlinehilite
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.superfences
-  - pymdownx.tasklist(custom_checkbox=true)
+  - pymdownx.tasklist:
+       custom_checkbox: true
   - pymdownx.tilde
-theme:
-  name: 'material'
 pages:
   - Home: 'index.md'
   - Getting Started: 'getting_started.md'
