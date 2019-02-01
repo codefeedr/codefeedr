@@ -201,7 +201,7 @@ lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter")
 lazy val dependencies =
   new {
     val flinkVersion       = "1.7.0"
-    val json4sVersion      = "3.6.0-M2"
+    val json4sVersion      = "3.6.4"
     val log4jVersion       = "2.11.0"
     val log4jScalaVersion  = "11.0"
 

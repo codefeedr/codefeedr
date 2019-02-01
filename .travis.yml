@@ -1,5 +1,5 @@
 language: scala
-scala: 2.11.11
+scala: 2.12.7
 sudo: required
 dist: trusty
 
@@ -30,7 +30,7 @@ before_install:
 
 matrix:
   include:
-    - env: SCALA_VERSION=2.11.11
+    - env: SCALA_VERSION=2.12.7
       os: linux
       jdk: oraclejdk8
 
