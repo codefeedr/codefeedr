@@ -14,8 +14,8 @@
 # limitations under the License.
 
 site_name: CodeFeedr Documentation
-repo_name: 'codefeedr/bep_codefeedr'
-repo_url: 'https://github.com/codefeedr/bep_codefeedr'
+repo_name: 'codefeedr/codefeedr'
+repo_url: 'https://github.com/codefeedr/codefeedr'
 markdown_extensions:
   - admonition
   - codehilite
