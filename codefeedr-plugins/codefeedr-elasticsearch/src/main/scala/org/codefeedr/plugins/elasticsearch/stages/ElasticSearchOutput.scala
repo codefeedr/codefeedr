@@ -20,18 +20,23 @@ package org.codefeedr.plugins.elasticsearch.stages
 
 import java.net.{InetAddress, InetSocketAddress, URI}
 import java.nio.charset.StandardCharsets
+import java.util
 
 import org.apache.flink.api.common.functions.RuntimeContext
+import org.apache.flink.runtime.rest.RestClient
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
-import org.apache.flink.streaming.connectors.elasticsearch5.ElasticsearchSink
+import org.apache.flink.streaming.connectors.elasticsearch6.{ElasticsearchSink, RestClientFactory}
+import org.apache.http.HttpHost
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 import org.elasticsearch.action.index.IndexRequest
-import org.elasticsearch.client.Requests
+import org.elasticsearch.client.{Requests, RestClientBuilder}
+import org.elasticsearch.common.xcontent.XContentType
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
+import collection.JavaConversions._
 
 import scala.reflect.{ClassTag, Manifest}
 
@@ -50,19 +55,19 @@ class ElasticSearchOutput[T <: Serializable with AnyRef : ClassTag : Manifest](i
                                                                                attributes: StageAttributes = StageAttributes())
   extends OutputStage[T](attributes) with Logging {
 
+  //TODO Add configuration support
   override def main(source: DataStream[T]): Unit = {
     val config = createConfig()
     val transportAddresses = createTransportAddresses()
 
-    source.addSink(new ElasticsearchSink(config, transportAddresses, new ElasticSearchSink[T](index)))
+    val eSinkBuilder = new ElasticsearchSink.Builder[T](transportAddresses, new ElasticSearchSink(index))
+
+    eSinkBuilder.setBulkFlushMaxActions(1)
+    source.addSink(eSinkBuilder.build())
   }
 
   def createConfig(): java.util.HashMap[String, String] = {
     val config = new java.util.HashMap[String, String]
-
-    // This instructs the sink to emit after every element, otherwise they would be buffered
-    config.put("bulk.flush.max.actions", "1")
-
     config
   }
 
@@ -71,12 +76,12 @@ class ElasticSearchOutput[T <: Serializable with AnyRef : ClassTag : Manifest](i
     *
     * @return List
     */
-  def createTransportAddresses(): java.util.ArrayList[InetSocketAddress] = {
-    val transportAddresses = new java.util.ArrayList[InetSocketAddress]
+  def createTransportAddresses(): java.util.ArrayList[HttpHost] = {
+    val transportAddresses = new java.util.ArrayList[HttpHost]
 
     if (servers.isEmpty) {
       logger.info("Transport address set is empty. Using localhost with default port 9300.")
-      transportAddresses.add(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 9300))
+      transportAddresses.add(new HttpHost("localhost", 9300, "http"))
     }
 
     for (server <- servers) {
@@ -84,7 +89,7 @@ class ElasticSearchOutput[T <: Serializable with AnyRef : ClassTag : Manifest](i
 
       if (uri.getScheme == "es") {
         logger.info(s"Adding transport address $server")
-        transportAddresses.add(new InetSocketAddress(InetAddress.getByName(uri.getHost), uri.getPort))
+        transportAddresses.add(new HttpHost(uri.getHost, uri.getPort, "http"))
       }
     }
 
@@ -109,7 +114,7 @@ private class ElasticSearchSink[T <: Serializable with AnyRef : ClassTag : Manif
     Requests.indexRequest()
       .index(index)
       .`type`("json")
-      .source(bytes)
+      .source(bytes, XContentType.JSON)
   }
 
   override def process(element: T, ctx: RuntimeContext, indexer: RequestIndexer): Unit = {
@@ -124,6 +129,7 @@ private class ElasticSearchSink[T <: Serializable with AnyRef : ClassTag : Manif
     */
   def serialize(element: T): Array[Byte] = {
     val bytes = Serialization.write[T](element)(formats)
+
     bytes.getBytes(StandardCharsets.UTF_8)
   }
 
