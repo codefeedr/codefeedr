@@ -1,5 +1,6 @@
 *.class
 *.log
+!access.log
 
 mainRunner/
 project/project/
