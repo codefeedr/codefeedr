@@ -2,16 +2,16 @@
 
 - - - -
 
-Bachelor Project Codefeedr
+CodeFeedr
 --------------------------
 
-[![Build Status](https://travis-ci.org/codefeedr/bep_codefeedr.svg?branch=develop)](https://travis-ci.org/codefeedr/bep_codefeedr)
-[![BCH compliance](https://bettercodehub.com/edge/badge/codefeedr/bep_codefeedr?branch=develop)](https://bettercodehub.com/)
-[![Coverage Status](https://coveralls.io/repos/github/codefeedr/bep_codefeedr/badge.svg?branch=develop)](https://coveralls.io/github/codefeedr/bep_codefeedr?branch=develop)
+[![Build Status](https://travis-ci.org/codefeedr/codefeedr.svg?branch=develop)](https://travis-ci.org/codefeedr/codefeedr)
+[![BCH compliance](https://bettercodehub.com/edge/badge/codefeedr/codefeedr?branch=develop)](https://bettercodehub.com/)
+[![Coverage Status](https://coveralls.io/repos/github/codefeedr/codefeedr/badge.svg?branch=develop)](https://coveralls.io/github/codefeedr/codefeedr?branch=develop)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![University](https://img.shields.io/badge/university-tudelft-blue.svg)](http://swerl.tudelft.nl/bin/view/Main/WebHome)
 
-A framework for easily building Flink streaming programs
+A framework for easily building Flink streaming programs. Documentation can be found [here](https://codefeedr.readthedocs.io).
 ## Contributors
 Main contributors:
 - [Wouter Zorgdrager](https://www.linkedin.com/in/wouter-zorgdrager-a4746512a/)
