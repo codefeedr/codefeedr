@@ -41,7 +41,7 @@ class BsonSerdeTest extends FunSuite with BeforeAndAfter {
 
     val serialized = serde2.serialize(value)
     val deserialized = serde2.deserialize(serialized)
-    
+
     assert(deserialized == value)
   }
 

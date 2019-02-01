@@ -47,7 +47,7 @@ parallelExecution in Test := false
 val projectPrefix = "codefeedr-"
 val pluginPrefix = projectPrefix + "plugin-"
 
-lazy val root = (project in file("."))
+lazy val codefeedr = (project in file("."))
   .settings(settings)
   .aggregate(core,
     pluginRss,
