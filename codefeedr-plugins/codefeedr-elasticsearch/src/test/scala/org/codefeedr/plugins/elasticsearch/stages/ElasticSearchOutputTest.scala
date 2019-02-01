@@ -63,4 +63,11 @@ class ElasticSearchOutputTest extends FunSuite {
     assert(addresses.size() == 1)
   }
 
+  test("ElasticSearchSinkFunction should properly deserialize") {
+    val sink = new ElasticSearchSink[StringType](index)
+
+    assert(sink.serialize(StringType("test")).isInstanceOf[Array[Byte]])
+  }
+
+
 }
