@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.codefeedr.testUtils
+package org.codefeedr.plugins.weblogs.testUtils
 
 import org.apache.flink.api.common.JobID
 import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
@@ -68,7 +68,7 @@ class SimpleSinkPipelineObject(elements : Int = -1) extends OutputStage[StringTy
 class PrintSinkElements(elements : Int) extends PrintSinkFunction[StringType] {
   var count = 0
 
-  override def invoke(value: StringType, context: SinkFunction.Context[_]): Unit = {
+  def invoke(value: StringType, context: SinkFunction.Context[_]): Unit = {
     super.invoke(value)
     count += 1
 
