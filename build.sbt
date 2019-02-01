@@ -14,16 +14,7 @@ val projectPrefix = "codefeedr-"
 
 lazy val root = (project in file("."))
   .settings(settings)
-  .aggregate(
-    core,
-    pluginRss,
-    pluginMongodb,
-    pluginElasticSearch,
-    pluginGitHub,
-    pluginTravis,
-    pluginWeblogs,
-    pluginTwitter
-  )
+  .aggregate(core)
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
@@ -64,105 +55,6 @@ lazy val core = (project in file("codefeedr-core"))
     )
   )
 
-lazy val pluginRss = (project in file("codefeedr-plugins/codefeedr-rss"))
-  .settings(
-    name := projectPrefix + "rss",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.httpj
-    )
-  )
-  .dependsOn(
-    core
-  )
-
-lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb"))
-  .settings(
-    name := projectPrefix + "mongodb",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.mongo
-    )
-  )
-  .dependsOn(
-    core
-  )
-
-lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-elasticsearch"))
-  .settings(
-    name := projectPrefix + "elasticsearch",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.flinkElasticSearch
-    )
-  )
-  .dependsOn(
-    core
-  )
-
-lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
-  .settings(
-    name := projectPrefix + "github",
-    description := "GitHub plugin",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.httpj,
-      dependencies.json4s,
-      dependencies.jackson,
-      dependencies.json4sExt
-    )
-  )
-  .dependsOn(
-    core
-  )
-
-lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
-  .settings(
-    name := projectPrefix + "travis",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.httpj
-    )
-  )
-  .dependsOn(
-    core,
-    pluginGitHub
-  )
-
-lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs"))
-  .settings(
-    name := projectPrefix + "weblogs",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-    )
-  )
-  .dependsOn(
-    core
-  )
-
-lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter"))
-  .settings(
-    name := projectPrefix + "twitter",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.twitter
-    ),
-    dependencyOverrides ++= Seq( //override json4s dependencies
-      "org.json4s" %% "json4s-scalap" % "3.5.3",
-      "org.json4s" %% "json4s-jackson" % "3.5.3",
-      "org.json4s" %% "json4s-ext" % "3.5.3"
-    )
-  )
-  .dependsOn(
-    core
-  )
 
 lazy val dependencies =
   new {
@@ -203,7 +95,6 @@ lazy val dependencies =
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
 
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
-    val twitter            = "com.danielasfregola"        %% "twitter4s"                     % "5.5"
   }
 
 lazy val commonDependencies = Seq(
