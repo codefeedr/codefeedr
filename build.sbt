@@ -1,16 +1,48 @@
 import sbt.Credentials
 import sbt.Keys.{credentials, name}
 
-name := "codefeedr"
+ThisBuild / organization := "org.codefeedr"
+ThisBuild / organizationName := "CodeFeedr"
+ThisBuild / organizationHomepage := Some(url("http://codefeedr.org"))
+
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/codefeedr/codefeedr"),
+    "scm:git@github.com:codefeedr/codefeedr.git"
+  )
+)
+
+ThisBuild / developers := List(
+  Developer(
+    id    = "wzorgdrager",
+    name  = "Wouter Zorgdrager",
+    email = "W.D.Zorgdrager@tudelft.nl",
+    url   = url("http://www.github.com/wzorgdrager")
+  )
+)
+
+ThisBuild / description := "CodeFeedr provides an infrastructure on top of Apache Flink for more advanced stream architectures."
+ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / homepage := Some(url("https://github.com/codefeedr/codefeedr"))
+
 ThisBuild / version := "0.1-SNAPSHOT"
 ThisBuild / organization := "org.codefeedr"
-ThisBuild / scalaVersion := "2.11.11"
+ThisBuild / scalaVersion := "2.12.7"
+
+ThisBuild / isSnapshot := true
+
+ThisBuild / pomIncludeRepository := { _ => false }
+
+ThisBuild / publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+}
+ThisBuild / publishMavenStyle := true
 
 parallelExecution in Test := false
 
 /// PROJECTS
-
-val projectPrefix = "codefeedr-"
 
 lazy val root = (project in file("."))
   .settings(settings)
@@ -18,7 +50,7 @@ lazy val root = (project in file("."))
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
-    name := projectPrefix + "core",
+    name := "core",
     settings,
     assemblySettings,
     unmanagedBase := baseDirectory.value / "../lib",
@@ -116,9 +148,6 @@ lazy val commonDependencies = Seq(
 lazy val settings = commonSettings
 
 lazy val commonSettings = Seq(
-//  organization := "org.codefeedr",
-//  version := "0.1.0-SNAPSHOT",
-//  scalaVersion := "2.11.11",
   test in assembly := {},
   scalacOptions ++= compilerOptions,
   resolvers ++= Seq(
@@ -171,3 +200,4 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
+
