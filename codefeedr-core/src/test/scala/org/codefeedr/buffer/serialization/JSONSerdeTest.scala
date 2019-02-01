@@ -53,7 +53,7 @@ class JSONSerdeTest extends FunSuite with BeforeAndAfter {
     val deserialized = serde.deserialize(value.getBytes)
     val expected = SimpleCaseClass("hello", 42)
 
-    assert(deserialized == expected)
+    assert(expected == deserialized)
   }
 
   test("Deserializes simple serialized values") {

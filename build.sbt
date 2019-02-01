@@ -27,7 +27,7 @@ ThisBuild / homepage := Some(url("https://github.com/codefeedr/codefeedr"))
 
 ThisBuild / version := "0.1-SNAPSHOT"
 ThisBuild / organization := "org.codefeedr"
-ThisBuild / scalaVersion := "2.12.7"
+ThisBuild / scalaVersion := "2.11.11"
 
 ThisBuild / isSnapshot := true
 
