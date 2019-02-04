@@ -1,5 +1,5 @@
 import sbt.Credentials
-import sbt.Keys.{credentials, name}
+import sbt.Keys.{credentials, name, publishMavenStyle}
 
 ThisBuild / organization := "org.codefeedr"
 ThisBuild / organizationName := "CodeFeedr"
@@ -29,17 +29,6 @@ ThisBuild / version := "0.1-SNAPSHOT"
 ThisBuild / organization := "org.codefeedr"
 ThisBuild / scalaVersion := "2.11.11"
 
-ThisBuild / isSnapshot := true
-
-ThisBuild / pomIncludeRepository := { _ => false }
-
-ThisBuild / publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-}
-ThisBuild / publishMavenStyle := true
-useGpg := true
 
 parallelExecution in Test := false
 
@@ -48,7 +37,7 @@ parallelExecution in Test := false
 val projectPrefix = "codefeedr-"
 val pluginPrefix = projectPrefix + "plugin-"
 
-lazy val codefeedr = (project in file("."))
+lazy val root = (project in file("."))
   .settings(settings)
   .aggregate(core,
     pluginRss,
@@ -268,10 +257,15 @@ lazy val commonSettings = Seq(
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
     Resolver.mavenLocal
   ),
-
-  // Deploying. NOTE: when releasing, do not add the timestamp
-  publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-dev-local;build.timestamp=" + new java.util.Date().getTime),
-  credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))
+  ThisBuild / isSnapshot := true,
+  publishMavenStyle in ThisBuild := true,
+  publishTo in ThisBuild := Some(
+    if (isSnapshot.value)
+      Opts.resolver.sonatypeSnapshots
+    else
+      Opts.resolver.sonatypeStaging
+  ),
+  ThisBuild / pomIncludeRepository := { _ => false }
 )
 
 lazy val compilerOptions = Seq(
