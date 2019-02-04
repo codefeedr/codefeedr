@@ -1,29 +1,52 @@
 import sbt.Credentials
-import sbt.Keys.{credentials, name}
+import sbt.Keys.{credentials, name, publishMavenStyle}
 
-name := "codefeedr"
+ThisBuild / organization := "org.codefeedr"
+ThisBuild / organizationName := "CodeFeedr"
+ThisBuild / organizationHomepage := Some(url("http://codefeedr.org"))
+
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/codefeedr/codefeedr"),
+    "scm:git@github.com:codefeedr/codefeedr.git"
+  )
+)
+
+ThisBuild / developers := List(
+  Developer(
+    id    = "wzorgdrager",
+    name  = "Wouter Zorgdrager",
+    email = "W.D.Zorgdrager@tudelft.nl",
+    url   = url("http://www.github.com/wzorgdrager")
+  )
+)
+
+ThisBuild / description := "CodeFeedr provides an infrastructure on top of Apache Flink for more advanced stream architectures."
+ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / homepage := Some(url("https://github.com/codefeedr/codefeedr"))
+
 ThisBuild / version := "0.1-SNAPSHOT"
 ThisBuild / organization := "org.codefeedr"
 ThisBuild / scalaVersion := "2.11.11"
+
 
 parallelExecution in Test := false
 
 /// PROJECTS
 
 val projectPrefix = "codefeedr-"
+val pluginPrefix = projectPrefix + "plugin-"
 
 lazy val root = (project in file("."))
   .settings(settings)
-  .aggregate(
-    core,
+  .aggregate(core,
     pluginRss,
     pluginMongodb,
     pluginElasticSearch,
     pluginGitHub,
     pluginTravis,
     pluginWeblogs,
-    pluginTwitter
-  )
+    pluginTwitter)
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
@@ -66,7 +89,7 @@ lazy val core = (project in file("codefeedr-core"))
 
 lazy val pluginRss = (project in file("codefeedr-plugins/codefeedr-rss"))
   .settings(
-    name := projectPrefix + "rss",
+    name := pluginPrefix + "rss",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -79,7 +102,7 @@ lazy val pluginRss = (project in file("codefeedr-plugins/codefeedr-rss"))
 
 lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb"))
   .settings(
-    name := projectPrefix + "mongodb",
+    name := pluginPrefix + "mongodb",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -92,7 +115,7 @@ lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb")
 
 lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-elasticsearch"))
   .settings(
-    name := projectPrefix + "elasticsearch",
+    name := pluginPrefix + "elasticsearch",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -105,7 +128,7 @@ lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-ela
 
 lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
   .settings(
-    name := projectPrefix + "github",
+    name := pluginPrefix + "github",
     description := "GitHub plugin",
     settings,
     assemblySettings,
@@ -122,7 +145,7 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
 
 lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
   .settings(
-    name := projectPrefix + "travis",
+    name := pluginPrefix + "travis",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -136,7 +159,7 @@ lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
 
 lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs"))
   .settings(
-    name := projectPrefix + "weblogs",
+    name := pluginPrefix + "weblogs",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -148,7 +171,7 @@ lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs")
 
 lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter"))
   .settings(
-    name := projectPrefix + "twitter",
+    name := pluginPrefix + "twitter",
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
@@ -164,10 +187,11 @@ lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter")
     core
   )
 
+
 lazy val dependencies =
   new {
     val flinkVersion       = "1.7.0"
-    val json4sVersion      = "3.6.0-M2"
+    val json4sVersion      = "3.6.4"
     val log4jVersion       = "2.11.0"
     val log4jScalaVersion  = "11.0"
 
@@ -225,9 +249,6 @@ lazy val commonDependencies = Seq(
 lazy val settings = commonSettings
 
 lazy val commonSettings = Seq(
-//  organization := "org.codefeedr",
-//  version := "0.1.0-SNAPSHOT",
-//  scalaVersion := "2.11.11",
   test in assembly := {},
   scalacOptions ++= compilerOptions,
   resolvers ++= Seq(
@@ -236,10 +257,15 @@ lazy val commonSettings = Seq(
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
     Resolver.mavenLocal
   ),
-
-  // Deploying. NOTE: when releasing, do not add the timestamp
-  publishTo := Some("Artifactory Realm" at "http://codefeedr.joskuijpers.nl:8081/artifactory/sbt-dev-local;build.timestamp=" + new java.util.Date().getTime),
-  credentials += Credentials("Artifactory Realm", "codefeedr.joskuijpers.nl", sys.env.getOrElse("ARTIFACTORY_USERNAME", ""), sys.env.getOrElse("ARTIFACTORY_PASSWORD", ""))
+  ThisBuild / isSnapshot := true,
+  publishMavenStyle in ThisBuild := true,
+  publishTo in ThisBuild := Some(
+    if (isSnapshot.value)
+      Opts.resolver.sonatypeSnapshots
+    else
+      Opts.resolver.sonatypeStaging
+  ),
+  ThisBuild / pomIncludeRepository := { _ => false }
 )
 
 lazy val compilerOptions = Seq(
@@ -280,3 +306,4 @@ Global / cancelable := true
 
 // exclude Scala library from assembly
 assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
+

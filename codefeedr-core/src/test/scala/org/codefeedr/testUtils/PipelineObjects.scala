@@ -68,7 +68,7 @@ class SimpleSinkPipelineObject(elements : Int = -1) extends OutputStage[StringTy
 class PrintSinkElements(elements : Int) extends PrintSinkFunction[StringType] {
   var count = 0
 
-  def invoke(value: StringType, context: SinkFunction.Context[_]): Unit = {
+  override def invoke(value: StringType, context: SinkFunction.Context[_]): Unit = {
     super.invoke(value)
     count += 1
 
