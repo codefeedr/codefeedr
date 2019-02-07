@@ -30,12 +30,6 @@ before_install:
   - docker-compose -f "containers/kafka/docker-compose-single-broker.yml" up -d
   - docker ps -a
 
-matrix:
-  include:
-    - env: SCALA_VERSION=2.11.11
-      os: linux
-      jdk: oraclejdk8
-
 before_script:
   - sleep 10
 
