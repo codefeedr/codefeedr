@@ -1,6 +1,10 @@
 import sbt.Credentials
 import sbt.Keys.{credentials, name, publishMavenStyle}
 
+lazy val scala212 = "2.12.8"
+lazy val scala211 = "2.11.11"
+lazy val supportedScalaVersions = List(scala211, scala212)
+
 ThisBuild / organization := "org.codefeedr"
 ThisBuild / organizationName := "CodeFeedr"
 ThisBuild / organizationHomepage := Some(url("http://codefeedr.org"))
@@ -27,7 +31,7 @@ ThisBuild / homepage := Some(url("https://github.com/codefeedr/codefeedr"))
 
 ThisBuild / version := "0.1-SNAPSHOT"
 ThisBuild / organization := "org.codefeedr"
-ThisBuild / scalaVersion := "2.12.8"
+ThisBuild / scalaVersion := scala212
 
 
 parallelExecution in Test := false
@@ -257,15 +261,15 @@ lazy val commonSettings = Seq(
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
     Resolver.mavenLocal
   ),
-  ThisBuild / isSnapshot := true,
   publishMavenStyle in ThisBuild := true,
   publishTo in ThisBuild := Some(
-    if (isSnapshot.value)
+    if (version.value.trim.endsWith("SNAPSHOT"))
       Opts.resolver.sonatypeSnapshots
     else
       Opts.resolver.sonatypeStaging
   ),
-  ThisBuild / pomIncludeRepository := { _ => false }
+  ThisBuild / pomIncludeRepository := { _ => false },
+  crossScalaVersions := supportedScalaVersions
 )
 
 lazy val noPublishSettings = Seq(
@@ -273,7 +277,8 @@ lazy val noPublishSettings = Seq(
   publishLocal := {},
   publishArtifact := false,
   // sbt-pgp's publishSigned task needs this defined even though it is not publishing.
-  publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo")))
+  publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo"))),
+  crossScalaVersions := Nil
 )
 
 lazy val compilerOptions = Seq(
