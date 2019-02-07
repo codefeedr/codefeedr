@@ -38,7 +38,7 @@ val projectPrefix = "codefeedr-"
 val pluginPrefix = projectPrefix + "plugin-"
 
 lazy val root = (project in file("."))
-  .settings(settings)
+  .settings(settings ++ noPublishSettings)
   .aggregate(core,
     pluginRss,
     pluginMongodb,
@@ -266,6 +266,14 @@ lazy val commonSettings = Seq(
       Opts.resolver.sonatypeStaging
   ),
   ThisBuild / pomIncludeRepository := { _ => false }
+)
+
+lazy val noPublishSettings = Seq(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false,
+  // sbt-pgp's publishSigned task needs this defined even though it is not publishing.
+  publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo")))
 )
 
 lazy val compilerOptions = Seq(
