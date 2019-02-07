@@ -1,7 +1,10 @@
 language: scala
-scala: 2.11.11
+scala:
+  - 2.11.11
+  - 2.12.8
 sudo: required
 dist: trusty
+jdk: oraclejdk8
 
 services:
   - docker
@@ -27,12 +30,6 @@ before_install:
   - "echo 'EXPOSE 9092' >> containers/kafka/Dockerfile"
   - docker-compose -f "containers/kafka/docker-compose-single-broker.yml" up -d
   - docker ps -a
-
-matrix:
-  include:
-    - env: SCALA_VERSION=2.11.11
-      os: linux
-      jdk: oraclejdk8
 
 before_script:
   - sleep 10
