@@ -23,16 +23,17 @@ import java.util.Date
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
+
+private case class SimpleCaseClassBson(str: String, i: Int)
+private case class ComplexCaseClass(str: String, i : Option[Int], l : List[Date])
+
 class BsonSerdeTest extends FunSuite with BeforeAndAfter {
 
-  private case class SimpleCaseClass(str: String, i: Int)
-  private case class ComplexCaseClass(str: String, i : Option[Int], l : List[Date])
-
-  private var serde : BsonSerde[SimpleCaseClass] = _
+  private var serde : BsonSerde[SimpleCaseClassBson] = _
   private var serde2 : BsonSerde[ComplexCaseClass] = _
 
   before {
-    serde = BsonSerde[SimpleCaseClass]
+    serde = BsonSerde[SimpleCaseClassBson]
     serde2 = BsonSerde[ComplexCaseClass]
   }
 
@@ -55,7 +56,7 @@ class BsonSerdeTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Deserializes simple serialized values") {
-    val value = SimpleCaseClass("hello", 42)
+    val value = SimpleCaseClassBson("hello", 42)
 
     val serialized = serde.serialize(value)
     val deserialized = serde.deserialize(serialized)
@@ -64,7 +65,7 @@ class BsonSerdeTest extends FunSuite with BeforeAndAfter {
   }
 
   test("Simple typeinformation check") {
-    val typeInformation = TypeInformation.of(classOf[SimpleCaseClass])
+    val typeInformation = TypeInformation.of(classOf[SimpleCaseClassBson])
 
     assert(typeInformation == serde.getProducedType)
   }

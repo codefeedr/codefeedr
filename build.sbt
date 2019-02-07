@@ -27,7 +27,7 @@ ThisBuild / homepage := Some(url("https://github.com/codefeedr/codefeedr"))
 
 ThisBuild / version := "0.1-SNAPSHOT"
 ThisBuild / organization := "org.codefeedr"
-ThisBuild / scalaVersion := "2.11.11"
+ThisBuild / scalaVersion := "2.12.8"
 
 
 parallelExecution in Test := false
@@ -222,7 +222,7 @@ lazy val dependencies =
     val kryoChill          = "com.twitter"               %% "chill"                          % "0.9.1"
 
     val scalactic          = "org.scalactic"             %% "scalactic"                      % "3.0.1"           % Test
-    val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.0.1"           % Test
+    val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.0.5"           % Test
     val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
 
