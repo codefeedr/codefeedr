@@ -18,13 +18,24 @@
 
 package org.codefeedr.pipeline
 
+import net.manub.embeddedkafka.{EmbeddedK, EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.buffer.BufferType
 import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils.CodeHitException
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-class PipelineObjectNTest extends FunSuite {
+class PipelineObjectNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
+
+  override def beforeAll(): Unit = {
+    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
+    EmbeddedKafka.start()
+  }
+
+  override def afterAll(): Unit = {
+    EmbeddedKafka.stop()
+  }
+
 
   class MyObject2 extends PipelineObject2[StringType, StringType, NoType] {
     override def transform(source: DataStream[StringType], secondSource: DataStream[StringType]): DataStream[NoType] = {

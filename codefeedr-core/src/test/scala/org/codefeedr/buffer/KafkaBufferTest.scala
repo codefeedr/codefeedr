@@ -21,6 +21,8 @@ package org.codefeedr.buffer
 import java.util
 import java.util.{Date, Properties, UUID}
 
+import com.github.sebruck.EmbeddedRedis
+import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
@@ -32,14 +34,33 @@ import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.stages.{InputStage, OutputStage, StageAttributes}
 import org.codefeedr.testUtils.{JobFinishedException, SimpleSourcePipelineObject}
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
+import redis.embedded.RedisServer
 
 import scala.collection.JavaConversions._
 
-class KafkaBufferTest extends FunSuite with BeforeAndAfter {
+class KafkaBufferTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAll with EmbeddedKafka with EmbeddedRedis {
 
   var client : AdminClient = _
   var kafkaBuffer : KafkaBuffer[StringType] = _
+  var redis: RedisServer = null
+  var redisPort: Int = 0
+
+
+
+  override def beforeAll(): Unit = {
+    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
+    EmbeddedKafka.start()
+
+    redis = startRedis()
+    redisPort = redis.ports().get(0)
+  }
+
+  override def afterAll(): Unit = {
+    EmbeddedKafka.stop()
+    stopRedis(redis)
+  }
+
 
   before {
     //set all the correct properties
@@ -50,7 +71,10 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter {
     client = AdminClient.create(props)
 
     //setup simple kafkabuffer
-    val pipeline = new PipelineBuilder().append(new SimpleSourcePipelineObject()).build()
+    val pipeline = new PipelineBuilder()
+      .append(new SimpleSourcePipelineObject())
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, s"redis://localhost:$redisPort")
+      .build()
     kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, StageAttributes(),"test-subject", null)
 
   }

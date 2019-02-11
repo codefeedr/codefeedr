@@ -19,7 +19,7 @@ package org.codefeedr.keymanager
 
 import org.scalatest.FunSuite
 
-class KeyManagerTest extends FunSuite {
+abstract class KeyManagerTest extends FunSuite {
 
   var keyManager : KeyManager = null
 

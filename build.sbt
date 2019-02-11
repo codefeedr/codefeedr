@@ -90,7 +90,10 @@ lazy val core = (project in file("codefeedr-core"))
       dependencies.avro,
 
       // Embedded redis to test key management
-      dependencies.embeddedRedis
+      dependencies.embeddedRedis,
+
+      // Embedded kafka for integration tests
+      dependencies.embeddedKafka
     )
   )
 
@@ -233,7 +236,7 @@ lazy val dependencies =
     val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
     val embeddedRedis      = "com.github.sebruck"        %% "scalatest-embedded-redis"       % "0.3.0"           % Test
-
+    val embeddedKafka      = "net.manub"                 %% "scalatest-embedded-kafka"       % "2.0.0"           % Test
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
     val twitter            = "com.danielasfregola"        %% "twitter4s"                     % "5.5"
   }

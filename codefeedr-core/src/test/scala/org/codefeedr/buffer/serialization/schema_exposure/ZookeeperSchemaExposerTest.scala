@@ -18,6 +18,21 @@
  */
 package org.codefeedr.buffer.serialization.schema_exposure
 
-class ZookeeperSchemaExposerTest extends SchemaExposerTest {
+import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import org.scalatest.BeforeAndAfterAll
+
+class ZookeeperSchemaExposerTest extends SchemaExposerTest
+  with EmbeddedKafka
+  with BeforeAndAfterAll {
+
+  override def beforeAll(): Unit = {
+    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181)
+    EmbeddedKafka.start()
+  }
+
+  override def afterAll(): Unit = {
+    EmbeddedKafka.stop()
+  }
+
   override def getSchemaExposer(): SchemaExposer = new ZookeeperSchemaExposer("localhost:2181")
 }
