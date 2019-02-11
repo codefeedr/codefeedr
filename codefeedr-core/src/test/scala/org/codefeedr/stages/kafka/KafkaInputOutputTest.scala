@@ -21,6 +21,7 @@ package org.codefeedr.stages.kafka
 import java.util
 import java.util.{Properties, UUID}
 
+import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
@@ -30,15 +31,24 @@ import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.OutputStage
 import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils.JobFinishedException
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 
 
-class KafkaInputOutputTest extends FunSuite {
+class KafkaInputOutputTest extends FunSuite with EmbeddedKafka with BeforeAndAfterAll {
 
   val someInput = "hi\nthis\nis\na\nreally\nnice\ntest"
+
+  override def beforeAll(): Unit = {
+    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
+    EmbeddedKafka.start()
+  }
+
+  override def afterAll(): Unit = {
+    EmbeddedKafka.stop()
+  }
 
   test("Data should be properly sent and read") {
     val properties = new Properties()
@@ -51,9 +61,9 @@ class KafkaInputOutputTest extends FunSuite {
 
     val pipeline =
       new PipelineBuilder()
-      .edge(new StringInput(someInput), new KafkaOutput[StringType](topic, properties))
-      .edge(new KafkaInput[StringType](topic, properties),new KafkaStringOutput(7))
-      .build()
+        .edge(new StringInput(someInput), new KafkaOutput[StringType](topic, properties))
+        .edge(new KafkaInput[StringType](topic, properties), new KafkaStringOutput(7))
+        .build()
 
     assertThrows[JobExecutionException] {
       pipeline.startLocal()
@@ -99,7 +109,7 @@ object KafkaStringCollectSink {
   def asList: List[String] = result.toList
 }
 
-class KafkaStringCollectSink(amount : Int) extends SinkFunction[StringType] {
+class KafkaStringCollectSink(amount: Int) extends SinkFunction[StringType] {
 
   var amountLeft = amount
 
@@ -114,6 +124,6 @@ class KafkaStringCollectSink(amount : Int) extends SinkFunction[StringType] {
 
 }
 
-class KafkaStringOutput(amount : Int) extends OutputStage[StringType] {
+class KafkaStringOutput(amount: Int) extends OutputStage[StringType] {
   override def main(source: DataStream[StringType]): Unit = source.addSink(new KafkaStringCollectSink(amount)).setParallelism(1)
 }

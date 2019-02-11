@@ -19,7 +19,14 @@ package org.codefeedr.keymanager
 
 import org.scalatest.FunSuite
 
-class KeyManagerTest(keyManager: KeyManager) extends FunSuite {
+abstract class KeyManagerTest extends FunSuite {
+
+  var keyManager : KeyManager = null
+
+  // Inject a keymanager into this test suite
+  def injectKeyManager(keyManager : KeyManager): Unit = {
+    this.keyManager = keyManager
+  }
 
   test("An unknown target returns no keys") {
     val key = keyManager.request("otherTarget", 1)

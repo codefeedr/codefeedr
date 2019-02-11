@@ -17,21 +17,40 @@
  */
 package org.codefeedr.pipeline
 
+import com.github.sebruck.EmbeddedRedis
+import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer}
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
 import org.codefeedr.stages.utilities.{JsonPrinterOutput, StringInput, StringType}
 import org.codefeedr.testUtils._
+import redis.embedded.RedisServer
 
 import scala.collection.JavaConverters._
 
-class PipelineTest extends FunSuite with BeforeAndAfter {
+class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with EmbeddedRedis with BeforeAndAfterAll {
 
   var builder: PipelineBuilder = _
+
+  var redis: RedisServer = null
+  var redisPort: Int = 0
+
+  override def beforeAll() = {
+    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
+    EmbeddedKafka.start()(config)
+
+    redis = startRedis()
+    redisPort = redis.ports().get(0)
+  }
+
+  override def afterAll(): Unit = {
+    EmbeddedKafka.stop()
+    stopRedis(redis)
+  }
 
   before {
     builder = new PipelineBuilder()
@@ -97,13 +116,14 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
     val pipeline = simpleDAGPipeline(2)
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, s"redis://localhost:$redisPort")
       .build()
 
     assertThrows[JobExecutionException] {
       pipeline.start(Array("-runtime", "local"))
     }
 
-    val exposer = new RedisSchemaExposer("redis://localhost:6379")
+    val exposer = new RedisSchemaExposer(s"redis://localhost:$redisPort")
 
     val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
     val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
@@ -117,6 +137,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter {
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, s"redis://localhost:$redisPort")
       .build()
 
     assertThrows[JobExecutionException] {

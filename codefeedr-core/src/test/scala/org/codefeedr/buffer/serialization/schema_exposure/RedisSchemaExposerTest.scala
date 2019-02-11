@@ -18,6 +18,24 @@
  */
 package org.codefeedr.buffer.serialization.schema_exposure
 
-class RedisSchemaExposerTest extends SchemaExposerTest {
- override def getSchemaExposer(): SchemaExposer = new RedisSchemaExposer("redis://localhost:6379")
+import com.github.sebruck.EmbeddedRedis
+import org.scalatest.BeforeAndAfterAll
+import redis.embedded.RedisServer
+
+class RedisSchemaExposerTest extends SchemaExposerTest with BeforeAndAfterAll with EmbeddedRedis {
+  var redis: RedisServer = null
+  var redisPort: Int = 0
+
+  // Before all tests, setup an embedded redis
+  override def beforeAll() = {
+    redis = startRedis()
+    redisPort = redis.ports().get(0)
+  }
+
+  // After all tests, stop embedded redis
+  override def afterAll() = {
+    stopRedis(redis)
+  }
+
+  override def getSchemaExposer(): SchemaExposer = new RedisSchemaExposer(s"redis://localhost:$redisPort")
 }

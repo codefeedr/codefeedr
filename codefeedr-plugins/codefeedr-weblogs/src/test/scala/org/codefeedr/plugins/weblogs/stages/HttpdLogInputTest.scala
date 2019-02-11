@@ -18,8 +18,6 @@
 
 package org.codefeedr.plugins.weblogs.stages
 
-import java.util
-
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.buffer.BufferType

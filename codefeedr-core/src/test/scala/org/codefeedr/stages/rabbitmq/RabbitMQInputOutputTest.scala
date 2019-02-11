@@ -48,25 +48,25 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     pipeline.startMock()
   }
 
-//  test("All data can be read from mongo") {
-//    RMQStringCollectSink.reset()
-//
-//    val pipeline = new PipelineBuilder()
-//      .append(new RabbitMQInput[StringType]("some-queue"))
-//      .append({ x : DataStream[StringType] =>
-//        x.addSink(new RMQStringCollectSink).setParallelism(1)
-//      })
-//      .build()
-//
-//    pipeline.startMock()
-//
-//    val list = RMQStringCollectSink.asList
-//    val items = longString.split("[ \n]").toList
-//
-//    assert(items.containsAll(RMQStringCollectSink.result))
-//    assert(list.size == items.size)
-//    assert(RMQStringCollectSink.numEventTimes == 0)
-//  }
+  //  test("All data can be read from mongo") {
+  //    RMQStringCollectSink.reset()
+  //
+  //    val pipeline = new PipelineBuilder()
+  //      .append(new RabbitMQInput[StringType]("some-queue"))
+  //      .append({ x : DataStream[StringType] =>
+  //        x.addSink(new RMQStringCollectSink).setParallelism(1)
+  //      })
+  //      .build()
+  //
+  //    pipeline.startMock()
+  //
+  //    val list = RMQStringCollectSink.asList
+  //    val items = longString.split("[ \n]").toList
+  //
+  //    assert(items.containsAll(RMQStringCollectSink.result))
+  //    assert(list.size == items.size)
+  //    assert(RMQStringCollectSink.numEventTimes == 0)
+  //  }
 }
 
 object RMQStringCollectSink {

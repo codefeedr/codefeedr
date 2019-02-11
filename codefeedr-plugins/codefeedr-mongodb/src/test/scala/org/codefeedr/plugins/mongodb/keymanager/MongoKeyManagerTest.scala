@@ -23,13 +23,22 @@ import java.net.URI
 import java.util.Date
 import java.util.concurrent.TimeoutException
 
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 
-class MongoKeyManagerTest extends FunSuite with BeforeAndAfter {
+class MongoKeyManagerTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAll with MongoEmbedDatabase {
   var km: MongoKeyManager = _
 
+  var mongoProps: MongodProps = null
+
+  override def beforeAll() = {
+    mongoProps = mongoStart()   // by default port = 12345 & version = Version.3.3.1
+  }                               // add your own port & version parameters in mongoStart method if you need it
+
+  override def afterAll()  { mongoStop(mongoProps) }
+
   before {
-    km = new MongoKeyManager()
+    km = new MongoKeyManager(server = new URI("mongodb://localhost:12345"))
   }
 
   after {
