@@ -27,7 +27,8 @@ import org.scalatest.FunSuite
 class PipelineObjectTest extends FunSuite {
 
   class BadSourceObject extends PipelineObject[NoType, StringType] {
-    override def transform(source: DataStream[NoType]): DataStream[StringType] = {
+    override def transform(
+        source: DataStream[NoType]): DataStream[StringType] = {
       getMainSource()
 
       null
@@ -35,7 +36,8 @@ class PipelineObjectTest extends FunSuite {
   }
 
   class BadSinkObject extends PipelineObject[StringType, NoType] {
-    override def transform(source: DataStream[StringType]): DataStream[NoType] = {
+    override def transform(
+        source: DataStream[StringType]): DataStream[NoType] = {
       getSink()
 
       null
@@ -44,8 +46,8 @@ class PipelineObjectTest extends FunSuite {
 
   test("Should throw when getting unknown main source") {
     val pipeline = new PipelineBuilder()
-        .append(new BadSourceObject())
-        .build()
+      .append(new BadSourceObject())
+      .build()
 
     assertThrows[NoSourceException] {
       pipeline.startMock()

@@ -32,37 +32,54 @@ import org.scalatest.FunSuite
 
 import scala.io.Source
 
-class TravisPushEventBuildInfoTransformStageTest extends FunSuite with MockFactory {
+class TravisPushEventBuildInfoTransformStageTest
+    extends FunSuite
+    with MockFactory {
 
   test("Travis build status request gives a travis build") {
     implicit val formats: Formats = DefaultFormats ++ JavaTimeSerializers.all
     val pushEvent =
-      parse(Source.fromInputStream(getClass.getResourceAsStream("/single_push_event.json")).mkString)
-      .extract[PushEvent]
+      parse(
+        Source
+          .fromInputStream(
+            getClass.getResourceAsStream("/single_push_event.json"))
+          .mkString)
+        .extract[PushEvent]
 
     val travisBuilds =
-      parse(Source.fromInputStream(getClass.getResourceAsStream("/single_push_event_build.json")).mkString)
-      .extract[TravisBuilds]
+      parse(
+        Source
+          .fromInputStream(
+            getClass.getResourceAsStream("/single_push_event_build.json"))
+          .mkString)
+        .extract[TravisBuilds]
 
     val travis = spy(new TravisService(new StaticKeyManager))
     doReturn(travisBuilds)
       .when(travis)
-      .getTravisBuilds(any(classOf[String]), any(classOf[String]), any(classOf[String]), any(classOf[Int]), any(classOf[Int]))
+      .getTravisBuilds(any(classOf[String]),
+                       any(classOf[String]),
+                       any(classOf[String]),
+                       any(classOf[Int]),
+                       any(classOf[Int]))
 
     val travisBuildStatusRequest = new TravisBuildStatusRequest(travis)
 
     var iterable: Iterable[TravisBuild] = null
 
-    val resultFuture: ResultFuture[TravisBuild] = new ResultFuture[TravisBuild] {
-      override def complete(result: Iterable[TravisBuild]): Unit = {
-        iterable = result
-      }
+    val resultFuture: ResultFuture[TravisBuild] =
+      new ResultFuture[TravisBuild] {
+        override def complete(result: Iterable[TravisBuild]): Unit = {
+          iterable = result
+        }
 
-      override def completeExceptionally(throwable: Throwable): Unit = {fail()}
-    }
+        override def completeExceptionally(throwable: Throwable): Unit = {
+          fail()
+        }
+      }
     travisBuildStatusRequest.asyncInvoke(pushEvent, resultFuture)
 
-    while(iterable == null) {
+    while (iterable == null) {
       Thread.sleep(100)
       println("waiting for iterable")
     }

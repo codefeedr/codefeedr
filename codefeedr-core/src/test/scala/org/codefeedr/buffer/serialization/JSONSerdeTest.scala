@@ -20,12 +20,11 @@ package org.codefeedr.buffer.serialization
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-
 private case class SimpleCaseClass(str: String, i: Int)
 
 class JSONSerdeTest extends FunSuite with BeforeAndAfter {
 
-  private var serde : JSONSerde[SimpleCaseClass] = null
+  private var serde: JSONSerde[SimpleCaseClass] = null
 
   before {
     serde = new JSONSerde[SimpleCaseClass]()

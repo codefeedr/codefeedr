@@ -22,14 +22,20 @@ import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.buffer.BufferType
 import org.codefeedr.stages.utilities.{StringInput, StringType}
-import org.codefeedr.stages.{OutputStage, OutputStage2, OutputStage3, OutputStage4}
+import org.codefeedr.stages.{
+  OutputStage,
+  OutputStage2,
+  OutputStage3,
+  OutputStage4
+}
 import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 class JobTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
 
   override def beforeAll(): Unit = {
-    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
+    implicit val config =
+      EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
     EmbeddedKafka.start()
   }
 
@@ -46,7 +52,8 @@ class JobTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
   }
 
   class MyJob2 extends OutputStage2[StringType, StringType] {
-    override def main(source: DataStream[StringType], secondSource: DataStream[StringType]): Unit = {
+    override def main(source: DataStream[StringType],
+                      secondSource: DataStream[StringType]): Unit = {
       if (source == null || secondSource == null) {
         throw CodeHitException()
       }
@@ -54,15 +61,21 @@ class JobTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
   }
 
   class MyJob3 extends OutputStage3[StringType, StringType, StringType] {
-    override def main(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType]): Unit = {
+    override def main(source: DataStream[StringType],
+                      secondSource: DataStream[StringType],
+                      thirdSource: DataStream[StringType]): Unit = {
       if (source == null || secondSource == null || thirdSource == null) {
         throw CodeHitException()
       }
     }
   }
 
-  class MyJob4 extends OutputStage4[StringType, StringType, StringType, StringType] {
-    override def main(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[StringType]): Unit = {
+  class MyJob4
+      extends OutputStage4[StringType, StringType, StringType, StringType] {
+    override def main(source: DataStream[StringType],
+                      secondSource: DataStream[StringType],
+                      thirdSource: DataStream[StringType],
+                      fourthSource: DataStream[StringType]): Unit = {
       if (source == null || secondSource == null || thirdSource == null || fourthSource == null) {
         throw CodeHitException()
       }

@@ -24,19 +24,20 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 case class KryoSimpleCaseClass(str: String, i: Int)
-case class KryoComplexCaseClass(str: String, i : Option[Int], l : List[Date])
+case class KryoComplexCaseClass(str: String, i: Option[Int], l: List[Date])
 
 class KryoSerdeTest extends FunSuite with BeforeAndAfter {
-  private var serde : KryoSerde[KryoSimpleCaseClass] = _
-  private var serde2 : KryoSerde[KryoComplexCaseClass] = _
+  private var serde: KryoSerde[KryoSimpleCaseClass] = _
+  private var serde2: KryoSerde[KryoComplexCaseClass] = _
 
   before {
     serde = KryoSerde[KryoSimpleCaseClass]
     serde2 = KryoSerde[KryoComplexCaseClass]
   }
 
-  test ("Deserializes complex serialized values") {
-    val value = KryoComplexCaseClass("hello", Some(42), List(new Date, new Date))
+  test("Deserializes complex serialized values") {
+    val value =
+      KryoComplexCaseClass("hello", Some(42), List(new Date, new Date))
 
     val serialized = serde2.serialize(value)
     val deserialized = serde2.deserialize(serialized)
@@ -44,7 +45,7 @@ class KryoSerdeTest extends FunSuite with BeforeAndAfter {
     assert(deserialized == value)
   }
 
-  test ("Deserializes complex serialized values 2") {
+  test("Deserializes complex serialized values 2") {
     val value = KryoComplexCaseClass("hello", None, List())
 
     val serialized = serde2.serialize(value)

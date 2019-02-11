@@ -33,10 +33,11 @@ import org.scalatest.FunSuite
 import scala.io.Source
 
 class GitHubIssueCommentDelayTest extends FunSuite with MockFactory {
-  val stream : InputStream = getClass.getResourceAsStream("/issuecommentdelay_events.json")
-  val sampleEvents : String = Source.fromInputStream(stream).getLines.mkString
+  val stream: InputStream =
+    getClass.getResourceAsStream("/issuecommentdelay_events.json")
+  val sampleEvents: String = Source.fromInputStream(stream).getLines.mkString
 
-  test ("GitHubIssueCommentDelay integration test") {
+  test("GitHubIssueCommentDelay integration test") {
     val e = StreamExecutionEnvironment.getExecutionEnvironment
     e.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
@@ -45,8 +46,10 @@ class GitHubIssueCommentDelayTest extends FunSuite with MockFactory {
     val eventSource = e.fromCollection(events.parseEvents(sampleEvents))
     val eventSource2 = e.fromCollection(events.parseEvents(sampleEvents))
 
-    val transformCommentEvent = new GitHubEventToIssueCommentEvent().transform(eventSource)
-    val transformIssuesEvent = new GitHubEventToIssuesEvent().transform(eventSource2)
+    val transformCommentEvent =
+      new GitHubEventToIssueCommentEvent().transform(eventSource)
+    val transformIssuesEvent =
+      new GitHubEventToIssuesEvent().transform(eventSource2)
 
     val delay = spy(new GitHubIssueCommentDelay())
 

@@ -69,5 +69,4 @@ class ElasticSearchOutputTest extends FunSuite {
     assert(sink.serialize(StringType("test")).isInstanceOf[Array[Byte]])
   }
 
-
 }

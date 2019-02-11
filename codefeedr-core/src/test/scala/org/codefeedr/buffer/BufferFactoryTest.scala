@@ -19,7 +19,10 @@ package org.codefeedr.buffer
 
 import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.testUtils.{SimpleSourcePipelineObject, SimpleTransformPipelineObject}
+import org.codefeedr.testUtils.{
+  SimpleSourcePipelineObject,
+  SimpleTransformPipelineObject
+}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class BufferFactoryTest extends FunSuite with BeforeAndAfter {
@@ -49,7 +52,6 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
       .build()
 
     val factory = new BufferFactory(pipeline, nodeA, nodeB)
-
 
     // created for nodeB sink, so should have subject of nodeB
     val nodeSubject = nodeB.getSinkSubject

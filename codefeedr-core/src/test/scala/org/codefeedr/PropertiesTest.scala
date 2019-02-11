@@ -57,7 +57,8 @@ class PropertiesTest extends FunSuite {
     assert(props.get("key").isEmpty)
   }
 
-  test("A Java properties list created from the properties should be comparable in content") {
+  test(
+    "A Java properties list created from the properties should be comparable in content") {
     val props = new Properties()
       .set("key", "value")
 

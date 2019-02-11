@@ -28,11 +28,11 @@ import org.scalatest.FunSuite
 
 class GitHubEventsToIssueCommentEventTest extends FunSuite {
 
-  test ("GitHubEventsToIssueCommentEvent integration test") {
+  test("GitHubEventsToIssueCommentEvent integration test") {
     val pipeLine = new PipelineBuilder()
       .append(new SimpleEventSource("/issuecomment_events.json"))
       .append(new GitHubEventToIssueCommentEvent())
-      .append { x : DataStream[IssueCommentEvent] =>
+      .append { x: DataStream[IssueCommentEvent] =>
         x.addSink(new IssueCommentEventCollectSink)
       }
       .build()

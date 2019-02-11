@@ -26,13 +26,13 @@ import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.plugins.github.GitHubProtocol.IssuesEvent
 import org.scalatest.FunSuite
 
-class GitHubEventsToIssuesEventTest extends FunSuite{
+class GitHubEventsToIssuesEventTest extends FunSuite {
 
-  test ("GitHubEventsToIssuesEvent integration test") {
+  test("GitHubEventsToIssuesEvent integration test") {
     val pipeLine = new PipelineBuilder()
       .append(new SimpleEventSource("/issues_events.json"))
       .append(new GitHubEventToIssuesEvent())
-      .append { x : DataStream[IssuesEvent] =>
+      .append { x: DataStream[IssuesEvent] =>
         x.addSink(new IssuesEventCollectSink)
       }
       .build()

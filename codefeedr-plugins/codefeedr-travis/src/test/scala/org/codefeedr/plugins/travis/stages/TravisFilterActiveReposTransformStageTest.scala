@@ -41,10 +41,11 @@ class TravisFilterActiveReposTransformStageTest extends FunSuite {
   test("Active repos should be filtered") {
 
     val travis = spy(new TravisService(new StaticKeyManager()))
-    val filter = (_: String) => {true}
+    val filter = (_: String) => { true }
     doReturn(filter).when(travis).repoIsActiveFilter
 
-    val travisFilterActiveReposTransformStage: TravisFilterActiveReposTransformStage =
+    val travisFilterActiveReposTransformStage
+      : TravisFilterActiveReposTransformStage =
       spy(new TravisFilterActiveReposTransformStage())
     doReturn(travis).when(travisFilterActiveReposTransformStage).travis
 
@@ -54,7 +55,7 @@ class TravisFilterActiveReposTransformStageTest extends FunSuite {
       .append(new SimpleEventSource("/sample_events.json"))
       .append(new GitHubEventToPushEvent())
       .append(travisFilterActiveReposTransformStage)
-      .append { x : DataStream[PushEventFromActiveTravisRepo] =>
+      .append { x: DataStream[PushEventFromActiveTravisRepo] =>
         x.addSink(new ActiveRepoPushEventCollectSink)
       }
       .build()
@@ -68,7 +69,8 @@ object ActiveRepoPushEventCollectSink {
   val result = new util.ArrayList[PushEventFromActiveTravisRepo]() //mutable list
 }
 
-class ActiveRepoPushEventCollectSink extends SinkFunction[PushEventFromActiveTravisRepo] {
+class ActiveRepoPushEventCollectSink
+    extends SinkFunction[PushEventFromActiveTravisRepo] {
 
   override def invoke(value: PushEventFromActiveTravisRepo): Unit = {
     synchronized {
@@ -80,8 +82,8 @@ class ActiveRepoPushEventCollectSink extends SinkFunction[PushEventFromActiveTra
 
 class SimpleEventSource(fileName: String) extends InputStage[Event] {
 
-  val stream : InputStream = getClass.getResourceAsStream(fileName)
-  val sampleEvents : String = Source.fromInputStream(stream).getLines.mkString
+  val stream: InputStream = getClass.getResourceAsStream(fileName)
+  val sampleEvents: String = Source.fromInputStream(stream).getLines.mkString
 
   override def main(): DataStream[Event] = {
     val events = new EventService(false, null)

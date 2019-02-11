@@ -25,14 +25,26 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.codefeedr.buffer.serialization.Serializer
-import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, ZookeeperSchemaExposer}
-import org.codefeedr.stages.utilities.{JsonPrinterOutput, StringInput, StringType}
+import org.codefeedr.buffer.serialization.schema_exposure.{
+  RedisSchemaExposer,
+  ZookeeperSchemaExposer
+}
+import org.codefeedr.stages.utilities.{
+  JsonPrinterOutput,
+  StringInput,
+  StringType
+}
 import org.codefeedr.testUtils._
 import redis.embedded.RedisServer
 
 import scala.collection.JavaConverters._
 
-class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with EmbeddedRedis with BeforeAndAfterAll {
+class PipelineTest
+    extends FunSuite
+    with BeforeAndAfter
+    with EmbeddedKafka
+    with EmbeddedRedis
+    with BeforeAndAfterAll {
 
   var builder: PipelineBuilder = _
 
@@ -40,7 +52,8 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
   var redisPort: Int = 0
 
   override def beforeAll() = {
-    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
+    implicit val config =
+      EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
     EmbeddedKafka.start()(config)
 
     redis = startRedis()
@@ -82,8 +95,10 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
     builder
       .append(new StringInput())
       .append { x: DataStream[StringType] =>
-        x.map(x => WordCount(x.value, 1)).setParallelism(1)
-          .addSink(new CollectSink).setParallelism(1)
+        x.map(x => WordCount(x.value, 1))
+          .setParallelism(1)
+          .addSink(new CollectSink)
+          .setParallelism(1)
       }
       .build()
       .startMock()
@@ -103,9 +118,9 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
 
   test("Non-sequential pipeline local test") {
     val pipeline = simpleDAGPipeline(1)
-        .setBufferProperty(Buffer.SERIALIZER, Serializer.BSON)
-        .setBufferType(BufferType.Kafka)
-        .build()
+      .setBufferProperty(Buffer.SERIALIZER, Serializer.BSON)
+      .setBufferType(BufferType.Kafka)
+      .build()
 
     assertThrows[JobExecutionException] {
       pipeline.startLocal()
@@ -116,7 +131,8 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
     val pipeline = simpleDAGPipeline(2)
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
-      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, s"redis://localhost:$redisPort")
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST,
+                         s"redis://localhost:$redisPort")
       .build()
 
     assertThrows[JobExecutionException] {
@@ -125,8 +141,10 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
 
     val exposer = new RedisSchemaExposer(s"redis://localhost:$redisPort")
 
-    val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
-    val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
+    val schema1 =
+      exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
+    val schema2 =
+      exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
 
     assert(schema1.nonEmpty)
     assert(schema2.nonEmpty)
@@ -137,7 +155,8 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
       .setBufferType(BufferType.Kafka)
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_DESERIALIZATION, "true")
-      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, s"redis://localhost:$redisPort")
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST,
+                         s"redis://localhost:$redisPort")
       .build()
 
     assertThrows[JobExecutionException] {
@@ -159,8 +178,10 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
 
     val exposer = new ZookeeperSchemaExposer("localhost:2181")
 
-    val schema1 = exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
-    val schema2 = exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
+    val schema1 =
+      exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
+    val schema2 =
+      exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
 
     assert(schema1.nonEmpty)
     assert(schema2.nonEmpty)
@@ -194,7 +215,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
     * @param expectedMessages after the job will finish.
     * @return a pipelinebuilder (add elements or finish it with .build())
     */
-  def simpleDAGPipeline(expectedMessages : Int = -1) = {
+  def simpleDAGPipeline(expectedMessages: Int = -1) = {
     val source = new SimpleSourcePipelineObject()
     val a = new SimpleTransformPipelineObject()
     val b = new SimpleTransformPipelineObject()
@@ -209,9 +230,7 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
       .edge(b, sink)
   }
 
-
   /***************** CLUSTER *********************/
-
   test("Cluster runtime starts the correct object") {
     val source = new HitObjectTest()
     val sink = new SimpleSinkPipelineObject(1)
@@ -222,7 +241,11 @@ class PipelineTest extends FunSuite with BeforeAndAfter with EmbeddedKafka with 
       .build()
 
     assertThrows[CodeHitException] {
-      pipeline.start(Array("-runtime", "cluster", "-stage", "org.codefeedr.testUtils.HitObjectTest"))
+      pipeline.start(
+        Array("-runtime",
+              "cluster",
+              "-stage",
+              "org.codefeedr.testUtils.HitObjectTest"))
     }
   }
 

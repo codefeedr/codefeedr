@@ -24,7 +24,11 @@ import org.codefeedr.buffer.BufferType
 import org.apache.flink.api.scala._
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.stages.{OutputStage, StageAttributes}
-import org.codefeedr.testUtils.{SimpleSinkPipelineObject, SimpleSourcePipelineObject, SimpleTransformPipelineObject}
+import org.codefeedr.testUtils.{
+  SimpleSinkPipelineObject,
+  SimpleSourcePipelineObject,
+  SimpleTransformPipelineObject
+}
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
 class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
@@ -83,7 +87,8 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assert(pipeline.propertiesOf(stage2).get("key").isEmpty)
   }
 
-  test("Set buffer properties should be available in pipeline buffer properties") {
+  test(
+    "Set buffer properties should be available in pipeline buffer properties") {
     val stage = new SimpleSourcePipelineObject()
     val pipeline = builder
       .append(stage)
@@ -116,7 +121,8 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("A DAG pipeline can't be appeneded to") {
-    builder.edge(new SimpleSourcePipelineObject(), new SimpleTransformPipelineObject())
+    builder.edge(new SimpleSourcePipelineObject(),
+                 new SimpleTransformPipelineObject())
 
     assertThrows[IllegalStateException] {
       builder.append(new SimpleSourcePipelineObject())
@@ -127,7 +133,8 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     builder.append(new SimpleSourcePipelineObject())
 
     assertThrows[IllegalStateException] {
-      builder.edge(new SimpleTransformPipelineObject(), new SimpleSinkPipelineObject())
+      builder.edge(new SimpleTransformPipelineObject(),
+                   new SimpleSinkPipelineObject())
     }
   }
 
@@ -135,7 +142,8 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     builder.append(new SimpleSourcePipelineObject())
     builder.setPipelineType(PipelineType.DAG)
 
-    builder.edge(new SimpleTransformPipelineObject(), new SimpleSinkPipelineObject())
+    builder.edge(new SimpleTransformPipelineObject(),
+                 new SimpleSinkPipelineObject())
   }
 
   test("A non-sequential pipeline cannot switch to a sequential pipeline") {
@@ -187,22 +195,27 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("Append an anonymous pipeline item") {
-    val pipeline = builder.append(new SimpleSourcePipelineObject())
+    val pipeline = builder
+      .append(new SimpleSourcePipelineObject())
       .append { x: DataStream[StringType] =>
         x.map(x => x)
-      }.build()
+      }
+      .build()
 
     assert(pipeline.graph.nodes.size == 2)
 
     pipeline.graph.nodes.head shouldBe an[SimpleSourcePipelineObject]
-    pipeline.graph.nodes.last shouldBe an[PipelineObject[StringType, StringType]]
+    pipeline.graph.nodes.last shouldBe an[PipelineObject[StringType,
+                                                         StringType]]
   }
 
   test("Append an anonymous pipeline job") {
-    val pipeline = builder.append(new SimpleSourcePipelineObject())
+    val pipeline = builder
+      .append(new SimpleSourcePipelineObject())
       .append { x: DataStream[StringType] =>
         x.addSink(new SinkFunction[StringType] {})
-      }.build()
+      }
+      .build()
 
     assert(pipeline.graph.nodes.size == 2)
 
@@ -248,7 +261,6 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
       //      .usingId("AnId")
       //      .setProperty("foo", "bar")
       //      .setProperty("hello", "world")
-
       .build()
 
     assert(a.id == "testId")

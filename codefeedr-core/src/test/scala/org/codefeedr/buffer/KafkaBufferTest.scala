@@ -33,23 +33,30 @@ import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.stages.{InputStage, OutputStage, StageAttributes}
-import org.codefeedr.testUtils.{JobFinishedException, SimpleSourcePipelineObject}
+import org.codefeedr.testUtils.{
+  JobFinishedException,
+  SimpleSourcePipelineObject
+}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 import redis.embedded.RedisServer
 
 import scala.collection.JavaConversions._
 
-class KafkaBufferTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAll with EmbeddedKafka with EmbeddedRedis {
+class KafkaBufferTest
+    extends FunSuite
+    with BeforeAndAfter
+    with BeforeAndAfterAll
+    with EmbeddedKafka
+    with EmbeddedRedis {
 
-  var client : AdminClient = _
-  var kafkaBuffer : KafkaBuffer[StringType] = _
+  var client: AdminClient = _
+  var kafkaBuffer: KafkaBuffer[StringType] = _
   var redis: RedisServer = null
   var redisPort: Int = 0
 
-
-
   override def beforeAll(): Unit = {
-    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
+    implicit val config =
+      EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
     EmbeddedKafka.start()
 
     redis = startRedis()
@@ -61,11 +68,11 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAl
     stopRedis(redis)
   }
 
-
   before {
     //set all the correct properties
     val props = new Properties()
-    props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+    props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
+                      "localhost:9092")
 
     //connect with Kafka
     client = AdminClient.create(props)
@@ -73,14 +80,18 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAl
     //setup simple kafkabuffer
     val pipeline = new PipelineBuilder()
       .append(new SimpleSourcePipelineObject())
-      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, s"redis://localhost:$redisPort")
+      .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST,
+                         s"redis://localhost:$redisPort")
       .build()
-    kafkaBuffer = new KafkaBuffer[StringType](pipeline, pipeline.bufferProperties, StageAttributes(),"test-subject", null)
+    kafkaBuffer = new KafkaBuffer[StringType](pipeline,
+                                              pipeline.bufferProperties,
+                                              StageAttributes(),
+                                              "test-subject",
+                                              null)
 
   }
 
-
-  test ("A topic not existing should be created") {
+  test("A topic not existing should be created") {
     val uuid = UUID.randomUUID().toString //random topic
 
     assert(!exists(uuid))
@@ -88,7 +99,7 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAl
     assert(exists(uuid))
   }
 
-  test ("A schema should correctly be exposed") {
+  test("A schema should correctly be exposed") {
     assert(kafkaBuffer.exposeSchema())
   }
 
@@ -97,7 +108,7 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAl
     * @param topic topic to check.
     * @return if Kafka registered the topic.
     */
-  def exists(topic : String) : Boolean = {
+  def exists(topic: String): Boolean = {
     client
       .listTopics()
       .names()
@@ -131,10 +142,12 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAl
     assert(StringCollectSink.asList.distinct.size == 100)
   }
 
-  test("Giving properties with a kafka buffer should override default properties") {
+  test(
+    "Giving properties with a kafka buffer should override default properties") {
     val emptyProperties = new org.codefeedr.Properties()
 
-    val kafkaBuffer = new KafkaBuffer[StringType](null, emptyProperties, null, null, "test")
+    val kafkaBuffer =
+      new KafkaBuffer[StringType](null, emptyProperties, null, null, "test")
     val correctDefaultProperties = new java.util.Properties()
     correctDefaultProperties.put("bootstrap.servers", "localhost:9092")
     correctDefaultProperties.put("zookeeper.connect", "localhost:2181")
@@ -144,15 +157,14 @@ class KafkaBufferTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAl
     correctDefaultProperties.put("group.id", "test")
     assert(kafkaBuffer.getKafkaProperties == correctDefaultProperties)
 
-
     val properties = new org.codefeedr.Properties()
       .set(KafkaBuffer.BROKER, "nonlocalhost:9092")
       .set(KafkaBuffer.ZOOKEEPER, "nonlocalhost:2181")
       .set("auto.commit.interval.ms", "200")
       .set("some.other.property", "some-value")
 
-
-    val kafkaBuffer2 = new KafkaBuffer[StringType](null, properties, null, null, "test")
+    val kafkaBuffer2 =
+      new KafkaBuffer[StringType](null, properties, null, null, "test")
     val correctProperties = new java.util.Properties()
     correctProperties.put("bootstrap.servers", "nonlocalhost:9092")
     correctProperties.put("zookeeper.connect", "nonlocalhost:2181")
@@ -182,7 +194,8 @@ class StringCollectSink extends SinkFunction[StringType] {
   override def invoke(value: StringType, context: Context[_]): Unit = {
     synchronized {
       StringCollectSink.result.add(value.value)
-      if (StringCollectSink.result.size() == 50 || StringCollectSink.result.size() == 100) {
+      if (StringCollectSink.result.size() == 50 || StringCollectSink.result
+            .size() == 100) {
         throw JobFinishedException()
       }
     }
@@ -219,8 +232,10 @@ class NumberSource() extends SourceFunction[StringType] {
   override def cancel(): Unit = {}
 }
 
-class NumberOutput(stageAttributes: StageAttributes) extends OutputStage[StringType](stageAttributes) {
-  override def main(source: DataStream[StringType]): Unit = source.addSink(new StringCollectSink)
+class NumberOutput(stageAttributes: StageAttributes)
+    extends OutputStage[StringType](stageAttributes) {
+  override def main(source: DataStream[StringType]): Unit =
+    source.addSink(new StringCollectSink)
 }
 
 case class TestEvent(name: String, time: Date)
