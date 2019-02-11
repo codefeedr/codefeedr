@@ -30,7 +30,10 @@ import org.codefeedr.stages.{InputStage, StageAttributes}
   *
   * @param absolutePath Absolute file path to the log
   */
-class HttpdLogInput(absolutePath: String, stageAttributes: StageAttributes = StageAttributes()) extends InputStage[HttpdLogItem](stageAttributes) with Serializable {
+class HttpdLogInput(absolutePath: String,
+                    stageAttributes: StageAttributes = StageAttributes())
+    extends InputStage[HttpdLogItem](stageAttributes)
+    with Serializable {
 
   override def main(): DataStream[HttpdLogItem] = {
     pipeline.environment
@@ -46,14 +49,34 @@ class HttpdLogInput(absolutePath: String, stageAttributes: StageAttributes = Sta
 private class LogMapper extends FlatMapFunction[String, HttpdLogItem] {
 
   lazy val dateFormat = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z")
-  lazy val pattern = """^(\S+) \S+ \S+ \[([\w:\/]+\s[+\-]\d{4})\] "(\S+)\s+(\S+)\s+(\S+)?\s*" (\d{3}) (\S+) ("[^"]*") ("[^"]*") ("[^"]*")""".r
+  lazy val pattern =
+    """^(\S+) \S+ \S+ \[([\w:\/]+\s[+\-]\d{4})\] "(\S+)\s+(\S+)\s+(\S+)?\s*" (\d{3}) (\S+) ("[^"]*") ("[^"]*") ("[^"]*")""".r
 
   def flatMap(line: String, out: Collector[HttpdLogItem]): Unit = line match {
-    case pattern(ipAddress, dateString, method, path, version, status, amountOfBytes, referer, userAgent, _*) => {
+    case pattern(ipAddress,
+                 dateString,
+                 method,
+                 path,
+                 version,
+                 status,
+                 amountOfBytes,
+                 referer,
+                 userAgent,
+                 _*) => {
       val date = dateFormat.parse(dateString)
-      val amountOfBytesInt = if (amountOfBytes != "-") amountOfBytes.toInt else -1
+      val amountOfBytesInt =
+        if (amountOfBytes != "-") amountOfBytes.toInt else -1
 
-      out.collect(HttpdLogItem(ipAddress, date, method, path, version, status.toInt, amountOfBytesInt, referer, userAgent))
+      out.collect(
+        HttpdLogItem(ipAddress,
+                     date,
+                     method,
+                     path,
+                     version,
+                     status.toInt,
+                     amountOfBytesInt,
+                     referer,
+                     userAgent))
     }
     case _ =>
   }

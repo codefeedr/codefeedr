@@ -19,7 +19,10 @@
 package org.codefeedr.plugins.github.events
 
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
+import org.apache.flink.streaming.api.functions.source.{
+  RichSourceFunction,
+  SourceFunction
+}
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.requests.EventService
@@ -33,18 +36,19 @@ import org.codefeedr.plugins.github.requests.EventService
   * @param duplicateFilter enable to filter duplicates.
   * @param duplicateCheckSize the amounts of id's to cache for duplicates.
   */
-class EventSource(numOfPolls : Int,
-                  waitTime : Int,
-                  keyManager : KeyManager,
+class EventSource(numOfPolls: Int,
+                  waitTime: Int,
+                  keyManager: KeyManager,
                   duplicateFilter: Boolean,
-                  duplicateCheckSize : Int) extends RichSourceFunction[Event] {
+                  duplicateCheckSize: Int)
+    extends RichSourceFunction[Event] {
 
   //check if the source should be unbounded.
   def isUnbounded = numOfPolls == -1
 
   var numOfPollsRemaining = numOfPolls
   var isRunning = false
-  var eventService : EventService = null
+  var eventService: EventService = null
 
   /**
     * Opens and initializes this source.
@@ -52,7 +56,8 @@ class EventSource(numOfPolls : Int,
     */
   override def open(parameters: Configuration): Unit = {
     isRunning = true
-    eventService = new EventService(duplicateFilter, keyManager, duplicateCheckSize)
+    eventService =
+      new EventService(duplicateFilter, keyManager, duplicateCheckSize)
   }
 
   /**
@@ -82,6 +87,5 @@ class EventSource(numOfPolls : Int,
 
     cancel()
   }
-
 
 }

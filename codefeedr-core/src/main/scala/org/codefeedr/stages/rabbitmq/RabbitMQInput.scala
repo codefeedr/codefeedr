@@ -36,10 +36,11 @@ import scala.reflect.{ClassTag, classTag}
   * @param stageAttributes Optional attributes
   * @tparam T Type of value to pull from the queue
   */
-class RabbitMQInput[T <: Serializable with AnyRef : ClassTag : TypeTag](queue: String,
-                                                                        server: URI = new URI("amqp://localhost:5672"),
-                                                                        stageAttributes: StageAttributes = StageAttributes())
-  extends InputStage[T](stageAttributes) {
+class RabbitMQInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    queue: String,
+    server: URI = new URI("amqp://localhost:5672"),
+    stageAttributes: StageAttributes = StageAttributes())
+    extends InputStage[T](stageAttributes) {
 
   //Get type of the class at run time
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]

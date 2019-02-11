@@ -29,8 +29,9 @@ import scalaj.http.{Http, HttpRequest, HttpResponse}
   * @param cause   the exception cause.
   */
 final case class GitHubRequestException(private val message: String = "",
-                                        private val cause: Throwable = None.orNull)
-  extends Exception(message, cause)
+                                        private val cause: Throwable =
+                                          None.orNull)
+    extends Exception(message, cause)
 
 /**
   * Handles a GitHubRequest.
@@ -58,11 +59,13 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     response
   }
 
-  def retrieveResponse(request: HttpRequest, timeoutCap: Int = 32): HttpResponse[String] = {
+  def retrieveResponse(request: HttpRequest,
+                       timeoutCap: Int = 32): HttpResponse[String] = {
     try {
       new HttpRequester(timeoutCap).retrieveResponse(request)
     } catch {
-      case RequestException(message, cause) => throw GitHubRequestException(message, cause)
+      case RequestException(message, cause) =>
+        throw GitHubRequestException(message, cause)
     }
   }
 
@@ -72,10 +75,13 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     *
     * @param response the GitHub response to handle.
     */
-  def handleErrorCodes(response: GitHubResponse): GitHubResponse = response.status match {
-    case 200 | 304 => response
-    case other => throw GitHubRequestException(s"Undefined response code $other. Body: ${response.body} Endpoint: $endpoint")
-  }
+  def handleErrorCodes(response: GitHubResponse): GitHubResponse =
+    response.status match {
+      case 200 | 304 => response
+      case other =>
+        throw GitHubRequestException(
+          s"Undefined response code $other. Body: ${response.body} Endpoint: $endpoint")
+    }
 
   /**
     * Parses the HttpResponse into a GitHubResponse.
@@ -84,14 +90,12 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
     * @return a GitHubResponse.
     */
   def parseResponse(response: HttpResponse[String]): GitHubResponse = {
-    val responseHeaders = response
-      .headers
+    val responseHeaders = response.headers
       .map(x => Header(x._1, x._2.toArray))
       .toList
 
     GitHubResponse(response.body, response.code, responseHeaders)
   }
-
 
   /**
     * Build an URL using predefined headers.
@@ -109,6 +113,5 @@ class GitHubRequest(endpoint: String, requestHeaders: List[Header]) {
 
     http
   }
-
 
 }

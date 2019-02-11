@@ -24,14 +24,15 @@ import org.codefeedr.pipeline.{NoType, PipelineObject}
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-
 /**
   * The InputStage class represents the start of a pipeline.
   * It has an input type but no specific output type since it will not be connected to the buffer.
   *
   * @tparam Out the output type of the job.
   */
-abstract class InputStage[Out <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject[NoType, Out](attributes) {
+abstract class InputStage[Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends PipelineObject[NoType, Out](attributes) {
 
   override def transform(source: DataStream[NoType]): DataStream[Out] = {
     main()

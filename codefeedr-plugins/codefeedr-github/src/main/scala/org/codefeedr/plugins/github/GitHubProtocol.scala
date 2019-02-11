@@ -21,6 +21,7 @@ package org.codefeedr.plugins.github
 import java.util.Date
 
 object GitHubProtocol {
+
   /**
     * START /events
     */
@@ -40,23 +41,18 @@ object GitHubProtocol {
                    url: String,
                    avatar_url: String)
 
-  case class Repo(id: Long,
-                  name: String,
-                  url: String)
+  case class Repo(id: Long, name: String, url: String)
 
-  case class Organization(id: Long,
-                          login: String)
+  case class Organization(id: Long, login: String)
 
   sealed abstract class Payload()
 
   /**
     * END /events
     */
-
   /**
     * START PushEvents
     */
-
   case class PushEvent(id: String,
                        eventType: String,
                        actor: Actor,
@@ -72,20 +68,19 @@ object GitHubProtocol {
                          ref: String,
                          head: String,
                          before: String,
-                         commits: List[PushCommit]) extends Payload
+                         commits: List[PushCommit])
+      extends Payload
 
   case class PushCommit(sha: String,
                         author: PushAuthor,
                         message: String,
                         distinct: Boolean)
 
-  case class PushAuthor(email: String,
-                        name: String)
+  case class PushAuthor(email: String, name: String)
 
   /**
     * END PushEvents
     */
-
   /**
     * START IssuesEvents
     */
@@ -98,8 +93,7 @@ object GitHubProtocol {
                          public: Boolean,
                          created_at: Date)
 
-  case class IssuesPayload(action: String,
-                           issue: Issue) extends Payload
+  case class IssuesPayload(action: String, issue: Issue) extends Payload
 
   case class Issue(url: String,
                    id: Double,
@@ -128,7 +122,6 @@ object GitHubProtocol {
   /**
     * END IssuesEvents
     */
-
   /**
     * START IssueCommentEvents
     */
@@ -141,9 +134,8 @@ object GitHubProtocol {
                                public: Boolean,
                                created_at: Date)
 
-  case class IssueCommentPayload(action: String,
-                                 issue: Issue,
-                                 comment: Comment) extends Payload
+  case class IssueCommentPayload(action: String, issue: Issue, comment: Comment)
+      extends Payload
 
   case class Comment(url: String,
                      id: Long,
@@ -156,11 +148,9 @@ object GitHubProtocol {
   /**
     * END IssueCommentEvents
     */
-
   /**
     * START Commit
     */
-
   case class Commit(sha: String,
                     url: String,
                     commit: CommitData,
@@ -177,9 +167,7 @@ object GitHubProtocol {
                         comment_count: Int,
                         verification: Verification)
 
-  case class CommitUser(name: String,
-                        email: String,
-                        date: String)
+  case class CommitUser(name: String, email: String, date: String)
 
   case class User(id: Long,
                   login: String,
@@ -192,9 +180,7 @@ object GitHubProtocol {
                           signature: Option[String],
                           payload: Option[String])
 
-  case class Stats(total: Int,
-                   additions: Int,
-                   deletions: Int)
+  case class Stats(total: Int, additions: Int, deletions: Int)
 
   case class File(sha: Option[String],
                   filename: Option[String],
@@ -212,9 +198,7 @@ object GitHubProtocol {
   case class Tree(sha: String)
 
   /**
-    * END Commit
-    */
-
+  * END Commit
+  */
 
 }
-

@@ -30,6 +30,7 @@ import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 object RabbitMQBuffer {
+
   /**
     * PROPERTIES
     */
@@ -45,8 +46,12 @@ object RabbitMQBuffer {
   * @param queueName Name of the RabbitMQ queue to read from/write to
   * @tparam T Element type of the buffer
   */
-class RabbitMQBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, queueName: String)
-  extends Buffer[T](pipeline, properties) {
+class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    pipeline: Pipeline,
+    properties: org.codefeedr.Properties,
+    stageAttributes: StageAttributes,
+    queueName: String)
+    extends Buffer[T](pipeline, properties) {
 
   private object RabbitMQBufferDefaults {
     val URI = "amqp://localhost:5672"
@@ -61,7 +66,8 @@ class RabbitMQBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipelin
     val connectionConfig = createConfig()
 
     // Create a source with correlation id usage enabled for exactly once guarantees
-    val source = new RMQSource[T](connectionConfig, queueName, true, getSerializer)
+    val source =
+      new RMQSource[T](connectionConfig, queueName, true, getSerializer)
 
     pipeline.environment
       .addSource(source)
@@ -86,7 +92,8 @@ class RabbitMQBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipelin
     */
   def createConfig(): RMQConnectionConfig = {
     new RMQConnectionConfig.Builder()
-      .setUri(properties.getOrElse[String](RabbitMQBuffer.URI, RabbitMQBufferDefaults.URI))
+      .setUri(properties.getOrElse[String](RabbitMQBuffer.URI,
+                                           RabbitMQBufferDefaults.URI))
       .build
   }
 }
@@ -96,8 +103,10 @@ class RabbitMQBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipelin
   *
   * The source also has the durable flag set, and we need it both to be the same.
   */
-class RMQSinkDurable[IN](rmqConnectionConfig: RMQConnectionConfig, queueName: String, schema: SerializationSchema[IN])
-  extends RMQSink[IN](rmqConnectionConfig, queueName, schema) {
+class RMQSinkDurable[IN](rmqConnectionConfig: RMQConnectionConfig,
+                         queueName: String,
+                         schema: SerializationSchema[IN])
+    extends RMQSink[IN](rmqConnectionConfig, queueName, schema) {
 
   override def setupQueue(): Unit = {
     channel.queueDeclare(queueName, true, false, false, null)

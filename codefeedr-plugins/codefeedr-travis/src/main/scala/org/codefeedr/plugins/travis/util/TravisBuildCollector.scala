@@ -49,7 +49,6 @@ class TravisBuildCollector(repoOwner: String,
   private var minimumStartDate: Date = pushDate
   private var build: Option[TravisBuild] = None
 
-
   /**
     * Keeps requesting the build until it is finished asynchronously
     * @return A Futre with a finished Travis build
@@ -76,8 +75,9 @@ class TravisBuildCollector(repoOwner: String,
   def checkIfBuildShouldBeKnownAlready(): Unit = {
     val waitUntil = new Date(pushDate.getTime + timeoutSeconds)
     if (build.isEmpty && new Date().after(waitUntil)) {
-      throw BuildNotFoundForTooLongException("Waited " + timeoutSeconds + " seconds for build, but still not found" +
-        ", probably because " + repoOwner + "/" + repoName + "is not active on Travis")
+      throw BuildNotFoundForTooLongException(
+        "Waited " + timeoutSeconds + " seconds for build, but still not found" +
+          ", probably because " + repoOwner + "/" + repoName + "is not active on Travis")
     }
   }
 
@@ -100,13 +100,14 @@ class TravisBuildCollector(repoOwner: String,
   def requestBuild: Option[TravisBuild] = {
     try {
       build match {
-        case None => requestUnknownBuild()
+        case None    => requestUnknownBuild()
         case Some(_) => requestKnownBuild()
       }
     } catch {
       case _: CouldNotExtractException =>
-        throw CouldNotAccessTravisBuildInfo("Could not retrieve Travis build info for: "
-          + repoOwner + "/" + repoName)
+        throw CouldNotAccessTravisBuildInfo(
+          "Could not retrieve Travis build info for: "
+            + repoOwner + "/" + repoName)
       case _: CouldNotGetResourceException =>
         None
     }
@@ -133,16 +134,22 @@ class TravisBuildCollector(repoOwner: String,
 
     do {
       val offset = if (builds == null) 0 else builds.`@pagination`.next.offset
-      builds = travis.getTravisBuilds(repoOwner, repoName, branchName, offset, limit = 5)
+      builds = travis.getTravisBuilds(repoOwner,
+                                      repoName,
+                                      branchName,
+                                      offset,
+                                      limit = 5)
 
       val (possibleBuild, possibleNewestBuildDate) = getBuildFromBuilds(builds)
       build = possibleBuild
 
-      if (possibleNewestBuildDate.after(newestBuildDate)) newestBuildDate = possibleNewestBuildDate
+      if (possibleNewestBuildDate.after(newestBuildDate))
+        newestBuildDate = possibleNewestBuildDate
 
     } while (!builds.`@pagination`.is_last && build.isEmpty)
 
-    if (newestBuildDate.after(minimumStartDate)) minimumStartDate = newestBuildDate
+    if (newestBuildDate.after(minimumStartDate))
+      minimumStartDate = newestBuildDate
 
     build
   }

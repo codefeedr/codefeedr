@@ -27,14 +27,15 @@ import org.codefeedr.stages.StageAttributes
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-
 /**
   * This class represents a processing job within the pipeline.
   *s
   * @tparam In  input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject[In <: Serializable with AnyRef : ClassTag : TypeTag, Out <: Serializable with AnyRef : ClassTag : TypeTag](val attributes: StageAttributes = StageAttributes()) {
+abstract class PipelineObject[In <: Serializable with AnyRef: ClassTag: TypeTag,
+Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    val attributes: StageAttributes = StageAttributes()) {
 
   var pipeline: Pipeline = _
   def environment = pipeline.environment
@@ -79,8 +80,12 @@ abstract class PipelineObject[In <: Serializable with AnyRef : ClassTag : TypeTa
     *
     * @return set of parents. Can be empty
     */
-  def getParents: Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]] =
-    pipeline.graph.getParents(this).asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
+  def getParents: Vector[
+    PipelineObject[Serializable with AnyRef, Serializable with AnyRef]] =
+    pipeline.graph
+      .getParents(this)
+      .asInstanceOf[Vector[
+        PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
 
   /**
     * Check if this pipeline object is sourced from a Buffer.
@@ -88,7 +93,9 @@ abstract class PipelineObject[In <: Serializable with AnyRef : ClassTag : TypeTa
     * @return if this object has a (buffer) source.
     */
   def hasMainSource: Boolean =
-    typeOf[In] != typeOf[NoType] && pipeline.graph.getFirstParent(this).isDefined
+    typeOf[In] != typeOf[NoType] && pipeline.graph
+      .getFirstParent(this)
+      .isDefined
 
   /**
     * Check if this pipeline object is sinked to a Buffer.
@@ -106,7 +113,8 @@ abstract class PipelineObject[In <: Serializable with AnyRef : ClassTag : TypeTa
     assert(pipeline != null)
 
     if (!hasMainSource) {
-      throw NoSourceException("PipelineObject defined NoType as In type. Buffer can't be created.")
+      throw NoSourceException(
+        "PipelineObject defined NoType as In type. Buffer can't be created.")
     }
 
     val parentNode = getParents(0)
@@ -126,10 +134,11 @@ abstract class PipelineObject[In <: Serializable with AnyRef : ClassTag : TypeTa
     assert(pipeline != null)
 
     if (!hasSink) {
-      throw NoSinkException("PipelineObject defined NoType as Out type. Buffer can't be created.")
+      throw NoSinkException(
+        "PipelineObject defined NoType as Out type. Buffer can't be created.")
     }
 
-    val factory = new BufferFactory(pipeline, this,this, groupId)
+    val factory = new BufferFactory(pipeline, this, this, groupId)
     val buffer = factory.create[Out]()
 
     buffer.getSink
@@ -144,7 +153,9 @@ abstract class PipelineObject[In <: Serializable with AnyRef : ClassTag : TypeTa
     */
   def getSinkSubject: String = this.id
 
-  def getSource[T <: Serializable with AnyRef : ClassTag : TypeTag](parentNode: PipelineObject[Serializable with AnyRef, Serializable with AnyRef]): DataStream[T] = {
+  def getSource[T <: Serializable with AnyRef: ClassTag: TypeTag](
+      parentNode: PipelineObject[Serializable with AnyRef,
+                                 Serializable with AnyRef]): DataStream[T] = {
     assert(parentNode != null)
 
     val factory = new BufferFactory(pipeline, this, parentNode)
@@ -159,7 +170,8 @@ abstract class PipelineObject[In <: Serializable with AnyRef : ClassTag : TypeTa
     * @param obj Other object
     * @return List with this and other
     */
-  def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](obj: PipelineObject[U, V]): PipelineObjectList =
+  def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
+      obj: PipelineObject[U, V]): PipelineObjectList =
     inList.add(obj)
 
   /**

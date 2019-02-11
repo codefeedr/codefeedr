@@ -44,8 +44,8 @@ case class Page(page: Int, rel: String)
   * @param duplicateCheckSize
   */
 class EventService(duplicateFilter: Boolean,
-                   keyManager : KeyManager,
-                   duplicateCheckSize : Int = 1000000) {
+                   keyManager: KeyManager,
+                   duplicateCheckSize: Int = 1000000) {
 
   //events size
   val EVENTS_SIZE = 100
@@ -71,12 +71,16 @@ class EventService(duplicateFilter: Boolean,
       while (status == 200 && nextPage <= lastPage) {
         //before each request, request a key
         if (keyManager != null) {
-          setKey(keyManager.request("events_source")
-            .getOrElse(ManagedKey("", 0)).value)
+          setKey(
+            keyManager
+              .request("events_source")
+              .getOrElse(ManagedKey("", 0))
+              .value)
         }
 
         //do the request
-        val response = doPagedRequest(s"${GitHubEndpoints.EVENTS}?${GitHubEndpoints.EVENTS_SIZE_SEGMENT}$EVENTS_SIZE&${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$nextPage")
+        val response = doPagedRequest(
+          s"${GitHubEndpoints.EVENTS}?${GitHubEndpoints.EVENTS_SIZE_SEGMENT}$EVENTS_SIZE&${GitHubEndpoints.EVENTS_PAGE_SEGMENT}$nextPage")
 
         //update status and new request headers
         status = response.status
@@ -84,12 +88,15 @@ class EventService(duplicateFilter: Boolean,
 
         //add new events
         val newEvents = parseEvents(response.body)
-        events = (if (duplicateFilter) dupCheck.deduplicate[Event](newEvents, _.id) else newEvents) ::: events
+        events = (if (duplicateFilter)
+                    dupCheck.deduplicate[Event](newEvents, _.id)
+                  else newEvents) ::: events
 
         if (nextPage == lastPage) break
 
         //update pages to keep retrieving the events
-        val pages = parseNextAndLastPage(response.headers.find(_.key == "Link").get)
+        val pages =
+          parseNextAndLastPage(response.headers.find(_.key == "Link").get)
         nextPage = pages._1
         lastPage = pages._2
       }
@@ -110,10 +117,14 @@ class EventService(duplicateFilter: Boolean,
     if (body == "") return List()
 
     val json = parse(body)
-    json.transformField {
-      case JField("payload", list : JObject) => ("payload", JString(compact(render(list))))
-      case JField("type", JString(x)) if x.endsWith("Event") => JField("eventType", JString(x)) //transform type field
-    }.extract[List[Event]]
+    json
+      .transformField {
+        case JField("payload", list: JObject) =>
+          ("payload", JString(compact(render(list))))
+        case JField("type", JString(x)) if x.endsWith("Event") =>
+          JField("eventType", JString(x)) //transform type field
+      }
+      .extract[List[Event]]
   }
 
   /**
@@ -127,9 +138,13 @@ class EventService(duplicateFilter: Boolean,
 
     //get current and last page
     val nextPage = pages
-      .find(_.rel == "next").get.page
+      .find(_.rel == "next")
+      .get
+      .page
     val lastPage = pages
-      .find(_.rel == "last").get.page
+      .find(_.rel == "last")
+      .get
+      .page
 
     (nextPage, lastPage)
   }
@@ -140,7 +155,7 @@ class EventService(duplicateFilter: Boolean,
     * @param endPoint the page endpoint
     * @return a github response.
     */
-  def doPagedRequest(endPoint : String): GitHubResponse = {
+  def doPagedRequest(endPoint: String): GitHubResponse = {
     new GitHubRequest(endPoint, requestHeaders)
       .request()
   }
@@ -157,11 +172,11 @@ class EventService(duplicateFilter: Boolean,
       .map { x =>
         val digitRegex = "&page=(\\d+)".r
         val wordRegex = "\"(\\w+)\"".r
-        Page(digitRegex.findFirstIn(x).get.replace("&page=","").toInt, wordRegex.findFirstIn(x).get.replace("\"", ""))
+        Page(digitRegex.findFirstIn(x).get.replace("&page=", "").toInt,
+             wordRegex.findFirstIn(x).get.replace("\"", ""))
       }
       .toList
   }
-
 
   /**
     * Update all the request headers based on the response headers.
@@ -170,7 +185,8 @@ class EventService(duplicateFilter: Boolean,
     */
   def updateRequestHeaders(reponseHeaders: List[Header]) = {
     if (reponseHeaders.exists(_.key == "ETag")) {
-      updateOrAddHeader("If-None-Match", reponseHeaders.filter(_.key == "ETag").head.value)
+      updateOrAddHeader("If-None-Match",
+                        reponseHeaders.filter(_.key == "ETag").head.value)
     }
   }
 
@@ -179,7 +195,8 @@ class EventService(duplicateFilter: Boolean,
     *
     * @param header the header to add or update.
     */
-  def updateOrAddHeader(header: Header): Unit = updateOrAddHeader(header.key, header.value)
+  def updateOrAddHeader(header: Header): Unit =
+    updateOrAddHeader(header.key, header.value)
 
   /**
     * Updates or adds a request header.

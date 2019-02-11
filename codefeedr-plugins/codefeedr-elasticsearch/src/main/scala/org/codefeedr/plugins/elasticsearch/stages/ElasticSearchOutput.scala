@@ -25,8 +25,14 @@ import java.util
 import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.runtime.rest.RestClient
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
-import org.apache.flink.streaming.connectors.elasticsearch6.{ElasticsearchSink, RestClientFactory}
+import org.apache.flink.streaming.connectors.elasticsearch.{
+  ElasticsearchSinkFunction,
+  RequestIndexer
+}
+import org.apache.flink.streaming.connectors.elasticsearch6.{
+  ElasticsearchSink,
+  RestClientFactory
+}
 import org.apache.http.HttpHost
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.stages.{OutputStage, StageAttributes}
@@ -49,18 +55,22 @@ import scala.reflect.{ClassTag, Manifest}
   * @param attributes Optional stage attributes
   * @tparam T Input type
   */
-class ElasticSearchOutput[T <: Serializable with AnyRef : ClassTag : Manifest](index: String,
-                                                                               servers: Set[String] = Set(),
-                                                                               config: Map[String, String] = Map(),
-                                                                               attributes: StageAttributes = StageAttributes())
-  extends OutputStage[T](attributes) with Logging {
+class ElasticSearchOutput[T <: Serializable with AnyRef: ClassTag: Manifest](
+    index: String,
+    servers: Set[String] = Set(),
+    config: Map[String, String] = Map(),
+    attributes: StageAttributes = StageAttributes())
+    extends OutputStage[T](attributes)
+    with Logging {
 
   //TODO Add configuration support
   override def main(source: DataStream[T]): Unit = {
     val config = createConfig()
     val transportAddresses = createTransportAddresses()
 
-    val eSinkBuilder = new ElasticsearchSink.Builder[T](transportAddresses, new ElasticSearchSink(index))
+    val eSinkBuilder = new ElasticsearchSink.Builder[T](
+      transportAddresses,
+      new ElasticSearchSink(index))
 
     eSinkBuilder.setBulkFlushMaxActions(1)
     source.addSink(eSinkBuilder.build())
@@ -80,7 +90,8 @@ class ElasticSearchOutput[T <: Serializable with AnyRef : ClassTag : Manifest](i
     val transportAddresses = new java.util.ArrayList[HttpHost]
 
     if (servers.isEmpty) {
-      logger.info("Transport address set is empty. Using localhost with default port 9300.")
+      logger.info(
+        "Transport address set is empty. Using localhost with default port 9300.")
       transportAddresses.add(new HttpHost("localhost", 9300, "http"))
     }
 
@@ -104,20 +115,25 @@ class ElasticSearchOutput[T <: Serializable with AnyRef : ClassTag : Manifest](i
   * @param index Index to be used in ElasticSearch
   * @tparam T Type of input
   */
-private class ElasticSearchSink[T <: Serializable with AnyRef : ClassTag : Manifest](index: String) extends ElasticsearchSinkFunction[T] {
+private class ElasticSearchSink[
+    T <: Serializable with AnyRef: ClassTag: Manifest](index: String)
+    extends ElasticsearchSinkFunction[T] {
 
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
   def createIndexRequest(element: T): IndexRequest = {
     val bytes = serialize(element)
 
-    Requests.indexRequest()
+    Requests
+      .indexRequest()
       .index(index)
       .`type`("json")
       .source(bytes, XContentType.JSON)
   }
 
-  override def process(element: T, ctx: RuntimeContext, indexer: RequestIndexer): Unit = {
+  override def process(element: T,
+                       ctx: RuntimeContext,
+                       indexer: RequestIndexer): Unit = {
     indexer.add(createIndexRequest(element))
   }
 

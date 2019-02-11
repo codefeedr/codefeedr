@@ -36,15 +36,19 @@ import scala.reflect.{ClassTag, Manifest}
   * @param stageAttributes Extra stage attributes
   * @tparam T Type of input
   */
-class MongoInput[T <: Serializable with AnyRef : ClassTag : Manifest : TypeInformation](database: String,
-                                                                                        collection: String,
-                                                                                        server: String = "mongodb://localhost:27017",
-                                                                                        query: MongoQuery = MongoQuery.empty,
-                                                                                        stageAttributes: StageAttributes = StageAttributes())
-  extends InputStage[T](stageAttributes) {
+class MongoInput[
+    T <: Serializable with AnyRef: ClassTag: Manifest: TypeInformation](
+    database: String,
+    collection: String,
+    server: String = "mongodb://localhost:27017",
+    query: MongoQuery = MongoQuery.empty,
+    stageAttributes: StageAttributes = StageAttributes())
+    extends InputStage[T](stageAttributes) {
 
   override def main(): DataStream[T] = {
-    val config = Map("database" -> database, "collection" -> collection, "server" -> server)
+    val config = Map("database" -> database,
+                     "collection" -> collection,
+                     "server" -> server)
 
     val bsonDocument = query.underlyingDocument
 

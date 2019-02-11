@@ -31,18 +31,25 @@ import scala.reflect.runtime.universe._
   * @tparam In2 second input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject2[In <: Serializable with AnyRef : ClassTag :TypeTag, In2 <: Serializable with AnyRef : ClassTag : TypeTag, Out <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject[In, Out](attributes) {
+abstract class PipelineObject2[
+    In <: Serializable with AnyRef: ClassTag: TypeTag,
+    In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+    Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends PipelineObject[In, Out](attributes) {
 
   override def transform(source: DataStream[In]): DataStream[Out] =
     transform(source, getSource[In2](getParents(1)))
 
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     if (typeOf[In] == typeOf[NoType] || typeOf[In2] == typeOf[NoType]) {
-      throw new IllegalStateException("Cannot use NoType on pipeline objects with multiple input sources")
+      throw new IllegalStateException(
+        "Cannot use NoType on pipeline objects with multiple input sources")
     }
 
     if (graph.getParents(this).size < 2) {
-      throw new IllegalStateException(s"Parents of multi-source object should all be configured in pipeline graph. Missing parents for ${getClass.getName}")
+      throw new IllegalStateException(
+        s"Parents of multi-source object should all be configured in pipeline graph. Missing parents for ${getClass.getName}")
     }
   }
 
@@ -53,7 +60,8 @@ abstract class PipelineObject2[In <: Serializable with AnyRef : ClassTag :TypeTa
     * @param secondSource Second source stream
     * @return An output stream
     */
-  def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[Out]
+  def transform(source: DataStream[In],
+                secondSource: DataStream[In2]): DataStream[Out]
 
 }
 
@@ -65,20 +73,29 @@ abstract class PipelineObject2[In <: Serializable with AnyRef : ClassTag :TypeTa
   * @tparam In3 third input type of this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject3[In <: Serializable with AnyRef : ClassTag :TypeTag, In2 <: Serializable with AnyRef : ClassTag : TypeTag, In3 <: Serializable with AnyRef : ClassTag :TypeTag, Out <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject2[In, In2, Out](attributes) {
+abstract class PipelineObject3[
+    In <: Serializable with AnyRef: ClassTag: TypeTag,
+    In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+    In3 <: Serializable with AnyRef: ClassTag: TypeTag,
+    Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends PipelineObject2[In, In2, Out](attributes) {
 
-  override def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[Out] =
+  override def transform(source: DataStream[In],
+                         secondSource: DataStream[In2]): DataStream[Out] =
     transform(source, secondSource, getSource[In3](getParents(2)))
 
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     super.verifyGraph(graph)
 
     if (typeOf[In3] == typeOf[NoType]) {
-      throw new IllegalStateException("Cannot use NoType on pipeline objects with multiple input sources")
+      throw new IllegalStateException(
+        "Cannot use NoType on pipeline objects with multiple input sources")
     }
 
     if (graph.getParents(this).size < 3) {
-      throw new IllegalStateException(s"Parents of multi-source object should all be configured in pipeline graph. Missing parents for ${getClass.getName}")
+      throw new IllegalStateException(
+        s"Parents of multi-source object should all be configured in pipeline graph. Missing parents for ${getClass.getName}")
     }
   }
 
@@ -90,7 +107,9 @@ abstract class PipelineObject3[In <: Serializable with AnyRef : ClassTag :TypeTa
     * @param thirdSource Third source stream
     * @return An output stream
     */
-  def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[Out]
+  def transform(source: DataStream[In],
+                secondSource: DataStream[In2],
+                thirdSource: DataStream[In3]): DataStream[Out]
 
 }
 
@@ -103,20 +122,31 @@ abstract class PipelineObject3[In <: Serializable with AnyRef : ClassTag :TypeTa
   * @tparam In4 fourth input type of this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject4[In <: Serializable with AnyRef : ClassTag :TypeTag, In2 <: Serializable with AnyRef : ClassTag :TypeTag, In3 <: Serializable with AnyRef : ClassTag :TypeTag, In4 <: Serializable with AnyRef : ClassTag :TypeTag, Out <: Serializable with AnyRef : ClassTag :TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject3[In, In2, In3, Out](attributes) {
+abstract class PipelineObject4[
+    In <: Serializable with AnyRef: ClassTag: TypeTag,
+    In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+    In3 <: Serializable with AnyRef: ClassTag: TypeTag,
+    In4 <: Serializable with AnyRef: ClassTag: TypeTag,
+    Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends PipelineObject3[In, In2, In3, Out](attributes) {
 
-  override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[Out] =
+  override def transform(source: DataStream[In],
+                         secondSource: DataStream[In2],
+                         thirdSource: DataStream[In3]): DataStream[Out] =
     transform(source, secondSource, thirdSource, getSource[In4](getParents(3)))
 
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     super.verifyGraph(graph)
 
     if (typeOf[In4] == typeOf[NoType]) {
-      throw new IllegalStateException("Cannot use NoType on pipeline objects with multiple input sources")
+      throw new IllegalStateException(
+        "Cannot use NoType on pipeline objects with multiple input sources")
     }
 
     if (graph.getParents(this).size < 4) {
-      throw new IllegalStateException(s"Parents of multi-source object should all be configured in pipeline graph. Missing parents for ${getClass.getName}")
+      throw new IllegalStateException(
+        s"Parents of multi-source object should all be configured in pipeline graph. Missing parents for ${getClass.getName}")
     }
   }
 
@@ -129,6 +159,9 @@ abstract class PipelineObject4[In <: Serializable with AnyRef : ClassTag :TypeTa
     * @param fourthSource Fourth source stream
     * @return An output stream
     */
-  def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3], fourthSource: DataStream[In4]): DataStream[Out]
+  def transform(source: DataStream[In],
+                secondSource: DataStream[In2],
+                thirdSource: DataStream[In3],
+                fourthSource: DataStream[In4]): DataStream[Out]
 
 }

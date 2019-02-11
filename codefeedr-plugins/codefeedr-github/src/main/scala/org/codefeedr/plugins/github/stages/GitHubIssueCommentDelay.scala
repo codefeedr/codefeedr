@@ -26,17 +26,21 @@ import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows
 import org.apache.flink.streaming.api.windowing.time.Time
-import org.codefeedr.plugins.github.GitHubProtocol.{IssueCommentEvent, IssuesEvent}
+import org.codefeedr.plugins.github.GitHubProtocol.{
+  IssueCommentEvent,
+  IssuesEvent
+}
 import org.codefeedr.stages.TransformStage2
 
-case class IssueOpenedReply(id: Double,
-                            secondsDelay: Long)
+case class IssueOpenedReply(id: Double, secondsDelay: Long)
 
-case class SimpleIssue(issueId: Double,
-                       created_at: Date)
+case class SimpleIssue(issueId: Double, created_at: Date)
 
-class GitHubIssueCommentDelay extends TransformStage2[IssuesEvent, IssueCommentEvent, IssueOpenedReply]{
-  override def transform(source: DataStream[IssuesEvent], secondSource: DataStream[IssueCommentEvent]): DataStream[IssueOpenedReply] = {
+class GitHubIssueCommentDelay
+    extends TransformStage2[IssuesEvent, IssueCommentEvent, IssueOpenedReply] {
+  override def transform(source: DataStream[IssuesEvent],
+                         secondSource: DataStream[IssueCommentEvent])
+    : DataStream[IssueOpenedReply] = {
     setEventTime() //sets correct event time
 
     val secondSourceTimeStamps = secondSource
@@ -50,21 +54,22 @@ class GitHubIssueCommentDelay extends TransformStage2[IssuesEvent, IssueCommentE
       .where(_.issueId)
       .equalTo(_.payload.issue.id)
       .window(EventTimeSessionWindows.withGap(Time.minutes(30)))
-      .apply(new JoinFunction[SimpleIssue, IssueCommentEvent, IssueOpenedReply] {
-        override def join(first: SimpleIssue, second: IssueCommentEvent): IssueOpenedReply = {
-          val deltaSeconds = (second.payload.comment.created_at.get.getTime - first.created_at.getTime) / 1000
+      .apply(
+        new JoinFunction[SimpleIssue, IssueCommentEvent, IssueOpenedReply] {
+          override def join(first: SimpleIssue,
+                            second: IssueCommentEvent): IssueOpenedReply = {
+            val deltaSeconds = (second.payload.comment.created_at.get.getTime - first.created_at.getTime) / 1000
 
-          IssueOpenedReply(first.issueId, deltaSeconds)
-        }
-      })
+            IssueOpenedReply(first.issueId, deltaSeconds)
+          }
+        })
   }
 
   /**
     * Sets the correct event time.
     */
-  def setEventTime() = pipeline.environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
-
-
-
+  def setEventTime() =
+    pipeline.environment.setStreamTimeCharacteristic(
+      TimeCharacteristic.EventTime)
 
 }

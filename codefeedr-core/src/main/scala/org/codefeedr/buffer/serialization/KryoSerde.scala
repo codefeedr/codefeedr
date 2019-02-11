@@ -30,7 +30,7 @@ import scala.reflect.runtime.universe._
   *
   * @tparam T
   */
-class KryoSerde[T <: Serializable : TypeTag : ClassTag] extends AbstractSerde[T]{
+class KryoSerde[T <: Serializable: TypeTag: ClassTag] extends AbstractSerde[T] {
 
   /**
     * Serializes a (generic) element using Kryo.
@@ -45,7 +45,6 @@ class KryoSerde[T <: Serializable : TypeTag : ClassTag] extends AbstractSerde[T]
 
     buffer
   }
-
 
   /**
     * Deserializes a Kryo message
@@ -66,5 +65,6 @@ class KryoSerde[T <: Serializable : TypeTag : ClassTag] extends AbstractSerde[T]
 object KryoSerde {
   val BUFFER_SIZE = 4096
 
-  def apply[T <: Serializable : ClassTag : TypeTag]: KryoSerde[T] = new KryoSerde[T]()
+  def apply[T <: Serializable: ClassTag: TypeTag]: KryoSerde[T] =
+    new KryoSerde[T]()
 }

@@ -19,23 +19,25 @@
 package org.codefeedr.pipeline
 
 final case class EmptyPipelineException(private val message: String = "",
-                                        private val cause: Throwable = None.orNull)
-  extends Exception(message, cause)
+                                        private val cause: Throwable =
+                                          None.orNull)
+    extends Exception(message, cause)
 
 final case class NoSourceException(private val message: String = "",
                                    private val cause: Throwable = None.orNull)
-  extends Exception(message, cause)
+    extends Exception(message, cause)
 
 final case class NoSinkException(private val message: String = "",
                                  private val cause: Throwable = None.orNull)
-  extends Exception(message, cause)
+    extends Exception(message, cause)
 
 final case class StageNotFoundException(private val message: String = "",
-                                        private val cause: Throwable = None.orNull)
-  extends Exception(message, cause)
+                                        private val cause: Throwable =
+                                          None.orNull)
+    extends Exception(message, cause)
 
 final case class PipelineListException(private val json: String)
-  extends Exception(json, null)
+    extends Exception(json, null)
 
 final case class StageIdsNotUniqueException(private val stage: String)
-  extends Exception(stage, null)
+    extends Exception(stage, null)

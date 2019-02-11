@@ -24,7 +24,10 @@ import org.codefeedr.stages.InputStage
 
 import scala.reflect.{ClassTag, Manifest}
 
-class SeqInput[T <: Serializable with AnyRef : ClassTag : Manifest : TypeInformation](seq: Seq[T]) extends InputStage[T] {
+class SeqInput[
+    T <: Serializable with AnyRef: ClassTag: Manifest: TypeInformation](
+    seq: Seq[T])
+    extends InputStage[T] {
 
   override def main(): DataStream[T] = {
     pipeline.environment.fromCollection(seq)

@@ -30,7 +30,8 @@ import scala.collection.JavaConverters._
   *             NOTE: Must start with / and only contain one '/'
   *             DEFAULT: /codefeedr:schemas
   */
-class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") extends SchemaExposer {
+class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas")
+    extends SchemaExposer {
 
   var client: ZooKeeper = _
 
@@ -43,8 +44,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
   private def connect(): Unit = {
     client = new ZooKeeper(host, 5000, new Watcher {
       override def process(event: WatchedEvent): Unit = {}
-    })//we don't care about the watchevent
-
+    }) //we don't care about the watchevent
 
     //if parent doesn't exist create it
     val exists = client.exists(root, false)
@@ -52,12 +52,11 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     if (exists == null) {
       //create parent node
       client.create(root,
-        Array(),
-        ZooDefs.Ids.OPEN_ACL_UNSAFE,
-        CreateMode.PERSISTENT)
+                    Array(),
+                    ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                    CreateMode.PERSISTENT)
     }
   }
-
 
   /**
     * Stores a schema bound to a subject.
@@ -78,9 +77,9 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
 
     //create new node and set if it doesn't exist
     val createdPath = client.create(path,
-      schema.toString(true).getBytes,
-      ZooDefs.Ids.OPEN_ACL_UNSAFE,
-      CreateMode.PERSISTENT)
+                                    schema.toString(true).getBytes,
+                                    ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                                    CreateMode.PERSISTENT)
 
     path == createdPath
   }
@@ -113,7 +112,8 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     try {
       client.delete(s"$root/$subject", -1)
     } catch {
-      case x: Throwable => return false //if path doesn't exist or there is no data
+      case x: Throwable =>
+        return false //if path doesn't exist or there is no data
     }
 
     true
@@ -122,7 +122,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
   /**
     * Deletes all schemas.
     */
-  override def deleteAll() : Unit = {
+  override def deleteAll(): Unit = {
     val exists = client.exists(s"$root", false)
 
     //if not exists then return
@@ -132,8 +132,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas") 
     val children = client.getChildren(s"$root", false)
 
     //delete children
-    children
-      .asScala
+    children.asScala
       .foreach(x => client.delete(s"$root/$x", -1))
 
     //delete root afterwards

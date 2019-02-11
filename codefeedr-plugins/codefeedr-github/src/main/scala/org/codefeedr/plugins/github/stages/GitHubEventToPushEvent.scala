@@ -20,7 +20,11 @@ package org.codefeedr.plugins.github.stages
 
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.plugins.github.GitHubProtocol.{Event, PushEvent, PushPayload}
+import org.codefeedr.plugins.github.GitHubProtocol.{
+  Event,
+  PushEvent,
+  PushPayload
+}
 import org.codefeedr.stages.TransformStage
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -37,12 +41,18 @@ class GitHubEventToPushEvent extends TransformStage[Event, PushEvent] {
     source
       .filter(_.eventType == "PushEvent")
       .map { x =>
-      implicit val defaultFormats = DefaultFormats
+        implicit val defaultFormats = DefaultFormats
 
-      val pushPayload = parse(x.payload).extract[PushPayload]
+        val pushPayload = parse(x.payload).extract[PushPayload]
 
-      PushEvent(x.id, x.eventType, x.actor, x.repo, x.organization, pushPayload, x.public, x.created_at)
-    }
+        PushEvent(x.id,
+                  x.eventType,
+                  x.actor,
+                  x.repo,
+                  x.organization,
+                  pushPayload,
+                  x.public,
+                  x.created_at)
+      }
   }
 }
-

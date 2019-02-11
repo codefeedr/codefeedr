@@ -34,8 +34,14 @@ import scala.reflect.runtime.universe._
   * @param pipeline Pipeline
   * @param sinkObject Object that writes to the buffer
   */
-class BufferFactory[U <: Serializable with AnyRef,V <: Serializable with AnyRef, X <: Serializable with AnyRef, Y <: Serializable with AnyRef]
-    (pipeline: Pipeline, stage: PipelineObject[X, Y], sinkObject: PipelineObject[U, V], groupId: String = null) {
+class BufferFactory[U <: Serializable with AnyRef,
+                    V <: Serializable with AnyRef,
+                    X <: Serializable with AnyRef,
+                    Y <: Serializable with AnyRef](
+    pipeline: Pipeline,
+    stage: PipelineObject[X, Y],
+    sinkObject: PipelineObject[U, V],
+    groupId: String = null) {
 
   /**
     * Create a new buffer
@@ -45,19 +51,28 @@ class BufferFactory[U <: Serializable with AnyRef,V <: Serializable with AnyRef,
     * @throws IllegalArgumentException When sinkObject is null
     * @throws IllegalStateException When buffer could not be instantiated due to bad configuration
     */
-  def create[T <: Serializable with AnyRef : ClassTag : TypeTag](): Buffer[T] = {
-    require(sinkObject != null, "Buffer factory requires a sink object to determine buffer location")
+  def create[T <: Serializable with AnyRef: ClassTag: TypeTag](): Buffer[T] = {
+    require(
+      sinkObject != null,
+      "Buffer factory requires a sink object to determine buffer location")
 
     val subject = sinkObject.getSinkSubject
-    
+
     pipeline.bufferType match {
       case BufferType.Kafka => {
         val cleanedSubject = subject.replace("$", "-")
-        val kafkaGroupId = if(groupId != null) groupId else stage.id
-        new KafkaBuffer[T](pipeline, pipeline.bufferProperties, stage.attributes, cleanedSubject, kafkaGroupId)
+        val kafkaGroupId = if (groupId != null) groupId else stage.id
+        new KafkaBuffer[T](pipeline,
+                           pipeline.bufferProperties,
+                           stage.attributes,
+                           cleanedSubject,
+                           kafkaGroupId)
       }
       case BufferType.RabbitMQ => {
-        new RabbitMQBuffer[T](pipeline, pipeline.bufferProperties, stage.attributes, subject)
+        new RabbitMQBuffer[T](pipeline,
+                              pipeline.bufferProperties,
+                              stage.attributes,
+                              subject)
       }
     }
   }

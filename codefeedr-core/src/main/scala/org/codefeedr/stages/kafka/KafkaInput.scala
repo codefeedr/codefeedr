@@ -36,11 +36,12 @@ import scala.reflect.{ClassTag, classTag}
   * @param serializer the serializer to use for deserialization of the data, see [[Serializer]].
   * @param stageAttributes attributes of this stage.
   */
-class KafkaInput[T <: Serializable with AnyRef : ClassTag : TypeTag](topic: String,
-                                                                     properties: Properties,
-                                                                     serializer: String = Serializer.JSON,
-                                                                     stageAttributes: StageAttributes = StageAttributes())
-  extends InputStage[T] {
+class KafkaInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    topic: String,
+    properties: Properties,
+    serializer: String = Serializer.JSON,
+    stageAttributes: StageAttributes = StageAttributes())
+    extends InputStage[T] {
   //Get type of the class at run time
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
 

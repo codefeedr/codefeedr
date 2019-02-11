@@ -35,14 +35,17 @@ import scala.reflect.{ClassTag, Manifest}
   * @param stageAttributes Extra stage attributes
   * @tparam T Type of output
   */
-class MongoOutput[T <: Serializable with AnyRef : ClassTag : Manifest](database: String,
-                                                                        collection: String,
-                                                                        server: String = "mongodb://localhost:27017",
-                                                                        stageAttributes: StageAttributes = StageAttributes())
-  extends OutputStage[T](stageAttributes) {
+class MongoOutput[T <: Serializable with AnyRef: ClassTag: Manifest](
+    database: String,
+    collection: String,
+    server: String = "mongodb://localhost:27017",
+    stageAttributes: StageAttributes = StageAttributes())
+    extends OutputStage[T](stageAttributes) {
 
   override def main(source: DataStream[T]): Unit = {
-    val config = Map("database" -> database, "collection" -> collection, "server" -> server)
+    val config = Map("database" -> database,
+                     "collection" -> collection,
+                     "server" -> server)
 
     source.addSink(new BaseMongoSink[T](config))
   }

@@ -21,7 +21,10 @@ package org.codefeedr.pipeline
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.configuration.{ConfigConstants, Configuration}
 import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.api.scala.{
+  DataStream,
+  StreamExecutionEnvironment
+}
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferType.BufferType
 import org.codefeedr.keymanager.KeyManager
@@ -42,7 +45,8 @@ case class Pipeline(var name: String,
 
         conf.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true)
 
-        _environment = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf)
+        _environment =
+          StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf)
       } else {
         _environment = StreamExecutionEnvironment.getExecutionEnvironment
       }
@@ -59,14 +63,15 @@ case class Pipeline(var name: String,
     * @param obj Stage
     * @return Properties
     */
-  def propertiesOf[U <: Serializable with AnyRef, V <: Serializable with AnyRef](obj: PipelineObject[U, V]): Properties = {
+  def propertiesOf[U <: Serializable with AnyRef,
+                   V <: Serializable with AnyRef](
+      obj: PipelineObject[U, V]): Properties = {
     if (obj == null) {
       throw new IllegalArgumentException("Object can't be null")
     }
 
     objectProperties.getOrElse(obj.id, new Properties())
   }
-
 
   /**
     * Start the pipeline with a list of command line arguments
@@ -85,10 +90,10 @@ case class Pipeline(var name: String,
 
     // Override runtime with runtime parameter
     runtime = params.get("runtime") match {
-      case "mock" => RuntimeType.Mock
-      case "local" => RuntimeType.Local
+      case "mock"    => RuntimeType.Mock
+      case "local"   => RuntimeType.Local
       case "cluster" => RuntimeType.Cluster
-      case _ => runtime
+      case _         => runtime
     }
 
     // Set name if specified
@@ -105,8 +110,10 @@ case class Pipeline(var name: String,
     }
   }
 
-  private def getNodes: Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]] =
-    graph.nodes.asInstanceOf[Vector[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
+  private def getNodes: Vector[
+    PipelineObject[Serializable with AnyRef, Serializable with AnyRef]] =
+    graph.nodes.asInstanceOf[Vector[
+      PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
 
   /**
     * Validates the uniqueness of the stage IDs, needed for clustered running
@@ -127,7 +134,10 @@ case class Pipeline(var name: String,
     */
   def showList(asException: Boolean): Unit = {
     if (asException) {
-      val contents = getNodes.map { item => '"' + item.id + '"' }
+      val contents = getNodes
+        .map { item =>
+          '"' + item.id + '"'
+        }
         .mkString(",")
       val json = s"[$contents]"
 
@@ -143,10 +153,12 @@ case class Pipeline(var name: String,
     * @param runtime Runtime type
     * @param stage   Stage of a cluster run
     */
-  def start(runtime: RuntimeType, stage: String = null, groupId: String = null): Unit = {
+  def start(runtime: RuntimeType,
+            stage: String = null,
+            groupId: String = null): Unit = {
     runtime match {
-      case RuntimeType.Mock => startMock()
-      case RuntimeType.Local => startLocal()
+      case RuntimeType.Mock    => startMock()
+      case RuntimeType.Local   => startLocal()
       case RuntimeType.Cluster => startClustered(stage, groupId)
     }
   }
@@ -158,7 +170,8 @@ case class Pipeline(var name: String,
     */
   def startMock(): Unit = {
     if (!graph.isSequential) {
-      throw new IllegalStateException("Mock runtime can't run non-sequential pipelines")
+      throw new IllegalStateException(
+        "Mock runtime can't run non-sequential pipelines")
     }
 
     val objects = getNodes
@@ -205,14 +218,18 @@ case class Pipeline(var name: String,
     */
   def startClustered(stage: String, groupId: String = null): Unit = {
     val optObj = graph.nodes.find { node =>
-      node.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]].id == stage
+      node
+        .asInstanceOf[PipelineObject[Serializable with AnyRef,
+                                     Serializable with AnyRef]]
+        .id == stage
     }
 
     if (optObj.isEmpty) {
       throw StageNotFoundException()
     }
 
-    val obj = optObj.get.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]
+    val obj = optObj.get.asInstanceOf[PipelineObject[Serializable with AnyRef,
+                                                     Serializable with AnyRef]]
 
     obj.setUp(this)
     runObject(obj, groupId)
@@ -227,8 +244,11 @@ case class Pipeline(var name: String,
     *
     * @param obj
     */
-  private def runObject(obj: PipelineObject[Serializable with AnyRef, Serializable with AnyRef], groupId: String = null): Unit = {
-    lazy val source = if (obj.hasMainSource) obj.getMainSource(groupId) else null
+  private def runObject(
+      obj: PipelineObject[Serializable with AnyRef, Serializable with AnyRef],
+      groupId: String = null): Unit = {
+    lazy val source =
+      if (obj.hasMainSource) obj.getMainSource(groupId) else null
     lazy val sink = if (obj.hasSink) obj.getSink(groupId) else null
 
     val transformed = obj.transform(source)

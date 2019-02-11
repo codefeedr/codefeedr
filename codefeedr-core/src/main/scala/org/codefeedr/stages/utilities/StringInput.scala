@@ -23,14 +23,20 @@ import org.codefeedr.stages.{InputStage, StageAttributes}
 
 case class StringType(value: String) extends Serializable
 
-class StringInput(str: String = "", stageAttributes: StageAttributes = StageAttributes()) extends InputStage[StringType](stageAttributes) {
+class StringInput(str: String = "",
+                  stageAttributes: StageAttributes = StageAttributes())
+    extends InputStage[StringType](stageAttributes) {
 
   override def main(): DataStream[StringType] = {
     val list = str.split("[ \n]")
 
     pipeline.environment
-      .fromCollection(list).setParallelism(1)
-      .map { str => StringType(str) }.setParallelism(1)
+      .fromCollection(list)
+      .setParallelism(1)
+      .map { str =>
+        StringType(str)
+      }
+      .setParallelism(1)
   }
 
 }

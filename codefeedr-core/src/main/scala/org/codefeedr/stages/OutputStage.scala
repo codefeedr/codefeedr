@@ -30,7 +30,9 @@ import scala.reflect.runtime.universe._
   *
   * @tparam In the input type of the job.
   */
-abstract class OutputStage[In <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject[In, NoType](attributes) {
+abstract class OutputStage[In <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends PipelineObject[In, NoType](attributes) {
 
   override def transform(source: DataStream[In]): DataStream[NoType] = {
     main(source)
@@ -46,9 +48,13 @@ abstract class OutputStage[In <: Serializable with AnyRef : ClassTag : TypeTag](
   def main(source: DataStream[In]): Unit
 }
 
-abstract class OutputStage2[In <: Serializable with AnyRef : ClassTag : TypeTag, In2 <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject2[In, In2, NoType](attributes) {
+abstract class OutputStage2[In <: Serializable with AnyRef: ClassTag: TypeTag,
+In2 <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends PipelineObject2[In, In2, NoType](attributes) {
 
-  override def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[NoType] = {
+  override def transform(source: DataStream[In],
+                         secondSource: DataStream[In2]): DataStream[NoType] = {
     main(source, secondSource)
 
     null
@@ -63,9 +69,15 @@ abstract class OutputStage2[In <: Serializable with AnyRef : ClassTag : TypeTag,
   def main(source: DataStream[In], secondSource: DataStream[In2]): Unit
 }
 
-abstract class OutputStage3[In <: Serializable with AnyRef : ClassTag : TypeTag, In2 <: Serializable with AnyRef : ClassTag : TypeTag, In3 <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject3[In, In2, In3, NoType](attributes) {
+abstract class OutputStage3[In <: Serializable with AnyRef: ClassTag: TypeTag,
+In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+In3 <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends PipelineObject3[In, In2, In3, NoType](attributes) {
 
-  override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[NoType] = {
+  override def transform(source: DataStream[In],
+                         secondSource: DataStream[In2],
+                         thirdSource: DataStream[In3]): DataStream[NoType] = {
     main(source, secondSource, thirdSource)
 
     null
@@ -78,12 +90,22 @@ abstract class OutputStage3[In <: Serializable with AnyRef : ClassTag : TypeTag,
     * @param secondSource Stream
     * @param thirdSource Stream
     */
-  def main(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): Unit
+  def main(source: DataStream[In],
+           secondSource: DataStream[In2],
+           thirdSource: DataStream[In3]): Unit
 }
 
-abstract class OutputStage4[In <: Serializable with AnyRef : ClassTag : TypeTag, In2 <: Serializable with AnyRef : ClassTag : TypeTag, In3 <: Serializable with AnyRef : ClassTag : TypeTag, In4 <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject4[In, In2, In3, In4, NoType](attributes) {
+abstract class OutputStage4[In <: Serializable with AnyRef: ClassTag: TypeTag,
+In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+In3 <: Serializable with AnyRef: ClassTag: TypeTag,
+In4 <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends PipelineObject4[In, In2, In3, In4, NoType](attributes) {
 
-  override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3], fourthSource: DataStream[In4]): DataStream[NoType] = {
+  override def transform(source: DataStream[In],
+                         secondSource: DataStream[In2],
+                         thirdSource: DataStream[In3],
+                         fourthSource: DataStream[In4]): DataStream[NoType] = {
     main(source, secondSource, thirdSource, fourthSource)
 
     null
@@ -97,5 +119,8 @@ abstract class OutputStage4[In <: Serializable with AnyRef : ClassTag : TypeTag,
     * @param thirdSource Stream
     * @param fourthSource Stream
     */
-  def main(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3], fourthSource: DataStream[In4]): Unit
+  def main(source: DataStream[In],
+           secondSource: DataStream[In2],
+           thirdSource: DataStream[In3],
+           fourthSource: DataStream[In4]): Unit
 }

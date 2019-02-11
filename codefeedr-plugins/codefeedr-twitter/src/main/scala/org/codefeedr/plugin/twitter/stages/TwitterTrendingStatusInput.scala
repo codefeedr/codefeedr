@@ -24,7 +24,10 @@ import com.danielasfregola.twitter4s.http.clients.streaming.TwitterStream
 import grizzled.slf4j.Logging
 import org.apache.flink.api.common.time.Time
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
+import org.apache.flink.streaming.api.functions.source.{
+  RichSourceFunction,
+  SourceFunction
+}
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.plugin.twitter.TwitterProtocol.TweetWrapper
 import org.codefeedr.stages.{InputStage, StageAttributes}
@@ -47,11 +50,13 @@ import scala.concurrent.duration._
 class TwitterTrendingStatusInput(consumerToken: ConsumerToken,
                                  accessToken: AccessToken,
                                  sleepTime: Int = 15,
-                                 stageAttributes: StageAttributes = StageAttributes())
-  extends InputStage[TweetWrapper](stageAttributes) {
+                                 stageAttributes: StageAttributes =
+                                   StageAttributes())
+    extends InputStage[TweetWrapper](stageAttributes) {
 
   override def main(): DataStream[TweetWrapper] = {
-    environment.addSource(new TwitterTrendingStatusSource(consumerToken, accessToken, sleepTime))
+    environment.addSource(
+      new TwitterTrendingStatusSource(consumerToken, accessToken, sleepTime))
   }
 }
 
@@ -68,7 +73,8 @@ class TwitterTrendingStatusInput(consumerToken: ConsumerToken,
 class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
                                   accessToken: AccessToken,
                                   sleepTime: Int)
-  extends RichSourceFunction[TweetWrapper] with Logging {
+    extends RichSourceFunction[TweetWrapper]
+    with Logging {
 
   //amount of time to sleep after each trending call
   val sleepTimeMilli: Long = Time
@@ -77,8 +83,10 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
 
   var isRunning: Boolean = false
 
-  def getRestClient: TwitterRestClient = TwitterRestClient(consumerToken, accessToken)
-  def getStreamingClient: TwitterStreamingClient = TwitterStreamingClient(consumerToken, accessToken)
+  def getRestClient: TwitterRestClient =
+    TwitterRestClient(consumerToken, accessToken)
+  def getStreamingClient: TwitterStreamingClient =
+    TwitterStreamingClient(consumerToken, accessToken)
 
   override def open(parameters: Configuration) = isRunning = true
   override def cancel(): Unit = isRunning = false
@@ -110,9 +118,12 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
     * @param ctx      the context to collect to.
     * @return the TwitterStream object wrapped in a future.
     */
-  def startStream(trending: List[String], ctx: SourceFunction.SourceContext[TweetWrapper]): Future[TwitterStream] = {
+  def startStream(trending: List[String],
+                  ctx: SourceFunction.SourceContext[TweetWrapper])
+    : Future[TwitterStream] = {
     getStreamingClient.filterStatuses(tracks = trending) {
-      case tweet: Tweet => ctx.collectWithTimestamp(TweetWrapper(tweet), tweet.created_at.getTime)
+      case tweet: Tweet =>
+        ctx.collectWithTimestamp(TweetWrapper(tweet), tweet.created_at.getTime)
       case x => logger.info(x)
     }
   }
@@ -127,7 +138,8 @@ class TwitterTrendingStatusSource(consumerToken: ConsumerToken,
 
     //get and return the trends
     trends match {
-      case x: RatedData[Seq[LocationTrends]] => return x.data.flatMap(y => y.trends.map(_.name)).toList
+      case x: RatedData[Seq[LocationTrends]] =>
+        return x.data.flatMap(y => y.trends.map(_.name)).toList
     }
 
     //return empty list if no trends are found

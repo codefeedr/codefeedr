@@ -27,7 +27,9 @@ package org.codefeedr.pipeline
   * @param nodes List of nodes
   * @param edges List of edges
   */
-final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges: Vector[DirectedAcyclicGraph.Edge] = Vector()) {
+final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(),
+                                 val edges: Vector[DirectedAcyclicGraph.Edge] =
+                                   Vector()) {
 
   /**
     * Get whether the collection is empty
@@ -69,7 +71,8 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges
     */
   def addEdge(from: AnyRef, to: AnyRef): DirectedAcyclicGraph = {
     if (!hasNode(from) || !hasNode(to)) {
-      throw new IllegalArgumentException("One or more nodes for edge do not exist")
+      throw new IllegalArgumentException(
+        "One or more nodes for edge do not exist")
     }
 
     // If to can reach from already adding this edge will cause a cycle
@@ -145,7 +148,6 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges
     None
   }
 
-
   /**
     * Get a set of children for given node
     *
@@ -164,7 +166,8 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges
     * @return true when the graph is sequential
     */
   def isSequential: Boolean =
-    nodes.isEmpty || (!nodes.exists(n => getParents(n).size > 1 || getChildren(n).size > 1) && nodes.size - 1 == edges.size)
+    nodes.isEmpty || (!nodes.exists(n =>
+      getParents(n).size > 1 || getChildren(n).size > 1) && nodes.size - 1 == edges.size)
 
   /**
     * Find the last node, assuming this graph is sequential.
@@ -181,7 +184,8 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(), val edges
 
   override def equals(obj: scala.Any): Boolean = {
     obj match {
-      case dag: DirectedAcyclicGraph => this.nodes == dag.nodes && this.edges == dag.edges
+      case dag: DirectedAcyclicGraph =>
+        this.nodes == dag.nodes && this.edges == dag.edges
       case _ => false
     }
   }

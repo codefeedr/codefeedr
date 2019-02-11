@@ -38,7 +38,9 @@ case class MongoQuery(underlying: Bson) {
     */
   def underlyingDocument: BsonDocument = underlying match {
     case null => null
-    case a: Bson => a.toBsonDocument(BsonDocument.getClass, MongoClient.DEFAULT_CODEC_REGISTRY)
+    case a: Bson =>
+      a.toBsonDocument(BsonDocument.getClass,
+                       MongoClient.DEFAULT_CODEC_REGISTRY)
   }
 
 }

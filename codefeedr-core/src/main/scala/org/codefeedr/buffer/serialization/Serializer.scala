@@ -52,11 +52,12 @@ object Serializer {
     * @tparam T the type which has to be serialized/deserialized.
     * @return the serde instance.
     */
-  def getSerde[T <: Serializable with AnyRef : ClassTag : TypeTag](name: String) = name match {
-    case "JSON" => JSONSerde[T]
-    case "BSON" => BsonSerde[T]
-    case "KRYO" => KryoSerde[T]
-    case _ => JSONSerde[T] //default is JSON
-  }
+  def getSerde[T <: Serializable with AnyRef: ClassTag: TypeTag](name: String) =
+    name match {
+      case "JSON" => JSONSerde[T]
+      case "BSON" => BsonSerde[T]
+      case "KRYO" => KryoSerde[T]
+      case _      => JSONSerde[T] //default is JSON
+    }
 
 }

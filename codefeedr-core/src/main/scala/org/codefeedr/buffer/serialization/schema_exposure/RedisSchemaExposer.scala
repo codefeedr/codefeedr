@@ -29,7 +29,8 @@ import org.apache.avro.Schema
   * @param root the root location of the schema's
   *             DEFAULT: /codefeedr:schemas
   */
-class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") extends SchemaExposer {
+class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas")
+    extends SchemaExposer {
 
   private var connection: RedisClient = _
 
@@ -71,7 +72,6 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
     parse(schemaString.get)
   }
 
-
   /**
     * Deletes a schema.
     *
@@ -95,8 +95,7 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
   override def deleteAll(): Unit = {
     val keys = connection.keys(s"[$root]*")
 
-    keys
-      .get
+    keys.get
       .map(_.get)
       .foreach(connection.del(_))
   }

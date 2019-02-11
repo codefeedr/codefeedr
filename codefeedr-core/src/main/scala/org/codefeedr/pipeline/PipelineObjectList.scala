@@ -25,7 +25,8 @@ package org.codefeedr.pipeline
   *
   * @param list
   */
-class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serializable {
+class PipelineObjectList(private val list: List[AnyRef] = List())
+    extends Serializable {
 
   /**
     * Add an object to the list. Returns a new list.
@@ -33,7 +34,8 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     * @param obj Object to add
     * @return List with the object included at the end
     */
-  def add[U <: Serializable with AnyRef, V <: Serializable with AnyRef](obj: PipelineObject[U, V]): PipelineObjectList =
+  def add[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
+      obj: PipelineObject[U, V]): PipelineObjectList =
     new PipelineObjectList(list :+ obj)
 
   /**
@@ -43,7 +45,8 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     * @throws NoSuchElementException if the list is empty.
     */
   def head: PipelineObject[Serializable with AnyRef, Serializable with AnyRef] =
-    list.head.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]
+    list.head.asInstanceOf[PipelineObject[Serializable with AnyRef,
+                                          Serializable with AnyRef]]
 
   /**
     * Selects the last element.
@@ -52,7 +55,8 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     * @throws NoSuchElementException If the list is empty.
     */
   def last: PipelineObject[Serializable with AnyRef, Serializable with AnyRef] =
-    list.last.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]
+    list.last.asInstanceOf[PipelineObject[Serializable with AnyRef,
+                                          Serializable with AnyRef]]
 
   /**
     * Selects all elements except the first.
@@ -81,15 +85,18 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     */
   def nonEmpty: Boolean = list.nonEmpty
 
-  def foreach(f: PipelineObject[Serializable with AnyRef, Serializable with AnyRef] ⇒ Unit): Unit = {
+  def foreach(f: PipelineObject[Serializable with AnyRef,
+                                Serializable with AnyRef] ⇒ Unit): Unit = {
     for (obj <- list) {
-      f(obj.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]])
+      f(
+        obj.asInstanceOf[PipelineObject[Serializable with AnyRef,
+                                        Serializable with AnyRef]])
     }
   }
 
   override def equals(obj: scala.Any): Boolean = obj match {
     case other: PipelineObjectList => other.list == this.list
-    case _ => false
+    case _                         => false
   }
 
   /**
@@ -98,14 +105,15 @@ class PipelineObjectList(private val list: List[AnyRef] = List()) extends Serial
     * @param obj Element
     * @return New list with element appended
     */
-  def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](obj: PipelineObject[U, V]): PipelineObjectList =
+  def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
+      obj: PipelineObject[U, V]): PipelineObjectList =
     add(obj)
 
   /**
     * Adds all elements of the given list.
     * @param other List
     * @return New list with elements from other list appended
-   */
+    */
   def :+(other: PipelineObjectList): PipelineObjectList =
     new PipelineObjectList(list ::: other.list)
 

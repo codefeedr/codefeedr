@@ -52,6 +52,4 @@ class DuplicateService[T](queueSize: Int) {
     deduplicate[T](items, x => x)
   }
 
-
-
 }

@@ -27,13 +27,15 @@ import org.json4s.jackson.Serialization
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-class JsonPrinterOutput[T <: Serializable with AnyRef: ClassTag : TypeTag] extends OutputStage[T] {
+class JsonPrinterOutput[T <: Serializable with AnyRef: ClassTag: TypeTag]
+    extends OutputStage[T] {
 
   override def main(source: DataStream[T]): Unit = {
     source
       .map { x: T =>
         implicit lazy val formats = Serialization.formats(NoTypeHints)
         new String(Serialization.write(x)(formats))
-      }.print()
+      }
+      .print()
   }
 }

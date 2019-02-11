@@ -31,6 +31,7 @@ import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 class PipelineBuilder() {
+
   /** Type of buffer used in the pipeline */
   protected var bufferType: BufferType = BufferType.Kafka
 
@@ -79,7 +80,7 @@ class PipelineBuilder() {
     * Get the type of the pipeline
     * @return Type of pipeline
     */
-  def getPipelineType: PipelineType= {
+  def getPipelineType: PipelineType = {
     pipelineType
   }
 
@@ -91,7 +92,8 @@ class PipelineBuilder() {
   def setPipelineType(pipelineType: PipelineType): PipelineBuilder = {
     if (pipelineType == PipelineType.Sequential && this.pipelineType == PipelineType.DAG) {
       if (!graph.isSequential) {
-        throw new IllegalStateException("The current non-sequential pipeline can't be turned into a sequential pipeline")
+        throw new IllegalStateException(
+          "The current non-sequential pipeline can't be turned into a sequential pipeline")
       }
 
       lastObject = graph.lastInSequence.get
@@ -117,7 +119,9 @@ class PipelineBuilder() {
     this
   }
 
-  def setStageProperty(id: String, key: String, value: String): PipelineBuilder = {
+  def setStageProperty(id: String,
+                       key: String,
+                       value: String): PipelineBuilder = {
     val properties = stageProperties.getOrElse(id, new Properties())
 
     stageProperties.put(id, properties.set(key, value))
@@ -154,9 +158,11 @@ class PipelineBuilder() {
   /**
     * Append a node to the sequential pipeline.
     */
-  def append[U <: Serializable with AnyRef, V <: Serializable with AnyRef](item: PipelineObject[U, V]): PipelineBuilder = {
+  def append[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
+      item: PipelineObject[U, V]): PipelineBuilder = {
     if (pipelineType != PipelineType.Sequential) {
-      throw new IllegalStateException("Can't append node to non-sequential pipeline")
+      throw new IllegalStateException(
+        "Can't append node to non-sequential pipeline")
     }
 
     if (graph.hasNode(item)) {
@@ -179,9 +185,12 @@ class PipelineBuilder() {
     * @param trans Function
     * @return Builder
     */
-  def append[U <: Serializable with AnyRef : ClassTag : TypeTag, V <: Serializable with AnyRef : ClassTag : TypeTag](trans : DataStream[U] => DataStream[V]): PipelineBuilder = {
+  def append[U <: Serializable with AnyRef: ClassTag: TypeTag,
+             V <: Serializable with AnyRef: ClassTag: TypeTag](
+      trans: DataStream[U] => DataStream[V]): PipelineBuilder = {
     val pipelineItem = new PipelineObject[U, V] {
-      override def transform(source: DataStream[U]): DataStream[V] = trans(source)
+      override def transform(source: DataStream[U]): DataStream[V] =
+        trans(source)
     }
 
     append(pipelineItem)
@@ -193,7 +202,8 @@ class PipelineBuilder() {
     * @param trans Function
     * @return Builder
     */
-  def append[U <: Serializable with AnyRef : ClassTag : TypeTag](trans : DataStream[U] => Any): PipelineBuilder = {
+  def append[U <: Serializable with AnyRef: ClassTag: TypeTag](
+      trans: DataStream[U] => Any): PipelineBuilder = {
     val pipelineItem = new OutputStage[U] {
       override def main(source: DataStream[U]): Unit = trans(source)
     }
@@ -201,10 +211,17 @@ class PipelineBuilder() {
     append(pipelineItem)
   }
 
-  private def makeEdge[U <: Serializable with AnyRef, V <: Serializable with AnyRef, X <: Serializable with AnyRef, Y <: Serializable with AnyRef](from: PipelineObject[U, V], to: PipelineObject[X, Y], checkEdge: Boolean = true): Unit = {
+  private def makeEdge[U <: Serializable with AnyRef,
+                       V <: Serializable with AnyRef,
+                       X <: Serializable with AnyRef,
+                       Y <: Serializable with AnyRef](
+      from: PipelineObject[U, V],
+      to: PipelineObject[X, Y],
+      checkEdge: Boolean = true): Unit = {
     if (pipelineType != PipelineType.DAG) {
       if (!graph.isEmpty) {
-        throw new IllegalStateException("Can't append node to non-sequential pipeline")
+        throw new IllegalStateException(
+          "Can't append node to non-sequential pipeline")
       }
 
       pipelineType = PipelineType.DAG
@@ -231,7 +248,12 @@ class PipelineBuilder() {
     * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
     * already configured as sequential, it will throw an illegal state exception.
     */
-  def edge[U <: Serializable with AnyRef, V <: Serializable with AnyRef, X <: Serializable with AnyRef, Y <: Serializable with AnyRef](from: PipelineObject[U, V], to: PipelineObject[X, Y]): PipelineBuilder = {
+  def edge[U <: Serializable with AnyRef,
+           V <: Serializable with AnyRef,
+           X <: Serializable with AnyRef,
+           Y <: Serializable with AnyRef](
+      from: PipelineObject[U, V],
+      to: PipelineObject[X, Y]): PipelineBuilder = {
     makeEdge(from, to)
 
     this
@@ -246,7 +268,9 @@ class PipelineBuilder() {
     * @tparam V Node Out
     * @return Builder
     */
-  def addParents[U <: Serializable with AnyRef, V <: Serializable with AnyRef](obj: PipelineObject[U, V], parents: PipelineObjectList): PipelineBuilder = {
+  def addParents[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
+      obj: PipelineObject[U, V],
+      parents: PipelineObjectList): PipelineBuilder = {
     for (item <- parents) {
       makeEdge(item, obj, checkEdge = false)
     }
@@ -261,7 +285,12 @@ class PipelineBuilder() {
     * @param parent Parent
     * @return
     */
-  def addParents[U <: Serializable with AnyRef, V <: Serializable with AnyRef, X <: Serializable with AnyRef, Y <: Serializable with AnyRef](obj: PipelineObject[U, V], parent: PipelineObject[X, Y]): PipelineBuilder =
+  def addParents[U <: Serializable with AnyRef,
+                 V <: Serializable with AnyRef,
+                 X <: Serializable with AnyRef,
+                 Y <: Serializable with AnyRef](
+      obj: PipelineObject[U, V],
+      parent: PipelineObject[X, Y]): PipelineBuilder =
     addParents(obj, parent.inList)
 
   /**
@@ -275,8 +304,16 @@ class PipelineBuilder() {
       throw EmptyPipelineException()
     }
 
-    graph.nodes.foreach(_.asInstanceOf[PipelineObject[Serializable with AnyRef, Serializable with AnyRef]].verifyGraph(graph))
+    graph.nodes.foreach(
+      _.asInstanceOf[PipelineObject[Serializable with AnyRef,
+                                    Serializable with AnyRef]]
+        .verifyGraph(graph))
 
-    Pipeline(name, bufferType, bufferProperties, graph, keyManager, stageProperties.toMap)
+    Pipeline(name,
+             bufferType,
+             bufferProperties,
+             graph,
+             keyManager,
+             stageProperties.toMap)
   }
 }

@@ -32,17 +32,22 @@ import org.codefeedr.stages.InputStage
   * @param duplicateFilter enable to filter duplicate events.
   * @param duplicateCheckSize to amount of events to cache for duplicate check.
   */
-class GitHubEventsInput(numOfPolls : Int = -1,
-                        waitTime : Int = 1000,
+class GitHubEventsInput(numOfPolls: Int = -1,
+                        waitTime: Int = 1000,
                         duplicateFilter: Boolean = true,
-                        duplicateCheckSize : Int = 1000000) extends InputStage[Event] {
+                        duplicateCheckSize: Int = 1000000)
+    extends InputStage[Event] {
 
   /**
     * Add (GitHub) EventSource.
     */
   override def main(): DataStream[Event] = {
-    pipeline
-      .environment
-      .addSource(new EventSource(numOfPolls, waitTime, pipeline.keyManager, duplicateFilter, duplicateCheckSize))
+    pipeline.environment
+      .addSource(
+        new EventSource(numOfPolls,
+                        waitTime,
+                        pipeline.keyManager,
+                        duplicateFilter,
+                        duplicateCheckSize))
   }
 }

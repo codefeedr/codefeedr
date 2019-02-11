@@ -35,10 +35,11 @@ import scala.reflect.runtime.universe._
   * @param stageAttributes Optional stage attributes
   * @tparam T
   */
-class RabbitMQOutput[T <: Serializable with AnyRef: ClassTag : TypeTag](queue: String,
-                                                                         server: URI = new URI("amqp://localhost:5672"),
-                                                                         stageAttributes: StageAttributes = StageAttributes())
-  extends OutputStage[T](stageAttributes) {
+class RabbitMQOutput[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    queue: String,
+    server: URI = new URI("amqp://localhost:5672"),
+    stageAttributes: StageAttributes = StageAttributes())
+    extends OutputStage[T](stageAttributes) {
 
   override def main(source: DataStream[T]): Unit = {
     val config = new RMQConnectionConfig.Builder()

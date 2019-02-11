@@ -36,14 +36,15 @@ import scala.reflect.{ClassTag, classTag}
   * @param properties Buffer properties
   * @tparam T Element type of the buffer
   */
-abstract class Buffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties) {
+abstract class Buffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    pipeline: Pipeline,
+    properties: org.codefeedr.Properties) {
 
   //Get type of the class at run time
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
 
   //get TypeInformation of generic (case) class
   implicit val typeInfo = TypeInformation.of(inputClassType)
-
 
   /**
     * Get the source for this buffer. The buffer ereads from this
@@ -65,7 +66,8 @@ abstract class Buffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeli
     * @return Serializer
     */
   def getSerializer: AbstractSerde[T] = {
-    val serializer = properties.getOrElse[String](Buffer.SERIALIZER, Serializer.JSON)
+    val serializer =
+      properties.getOrElse[String](Buffer.SERIALIZER, Serializer.JSON)
 
     Serializer.getSerde[T](serializer)
   }

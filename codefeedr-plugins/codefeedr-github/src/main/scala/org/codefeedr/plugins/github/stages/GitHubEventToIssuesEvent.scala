@@ -20,13 +20,15 @@ package org.codefeedr.plugins.github.stages
 
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.plugins.github.GitHubProtocol.{Event, IssuesEvent, IssuesPayload}
+import org.codefeedr.plugins.github.GitHubProtocol.{
+  Event,
+  IssuesEvent,
+  IssuesPayload
+}
 import org.codefeedr.stages.TransformStage
 import org.json4s._
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.JsonMethods._
-
-
 
 /**
   * Transform stage which reads from EventsInput and filters to IssuesEvent.
@@ -43,7 +45,14 @@ class GitHubEventToIssuesEvent extends TransformStage[Event, IssuesEvent] {
         implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
 
         val issuePayload = parse(x.payload).extract[IssuesPayload]
-        IssuesEvent(x.id, x.eventType, x.actor, x.repo, x.organization, issuePayload, x.public, x.created_at)
+        IssuesEvent(x.id,
+                    x.eventType,
+                    x.actor,
+                    x.repo,
+                    x.organization,
+                    issuePayload,
+                    x.public,
+                    x.created_at)
       }
   }
 }
