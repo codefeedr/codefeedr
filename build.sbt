@@ -116,7 +116,8 @@ lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb")
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.mongo
+      dependencies.mongo,
+      dependencies.embeddedMongo
     )
   )
   .dependsOn(
@@ -237,6 +238,8 @@ lazy val dependencies =
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
     val embeddedRedis      = "com.github.sebruck"        %% "scalatest-embedded-redis"       % "0.3.0"           % Test
     val embeddedKafka      = "net.manub"                 %% "scalatest-embedded-kafka"       % "2.0.0"           % Test
+    val embeddedMongo      = "com.github.simplyscala"    %% "scalatest-embedmongo"           % "0.2.4"           % Test
+
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
     val twitter            = "com.danielasfregola"        %% "twitter4s"                     % "5.5"
   }

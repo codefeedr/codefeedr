@@ -20,6 +20,7 @@ package org.codefeedr.plugins.mongodb.stages
 import java.util
 import java.util.{Calendar, Date, GregorianCalendar}
 
+import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
@@ -29,15 +30,15 @@ import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.plugins.mongodb.MongoQuery
 import org.codefeedr.stages.utilities.{SeqInput, StringInput, StringType}
 import org.mongodb.scala.MongoClient
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-class MongoInputOutputTest extends FunSuite {
+class MongoInputOutputTest extends FunSuite with MongoEmbedDatabase with BeforeAndAfterAll {
 
-  val server = "mongodb://localhost:27017"
+  val server = "mongodb://localhost:12345"
   val longString =
     """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt posuere urna vitae lacinia. Ut fringilla erat at finibus varius. Etiam molestie nunc in dictum pulvinar. Nulla at ligula nec ante viverra varius. Aenean tincidunt enim vestibulum, ultrices diam ut, varius nulla. Sed nec massa orci. Nunc lacinia aliquam enim blandit facilisis. Quisque nec mollis ante. Etiam convallis ut nulla sed cursus. Curabitur in mauris sit amet elit sagittis sollicitudin vel nec eros. Proin condimentum, eros eget dapibus pulvinar, neque eros vestibulum dui, et sodales odio quam et nibh. Nunc egestas fringilla urna, sed pharetra magna. Cras in commodo felis.
 Mauris a lacinia velit. Nam euismod, erat mollis dignissim pulvinar, orci quam lacinia magna, eget vehicula mauris nulla ac quam. Donec pellentesque quam sed bibendum gravida. Integer molestie blandit nunc sit amet rhoncus. Morbi pellentesque elit ac ante maximus, vel dapibus augue vehicula. Mauris at elementum urna. Etiam ultricies magna ut eros efficitur, in consectetur sapien sodales. Cras volutpat in felis vel lacinia. Donec eleifend est at venenatis tempus. Phasellus quis massa diam. Vivamus sit amet leo nisl. Integer sed arcu interdum, varius ex ac, luctus elit. Nullam ornare tincidunt laoreet. Vivamus lectus lectus, viverra et ex sit amet, bibendum porta diam. Etiam porttitor, justo sed vestibulum pellentesque, nisl lectus tempus nulla, id semper urna ex nec orci.
@@ -45,6 +46,13 @@ Sed dolor lectus, dapibus a semper a, pretium nec turpis. Quisque bibendum nisl 
 In hac habitasse platea dictumst. Integer nunc quam, vestibulum luctus tempor ut, condimentum in nisi. Aliquam dui erat, iaculis non lorem nec, efficitur mollis quam. Aliquam sagittis consequat magna sit amet semper. Suspendisse sed vestibulum purus. In hac habitasse platea dictumst. Pellentesque accumsan mauris id ligula tristique, at pulvinar sapien elementum.
 Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sodales libero, in scelerisque nulla faucibus non. Mauris sagittis nec orci vitae hendrerit. Ut auctor non nulla in ornare. Maecenas a semper nisl. Etiam egestas, sapien nec lacinia tempor, sem nulla consequat tellus, eget dignissim magna lorem quis lacus. Suspendisse potenti. Aliquam eu justo non dolor porta faucibus. Integer id volutpat neque, vel lacinia mi. Mauris volutpat quam vitae purus pulvinar finibus. Aliquam tristique auctor semper. Pellentesque a accumsan ipsum. Nam porta elit sit amet neque cursus tempus."""
 
+  var mongoProps: MongodProps = null
+
+  override def beforeAll() = {
+    mongoProps = mongoStart()   // by default port = 12345 & version = Version.3.3.1
+  }                               // add your own port & version parameters in mongoStart method if you need it
+
+  override def afterAll()  { mongoStop(mongoProps) }
 
   def clearDatabase(): Unit = {
     val client = MongoClient(server)
@@ -58,7 +66,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
     val pipeline = new PipelineBuilder()
       .append(new StringInput(longString))
-      .append(new MongoOutput[StringType]("db", "collection"))
+      .append(new MongoOutput[StringType]("db", "collection", server = "mongodb://localhost:12345"))
       .build()
 
     pipeline.startMock()
@@ -68,7 +76,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     StringCollectSink.reset()
 
     val pipeline = new PipelineBuilder()
-      .append(new MongoInput[StringType]("db", "collection"))
+      .append(new MongoInput[StringType]("db", "collection", server = "mongodb://localhost:12345"))
       .append({ x : DataStream[StringType] =>
         x.addSink(new StringCollectSink).setParallelism(1)
       })
@@ -103,7 +111,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     val pipeline = new PipelineBuilder()
       .append(new StringInput(longString))
       .append { e: DataStream[StringType] => e.assignAscendingTimestamps(_ => new Date().getTime / 1000) }
-      .append(new MongoOutput[StringType]("db", "collection"))
+      .append(new MongoOutput[StringType]("db", "collection", server = "mongodb://localhost:12345"))
       .build()
 
     pipeline.startMock()
@@ -113,7 +121,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     StringCollectSink.reset()
 
     val pipeline = new PipelineBuilder()
-      .append(new MongoInput[StringType]("db", "collection"))
+      .append(new MongoInput[StringType]("db", "collection", server = "mongodb://localhost:12345"))
       .append({ x : DataStream[StringType] =>
         x.addSink(new StringCollectSink).setParallelism(1)
       })
@@ -138,7 +146,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     val pipeline = new PipelineBuilder()
       .append(new SeqInput[TestEvent](list))
       .append { e: DataStream[TestEvent] => e.assignAscendingTimestamps(x => x.time.getTime / 1000) }
-      .append(new MongoOutput[TestEvent]("db", "collection"))
+      .append(new MongoOutput[TestEvent]("db", "collection", server = "mongodb://localhost:12345"))
       .build()
 
     pipeline.startMock()
@@ -150,7 +158,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     val query = MongoQuery.from(new GregorianCalendar(1998, Calendar.JANUARY, 1).getTime)
 
     val pipeline = new PipelineBuilder()
-      .append(new MongoInput[TestEvent]("db", "collection", "mongodb://localhost:27017", query))
+      .append(new MongoInput[TestEvent]("db", "collection", "mongodb://localhost:12345", query))
       .append({ x : DataStream[TestEvent] =>
         x.addSink(new TestEventCollectSink).setParallelism(1)
       })
