@@ -6,12 +6,6 @@ sudo: required
 dist: trusty
 jdk: oraclejdk8
 
-services:
-  - docker
-  - redis
-  - mongodb
-  - rabbitmq
-
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
