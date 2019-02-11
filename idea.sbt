@@ -7,7 +7,7 @@ lazy val mainRunner = project
       .map { module =>
         if (module.configurations.equals(Some("provided"))) {
           module
-         // module.copy(configurations = None)
+          // module.copy(configurations = None)
         } else {
           module
         }
