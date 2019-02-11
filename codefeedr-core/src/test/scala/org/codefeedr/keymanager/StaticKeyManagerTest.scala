@@ -19,7 +19,9 @@ package org.codefeedr.keymanager
 
 import org.scalatest.FunSuite
 
-class StaticKeyManagerTest extends KeyManagerTest(new StaticKeyManager()) {
+class StaticKeyManagerTest extends KeyManagerTest {
+
+  injectKeyManager(new StaticKeyManager())
 
   test("An empty key manager returns no keys") {
     val km = new StaticKeyManager()

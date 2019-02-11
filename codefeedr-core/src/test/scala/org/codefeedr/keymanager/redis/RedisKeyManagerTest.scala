@@ -20,18 +20,36 @@ package org.codefeedr.keymanager.redis
 import java.net.URI
 import java.util.Date
 
+import com.github.sebruck.EmbeddedRedis
 import com.redis.RedisClient
 import org.codefeedr.keymanager.KeyManagerTest
-import org.scalatest.{BeforeAndAfter, PrivateMethodTester}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, PrivateMethodTester}
+import redis.embedded.RedisServer
 
-class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://localhost:6379", "cf_test"))
+class RedisKeyManagerTest extends KeyManagerTest()
   with BeforeAndAfter
-  with PrivateMethodTester {
+  with PrivateMethodTester
+  with EmbeddedRedis
+  with BeforeAndAfterAll {
 
   var km: RedisKeyManager = _
+  var redis: RedisServer = null
+  var redisPort: Int = 0
+
+  // Before all tests, setup an embedded redis
+  override def beforeAll() = {
+    redis = startRedis()
+    redisPort = redis.ports().get(0)
+  }
+
+  // After all tests, stop embedded redis
+  override def afterAll() = {
+    stopRedis(redis)
+  }
 
   before {
-    km = new RedisKeyManager("redis://localhost:6379", "cf_test")
+    km = new RedisKeyManager(s"redis://localhost:$redisPort", "cf_test")
+    this.injectKeyManager(km)
   }
 
   after {
@@ -39,7 +57,7 @@ class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://lo
     km.disconnect()
   }
 
-  test("A set key should be retrievable" ) {
+  test("A set key should be retrievable") {
     km.set("testTarget", "testKey", 10, 10000)
 
     val key = km.request("testTarget", 1)
@@ -54,7 +72,7 @@ class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://lo
     assert(key.isEmpty)
   }
 
-  test("The key with the best fitting number of calls should be used" ) {
+  test("The key with the best fitting number of calls should be used") {
     km.set("testTarget", "testKey", 10, 10000)
     km.set("testTarget", "testKey2", 4, 10000)
 
@@ -102,7 +120,7 @@ class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://lo
   }
 
   test("RedisKeyManager has a valid default root") {
-    val km = new RedisKeyManager("redis://localhost:6379")
+    val km = new RedisKeyManager(s"redis://localhost:$redisPort")
     val key = km.request("randomTarget", 1)
 
     assert(key.isEmpty)
@@ -120,7 +138,7 @@ class RedisKeyManagerTest extends KeyManagerTest(new RedisKeyManager("redis://lo
     assert(key.get.remainingCalls == (10 - 1))
 
     // As per documentation
-    val uri = new URI("redis://localhost:6379")
+    val uri = new URI(s"redis://localhost:$redisPort")
     val rc = new RedisClient(uri)
     val refreshTime = rc.zscore("cf_test:testTarget:refreshTime", "testKey")
     rc.disconnect

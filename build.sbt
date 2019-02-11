@@ -87,7 +87,10 @@ lazy val core = (project in file("codefeedr-core"))
       dependencies.kryoChill,
 
       // Avro schema exposure
-      dependencies.avro
+      dependencies.avro,
+
+      // Embedded redis to test key management
+      dependencies.embeddedRedis
     )
   )
 
@@ -229,6 +232,7 @@ lazy val dependencies =
     val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.0.5"           % Test
     val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
+    val embeddedRedis      = "com.github.sebruck"        %% "scalatest-embedded-redis"       % "0.3.0"           % Test
 
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
     val twitter            = "com.danielasfregola"        %% "twitter4s"                     % "5.5"
