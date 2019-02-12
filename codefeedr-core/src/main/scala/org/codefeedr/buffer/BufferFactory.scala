@@ -41,7 +41,7 @@ class BufferFactory[U <: Serializable with AnyRef,
     pipeline: Pipeline,
     stage: PipelineObject[X, Y],
     sinkObject: PipelineObject[U, V],
-    groupId: String = null) {
+    groupId: String = "") {
 
   /**
     * Create a new buffer
@@ -61,7 +61,7 @@ class BufferFactory[U <: Serializable with AnyRef,
     pipeline.bufferType match {
       case BufferType.Kafka => {
         val cleanedSubject = subject.replace("$", "-")
-        val kafkaGroupId = if (groupId != null) groupId else stage.id
+        val kafkaGroupId = if (groupId != "") groupId else stage.id
         new KafkaBuffer[T](pipeline,
                            pipeline.bufferProperties,
                            stage.attributes,

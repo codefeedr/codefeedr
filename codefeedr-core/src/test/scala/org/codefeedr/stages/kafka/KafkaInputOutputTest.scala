@@ -121,8 +121,8 @@ class KafkaStringCollectSink(amount: Int) extends SinkFunction[StringType] {
     synchronized {
       KafkaStringCollectSink.result.add(value.value)
 
-      println(
-        s"Added new element ${value.value}, amountLeft: ${amountLeft -= 1}")
+      amountLeft = amountLeft - 1
+      println(s"Added new element ${value.value}, amountLeft: $amountLeft")
       if (amountLeft == 0) throw new JobFinishedException()
     }
   }
