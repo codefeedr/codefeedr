@@ -25,10 +25,7 @@ import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-class PipelineObjectNTest
-    extends FunSuite
-    with BeforeAndAfterAll
-    with EmbeddedKafka {
+class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
 
   override def beforeAll(): Unit = {
     implicit val config =
@@ -40,7 +37,7 @@ class PipelineObjectNTest
     EmbeddedKafka.stop()
   }
 
-  class MyObject2 extends PipelineObject2[StringType, StringType, NoType] {
+  class MyObject2 extends Stage2[StringType, StringType, NoType] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[StringType]): DataStream[NoType] = {
@@ -54,7 +51,7 @@ class PipelineObjectNTest
     }
   }
 
-  class MyBadObject2 extends PipelineObject2[StringType, NoType, NoType] {
+  class MyBadObject2 extends Stage2[StringType, NoType, NoType] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[NoType]): DataStream[NoType] = {
@@ -66,8 +63,7 @@ class PipelineObjectNTest
     }
   }
 
-  class MyObject3
-      extends PipelineObject3[StringType, StringType, StringType, NoType] {
+  class MyObject3 extends Stage3[StringType, StringType, StringType, NoType] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[StringType],
@@ -80,8 +76,7 @@ class PipelineObjectNTest
     }
   }
 
-  class MyBadObject3
-      extends PipelineObject3[StringType, StringType, NoType, NoType] {
+  class MyBadObject3 extends Stage3[StringType, StringType, NoType, NoType] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[StringType],
@@ -95,11 +90,7 @@ class PipelineObjectNTest
   }
 
   class MyObject4
-      extends PipelineObject4[StringType,
-                              StringType,
-                              StringType,
-                              StringType,
-                              NoType] {
+      extends Stage4[StringType, StringType, StringType, StringType, NoType] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[StringType],
@@ -114,11 +105,7 @@ class PipelineObjectNTest
   }
 
   class MyBadObject4
-      extends PipelineObject4[StringType,
-                              StringType,
-                              StringType,
-                              NoType,
-                              NoType] {
+      extends Stage4[StringType, StringType, StringType, NoType, NoType] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[StringType],

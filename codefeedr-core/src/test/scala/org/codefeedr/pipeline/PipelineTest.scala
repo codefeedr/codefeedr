@@ -142,9 +142,9 @@ class PipelineTest
     val exposer = new RedisSchemaExposer(s"redis://localhost:$redisPort")
 
     val schema1 =
-      exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
+      exposer.get("org.codefeedr.testUtils.SimpleSourceStage")
     val schema2 =
-      exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
+      exposer.get("org.codefeedr.testUtils.SimpleTransformStage")
 
     assert(schema1.nonEmpty)
     assert(schema2.nonEmpty)
@@ -179,9 +179,9 @@ class PipelineTest
     val exposer = new ZookeeperSchemaExposer("localhost:2181")
 
     val schema1 =
-      exposer.get("org.codefeedr.testUtils.SimpleSourcePipelineObject")
+      exposer.get("org.codefeedr.testUtils.SimpleSourceStage")
     val schema2 =
-      exposer.get("org.codefeedr.testUtils.SimpleTransformPipelineObject")
+      exposer.get("org.codefeedr.testUtils.SimpleTransformStage")
 
     assert(schema1.nonEmpty)
     assert(schema2.nonEmpty)
@@ -190,8 +190,8 @@ class PipelineTest
   test("A pipeline name can be set through args") {
     val name = "nice pipeline"
     val pipeline = builder
-      .append(new SimpleSourcePipelineObject())
-      .append(new SimpleSinkPipelineObject())
+      .append(new SimpleSourceStage())
+      .append(new SimpleSinkStage())
       .build()
 
     pipeline.start(Array[String]("-runtime", "mock", "-name", name))
@@ -201,8 +201,8 @@ class PipelineTest
 
   test("A pipeline has a default name") {
     val pipeline = builder
-      .append(new SimpleSourcePipelineObject())
-      .append(new SimpleSinkPipelineObject())
+      .append(new SimpleSourceStage())
+      .append(new SimpleSinkStage())
       .build()
 
     pipeline.startMock()
@@ -216,10 +216,10 @@ class PipelineTest
     * @return a pipelinebuilder (add elements or finish it with .build())
     */
   def simpleDAGPipeline(expectedMessages: Int = -1) = {
-    val source = new SimpleSourcePipelineObject()
-    val a = new SimpleTransformPipelineObject()
-    val b = new SimpleTransformPipelineObject()
-    val sink = new SimpleSinkPipelineObject(expectedMessages)
+    val source = new SimpleSourceStage()
+    val a = new SimpleTransformStage()
+    val b = new SimpleTransformStage()
+    val sink = new SimpleSinkStage(expectedMessages)
 
     builder
       .append(source)
@@ -233,7 +233,7 @@ class PipelineTest
   /***************** CLUSTER *********************/
   test("Cluster runtime starts the correct object") {
     val source = new HitObjectTest()
-    val sink = new SimpleSinkPipelineObject(1)
+    val sink = new SimpleSinkStage(1)
 
     val pipeline = builder
       .setBufferType(BufferType.Kafka)
@@ -251,7 +251,7 @@ class PipelineTest
 
   test("Should throw when trying to start an unknown cluster object") {
     val source = new HitObjectTest()
-    val sink = new SimpleSinkPipelineObject(1)
+    val sink = new SimpleSinkStage(1)
 
     val pipeline = builder
       .setBufferType(BufferType.Kafka)
@@ -265,7 +265,7 @@ class PipelineTest
 
   test("Should execute flink code when starting cluster object") {
     val source = new FlinkCrashObjectTest()
-    val sink = new SimpleSinkPipelineObject(1)
+    val sink = new SimpleSinkStage(1)
 
     val pipeline = builder
       .setBufferType(BufferType.Kafka)
@@ -278,8 +278,8 @@ class PipelineTest
   }
 
   test("Should throw when propertiesOf stage is null") {
-    val sink = new SimpleSinkPipelineObject(1)
-    val source = new SimpleSourcePipelineObject()
+    val sink = new SimpleSinkStage(1)
+    val source = new SimpleSourceStage()
 
     val pipeline = builder
       .edge(source, sink)

@@ -25,20 +25,20 @@ import scala.reflect.runtime.universe._
 abstract class TransformStage[In <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
     attributes: StageAttributes = StageAttributes())
-    extends PipelineObject[In, Out](attributes)
+    extends Stage[In, Out](attributes)
 abstract class TransformStage2[
     In <: Serializable with AnyRef: ClassTag: TypeTag,
     In2 <: Serializable with AnyRef: ClassTag: TypeTag,
     Out <: Serializable with AnyRef: ClassTag: TypeTag](
     attributes: StageAttributes = StageAttributes())
-    extends PipelineObject2[In, In2, Out](attributes)
+    extends Stage2[In, In2, Out](attributes)
 abstract class TransformStage3[
     In <: Serializable with AnyRef: ClassTag: TypeTag,
     In2 <: Serializable with AnyRef: ClassTag: TypeTag,
     In3 <: Serializable with AnyRef: ClassTag: TypeTag,
     Out <: Serializable with AnyRef: ClassTag: TypeTag](
     attributes: StageAttributes = StageAttributes())
-    extends PipelineObject3[In, In2, In3, Out](attributes)
+    extends Stage3[In, In2, In3, Out](attributes)
 abstract class TransformStage4[
     In <: Serializable with AnyRef: ClassTag: TypeTag,
     In2 <: Serializable with AnyRef: ClassTag: TypeTag,
@@ -46,4 +46,4 @@ abstract class TransformStage4[
     In4 <: Serializable with AnyRef: ClassTag: TypeTag,
     Out <: Serializable with AnyRef: ClassTag: TypeTag](
     attributes: StageAttributes = StageAttributes())
-    extends PipelineObject4[In, In2, In3, In4, Out](attributes)
+    extends Stage4[In, In2, In3, In4, Out](attributes)

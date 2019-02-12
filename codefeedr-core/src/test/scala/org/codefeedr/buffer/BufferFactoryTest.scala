@@ -19,16 +19,13 @@ package org.codefeedr.buffer
 
 import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.testUtils.{
-  SimpleSourcePipelineObject,
-  SimpleTransformPipelineObject
-}
+import org.codefeedr.testUtils.{SimpleSourceStage, SimpleTransformStage}
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class BufferFactoryTest extends FunSuite with BeforeAndAfter {
 
-  val nodeA = new SimpleSourcePipelineObject()
-  val nodeB = new SimpleTransformPipelineObject()
+  val nodeA = new SimpleSourceStage()
+  val nodeB = new SimpleTransformStage()
 
   test("Should throw when giving a null object") {
     val pipeline = new PipelineBuilder()

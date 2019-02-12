@@ -21,14 +21,14 @@ package org.codefeedr.pipeline
 import org.codefeedr.testUtils._
 import org.scalatest.FunSuite
 
-class PipelineObjectListTest extends FunSuite {
+class StageListTest extends FunSuite {
 
-  val a = new SimpleSourcePipelineObject()
-  val b = new SimpleTransformPipelineObject()
-  val c = new SimpleSinkPipelineObject()
+  val a = new SimpleSourceStage()
+  val b = new SimpleTransformStage()
+  val c = new SimpleSinkStage()
 
   test("Adding an item should append to the end") {
-    val list = new PipelineObjectList().add(a).add(b).add(c)
+    val list = new StageList().add(a).add(b).add(c)
 
     assert(list.head == a)
     assert(list.tail.head == b)
@@ -41,7 +41,7 @@ class PipelineObjectListTest extends FunSuite {
 
   test("Foreach should be ordered correctly") {
     var i = 0
-    val list = new PipelineObjectList().add(a).add(b).add(c)
+    val list = new StageList().add(a).add(b).add(c)
 
     for (item <- list) {
       if (i == 0) {
@@ -57,35 +57,35 @@ class PipelineObjectListTest extends FunSuite {
   }
 
   test("Appending items with append operator is equivalent to adding") {
-    val list = new PipelineObjectList().add(a).add(b)
-    val list2 = new PipelineObjectList() :+ a :+ b
+    val list = new StageList().add(a).add(b)
+    val list2 = new StageList() :+ a :+ b
 
     assert(list == list2)
   }
 
   test("Concatenating objects is equivalent to making a list and adding") {
-    val list = new PipelineObjectList() :+ a :+ b
+    val list = new StageList() :+ a :+ b
     val list2 = a :+ b
 
     assert(list == list2)
   }
 
   test("Descriptor is same as list") {
-    val list = new PipelineObjectList()
+    val list = new StageList()
 
     assert(list.toString == List().toString())
   }
 
   test("Equivalency operator works") {
-    val list = new PipelineObjectList()
+    val list = new StageList()
 
     assert(list != "a")
   }
 
   test("Can append two lists") {
-    val list1 = new PipelineObjectList() :+ a
-    val list2 = new PipelineObjectList()
-    val list3 = new PipelineObjectList() :+ b
+    val list1 = new StageList() :+ a
+    val list2 = new StageList()
+    val list3 = new StageList() :+ b
 
     assert(list1 :+ list2 == list1)
     assert(list1 :+ list3 == a :+ b)

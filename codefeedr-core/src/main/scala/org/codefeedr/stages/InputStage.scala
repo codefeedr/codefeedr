@@ -19,7 +19,7 @@
 package org.codefeedr.stages
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.{NoType, PipelineObject}
+import org.codefeedr.pipeline.{NoType, Stage}
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -32,7 +32,7 @@ import scala.reflect.runtime.universe._
   */
 abstract class InputStage[Out <: Serializable with AnyRef: ClassTag: TypeTag](
     attributes: StageAttributes = StageAttributes())
-    extends PipelineObject[NoType, Out](attributes) {
+    extends Stage[NoType, Out](attributes) {
 
   override def transform(source: DataStream[NoType]): DataStream[Out] = {
     main()

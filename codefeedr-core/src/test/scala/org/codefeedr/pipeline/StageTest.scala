@@ -21,12 +21,12 @@ package org.codefeedr.pipeline
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.stages.StageAttributes
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.testUtils.SimpleSourcePipelineObject
+import org.codefeedr.testUtils.SimpleSourceStage
 import org.scalatest.FunSuite
 
-class PipelineObjectTest extends FunSuite {
+class StageTest extends FunSuite {
 
-  class BadSourceObject extends PipelineObject[NoType, StringType] {
+  class BadSourceObject extends Stage[NoType, StringType] {
     override def transform(
         source: DataStream[NoType]): DataStream[StringType] = {
       getMainSource()
@@ -35,7 +35,7 @@ class PipelineObjectTest extends FunSuite {
     }
   }
 
-  class BadSinkObject extends PipelineObject[StringType, NoType] {
+  class BadSinkObject extends Stage[StringType, NoType] {
     override def transform(
         source: DataStream[StringType]): DataStream[NoType] = {
       getSink()
@@ -65,7 +65,7 @@ class PipelineObjectTest extends FunSuite {
   }
 
   test("Setting id attributed propagates") {
-    val a = new SimpleSourcePipelineObject(StageAttributes(id = Some("testId")))
+    val a = new SimpleSourceStage(StageAttributes(id = Some("testId")))
 
     assert(a.id == "testId")
   }

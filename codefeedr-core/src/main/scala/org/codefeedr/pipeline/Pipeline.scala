@@ -65,7 +65,7 @@ case class Pipeline(var name: String,
     */
   def propertiesOf[U <: Serializable with AnyRef,
                    V <: Serializable with AnyRef](
-      obj: PipelineObject[U, V]): Properties = {
+      obj: Stage[U, V]): Properties = {
     if (obj == null) {
       throw new IllegalArgumentException("Object can't be null")
     }
@@ -110,10 +110,10 @@ case class Pipeline(var name: String,
     }
   }
 
-  private def getNodes: Vector[
-    PipelineObject[Serializable with AnyRef, Serializable with AnyRef]] =
+  private def getNodes
+    : Vector[Stage[Serializable with AnyRef, Serializable with AnyRef]] =
     graph.nodes.asInstanceOf[Vector[
-      PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
+      Stage[Serializable with AnyRef, Serializable with AnyRef]]]
 
   /**
     * Validates the uniqueness of the stage IDs, needed for clustered running
@@ -219,8 +219,7 @@ case class Pipeline(var name: String,
   def startClustered(stage: String, groupId: String = null): Unit = {
     val optObj = graph.nodes.find { node =>
       node
-        .asInstanceOf[PipelineObject[Serializable with AnyRef,
-                                     Serializable with AnyRef]]
+        .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
         .id == stage
     }
 
@@ -228,8 +227,8 @@ case class Pipeline(var name: String,
       throw StageNotFoundException()
     }
 
-    val obj = optObj.get.asInstanceOf[PipelineObject[Serializable with AnyRef,
-                                                     Serializable with AnyRef]]
+    val obj = optObj.get
+      .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
 
     obj.setUp(this)
     runObject(obj, groupId)
@@ -245,7 +244,7 @@ case class Pipeline(var name: String,
     * @param obj
     */
   private def runObject(
-      obj: PipelineObject[Serializable with AnyRef, Serializable with AnyRef],
+      obj: Stage[Serializable with AnyRef, Serializable with AnyRef],
       groupId: String = null): Unit = {
     lazy val source =
       if (obj.hasMainSource) obj.getMainSource(groupId) else null

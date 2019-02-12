@@ -25,8 +25,7 @@ package org.codefeedr.pipeline
   *
   * @param list
   */
-class PipelineObjectList(private val list: List[AnyRef] = List())
-    extends Serializable {
+class StageList(private val list: List[AnyRef] = List()) extends Serializable {
 
   /**
     * Add an object to the list. Returns a new list.
@@ -35,8 +34,8 @@ class PipelineObjectList(private val list: List[AnyRef] = List())
     * @return List with the object included at the end
     */
   def add[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
-      obj: PipelineObject[U, V]): PipelineObjectList =
-    new PipelineObjectList(list :+ obj)
+      obj: Stage[U, V]): StageList =
+    new StageList(list :+ obj)
 
   /**
     * Selects the first element of this List.
@@ -44,9 +43,9 @@ class PipelineObjectList(private val list: List[AnyRef] = List())
     * @return  the first element of this list.
     * @throws NoSuchElementException if the list is empty.
     */
-  def head: PipelineObject[Serializable with AnyRef, Serializable with AnyRef] =
-    list.head.asInstanceOf[PipelineObject[Serializable with AnyRef,
-                                          Serializable with AnyRef]]
+  def head: Stage[Serializable with AnyRef, Serializable with AnyRef] =
+    list.head
+      .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
 
   /**
     * Selects the last element.
@@ -54,9 +53,9 @@ class PipelineObjectList(private val list: List[AnyRef] = List())
     * @return The last element of this list.
     * @throws NoSuchElementException If the list is empty.
     */
-  def last: PipelineObject[Serializable with AnyRef, Serializable with AnyRef] =
-    list.last.asInstanceOf[PipelineObject[Serializable with AnyRef,
-                                          Serializable with AnyRef]]
+  def last: Stage[Serializable with AnyRef, Serializable with AnyRef] =
+    list.last
+      .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
 
   /**
     * Selects all elements except the first.
@@ -65,7 +64,7 @@ class PipelineObjectList(private val list: List[AnyRef] = List())
     *          except the first one.
     * @throws UnsupportedOperationException if the list is empty.
     */
-  def tail: PipelineObjectList = new PipelineObjectList(list.tail)
+  def tail: StageList = new StageList(list.tail)
 
   /**
     * Get the size of the list
@@ -85,18 +84,19 @@ class PipelineObjectList(private val list: List[AnyRef] = List())
     */
   def nonEmpty: Boolean = list.nonEmpty
 
-  def foreach(f: PipelineObject[Serializable with AnyRef,
-                                Serializable with AnyRef] ⇒ Unit): Unit = {
+  def foreach(
+      f: Stage[Serializable with AnyRef, Serializable with AnyRef] ⇒ Unit)
+    : Unit = {
     for (obj <- list) {
       f(
-        obj.asInstanceOf[PipelineObject[Serializable with AnyRef,
-                                        Serializable with AnyRef]])
+        obj.asInstanceOf[Stage[Serializable with AnyRef,
+                               Serializable with AnyRef]])
     }
   }
 
   override def equals(obj: scala.Any): Boolean = obj match {
-    case other: PipelineObjectList => other.list == this.list
-    case _                         => false
+    case other: StageList => other.list == this.list
+    case _                => false
   }
 
   /**
@@ -106,7 +106,7 @@ class PipelineObjectList(private val list: List[AnyRef] = List())
     * @return New list with element appended
     */
   def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
-      obj: PipelineObject[U, V]): PipelineObjectList =
+      obj: Stage[U, V]): StageList =
     add(obj)
 
   /**
@@ -114,8 +114,8 @@ class PipelineObjectList(private val list: List[AnyRef] = List())
     * @param other List
     * @return New list with elements from other list appended
     */
-  def :+(other: PipelineObjectList): PipelineObjectList =
-    new PipelineObjectList(list ::: other.list)
+  def :+(other: StageList): StageList =
+    new StageList(list ::: other.list)
 
   override def toString: String = list.toString()
 }

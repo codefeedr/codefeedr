@@ -18,7 +18,7 @@
  */
 package org.codefeedr.buffer
 
-import org.codefeedr.pipeline.{Pipeline, PipelineObject}
+import org.codefeedr.pipeline.{Pipeline, Stage}
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -37,11 +37,10 @@ import scala.reflect.runtime.universe._
 class BufferFactory[U <: Serializable with AnyRef,
                     V <: Serializable with AnyRef,
                     X <: Serializable with AnyRef,
-                    Y <: Serializable with AnyRef](
-    pipeline: Pipeline,
-    stage: PipelineObject[X, Y],
-    sinkObject: PipelineObject[U, V],
-    groupId: String = null) {
+                    Y <: Serializable with AnyRef](pipeline: Pipeline,
+                                                   stage: Stage[X, Y],
+                                                   sinkObject: Stage[U, V],
+                                                   groupId: String = null) {
 
   /**
     * Create a new buffer

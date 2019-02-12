@@ -23,7 +23,7 @@ final case class Edge(from: AnyRef, to: AnyRef)
 
 /** A directed acyclic graph.
   * Every [[Pipeline]] is enforced into a DAG, so that data cannot flow in a loop.
-  * [[PipelineObject]]'s are nodes in this graph whereas edges represent data flow using a [[org.codefeedr.buffer.Buffer]].
+  * [[Stage]]'s are nodes in this graph whereas edges represent data flow using a [[org.codefeedr.buffer.Buffer]].
   *
   * This class is immutable so that graph can be build in a functional manner:
   * {{{
@@ -33,8 +33,8 @@ final case class Edge(from: AnyRef, to: AnyRef)
   *     .addEdge(nodeOne, nodeTwo)
   * }}}
   *
-  * @param nodes list of nodes to build the graph from.
-  * @param edges list of edges to build the graph from.
+  * @param nodes List of nodes to build the graph from.
+  * @param edges List of edges to build the graph from.
   */
 final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(),
                                  val edges: Vector[Edge] = Vector()) {

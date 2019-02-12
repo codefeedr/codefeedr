@@ -33,7 +33,7 @@ import scala.reflect.runtime.universe._
   * @tparam In  input type for this pipeline object.
   * @tparam Out output type for this pipeline object.
   */
-abstract class PipelineObject[In <: Serializable with AnyRef: ClassTag: TypeTag,
+abstract class Stage[In <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
     val attributes: StageAttributes = StageAttributes()) {
 
@@ -80,12 +80,12 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     *
     * @return set of parents. Can be empty
     */
-  def getParents: Vector[
-    PipelineObject[Serializable with AnyRef, Serializable with AnyRef]] =
+  def getParents
+    : Vector[Stage[Serializable with AnyRef, Serializable with AnyRef]] =
     pipeline.graph
       .getParents(this)
       .asInstanceOf[Vector[
-        PipelineObject[Serializable with AnyRef, Serializable with AnyRef]]]
+        Stage[Serializable with AnyRef, Serializable with AnyRef]]]
 
   /**
     * Check if this pipeline object is sourced from a Buffer.
@@ -154,8 +154,8 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
   def getSinkSubject: String = this.id
 
   def getSource[T <: Serializable with AnyRef: ClassTag: TypeTag](
-      parentNode: PipelineObject[Serializable with AnyRef,
-                                 Serializable with AnyRef]): DataStream[T] = {
+      parentNode: Stage[Serializable with AnyRef, Serializable with AnyRef])
+    : DataStream[T] = {
     assert(parentNode != null)
 
     val factory = new BufferFactory(pipeline, this, parentNode)
@@ -171,7 +171,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @return List with this and other
     */
   def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
-      obj: PipelineObject[U, V]): PipelineObjectList =
+      obj: Stage[U, V]): StageList =
     inList.add(obj)
 
   /**
@@ -179,6 +179,6 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     *
     * @return List
     */
-  def inList: PipelineObjectList =
-    new PipelineObjectList().add(this)
+  def inList: StageList =
+    new StageList().add(this)
 }

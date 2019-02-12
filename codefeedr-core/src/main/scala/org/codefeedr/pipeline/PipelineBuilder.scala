@@ -31,7 +31,17 @@ import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-class PipelineBuilder() extends Logging {
+/** Mutable class to build a [[Pipeline]]. A pipeline represents a set of stages interconnected with a [[org.codefeedr.buffer.Buffer]].
+  * This pipeline gets translated into a [[DirectedAcyclicGraph]].
+  *
+  * This builder allows for setting the following properties:
+  * - Name of the pipeline.
+  * - Type of buffer (e.g. Kafka) and properties for this buffer.
+  * - Type of pipeline: sequential or DAG (nonsequential).
+  * - Properties for all the stages.
+  * - [[KeyManager]] for all the stages.
+  */
+class PipelineBuilder extends Logging {
 
   /** Type of buffer used in the pipeline */
   protected var bufferType: BufferType = BufferType.Kafka
@@ -52,24 +62,21 @@ class PipelineBuilder() extends Logging {
   protected[pipeline] var graph = new DirectedAcyclicGraph()
 
   /** Last inserted pipeline object, used to convert sequential to dag. */
-  private var lastObject: AnyRef = _
+  private var lastStage: AnyRef = _
 
   /** The name of the pipeline, "CodeFeedr pipeline" by default. */
   protected var name = "CodeFeedr pipeline"
 
-  /**
-    * Get the type of the buffer
-    * @return buffer type
-    */
-  def getBufferType: BufferType = {
-    bufferType
-  }
-
-  /**
-    * Set the type of the buffer
+  /** Get the type of the buffer.
     *
-    * @param bufferType New type
-    * @return This builder
+    * @return The buffer type.
+    */
+  def getBufferType: BufferType = bufferType
+
+  /** Set the type of the buffer.
+    *
+    * @param bufferType The new buffer type.
+    * @return The builder instance.
     */
   def setBufferType(bufferType: BufferType): PipelineBuilder = {
     this.bufferType = bufferType
@@ -77,27 +84,25 @@ class PipelineBuilder() extends Logging {
     this
   }
 
-  /**
-    * Get the type of the pipeline
-    * @return Type of pipeline
+  /** Get the type of the pipeline.
+    *
+    * @return Type of pipeline: Sequential or DAG.
     */
-  def getPipelineType: PipelineType = {
-    pipelineType
-  }
+  def getPipelineType: PipelineType = pipelineType
 
-  /**
-    * Set the type of the pipeline
-    * @param pipelineType Type of the pipeline
-    * @return This builder
+  /** Set the type of the pipeline.
+    *
+    * @param pipelineType Type of the pipeline.
+    * @return This builder instance.
     */
   def setPipelineType(pipelineType: PipelineType): PipelineBuilder = {
     if (pipelineType == PipelineType.Sequential && this.pipelineType == PipelineType.DAG) {
       if (!graph.isSequential) {
         throw new IllegalStateException(
-          "The current non-sequential pipeline can't be turned into a sequential pipeline")
+          "The current non-sequential pipeline can't be turned into a sequential pipeline.")
       }
 
-      lastObject = graph.lastInSequence.get
+      lastStage = graph.lastInSequence.get
     }
 
     this.pipelineType = pipelineType
@@ -105,14 +110,12 @@ class PipelineBuilder() extends Logging {
     this
   }
 
-  /**
-    * Set a buffer property
+  /** Set a buffer property.
+    * A buffer property is generic for all buffers (like the serializer).
     *
-    * A buffer property is generic for all buffers
-    *
-    * @param key Key
-    * @param value Value
-    * @return
+    * @param key Key of the property.
+    * @param value Value of the property.
+    * @return This builder instance.
     */
   def setBufferProperty(key: String, value: String): PipelineBuilder = {
     bufferProperties = bufferProperties.set(key, value)
@@ -120,76 +123,86 @@ class PipelineBuilder() extends Logging {
     this
   }
 
+  /** Set a stage property.
+    *
+    * @param id The id of the stage.
+    * @param key Key of the property.
+    * @param value Value of the property.
+    * @return This builder instance.
+    */
   def setStageProperty(id: String,
                        key: String,
                        value: String): PipelineBuilder = {
-    val properties = stageProperties.getOrElse(id, new Properties())
 
+    val properties = stageProperties.getOrElse(id, new Properties())
     stageProperties.put(id, properties.set(key, value))
 
     this
   }
 
-  /**
-    * Set a key manager.
+  /** Set a [[KeyManager]].
+    * A key manager handles API key management and can be accessed by every stage.
     *
-    * A key manager handles API key management for sources.
-    *
-    * @param km Key manager
-    * @return This builder
+    * @param km The key manager instance.
+    * @return This builder instance.
     */
   def setKeyManager(km: KeyManager): PipelineBuilder = {
-    keyManager = km
+    this.keyManager = km
 
     this
   }
 
-  /**
-    * Set name of the pipeline.
+  /** Set name of the pipeline.
     *
-    * @param n name of the pipeline.
-    * @return This builder.
+    * @param name Name of the pipeline.
+    * @return This builder instance.
     */
-  def setPipelineName(n: String): PipelineBuilder = {
-    name = n
+  def setPipelineName(name: String): PipelineBuilder = {
+    this.name = name
 
     this
   }
 
-  /**
-    * Append a node to the sequential pipeline.
+  /** Append a [[Stage]] in a sequential pipeline.
+    *
+    * @param stage The new stage to add.
+    * @tparam IN Incoming type of the stage.
+    * @tparam OUT Outgoing type of the stage.
+    * @return This builder instance.
     */
-  def append[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
-      item: PipelineObject[U, V]): PipelineBuilder = {
+  def append[IN <: Serializable with AnyRef, OUT <: Serializable with AnyRef](
+      stage: Stage[IN, OUT]): PipelineBuilder = {
+
+    // You cannot append to a non-sequential pipeline.
     if (pipelineType != PipelineType.Sequential) {
       throw new IllegalStateException(
-        "Can't append node to non-sequential pipeline")
+        "Can't append node to non-sequential pipeline.")
     }
 
-    if (graph.hasNode(item)) {
+    if (graph.hasNode(stage)) {
       throw new IllegalArgumentException("Item already in sequence.")
     }
 
-    graph = graph.addNode(item)
+    graph = graph.addNode(stage)
 
-    if (lastObject != null) {
-      graph = graph.addEdge(lastObject, item)
+    if (lastStage != null) {
+      graph = graph.addEdge(lastStage, stage)
     }
-    lastObject = item
+
+    lastStage = stage
 
     this
   }
 
-  /**
-    * Append a node created from a transform function
+  /** Append a stage created from a transform function.
     *
-    * @param trans Function
-    * @return Builder
+    * @param trans Transform function from one type to another.
+    * @return The builder instance.
     */
   def append[U <: Serializable with AnyRef: ClassTag: TypeTag,
              V <: Serializable with AnyRef: ClassTag: TypeTag](
       trans: DataStream[U] => DataStream[V]): PipelineBuilder = {
-    val pipelineItem = new PipelineObject[U, V] {
+    val pipelineItem = new Stage[U, V] {
       override def transform(source: DataStream[U]): DataStream[V] =
         trans(source)
     }
@@ -197,11 +210,10 @@ class PipelineBuilder() extends Logging {
     append(pipelineItem)
   }
 
-  /**
-    * Append a node created from an output function
+  /** Append a stage created from an output function.
     *
-    * @param trans Function
-    * @return Builder
+    * @param trans Output function.
+    * @return The builder instance.
     */
   def append[U <: Serializable with AnyRef: ClassTag: TypeTag](
       trans: DataStream[U] => Any): PipelineBuilder = {
@@ -212,103 +224,123 @@ class PipelineBuilder() extends Logging {
     append(pipelineItem)
   }
 
-  private def makeEdge[U <: Serializable with AnyRef,
-                       V <: Serializable with AnyRef,
-                       X <: Serializable with AnyRef,
-                       Y <: Serializable with AnyRef](
-      from: PipelineObject[U, V],
-      to: PipelineObject[X, Y],
-      checkEdge: Boolean = true): Unit = {
-    if (pipelineType != PipelineType.DAG) {
-      if (!graph.isEmpty) {
-        throw new IllegalStateException(
-          "Can't append node to non-sequential pipeline")
-      }
-
-      pipelineType = PipelineType.DAG
-    }
-
-    if (!graph.hasNode(from)) {
-      graph = graph.addNode(from)
-    }
-
-    if (!graph.hasNode(to)) {
-      graph = graph.addNode(to)
-    }
-
-    if (checkEdge && graph.hasEdge(from, to)) {
-      throw new IllegalArgumentException("Edge in graph already exists")
-    }
-
-    graph = graph.addEdge(from, to)
-  }
-
-  /**
-    * Create an edge between two sources in a DAG pipeline. The 'to' must not already have a parent.
+  /** Creates an edge between two stages. The 'to' must not already have a parent.
     *
-    * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically. If it was
-    * already configured as sequential, it will throw an illegal state exception.
+    * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically.
+    * If it was already configured as sequential, it will throw an [[IllegalStateException]].
+    *
+    * @param from The stage to start from.
+    * @param to The stage to end at.
+    * @param checkEdge Check if edge already exists (and throw exception if so).
+    * @tparam In Incoming type from 'start' stage.
+    * @tparam Mid1 Intermediate type which is output for 'start' stage.
+    * @tparam Mid2 Intermediate type which is output for 'end' stage.
+    * @tparam Out Outgoing type for 'end' stage.
     */
-  def edge[U <: Serializable with AnyRef,
-           V <: Serializable with AnyRef,
-           X <: Serializable with AnyRef,
-           Y <: Serializable with AnyRef](
-      from: PipelineObject[U, V],
-      to: PipelineObject[X, Y]): PipelineBuilder = {
+  def edge[In <: Serializable with AnyRef,
+           Mid1 <: Serializable with AnyRef,
+           Mid2 <: Serializable with AnyRef,
+           Out <: Serializable with AnyRef](
+      from: Stage[In, Mid1],
+      to: Stage[Mid2, Out]): PipelineBuilder = {
     makeEdge(from, to)
 
     this
   }
 
-  /**
-    * Add multiple parents in given ordered list.
+  /** Creates an edge between two stages. The 'to' must not already have a parent.
     *
-    * @param obj Node
-    * @param parents Parents
-    * @tparam U Node In
-    * @tparam V Node Out
-    * @return Builder
+    * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically.
+    * If it was already configured as sequential, it will throw an [[IllegalStateException]].
+    *
+    * @param from The stage to start from.
+    * @param to The stage to end at.
+    * @param checkEdge Check if edge already exists (and throw exception if so).
+    * @tparam In Incoming type from 'start' stage.
+    * @tparam Mid1 Intermediate type which is output for 'start' stage.
+    * @tparam Mid2 Intermediate type which is output for 'end' stage.
+    * @tparam Out Outgoing type for 'end' stage.
     */
-  def addParents[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
-      obj: PipelineObject[U, V],
-      parents: PipelineObjectList): PipelineBuilder = {
-    for (item <- parents) {
-      makeEdge(item, obj, checkEdge = false)
+  private def makeEdge[In <: Serializable with AnyRef,
+                       Mid1 <: Serializable with AnyRef,
+                       Mid2 <: Serializable with AnyRef,
+                       Out <: Serializable with AnyRef](from: Stage[In, Mid1],
+                                                        to: Stage[Mid2, Out],
+                                                        checkEdge: Boolean =
+                                                          true): Unit = {
+    if (pipelineType != PipelineType.DAG) {
+      if (!graph.isEmpty) {
+        throw new IllegalStateException(
+          "Can't append node to non-sequential pipeline.")
+      }
+
+      pipelineType = PipelineType.DAG
     }
+
+    // Add stages if they don't exist yet.
+    if (!graph.hasNode(from)) graph = graph.addNode(from)
+    if (!graph.hasNode(to)) graph = graph.addNode(to)
+
+    // Check if edge already existed (if this needs to be checked).
+    if (checkEdge && graph.hasEdge(from, to)) {
+      throw new IllegalArgumentException("Edge in graph already exists")
+    }
+
+    // Create it.
+    graph = graph.addEdge(from, to)
+  }
+
+  /** Add multiple parents (stages) in given ordered list.
+    *
+    * @param stage Stage to add the parents to.
+    * @param parents Parents to connect to the child {@code stage}.
+    * @tparam In Incoming type of the stage.
+    * @tparam Out Outgoing type of the stage.
+    * @return The builder instance.
+    */
+  def addParents[In <: Serializable with AnyRef,
+                 Out <: Serializable with AnyRef](
+      stage: Stage[In, Out],
+      parents: StageList): PipelineBuilder = {
+
+    // Create edges ignoring the duplicates.
+    parents.foreach(makeEdge(_, stage, checkEdge = false))
 
     this
   }
 
-  /**
-    * Add a parent.
+  /** Add a parent to a node.
     *
-    * @param obj Node
-    * @param parent Parent
-    * @return
+    * @param stage The child stage.
+    * @param parent The parent stage.
+    * @tparam In Incoming type from 'start' stage.
+    * @tparam Mid1 Intermediate type which is output for 'start' stage.
+    * @tparam Mid2 Intermediate type which is output for 'end' stage.
+    * @tparam Out Outgoing type for 'end' stage.
+    * @return The builder instance.
     */
-  def addParents[U <: Serializable with AnyRef,
-                 V <: Serializable with AnyRef,
-                 X <: Serializable with AnyRef,
-                 Y <: Serializable with AnyRef](
-      obj: PipelineObject[U, V],
-      parent: PipelineObject[X, Y]): PipelineBuilder =
-    addParents(obj, parent.inList)
+  def addParents[In <: Serializable with AnyRef,
+                 Mid1 <: Serializable with AnyRef,
+                 Mid2 <: Serializable with AnyRef,
+                 Out <: Serializable with AnyRef](
+      stage: Stage[In, Mid1],
+      parent: Stage[Mid2, Out]): PipelineBuilder =
+    addParents(stage, parent.inList)
 
-  /**
-    * Build a pipeline from the builder configuration
+  /** Builds a pipeline from the builder configuration.
     *
-    * @throws EmptyPipelineException When no pipeline is defined
-    * @return Pipeline
+    * @throws EmptyPipelineException When no pipeline is defined (graph is empty).
+    * @return A new [[Pipeline]].
     */
   def build(): Pipeline = {
-    if (graph.isEmpty) {
-      throw EmptyPipelineException()
-    }
+    if (graph.isEmpty) throw EmptyPipelineException()
 
-    graph.nodes.foreach(
-      _.asInstanceOf[PipelineObject[Serializable with AnyRef,
-                                    Serializable with AnyRef]]
-        .verifyGraph(graph))
+    // Correctly map and verify graph.
+    graph.nodes
+      .foreach(
+        _.asInstanceOf[Stage[Serializable with AnyRef,
+                             Serializable with AnyRef]]
+          .verifyGraph(graph))
 
     logger.info(
       s"Created pipeline with ${graph.nodes.size} nodes and ${graph.edges.size} edges.")

@@ -36,7 +36,7 @@ class RSSInputTest extends FunSuite {
     println("RSS Test pipeline start")
     val rssURL = "http://lorem-rss.herokuapp.com/feed?unit=second"
     val source = new RSSInput(rssURL, "EEE, dd MMMM yyyy HH:mm:ss z", 1000)
-    val sink = new LimitingSinkPipelineObject(12)
+    val sink = new LimitingSinkStage(12)
 
     val pipeline = new PipelineBuilder()
       .append(source)
@@ -48,7 +48,7 @@ class RSSInputTest extends FunSuite {
 
 // Simple Sink Pipeline Object that limits the output to a certain number
 // and is able to get a list of all the items that were received in the sink
-class LimitingSinkPipelineObject(elements: Int = -1)
+class LimitingSinkStage(elements: Int = -1)
     extends OutputStage[RSSItem]
     with Serializable {
   var sink: LimitingSink = _

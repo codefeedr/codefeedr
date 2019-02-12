@@ -40,9 +40,8 @@ final case class JobFinishedException()
 final case class CodeHitException() extends RuntimeException
 
 //a simple test source which generates some StringType messages
-class SimpleSourcePipelineObject(
-    attributes: StageAttributes = StageAttributes())
-    extends PipelineObject[NoType, StringType](attributes) {
+class SimpleSourceStage(attributes: StageAttributes = StageAttributes())
+    extends Stage[NoType, StringType](attributes) {
   override def transform(source: DataStream[NoType]): DataStream[StringType] = {
     pipeline.environment.addSource {
       new RichSourceFunction[StringType] {
@@ -61,15 +60,13 @@ class SimpleSourcePipelineObject(
 }
 
 //simply transforms from x => x
-class SimpleTransformPipelineObject
-    extends PipelineObject[StringType, StringType] {
+class SimpleTransformStage extends Stage[StringType, StringType] {
   override def transform(
       source: DataStream[StringType]): DataStream[StringType] = source
 }
 
 //simple sink which prints the elements and stops after #elements
-class SimpleSinkPipelineObject(elements: Int = -1)
-    extends OutputStage[StringType] {
+class SimpleSinkStage(elements: Int = -1) extends OutputStage[StringType] {
   override def main(source: DataStream[StringType]): Unit = {
     source.addSink(new PrintSinkElements(elements)).setParallelism(1)
   }
@@ -90,13 +87,13 @@ class PrintSinkElements(elements: Int) extends PrintSinkFunction[StringType] {
   }
 }
 
-class HitObjectTest extends PipelineObject[NoType, NoType] {
+class HitObjectTest extends Stage[NoType, NoType] {
   override def transform(source: DataStream[NoType]): DataStream[NoType] = {
     throw CodeHitException()
   }
 }
 
-class FlinkCrashObjectTest extends PipelineObject[NoType, NoType] {
+class FlinkCrashObjectTest extends Stage[NoType, NoType] {
   override def transform(source: DataStream[NoType]): DataStream[NoType] = {
     pipeline.environment
       .fromCollection[String](Seq("a", "b"))

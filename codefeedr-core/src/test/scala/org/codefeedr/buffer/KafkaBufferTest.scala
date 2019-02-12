@@ -33,10 +33,7 @@ import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.stages.{InputStage, OutputStage, StageAttributes}
-import org.codefeedr.testUtils.{
-  JobFinishedException,
-  SimpleSourcePipelineObject
-}
+import org.codefeedr.testUtils.{JobFinishedException, SimpleSourceStage}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 import redis.embedded.RedisServer
 
@@ -79,7 +76,7 @@ class KafkaBufferTest
 
     //setup simple kafkabuffer
     val pipeline = new PipelineBuilder()
-      .append(new SimpleSourcePipelineObject())
+      .append(new SimpleSourceStage())
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST,
                          s"redis://localhost:$redisPort")
       .build()
