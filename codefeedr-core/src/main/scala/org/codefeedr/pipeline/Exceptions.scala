@@ -18,26 +18,32 @@
  */
 package org.codefeedr.pipeline
 
+/** Thrown when a pipeline is empty. */
 final case class EmptyPipelineException(private val message: String = "",
                                         private val cause: Throwable =
                                           None.orNull)
     extends Exception(message, cause)
 
+/** Thrown when a pipeline has no source. */
 final case class NoSourceException(private val message: String = "",
                                    private val cause: Throwable = None.orNull)
     extends Exception(message, cause)
 
+/** Thrown when a pipeline has no sink. */
 final case class NoSinkException(private val message: String = "",
                                  private val cause: Throwable = None.orNull)
     extends Exception(message, cause)
 
+/** Thrown when a stage is not found. */
 final case class StageNotFoundException(private val message: String = "",
                                         private val cause: Throwable =
                                           None.orNull)
     extends Exception(message, cause)
 
+/** Thrown to list all stages in a pipelines. It's not really an exception, but necessary since Flink has no graceful shutdown.  */
 final case class PipelineListException(private val json: String)
     extends Exception(json, null)
 
+/** Thrown when there are conflicting/duplicate stage ids. */
 final case class StageIdsNotUniqueException(private val stage: String)
     extends Exception(stage, null)

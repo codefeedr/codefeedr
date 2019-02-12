@@ -21,10 +21,7 @@ package org.codefeedr.pipeline
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.configuration.{ConfigConstants, Configuration}
 import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.api.scala.{
-  DataStream,
-  StreamExecutionEnvironment
-}
+import org.apache.flink.streaming.api.scala._
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferType.BufferType
 import org.codefeedr.keymanager.KeyManager
