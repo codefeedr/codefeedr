@@ -19,6 +19,7 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferType
 import org.codefeedr.buffer.BufferType.BufferType
@@ -30,7 +31,7 @@ import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-class PipelineBuilder() {
+class PipelineBuilder() extends Logging {
 
   /** Type of buffer used in the pipeline */
   protected var bufferType: BufferType = BufferType.Kafka
@@ -308,6 +309,11 @@ class PipelineBuilder() {
       _.asInstanceOf[PipelineObject[Serializable with AnyRef,
                                     Serializable with AnyRef]]
         .verifyGraph(graph))
+
+    logger.info(
+      s"Created pipeline with ${graph.nodes.size} nodes and ${graph.edges.size} edges.")
+    logger.info(
+      s"Buffer type: $bufferType, key manager: ${keyManager.getClass.getName}.")
 
     Pipeline(name,
              bufferType,

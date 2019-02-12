@@ -227,4 +227,11 @@ class DirectedAcyclicGraphTest extends FunSuite {
 
     assert(dag.getFirstParent(null).isEmpty)
   }
+
+  test("Verify if a graph is empty") {
+    val dag = new DirectedAcyclicGraph()
+
+    assert(dag.isEmpty)
+    assert(!dag.addNode(nodeA).isEmpty)
+  }
 }

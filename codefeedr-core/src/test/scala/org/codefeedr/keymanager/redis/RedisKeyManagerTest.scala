@@ -39,7 +39,7 @@ class RedisKeyManagerTest
     with BeforeAndAfterAll {
 
   var km: RedisKeyManager = _
-  var redis: RedisServer = null
+  var redis: RedisServer = _
   var redisPort: Int = 0
 
   // Before all tests, setup an embedded redis
