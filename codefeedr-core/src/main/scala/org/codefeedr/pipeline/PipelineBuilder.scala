@@ -18,14 +18,17 @@
  */
 package org.codefeedr.pipeline
 
-import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.streaming.api.scala.{
+  DataStream,
+  StreamExecutionEnvironment
+}
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferType
 import org.codefeedr.buffer.BufferType.BufferType
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.PipelineType.PipelineType
-import org.codefeedr.stages.OutputStage
+import org.codefeedr.stages.{InputStage, OutputStage}
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
@@ -194,16 +197,33 @@ class PipelineBuilder extends Logging {
     this
   }
 
+  /** Append a stage created from an input function.
+    *
+    * @param input Input function.
+    * @tparam In Type of the [[DataStream]].
+    * @return The builder instance.
+    */
+  def appendSource[In <: Serializable with AnyRef: ClassTag: TypeTag](
+      input: StreamExecutionEnvironment => DataStream[In]): PipelineBuilder = {
+    val pipelineItem = new InputStage[In] {
+      override def main(): DataStream[In] = input(this.environment)
+    }
+
+    append(pipelineItem)
+  }
+
   /** Append a stage created from a transform function.
     *
     * @param trans Transform function from one type to another.
+    * @tparam In Incoming type of the [[DataStream]].
+    * @tparam Out Outgoing type of the [[DataStream]].
     * @return The builder instance.
     */
-  def append[U <: Serializable with AnyRef: ClassTag: TypeTag,
-             V <: Serializable with AnyRef: ClassTag: TypeTag](
-      trans: DataStream[U] => DataStream[V]): PipelineBuilder = {
-    val pipelineItem = new Stage[U, V] {
-      override def transform(source: DataStream[U]): DataStream[V] =
+  def append[In <: Serializable with AnyRef: ClassTag: TypeTag,
+             Out <: Serializable with AnyRef: ClassTag: TypeTag](
+      trans: DataStream[In] => DataStream[Out]): PipelineBuilder = {
+    val pipelineItem = new Stage[In, Out] {
+      override def transform(source: DataStream[In]): DataStream[Out] =
         trans(source)
     }
 
@@ -213,12 +233,13 @@ class PipelineBuilder extends Logging {
   /** Append a stage created from an output function.
     *
     * @param trans Output function.
+    * @tparam In Type of the [[DataStream]].
     * @return The builder instance.
     */
-  def append[U <: Serializable with AnyRef: ClassTag: TypeTag](
-      trans: DataStream[U] => Any): PipelineBuilder = {
-    val pipelineItem = new OutputStage[U] {
-      override def main(source: DataStream[U]): Unit = trans(source)
+  def append[In <: Serializable with AnyRef: ClassTag: TypeTag](
+      trans: DataStream[In] => Any): PipelineBuilder = {
+    val pipelineItem = new OutputStage[In] {
+      override def main(source: DataStream[In]): Unit = trans(source)
     }
 
     append(pipelineItem)

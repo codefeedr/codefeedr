@@ -19,7 +19,10 @@ package org.codefeedr.pipeline
 
 import com.github.sebruck.EmbeddedRedis
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
-import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.streaming.api.scala.{
+  DataStream,
+  StreamExecutionEnvironment
+}
 import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 import org.apache.flink.api.scala._
@@ -71,8 +74,12 @@ class PipelineTest
   }
 
   test("Simple pipeline test wordcount") {
+    val list = "hallo hallo doei doei doei".split("[ \n]")
+
     builder
-      .append(new StringInput(str = "hallo hallo doei doei doei"))
+      .appendSource { x: StreamExecutionEnvironment =>
+        x.fromCollection(list).map(StringType(_))
+      }
       .append { x: DataStream[StringType] =>
         x.map(x => (x.value, 1))
           .keyBy(0)

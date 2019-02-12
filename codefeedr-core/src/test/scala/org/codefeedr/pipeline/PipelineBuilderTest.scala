@@ -18,7 +18,10 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
-import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.streaming.api.scala.{
+  DataStream,
+  StreamExecutionEnvironment
+}
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.buffer.BufferType
 import org.apache.flink.api.scala._
@@ -189,6 +192,22 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assertThrows[IllegalArgumentException] {
       builder.append(a)
     }
+  }
+
+  test("Append an anonymous input pipeline item") {
+    val pipeline = builder
+      .appendSource { x: StreamExecutionEnvironment =>
+        x.fromCollection(List(StringType("Test")))
+      }
+      .append { x: DataStream[StringType] =>
+        x.map(x => x)
+      }
+      .build()
+
+    assert(pipeline.graph.nodes.size == 2)
+
+    pipeline.graph.nodes.head shouldBe an[Stage[NoType, StringType]]
+    pipeline.graph.nodes.last shouldBe an[Stage[StringType, StringType]]
   }
 
   test("Append an anonymous pipeline item") {
