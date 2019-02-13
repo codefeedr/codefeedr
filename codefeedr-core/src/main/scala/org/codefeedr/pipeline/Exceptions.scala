@@ -40,6 +40,12 @@ final case class StageNotFoundException(private val message: String = "",
                                           None.orNull)
     extends Exception(message, cause)
 
+/** Thrown when two connected stages have incompatible types. **/
+final case class StageTypesIncompatibleException(
+    private val message: String = "",
+    private val cause: Throwable = None.orNull)
+    extends Exception(message, cause)
+
 /** Thrown to list all stages in a pipelines. It's not really an exception, but necessary since Flink has no graceful shutdown.  */
 final case class PipelineListException(private val json: String)
     extends Exception(json, null)

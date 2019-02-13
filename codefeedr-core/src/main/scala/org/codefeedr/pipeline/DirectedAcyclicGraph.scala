@@ -187,6 +187,23 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(),
     nodes.find(node => !nodes.exists(toNode => hasEdge(node, toNode)))
   }
 
+  /** Verifies graph make sure that if two stages are connected, they are type compatible.
+    * I.e. Stage[A, B] => Stage[C, D], that B == C.
+    */
+  def verifyGraph() = {
+    edges.foreach { e =>
+      val stageOne = e.from
+        .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
+      val stageTwo = e.from
+        .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
+
+      if (stageOne.getOutType != stageTwo.getInType)
+        throw new StageTypesIncompatibleException(
+          s"Output type of ${stageOne.id}: ${stageOne.getOutType} is not compatible with ${stageTwo.id}: ${stageTwo.getInType}.")
+    }
+
+  }
+
   /** Equality check for a DAG.
     *
     * @param obj Object to compare with.

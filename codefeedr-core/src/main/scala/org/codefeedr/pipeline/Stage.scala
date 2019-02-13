@@ -24,7 +24,7 @@ import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferFactory
 import org.codefeedr.stages.StageAttributes
 
-import scala.reflect.ClassTag
+import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
 
 /** This class represents a stage within a pipeline. I.e. a node in the graph.
@@ -44,6 +44,9 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
 
   /** Get the id of this stage */
   def id: String = attributes.id.getOrElse(getClass.getName)
+
+  def getInType = classTag[In].runtimeClass.asInstanceOf[Class[In]]
+  def getOutType = classTag[Out].runtimeClass.asInstanceOf[Class[Out]]
 
   /** Get the properties of this stage.
     *
@@ -73,9 +76,9 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     */
   protected[pipeline] def verifyGraph(graph: DirectedAcyclicGraph): Unit = {}
 
-  /** Get all parents for this object.
+  /** Get all parents of this stage.
     *
-    * @return set of parents. Can be empty
+    * @return The parents of this stage, can be empty.
     */
   def getParents
     : Vector[Stage[Serializable with AnyRef, Serializable with AnyRef]] =
@@ -84,48 +87,47 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
       .asInstanceOf[Vector[
         Stage[Serializable with AnyRef, Serializable with AnyRef]]]
 
-  /**
-    * Check if this pipeline object is sourced from a Buffer.
+  /** Check if this stage is sourced from a [[org.codefeedr.buffer.Buffer]].
     *
-    * @return if this object has a (buffer) source.
+    * @return True if this stage has a Buffer source.
     */
   def hasMainSource: Boolean =
     typeOf[In] != typeOf[NoType] && pipeline.graph
       .getFirstParent(this)
       .isDefined
 
-  /**
-    * Check if this pipeline object is sinked to a Buffer.
+  /** Check if this stage is sinked to a [[org.codefeedr.buffer.Buffer]].
     *
-    * @return if this object has a (buffer) sink.
+    * @return True if this stage has a Buffer sink.
     */
   def hasSink: Boolean = typeOf[Out] != typeOf[NoType]
 
-  /**
-    * Returns the buffer source of this pipeline object.
+  /** Returns the (main)buffer source of this stage.
+    * The main source is the first parent of this stage. Other sources need to be joined in the Flink job.
     *
-    * @return the DataStream resulting from the buffer.
+    * @return The DataStream resulting from the buffer.
     */
   def getMainSource(groupId: String = null): DataStream[In] = {
     assert(pipeline != null)
 
     if (!hasMainSource) {
       throw NoSourceException(
-        "PipelineObject defined NoType as In type. Buffer can't be created.")
+        "Stage defined NoType as In type. Buffer can't be created.")
     }
 
+    // Get the first parent.
     val parentNode = getParents(0)
 
+    // Create a buffer and return the source.
     val factory = new BufferFactory(pipeline, this, parentNode, groupId)
     val buffer = factory.create[In]()
 
     buffer.getSource
   }
 
-  /**
-    * Returns the buffer sink of this pipeline object.
+  /** Returns the buffer sink of this stage.
     *
-    * @return the SinkFunction resulting from the buffer.
+    * @return The SinkFunction resulting from the buffer.
     */
   def getSink(groupId: String = null): SinkFunction[Out] = {
     assert(pipeline != null)
@@ -135,21 +137,24 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
         "PipelineObject defined NoType as Out type. Buffer can't be created.")
     }
 
+    // Create a buffer and return the sink.
     val factory = new BufferFactory(pipeline, this, this, groupId)
     val buffer = factory.create[Out]()
 
     buffer.getSink
   }
 
-  /**
-    * Get the sink subject used by the buffer.
-    *
+  /** Get the sink subject used by the buffer.
     * This is also used for child objects to read from the buffer again.
     *
-    * @return Sink subject
+    * @return Sink subject which is basically the stage id.
     */
   def getSinkSubject: String = this.id
 
+  /** Returns the buffer source of this stage.
+    *
+    * @return The DataStream resulting from the buffer.
+    */
   def getSource[T <: Serializable with AnyRef: ClassTag: TypeTag](
       parentNode: Stage[Serializable with AnyRef, Serializable with AnyRef])
     : DataStream[T] = {
@@ -161,20 +166,18 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     buffer.getSource
   }
 
-  /**
-    * Create a list of object by appending another object
+  /** Create a list of stages by appending another stage.
     *
-    * @param obj Other object
-    * @return List with this and other
+    * @param stage The other stage to add.
+    * @return A new StageList with the stage added.
     */
   def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
-      obj: Stage[U, V]): StageList =
-    inList.add(obj)
+      stage: Stage[U, V]): StageList =
+    inList.add(stage)
 
-  /**
-    * Create a list witht his object
+  /** Create a [[StageList]] with this stage.
     *
-    * @return List
+    * @return [[StageList]] containing this stage.
     */
   def inList: StageList =
     new StageList().add(this)

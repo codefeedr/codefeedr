@@ -23,6 +23,9 @@ import org.codefeedr.stages.StageAttributes
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.SimpleSourceStage
 import org.scalatest.FunSuite
+import org.apache.flink.api.scala._
+
+case class IntType(id: Int)
 
 class StageTest extends FunSuite {
 
@@ -39,6 +42,21 @@ class StageTest extends FunSuite {
     override def transform(
         source: DataStream[StringType]): DataStream[NoType] = {
       getSink()
+
+      null
+    }
+  }
+
+  class StringTypeStage extends Stage[NoType, StringType] {
+    override def transform(
+        source: DataStream[NoType]): DataStream[StringType] = {
+      environment.fromCollection(Seq(StringType("a")))
+    }
+  }
+
+  class IntTypeStage extends Stage[IntType, NoType] {
+    override def transform(source: DataStream[IntType]): DataStream[NoType] = {
+      source.print()
 
       null
     }
@@ -69,4 +87,21 @@ class StageTest extends FunSuite {
 
     assert(a.id == "testId")
   }
+
+  /**
+  test("Compatible types should not throw an exception") {
+    val stringStage = new StringTypeStage
+    val intStage = new IntTypeStage
+
+    val dag = new DirectedAcyclicGraph()
+      .addNode(stringStage)
+      .addNode(intStage)
+      .addEdge(stringStage, intStage)
+
+    assertThrows[StageTypesIncompatibleException] {
+      stringStage.verifyGraph(dag)
+    }
+  }
+
+    **/
 }

@@ -18,6 +18,9 @@
 
 package org.codefeedr.pipeline
 
+import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.stages.utilities.StringType
+import org.apache.flink.streaming.api.scala._
 import org.scalatest.FunSuite
 
 class DirectedAcyclicGraphTest extends FunSuite {
@@ -26,6 +29,21 @@ class DirectedAcyclicGraphTest extends FunSuite {
   val nodeB = "b"
   val nodeC = "c"
   val nodeD = "d"
+
+  class StringTypeStage extends Stage[NoType, StringType] {
+    override def transform(
+        source: DataStream[NoType]): DataStream[StringType] = {
+      environment.fromCollection(Seq(StringType("a")))
+    }
+  }
+
+  class IntTypeStage extends Stage[IntType, NoType] {
+    override def transform(source: DataStream[IntType]): DataStream[NoType] = {
+      source.print()
+
+      null
+    }
+  }
 
   test("Added nodes are testable") {
     val dag = new DirectedAcyclicGraph()
@@ -233,5 +251,17 @@ class DirectedAcyclicGraphTest extends FunSuite {
 
     assert(dag.isEmpty)
     assert(!dag.addNode(nodeA).isEmpty)
+  }
+
+  test("Verify that graph is type in-compatible") {
+    val stageOne = new StringTypeStage
+    val stageTwo = new IntTypeStage
+
+    val dag = new DirectedAcyclicGraph()
+      .addNode(stageOne)
+      .addNode(stageTwo)
+      .addEdge(stageOne, stageTwo)
+
+    assertThrows[StageTypesIncompatibleException](dag.verifyGraph())
   }
 }
