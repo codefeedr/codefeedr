@@ -27,32 +27,51 @@ import org.codefeedr.buffer.BufferType.BufferType
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.RuntimeType.RuntimeType
 
+case class PipelineProperties(bufferType: BufferType,
+                              bufferProperties: Properties,
+                              keyManager: KeyManager,
+                              streamTimeCharacteristic: TimeCharacteristic)
+
+/** The Pipeline holds all the data and logic to execute a CodeFeedr job.
+  * It stores all stages (Flink jobs) and connects them by setting up buffers (like Kafka).
+  *
+  * @param name The name of the pipeline.
+  * @param bufferType The type of [[org.codefeedr.buffer.Buffer]] (e.g. Kafka).
+  * @param bufferProperties The properties of the Buffer.
+  * @param graph The graph of stages (nodes) and edges (buffers).
+  * @param keyManager The key manager which provide API call management at stage-level.
+  * @param objectProperties the properties of each stage.
+  */
 case class Pipeline(var name: String,
-                    bufferType: BufferType,
-                    bufferProperties: Properties,
+                    pipelineProperties: PipelineProperties,
                     graph: DirectedAcyclicGraph,
-                    keyManager: KeyManager,
                     objectProperties: Map[String, Properties]) {
+
+  /** The mutable StreamExecutionEnvironment. */
   var _environment: StreamExecutionEnvironment = _
 
+  /** Immutable StreamExecutionEnvironment.
+    *
+    * By default the [[TimeCharacteristic]] is set to EvenTime.
+    */
   val environment: StreamExecutionEnvironment = {
     if (_environment == null) {
-      if (false) {
-        val conf = new Configuration()
-
-        conf.setBoolean(ConfigConstants.LOCAL_START_WEBSERVER, true)
-
-        _environment =
-          StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf)
-      } else {
-        _environment = StreamExecutionEnvironment.getExecutionEnvironment
-      }
-
-      _environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+      _environment = StreamExecutionEnvironment.getExecutionEnvironment
+      _environment.setStreamTimeCharacteristic(
+        pipelineProperties.streamTimeCharacteristic)
     }
 
     _environment
   }
+
+  /** Auxiliary method to retrieve buffer properties. */
+  def bufferProperties = pipelineProperties.bufferProperties
+
+  /** Auxiliary method to retrieve buffer type. */
+  def bufferType = pipelineProperties.bufferType
+
+  /** Auxiliary method to retrieve key manager. */
+  def keyManager = pipelineProperties.keyManager
 
   /**
     * Get the properties of a stage

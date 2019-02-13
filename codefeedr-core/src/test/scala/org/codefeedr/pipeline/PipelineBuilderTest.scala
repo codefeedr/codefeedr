@@ -25,6 +25,7 @@ import org.apache.flink.streaming.api.scala.{
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.buffer.BufferType
 import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 import org.codefeedr.testUtils.{
@@ -144,6 +145,23 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     builder.setPipelineType(PipelineType.DAG)
 
     builder.edge(new SimpleTransformStage(), new SimpleSinkStage())
+  }
+
+  test("Default TimeCharacteristic is EventTime") {
+    val pipeline = builder.append(new SimpleSourceStage()).build()
+
+    assert(
+      pipeline.pipelineProperties.streamTimeCharacteristic == TimeCharacteristic.EventTime)
+  }
+
+  test("TimeCharacteristic can be overridden.") {
+    val pipeline = builder
+      .append(new SimpleSourceStage())
+      .setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime)
+      .build()
+
+    assert(
+      pipeline.pipelineProperties.streamTimeCharacteristic == TimeCharacteristic.IngestionTime)
   }
 
   test("A non-sequential pipeline cannot switch to a sequential pipeline") {

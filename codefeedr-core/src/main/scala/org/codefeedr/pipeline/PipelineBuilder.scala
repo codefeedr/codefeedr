@@ -18,6 +18,7 @@
  */
 package org.codefeedr.pipeline
 
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.{
   DataStream,
   StreamExecutionEnvironment
@@ -60,6 +61,10 @@ class PipelineBuilder extends Logging {
 
   /** Key manager */
   protected var keyManager: KeyManager = _
+
+  /** The StreamTimeCharacteristic. Default: [[TimeCharacteristic.EventTime]]*/
+  protected var streamTimeCharacteristic: TimeCharacteristic =
+    TimeCharacteristic.EventTime
 
   /** Graph of the pipeline */
   protected[pipeline] var graph = new DirectedAcyclicGraph()
@@ -162,6 +167,17 @@ class PipelineBuilder extends Logging {
     */
   def setPipelineName(name: String): PipelineBuilder = {
     this.name = name
+
+    this
+  }
+
+  /** Set TimeCharacteristic of the whole pipeline.
+    *
+    * @param timeCharacteristic The TimeCharacterisic.
+    * @return This builder instance.
+    */
+  def setStreamTimeCharacteristic(timeCharacteristic: TimeCharacteristic) = {
+    this.streamTimeCharacteristic = timeCharacteristic
 
     this
   }
@@ -368,11 +384,12 @@ class PipelineBuilder extends Logging {
     logger.info(
       s"Buffer type: $bufferType, key manager: ${keyManager.getClass.getName}.")
 
-    Pipeline(name,
-             bufferType,
-             bufferProperties,
-             graph,
-             keyManager,
-             stageProperties.toMap)
+    // Setup properties for pipeline.
+    val props = PipelineProperties(bufferType,
+                                   bufferProperties,
+                                   keyManager,
+                                   streamTimeCharacteristic)
+
+    Pipeline(name, props, graph, stageProperties.toMap)
   }
 }
