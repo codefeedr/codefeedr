@@ -45,7 +45,10 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
   /** Get the id of this stage */
   def id: String = attributes.id.getOrElse(getClass.getName)
 
+  /** Get the type of IN */
   def getInType = classTag[In].runtimeClass.asInstanceOf[Class[In]]
+
+  /** Get the type of OUT */
   def getOutType = classTag[Out].runtimeClass.asInstanceOf[Class[Out]]
 
   /** Get the properties of this stage.

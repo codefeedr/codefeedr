@@ -18,72 +18,69 @@
 
 package org.codefeedr.pipeline
 
-/**
-  * A list of pipeline object.
+/** Holds a list of [[Stage]] objects.
   *
-  * A List can't hold POs because of the typing system. This circumvents that.
-  *
-  * @param list
+  * @param list Initial list.
   */
 class StageList(private val list: List[AnyRef] = List()) extends Serializable {
 
-  /**
-    * Add an object to the list. Returns a new list.
+  /** Add an object to the StageList. Returns a new list.
     *
-    * @param obj Object to add
-    * @return List with the object included at the end
+    * @param stage Stage to add.
+    * @return StageList with the stage included at the end.
     */
   def add[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
-      obj: Stage[U, V]): StageList =
-    new StageList(list :+ obj)
+      stage: Stage[U, V]): StageList =
+    new StageList(list :+ stage)
 
-  /**
-    * Selects the first element of this List.
+  /** Selects the first element of this StageList.
     *
-    * @return  the first element of this list.
-    * @throws NoSuchElementException if the list is empty.
+    * @return The first element of this list.
+    * @throws NoSuchElementException When the list is empty.
     */
   def head: Stage[Serializable with AnyRef, Serializable with AnyRef] =
     list.head
       .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
 
-  /**
-    * Selects the last element.
+  /** Select the last element of this StageList.
     *
     * @return The last element of this list.
-    * @throws NoSuchElementException If the list is empty.
+    * @throws NoSuchElementException When the list is empty.
     */
   def last: Stage[Serializable with AnyRef, Serializable with AnyRef] =
     list.last
       .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
 
-  /**
-    * Selects all elements except the first.
+  /** Selects all elements except the first.
     *
-    * @return  a list consisting of all elements of this list
+    * @return  A StageList consisting of all elements of this list
     *          except the first one.
-    * @throws UnsupportedOperationException if the list is empty.
+    * @throws UnsupportedOperationException When the list is empty.
     */
   def tail: StageList = new StageList(list.tail)
 
-  /**
-    * Get the size of the list
-    * @return Size
+  /** Get the size of the list.
+    *
+    * @return Size of the list.
     */
   def size: Int = list.size
 
-  /**
-    * Get whether the list is empty
-    * @return True when empty
+  /** Check whether the list is empty.
+    *
+    * @return True when list is empty.
     */
   def isEmpty: Boolean = list.isEmpty
 
-  /**
-    * Get whether the list is not empty
-    * @return True when not empty
+  /** Check whether the list is non empty.
+    *
+    * @return True when list is not empty.
     */
   def nonEmpty: Boolean = list.nonEmpty
 
+  /** Iterates through all stages and applies a function.
+    *
+    * @param f Function to apply to each stage.
+    */
   def foreach(
       f: Stage[Serializable with AnyRef, Serializable with AnyRef] ⇒ Unit)
     : Unit = {
@@ -94,28 +91,33 @@ class StageList(private val list: List[AnyRef] = List()) extends Serializable {
     }
   }
 
+  /** StageList equality.
+    *
+    * @param obj Object to compare to.
+    * @return True if this and obj are equal.
+    */
   override def equals(obj: scala.Any): Boolean = obj match {
     case other: StageList => other.list == this.list
     case _                => false
   }
 
-  /**
-    * Add an element to a copy of the list.
+  /** Adds an element to a copy of the list.
     *
-    * @param obj Element
-    * @return New list with element appended
+    * @param stage The stage to add.
+    * @return New StageList with element appended.
     */
   def :+[U <: Serializable with AnyRef, V <: Serializable with AnyRef](
-      obj: Stage[U, V]): StageList =
-    add(obj)
+      stage: Stage[U, V]): StageList =
+    add(stage)
 
-  /**
-    * Adds all elements of the given list.
-    * @param other List
-    * @return New list with elements from other list appended
+  /** Adds all elements of the given list.
+    *
+    * @param other The other StageList.
+    * @return New list with elements from other list appended.
     */
   def :+(other: StageList): StageList =
     new StageList(list ::: other.list)
 
+  /** Stringify the StageList. */
   override def toString: String = list.toString()
 }
