@@ -27,56 +27,53 @@ import org.codefeedr.stages.StageAttributes
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-/**
-  * This class represents a processing job within the pipeline.
-  *s
-  * @tparam In  input type for this pipeline object.
-  * @tparam Out output type for this pipeline object.
+/** This class represents a stage within a pipeline. I.e. a node in the graph.
+  *
+  * @tparam In  Input type for this stage.
+  * @tparam Out Output type for this stage.
   */
 abstract class Stage[In <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
     val attributes: StageAttributes = StageAttributes()) {
 
+  /** The pipeline this stage belongs to. */
   var pipeline: Pipeline = _
+
+  /** Get the StreamExecutionEnvironment. */
   def environment = pipeline.environment
 
+  /** Get the id of this stage */
   def id: String = attributes.id.getOrElse(getClass.getName)
 
-  /**
-    * Stage properties
+  /** Get the properties of this stage.
     *
-    * @return Properties
+    * @return The properties of this stage.
     */
   def properties: Properties =
     pipeline.propertiesOf(this)
 
-  /**
-    * Setups the pipeline object with a pipeline.
+  /** Setups the pipeline object with a pipeline.
     *
-    * @param pipeline the pipeline it belongs to.
+    * @param pipeline The pipeline it belongs to.
     */
   def setUp(pipeline: Pipeline): Unit = {
     this.pipeline = pipeline
   }
 
-  /**
-    * Transforms the pipeline object from its input type to its output type.
+  /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
     *
-    * @param source the input source.
-    * @return the transformed stream.
+    * @param source The input source with type In.
+    * @return The transformed stream with type Out.
     */
   def transform(source: DataStream[In]): DataStream[Out]
 
-  /**
-    * Verify that the object is valid.
-    *
+  /** Verify that the stage is valid.
     * Checks types of the input sources and whether the graph is configured correctly for the types.
     */
   protected[pipeline] def verifyGraph(graph: DirectedAcyclicGraph): Unit = {}
 
-  /**
-    * Get all parents for this object
+  /** Get all parents for this object.
     *
     * @return set of parents. Can be empty
     */
