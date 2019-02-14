@@ -23,40 +23,43 @@ import org.codefeedr.pipeline.{Pipeline, Stage}
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-/**
-  * Buffer creator.
+/** Factory for a Buffer.
   *
-  * Creates a buffer that reflects the sink of given object.
+  * Creates a buffer that reflects the sink of a given object.
   *
-  * If an in-buffer is needed: sinkObject should be the parent
-  * If an out-buffer is needed: sinkObject should be the actual node that needs a sink
+  * When an in-buffer is necessary: relatedStage should be the parent of the stage.
+  * When an out-buffer is necessary: relatedStage should be the actual stage that needs a sink.
   *
-  * @param pipeline Pipeline
-  * @param sinkObject Object that writes to the buffer
+  * @param pipeline The Pipeline to create a Buffer for.
+  * @param stage The Stage the Buffer should be connected to. It is necessary to know this beforehand, to resolve the types.
+  * @param relatedStage The related-stage to which the stage either has to read or write to.
+  * @param groupId Custom group id, to read from Kafka. Default is set to stage id.
   */
-class BufferFactory[U <: Serializable with AnyRef,
-                    V <: Serializable with AnyRef,
-                    X <: Serializable with AnyRef,
-                    Y <: Serializable with AnyRef](pipeline: Pipeline,
-                                                   stage: Stage[X, Y],
-                                                   sinkObject: Stage[U, V],
-                                                   groupId: String = null) {
+class BufferFactory[In <: Serializable with AnyRef,
+                    Out <: Serializable with AnyRef,
+                    In1 <: Serializable with AnyRef,
+                    Out2 <: Serializable with AnyRef](
+    pipeline: Pipeline,
+    stage: Stage[In, Out],
+    relatedStage: Stage[In1, Out2],
+    groupId: String = null) {
 
-  /**
-    * Create a new buffer
+  /** Creates a new buffer.
     *
-    * @tparam T Object type within the buffer
-    * @return Buffer
-    * @throws IllegalArgumentException When sinkObject is null
-    * @throws IllegalStateException When buffer could not be instantiated due to bad configuration
+    * @tparam T Type of the data within the Buffer.
+    * @throws IllegalArgumentException When relatedStage is null.
+    * @throws IllegalStateException When buffer could not be instantiated due to bad configuration.
+    * @return A new Buffer of type T.
     */
   def create[T <: Serializable with AnyRef: ClassTag: TypeTag](): Buffer[T] = {
     require(
-      sinkObject != null,
+      relatedStage != null,
       "Buffer factory requires a sink object to determine buffer location")
 
-    val subject = sinkObject.getSinkSubject
+    /** Get the id to read from or write to. */
+    val subject = relatedStage.getSinkSubject
 
+    // Create the correct buffer.
     pipeline.bufferType match {
       case BufferType.Kafka => {
         val cleanedSubject = subject.replace("$", "-")
