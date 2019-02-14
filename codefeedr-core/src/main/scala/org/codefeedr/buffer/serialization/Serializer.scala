@@ -21,31 +21,25 @@ package org.codefeedr.buffer.serialization
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-/**
-  * Keeps track of all types of serde's and creates instances of serdes.
-  */
+/** Keeps track of all types of SerDes and creates instances. */
 object Serializer {
 
-  /**
-    * JSON serde support.
+  /** JSON serde support.
     * See: http://json4s.org/
     */
   val JSON = "JSON"
 
-  /**
-    * BSON serde support.
+  /** BSON serde support.
     * See: http://bsonspec.org/
     */
   val BSON = "BSON"
 
-  /**
-    * Kryo serde support.
+  /** Kryo serde support.
     * https://github.com/EsotericSoftware/kryo
     */
   val KRYO = "KRYO"
 
-  /**
-    * Retrieve a serde.
+  /** Retrieve a serde.
     *
     * Default is JSONSerde.
     * @param name the name of the serde, see values above for the options.

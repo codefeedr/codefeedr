@@ -27,27 +27,34 @@ import org.json4s.jackson.Serialization
 import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
 
+/** BSON (de-)serializer.
+  * Uses also a JSON serializer in between to go to BSON. This makes it slower then for instance the [[JSONSerde]].
+  *
+  * @tparam T Type of the SerDe.
+  */
 class BsonSerde[T <: Serializable with AnyRef: TypeTag: ClassTag]
     extends AbstractSerde[T] {
 
+  // Implicitly and lazily define the serialization to JSON.
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
+  // Lazily define the BSON encoder.
   lazy val encoder = new BasicBSONEncoder()
 
-  /**
-    * Serializes an element using Bson.
-    * @param element the element to serialize.
-    * @return the serialized byte array.
+  /** Serializes an element using Bson.
+    *
+    * @param element The element to serialize.
+    * @return The serialized byte array.
     */
   override def serialize(element: T): Array[Byte] = {
     val json = Serialization.write(element)(formats)
     encoder.encode(BasicDBObject.parse(json))
   }
 
-  /**
-    * Deserializes an element using Bson.
-    * @param message the message to deserialize.
-    * @return a deserialized case class.
+  /** Deserializes an element using Bson.
+    *
+    * @param message The message to deserialize.
+    * @return A deserialized case class.
     */
   override def deserialize(message: Array[Byte]): T = {
     val json = new RawBsonDocument(message).toJson
@@ -55,8 +62,10 @@ class BsonSerde[T <: Serializable with AnyRef: TypeTag: ClassTag]
   }
 }
 
-//companion object to simply instantiate bson serde
+/** Companion object to simply instantiation of a BSONSerde. */
 object BsonSerde {
+
+  /** Creates new BSON Serde. */
   def apply[T <: Serializable with AnyRef: TypeTag: ClassTag]: BsonSerde[T] =
     new BsonSerde[T]()
 }
