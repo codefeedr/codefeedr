@@ -18,25 +18,24 @@
 
 package org.codefeedr.buffer.serialization
 
-import com.twitter.chill.{Input, Output, ScalaKryoInstantiator}
+import com.twitter.chill.{Input, KryoBase, Output, ScalaKryoInstantiator}
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-/**
-  * Serializer using the Kryo serialization framework for fast and small results.
+/** This serializer using the Kryo serialization framework for fast and small results.
   *
-  * Cannot be used on innerclasses
-  *
-  * @tparam T
+  * @tparam T Type of the SerDe.
   */
 class KryoSerde[T <: Serializable: TypeTag: ClassTag] extends AbstractSerde[T] {
 
-  /**
-    * Serializes a (generic) element using Kryo.
+  // Lazily retrieve kryo instance.
+  private lazy val kryo: KryoBase = getKryo
+
+  /** Serializes a (generic) element using Kryo.
     *
-    * @param element the element to serialized.
-    * @return a serialized byte array.
+    * @param element The element to serialized.
+    * @return A serialized byte array.
     */
   override def serialize(element: T): Array[Byte] = {
     val buffer = new Array[Byte](KryoSerde.BUFFER_SIZE)
@@ -46,25 +45,30 @@ class KryoSerde[T <: Serializable: TypeTag: ClassTag] extends AbstractSerde[T] {
     buffer
   }
 
-  /**
-    * Deserializes a Kryo message
+  /** Deserializes a Kryo message.
     *
-    * @param message the message to deserialized.
-    * @return a deserialized case class.
+    * @param message The message to deserialized.
+    * @return A deserialized case class.
     */
   override def deserialize(message: Array[Byte]): T =
     kryo.readObject(new Input(message), inputClassType)
 
-  private def kryo = {
+  /** Create a new Kryo instance.
+    *
+    * @return The instance.
+    */
+  private def getKryo = {
     val inst = new ScalaKryoInstantiator
     inst.setRegistrationRequired(false)
     inst.newKryo()
   }
 }
 
+/** Companion object to simply instantiation of a KryoSerde. */
 object KryoSerde {
   val BUFFER_SIZE = 4096
 
+  /** Creates new Kryo Serde. */
   def apply[T <: Serializable: ClassTag: TypeTag]: KryoSerde[T] =
     new KryoSerde[T]()
 }
