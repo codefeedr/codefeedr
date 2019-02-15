@@ -37,6 +37,7 @@ Sed dolor lectus, dapibus a semper a, pretium nec turpis. Quisque bibendum nisl 
 In hac habitasse platea dictumst. Integer nunc quam, vestibulum luctus tempor ut, condimentum in nisi. Aliquam dui erat, iaculis non lorem nec, efficitur mollis quam. Aliquam sagittis consequat magna sit amet semper. Suspendisse sed vestibulum purus. In hac habitasse platea dictumst. Pellentesque accumsan mauris id ligula tristique, at pulvinar sapien elementum.
 Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sodales libero, in scelerisque nulla faucibus non. Mauris sagittis nec orci vitae hendrerit. Ut auctor non nulla in ornare. Maecenas a semper nisl. Etiam egestas, sapien nec lacinia tempor, sem nulla consequat tellus, eget dignissim magna lorem quis lacus. Suspendisse potenti. Aliquam eu justo non dolor porta faucibus. Integer id volutpat neque, vel lacinia mi. Mauris volutpat quam vitae purus pulvinar finibus. Aliquam tristique auctor semper. Pellentesque a accumsan ipsum. Nam porta elit sit amet neque cursus tempus."""
 
+  /**
   test("Data should be sent to RabbitMQ successfully") {
 //    clearDatabase()
 
@@ -47,6 +48,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
     pipeline.startMock()
   }
+  **/
 
   //  test("All data can be read from mongo") {
   //    RMQStringCollectSink.reset()
