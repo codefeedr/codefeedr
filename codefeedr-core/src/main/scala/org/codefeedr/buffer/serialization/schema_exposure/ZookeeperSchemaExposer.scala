@@ -23,8 +23,8 @@ import org.apache.zookeeper._
 
 import scala.collection.JavaConverters._
 
-/**
-  * Exposes (Avro) schema's to ZooKeeper.
+/** Exposes (Avro) schema's to ZooKeeper.
+  *
   * @param host the server host of ZooKeeper.
   * @param root the root node of the schema's
   *             NOTE: Must start with / and only contain one '/'
@@ -35,12 +35,10 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas")
 
   var client: ZooKeeper = _
 
-  //connect to zk
+  // Connect to zk.
   connect()
 
-  /**
-    * Connect with ZK server.
-    */
+  /** Connect with ZK server. */
   private def connect(): Unit = {
     client = new ZooKeeper(host, 5000, new Watcher {
       override def process(event: WatchedEvent): Unit = {}
@@ -58,12 +56,11 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas")
     }
   }
 
-  /**
-    * Stores a schema bound to a subject.
+  /** Stores a schema bound to a subject.
     *
-    * @param schema  the schema belonging to that topic.
-    * @param subject the subject belonging to that schema.
-    * @return true if correctly saved.
+    * @param schema  The schema belonging to that topic.
+    * @param subject The subject belonging to that schema.
+    * @return True if correctly saved.
     */
   override def put(schema: Schema, subject: String): Boolean = {
     val path = s"$root/$subject"
@@ -84,10 +81,9 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas")
     path == createdPath
   }
 
-  /**
-    * Get a schema based on a subject.
+  /** Get a schema based on a subject.
     *
-    * @param subject the subject the schema belongs to.
+    * @param subject The subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
   override def get(subject: String): Option[Schema] = {
@@ -102,11 +98,10 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas")
     }
   }
 
-  /**
-    * Deletes a Schema.
+  /** Deletes a Schema.
     *
-    * @param subject the subject the schema belongs to.
-    * @return true if successfully deleted, otherwise false.
+    * @param subject The subject the schema belongs to.
+    * @return True if successfully deleted, otherwise false.
     */
   override def delete(subject: String): Boolean = {
     try {
@@ -119,9 +114,7 @@ class ZookeeperSchemaExposer(host: String, root: String = "/codefeedr:schemas")
     true
   }
 
-  /**
-    * Deletes all schemas.
-    */
+  /** Deletes all the schemas */
   override def deleteAll(): Unit = {
     val exists = client.exists(s"$root", false)
 
