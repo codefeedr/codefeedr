@@ -19,8 +19,15 @@
 package org.codefeedr.plugins.travis.util
 
 import org.codefeedr.keymanager.KeyManager
-import org.codefeedr.plugins.travis.TravisProtocol.{TravisBuild, TravisBuilds, TravisRepository}
-import org.codefeedr.plugins.travis.util.TravisExceptions.{CouldNotExtractException, CouldNotGetResourceException}
+import org.codefeedr.plugins.travis.TravisProtocol.{
+  TravisBuild,
+  TravisBuilds,
+  TravisRepository
+}
+import org.codefeedr.plugins.travis.util.TravisExceptions.{
+  CouldNotExtractException,
+  CouldNotGetResourceException
+}
 import org.codefeedr.stages.utilities.HttpRequester
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.JsonMethods.parse
@@ -45,7 +52,8 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     val filter: String => Boolean = slug => {
       val responseBody = getTravisResource("/repo/" + slug.replace("/", "%2F"))
       val isActive = try {
-        val active = parse(responseBody).extract[TravisRepository].active.getOrElse(false)
+        val active =
+          parse(responseBody).extract[TravisRepository].active.getOrElse(false)
         active
       } catch {
         case _: org.json4s.MappingException =>
@@ -65,7 +73,11 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     * @param limit How many builds to get
     * @return Page with Travis builds
     */
-  def getTravisBuilds(owner: String, repoName: String, branch: String = "", offset: Int = 0, limit: Int = 25): TravisBuilds = {
+  def getTravisBuilds(owner: String,
+                      repoName: String,
+                      branch: String = "",
+                      offset: Int = 0,
+                      limit: Int = 25): TravisBuilds = {
     getTravisBuildsWithSlug(owner + "%2F" + repoName, branch, offset, limit)
   }
 
@@ -77,7 +89,10 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     * @param limit How many builds to get
     * @return Page with Travis builds
     */
-  def getTravisBuildsWithSlug(slug: String, branch: String = "", offset: Int = 0, limit: Int = 25): TravisBuilds = {
+  def getTravisBuildsWithSlug(slug: String,
+                              branch: String = "",
+                              offset: Int = 0,
+                              limit: Int = 25): TravisBuilds = {
 
     val url = "/repo/" + slug + "/builds" +
       (if (branch.nonEmpty) "?branch.name=" + branch else "?") +
@@ -112,12 +127,13 @@ class TravisService(keyManager: KeyManager) extends Serializable {
     * @tparam A Case class
     * @return Extracted JSon in case class
     */
-  def extract[A : Manifest](json: JValue): A = {
+  def extract[A: Manifest](json: JValue): A = {
     try {
       json.extract[A]
     } catch {
       case _: Throwable =>
-        throw CouldNotExtractException("Could not extract case class from JValue: " + json)
+        throw CouldNotExtractException(
+          "Could not extract case class from JValue: " + json)
     }
   }
 
@@ -133,7 +149,8 @@ class TravisService(keyManager: KeyManager) extends Serializable {
       new HttpRequester().retrieveResponse(request)
     } catch {
       case _: Throwable =>
-        throw CouldNotGetResourceException("Could not get the requested resource from: " + url + endpoint)
+        throw CouldNotGetResourceException(
+          "Could not get the requested resource from: " + url + endpoint)
     }
     response.body
   }
@@ -149,5 +166,3 @@ class TravisService(keyManager: KeyManager) extends Serializable {
 
   }
 }
-
-

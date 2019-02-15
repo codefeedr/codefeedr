@@ -36,7 +36,10 @@ import scala.collection.JavaConversions._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-class MongoInputOutputTest extends FunSuite with MongoEmbedDatabase with BeforeAndAfterAll {
+class MongoInputOutputTest
+    extends FunSuite
+    with MongoEmbedDatabase
+    with BeforeAndAfterAll {
 
   val server = "mongodb://localhost:12345"
   val longString =
@@ -49,10 +52,10 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
   var mongoProps: MongodProps = null
 
   override def beforeAll() = {
-    mongoProps = mongoStart()   // by default port = 12345 & version = Version.3.3.1
-  }                               // add your own port & version parameters in mongoStart method if you need it
+    mongoProps = mongoStart() // by default port = 12345 & version = Version.3.3.1
+  } // add your own port & version parameters in mongoStart method if you need it
 
-  override def afterAll()  { mongoStop(mongoProps) }
+  override def afterAll() { mongoStop(mongoProps) }
 
   def clearDatabase(): Unit = {
     val client = MongoClient(server)
@@ -66,7 +69,10 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
     val pipeline = new PipelineBuilder()
       .append(new StringInput(longString))
-      .append(new MongoOutput[StringType]("db", "collection", server = "mongodb://localhost:12345"))
+      .append(
+        new MongoOutput[StringType]("db",
+                                    "collection",
+                                    server = "mongodb://localhost:12345"))
       .build()
 
     pipeline.startMock()
@@ -76,8 +82,11 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     StringCollectSink.reset()
 
     val pipeline = new PipelineBuilder()
-      .append(new MongoInput[StringType]("db", "collection", server = "mongodb://localhost:12345"))
-      .append({ x : DataStream[StringType] =>
+      .append(
+        new MongoInput[StringType]("db",
+                                   "collection",
+                                   server = "mongodb://localhost:12345"))
+      .append({ x: DataStream[StringType] =>
         x.addSink(new StringCollectSink).setParallelism(1)
       })
       .build()
@@ -95,7 +104,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
   test("Throws when connection string is incorrect") {
     val pipeline = new PipelineBuilder()
       .append(new MongoInput[StringType]("db", "collection", "aaa"))
-      .append({ x : DataStream[StringType] =>
+      .append({ x: DataStream[StringType] =>
         x.addSink(new StringCollectSink).setParallelism(1)
       })
       .build()
@@ -110,8 +119,12 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
     val pipeline = new PipelineBuilder()
       .append(new StringInput(longString))
-      .append { e: DataStream[StringType] => e.assignAscendingTimestamps(_ => new Date().getTime / 1000) }
-      .append(new MongoOutput[StringType]("db", "collection", server = "mongodb://localhost:12345"))
+      .append { e: DataStream[StringType] =>
+        e.assignAscendingTimestamps(_ => new Date().getTime / 1000)
+      }
+      .append(new MongoOutput[StringType]("db",
+                                          "collection",
+                                          server = "mongodb://localhost:12345"))
       .build()
 
     pipeline.startMock()
@@ -121,8 +134,11 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     StringCollectSink.reset()
 
     val pipeline = new PipelineBuilder()
-      .append(new MongoInput[StringType]("db", "collection", server = "mongodb://localhost:12345"))
-      .append({ x : DataStream[StringType] =>
+      .append(
+        new MongoInput[StringType]("db",
+                                   "collection",
+                                   server = "mongodb://localhost:12345"))
+      .append({ x: DataStream[StringType] =>
         x.addSink(new StringCollectSink).setParallelism(1)
       })
       .build()
@@ -136,17 +152,21 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     clearDatabase()
 
     val list = Seq[TestEvent](
-
-
       TestEvent("klaas", new GregorianCalendar(1998, Calendar.JUNE, 1).getTime),
-      TestEvent("nagellak", new GregorianCalendar(1998, Calendar.SEPTEMBER, 1).getTime),
-      TestEvent("verdieping", new GregorianCalendar(1997, Calendar.SEPTEMBER, 12).getTime)
+      TestEvent("nagellak",
+                new GregorianCalendar(1998, Calendar.SEPTEMBER, 1).getTime),
+      TestEvent("verdieping",
+                new GregorianCalendar(1997, Calendar.SEPTEMBER, 12).getTime)
     )
 
     val pipeline = new PipelineBuilder()
       .append(new SeqInput[TestEvent](list))
-      .append { e: DataStream[TestEvent] => e.assignAscendingTimestamps(x => x.time.getTime / 1000) }
-      .append(new MongoOutput[TestEvent]("db", "collection", server = "mongodb://localhost:12345"))
+      .append { e: DataStream[TestEvent] =>
+        e.assignAscendingTimestamps(x => x.time.getTime / 1000)
+      }
+      .append(new MongoOutput[TestEvent]("db",
+                                         "collection",
+                                         server = "mongodb://localhost:12345"))
       .build()
 
     pipeline.startMock()
@@ -155,11 +175,16 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
   test("Can filter on event time (2)") {
     TestEventCollectSink.reset()
 
-    val query = MongoQuery.from(new GregorianCalendar(1998, Calendar.JANUARY, 1).getTime)
+    val query =
+      MongoQuery.from(new GregorianCalendar(1998, Calendar.JANUARY, 1).getTime)
 
     val pipeline = new PipelineBuilder()
-      .append(new MongoInput[TestEvent]("db", "collection", "mongodb://localhost:12345", query))
-      .append({ x : DataStream[TestEvent] =>
+      .append(
+        new MongoInput[TestEvent]("db",
+                                  "collection",
+                                  "mongodb://localhost:12345",
+                                  query))
+      .append({ x: DataStream[TestEvent] =>
         x.addSink(new TestEventCollectSink).setParallelism(1)
       })
       .build()
@@ -198,7 +223,6 @@ class StringCollectSink extends SinkFunction[StringType] {
     }
   }
 }
-
 
 object TestEventCollectSink {
   var result = new util.ArrayList[String]() //mutable list

@@ -19,7 +19,11 @@
 package org.codefeedr.plugin.twitter.stages
 
 import com.danielasfregola.twitter4s.TwitterStreamingClient
-import com.danielasfregola.twitter4s.entities.{AccessToken, ConsumerToken, Tweet}
+import com.danielasfregola.twitter4s.entities.{
+  AccessToken,
+  ConsumerToken,
+  Tweet
+}
 import com.danielasfregola.twitter4s.entities.enums.FilterLevel
 import com.danielasfregola.twitter4s.entities.enums.FilterLevel.FilterLevel
 import com.danielasfregola.twitter4s.entities.enums.Language.Language
@@ -27,7 +31,10 @@ import com.danielasfregola.twitter4s.http.clients.streaming.TwitterStream
 import org.apache.flink.api.scala._
 import grizzled.slf4j.Logging
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
+import org.apache.flink.streaming.api.functions.source.{
+  RichSourceFunction,
+  SourceFunction
+}
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.plugin.twitter.TwitterProtocol.TweetWrapper
 import org.codefeedr.stages.{InputStage, StageAttributes}
@@ -54,10 +61,18 @@ class TwitterStatusInput(consumerToken: ConsumerToken,
                          stall_warnings: Boolean = false,
                          filter_level: FilterLevel = FilterLevel.None,
                          attributes: StageAttributes = StageAttributes())
-  extends InputStage[TweetWrapper](attributes) {
+    extends InputStage[TweetWrapper](attributes) {
 
   def main(): DataStream[TweetWrapper] = {
-    environment.addSource(new TwitterStatusSource(consumerToken, accessToken, follow, tracks, locations, languages, stall_warnings, filter_level))
+    environment.addSource(
+      new TwitterStatusSource(consumerToken,
+                              accessToken,
+                              follow,
+                              tracks,
+                              locations,
+                              languages,
+                              stall_warnings,
+                              filter_level))
   }
 }
 
@@ -80,7 +95,9 @@ class TwitterStatusSource(consumerToken: ConsumerToken,
                           locations: Seq[Double],
                           languages: Seq[Language],
                           stall_warnings: Boolean,
-                          filter_level: FilterLevel) extends RichSourceFunction[TweetWrapper] with Logging {
+                          filter_level: FilterLevel)
+    extends RichSourceFunction[TweetWrapper]
+    with Logging {
 
   val SLEEP_TIME: Int = 1000
   var isRunning: Boolean = false
@@ -115,11 +132,15 @@ class TwitterStatusSource(consumerToken: ConsumerToken,
     * @param ctx the context to collect to.
     */
   override def run(ctx: SourceFunction.SourceContext[TweetWrapper]): Unit = {
-    getClient.
-      filterStatuses(follow, tracks, locations, languages, stall_warnings, filter_level) {
-        case tweet: Tweet => ctx.collect(TweetWrapper(tweet))
-        case x => logger.info(s"[twitter] $x")
-      }
+    getClient.filterStatuses(follow,
+                             tracks,
+                             locations,
+                             languages,
+                             stall_warnings,
+                             filter_level) {
+      case tweet: Tweet => ctx.collect(TweetWrapper(tweet))
+      case x            => logger.info(s"[twitter] $x")
+    }
 
     while (isRunning) {
       blocking {
@@ -127,6 +148,5 @@ class TwitterStatusSource(consumerToken: ConsumerToken,
       }
     }
   }
-
 
 }

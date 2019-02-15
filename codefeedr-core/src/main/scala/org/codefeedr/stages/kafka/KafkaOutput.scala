@@ -28,18 +28,20 @@ import org.codefeedr.stages.{OutputStage, StageAttributes}
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-/**
-  * KafkaOutput stage, which sends to a Kafka topic.
-  * @param topic the topic to send to.
-  * @param properties kafka properties, see https://kafka.apache.org/documentation/#consumerconfigs
-  * @param serializer the serializer to use for serialization of the data, see [[Serializer]].
-  * @param stageAttributes attributes of this stage.
+/** KafkaOutput stage, which sends to a Kafka topic.
+  *
+  * @param topic The topic to send to.
+  * @param properties Kafka properties, see https://kafka.apache.org/documentation/#consumerconfigs
+  * @param serializer The serializer to use for serialization of the data, see [[Serializer]].
+  * @param stageAttributes Attributes of this stage.
+  * @tparam T Type of data in Kafka.
   */
-class KafkaOutput[T <: Serializable with AnyRef : ClassTag : TypeTag](topic: String,
-                                                                      properties: Properties,
-                                                                      serializer: String = Serializer.JSON,
-                                                                      stageAttributes: StageAttributes = StageAttributes())
-  extends OutputStage[T] {
+class KafkaOutput[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    topic: String,
+    properties: Properties,
+    serializer: String = Serializer.JSON,
+    stageAttributes: StageAttributes = StageAttributes())
+    extends OutputStage[T] {
 
   //get correct serde, will fallback to JSON
   private val serde = Serializer.getSerde[T](serializer)

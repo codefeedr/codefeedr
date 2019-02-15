@@ -22,7 +22,57 @@ import org.codefeedr.pipeline._
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-abstract class TransformStage[In <: Serializable with AnyRef : ClassTag: TypeTag, Out <: Serializable with AnyRef : ClassTag: TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject[In, Out](attributes)
-abstract class TransformStage2[In <: Serializable with AnyRef : ClassTag: TypeTag, In2 <: Serializable with AnyRef : ClassTag: TypeTag, Out <: Serializable with AnyRef : ClassTag: TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject2[In, In2, Out](attributes)
-abstract class TransformStage3[In <: Serializable with AnyRef : ClassTag: TypeTag, In2 <: Serializable with AnyRef : ClassTag: TypeTag, In3 <: Serializable with AnyRef : ClassTag: TypeTag, Out <: Serializable with AnyRef : ClassTag: TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject3[In, In2, In3, Out](attributes)
-abstract class TransformStage4[In <: Serializable with AnyRef : ClassTag: TypeTag, In2 <: Serializable with AnyRef : ClassTag: TypeTag, In3 <: Serializable with AnyRef : ClassTag: TypeTag, In4 <: Serializable with AnyRef : ClassTag: TypeTag, Out <: Serializable with AnyRef : ClassTag: TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject4[In, In2, In3, In4, Out](attributes)
+/** This class represents a TransformStage within a pipeline.
+  *
+  * @tparam In  Input type for this stage.
+  * @tparam Out Output type for this stage.
+  */
+abstract class TransformStage[In <: Serializable with AnyRef: ClassTag: TypeTag,
+Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends Stage[In, Out](attributes)
+
+/** This class represents a TransformStage within a pipeline with two inputs.
+  *
+  * @tparam In  Input type for this stage.
+  * @tparam In2 Second input type for this stage.
+  * @tparam Out Output type for this stage.
+  */
+abstract class TransformStage2[
+    In <: Serializable with AnyRef: ClassTag: TypeTag,
+    In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+    Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends Stage2[In, In2, Out](attributes)
+
+/** This class represents a TransformStage within a pipeline with three inputs.
+  *
+  * @tparam In  Input type for this stage.
+  * @tparam In2 Second input type for this stage.
+  * @tparam In3 Third input type for this stage.
+  * @tparam Out Output type for this stage.
+  */
+abstract class TransformStage3[
+    In <: Serializable with AnyRef: ClassTag: TypeTag,
+    In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+    In3 <: Serializable with AnyRef: ClassTag: TypeTag,
+    Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends Stage3[In, In2, In3, Out](attributes)
+
+/** This class represents a TransformStage within a pipeline with four inputs.
+  *
+  * @tparam In  Input type for this stage.
+  * @tparam In2 Second input type for this stage.
+  * @tparam In3 Third input type for this stage.
+  * @tparam In4 Fourth input type for this stage.
+  * @tparam Out Output type for this stage.
+  */
+abstract class TransformStage4[
+    In <: Serializable with AnyRef: ClassTag: TypeTag,
+    In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+    In3 <: Serializable with AnyRef: ClassTag: TypeTag,
+    In4 <: Serializable with AnyRef: ClassTag: TypeTag,
+    Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends Stage4[In, In2, In3, In4, Out](attributes)

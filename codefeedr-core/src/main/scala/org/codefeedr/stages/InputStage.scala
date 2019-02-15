@@ -19,28 +19,35 @@
 package org.codefeedr.stages
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.{NoType, PipelineObject}
+import org.codefeedr.pipeline.{NoType, Stage}
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-
-/**
-  * The InputStage class represents the start of a pipeline.
+/** The InputStage class represents the start of a pipeline.
   * It has an input type but no specific output type since it will not be connected to the buffer.
   *
-  * @tparam Out the output type of the job.
+  * @tparam Out The output type of the job.
   */
-abstract class InputStage[Out <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject[NoType, Out](attributes) {
+abstract class InputStage[Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends Stage[NoType, Out](attributes) {
 
+  /** Transforms the stage from its input type to its output type.
+    * This requires using the Flink DataStream API.
+    *
+    * In this case it is already implemented as a helper method. To use `main(): DataStream[Out]` instead.
+    *
+    * @param source The input source with type In. In the case of an InputStage it is a NoType.
+    * @return The transformed stream with type Out.
+    */
   override def transform(source: DataStream[NoType]): DataStream[Out] = {
     main()
   }
 
-  /**
-    * Create a new datastream
+  /** Creates a DataStream with type Out.
     *
-    * @return Stream
+    * @return A newly created DataStream.
     */
   def main(): DataStream[Out]
 }

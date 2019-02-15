@@ -18,13 +18,21 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
-import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.streaming.api.scala.{
+  DataStream,
+  StreamExecutionEnvironment
+}
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.buffer.BufferType
 import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.stages.{OutputStage, StageAttributes}
-import org.codefeedr.testUtils.{SimpleSinkPipelineObject, SimpleSourcePipelineObject, SimpleTransformPipelineObject}
+import org.codefeedr.testUtils.{
+  SimpleSinkStage,
+  SimpleSourceStage,
+  SimpleTransformStage
+}
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
 class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
@@ -49,29 +57,29 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
   test("Every pipeline object should appear in the pipeline (1)") {
     val pipeline = builder
-      .append(new SimpleSourcePipelineObject())
+      .append(new SimpleSourceStage())
       .build()
 
     assert(pipeline.graph.nodes.size == 1)
 
-    pipeline.graph.nodes.head shouldBe an[SimpleSourcePipelineObject]
+    pipeline.graph.nodes.head shouldBe an[SimpleSourceStage]
   }
 
   test("Every pipeline object should appear in the pipeline (2)") {
     val pipeline = builder
-      .append(new SimpleSourcePipelineObject())
-      .append(new SimpleTransformPipelineObject())
+      .append(new SimpleSourceStage())
+      .append(new SimpleTransformStage())
       .build()
 
     assert(pipeline.graph.nodes.size == 2)
 
-    pipeline.graph.nodes.head shouldBe an[SimpleSourcePipelineObject]
-    pipeline.graph.nodes.last shouldBe an[SimpleTransformPipelineObject]
+    pipeline.graph.nodes.head shouldBe an[SimpleSourceStage]
+    pipeline.graph.nodes.last shouldBe an[SimpleTransformStage]
   }
 
   test("Set properties should be available in stage properties") {
-    val stage = new SimpleSourcePipelineObject()
-    val stage2 = new SimpleTransformPipelineObject()
+    val stage = new SimpleSourceStage()
+    val stage2 = new SimpleTransformStage()
 
     val pipeline = builder
       .append(stage)
@@ -83,8 +91,9 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assert(pipeline.propertiesOf(stage2).get("key").isEmpty)
   }
 
-  test("Set buffer properties should be available in pipeline buffer properties") {
-    val stage = new SimpleSourcePipelineObject()
+  test(
+    "Set buffer properties should be available in pipeline buffer properties") {
+    val stage = new SimpleSourceStage()
     val pipeline = builder
       .append(stage)
       .setBufferProperty("key", "value")
@@ -97,7 +106,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val km = new StaticKeyManager()
 
     val pipeline = builder
-      .append(new SimpleSourcePipelineObject())
+      .append(new SimpleSourceStage())
       .setKeyManager(km)
       .build()
 
@@ -108,7 +117,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val name = "Simple pipeline"
 
     val pipeline = builder
-      .append(new SimpleSourcePipelineObject())
+      .append(new SimpleSourceStage())
       .setPipelineName(name)
       .build()
 
@@ -116,32 +125,49 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("A DAG pipeline can't be appeneded to") {
-    builder.edge(new SimpleSourcePipelineObject(), new SimpleTransformPipelineObject())
+    builder.edge(new SimpleSourceStage(), new SimpleTransformStage())
 
     assertThrows[IllegalStateException] {
-      builder.append(new SimpleSourcePipelineObject())
+      builder.append(new SimpleSourceStage())
     }
   }
 
   test("A sequential pipeline cannot switch to a DAG automatically") {
-    builder.append(new SimpleSourcePipelineObject())
+    builder.append(new SimpleSourceStage())
 
     assertThrows[IllegalStateException] {
-      builder.edge(new SimpleTransformPipelineObject(), new SimpleSinkPipelineObject())
+      builder.edge(new SimpleTransformStage(), new SimpleSinkStage())
     }
   }
 
   test("A sequential pipeline can switch to a DAG manually") {
-    builder.append(new SimpleSourcePipelineObject())
+    builder.append(new SimpleSourceStage())
     builder.setPipelineType(PipelineType.DAG)
 
-    builder.edge(new SimpleTransformPipelineObject(), new SimpleSinkPipelineObject())
+    builder.edge(new SimpleTransformStage(), new SimpleSinkStage())
+  }
+
+  test("Default TimeCharacteristic is EventTime") {
+    val pipeline = builder.append(new SimpleSourceStage()).build()
+
+    assert(
+      pipeline.pipelineProperties.streamTimeCharacteristic == TimeCharacteristic.EventTime)
+  }
+
+  test("TimeCharacteristic can be overridden.") {
+    val pipeline = builder
+      .append(new SimpleSourceStage())
+      .setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime)
+      .build()
+
+    assert(
+      pipeline.pipelineProperties.streamTimeCharacteristic == TimeCharacteristic.IngestionTime)
   }
 
   test("A non-sequential pipeline cannot switch to a sequential pipeline") {
-    val a = new SimpleSourcePipelineObject()
-    val b = new SimpleTransformPipelineObject()
-    val c = new SimpleTransformPipelineObject()
+    val a = new SimpleSourceStage()
+    val b = new SimpleTransformStage()
+    val c = new SimpleTransformStage()
 
     builder.edge(a, b)
     builder.edge(a, c)
@@ -154,8 +180,8 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("Can't add edges to the DAG pipeline twice") {
-    val a = new SimpleSourcePipelineObject()
-    val b = new SimpleTransformPipelineObject()
+    val a = new SimpleSourceStage()
+    val b = new SimpleTransformStage()
 
     builder.edge(a, b)
 
@@ -165,9 +191,9 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("Appending after switching to seq") {
-    val a = new SimpleSourcePipelineObject()
-    val b = new SimpleTransformPipelineObject()
-    val c = new SimpleTransformPipelineObject()
+    val a = new SimpleSourceStage()
+    val b = new SimpleTransformStage()
+    val c = new SimpleTransformStage()
 
     builder.edge(a, b)
     builder.setPipelineType(PipelineType.Sequential)
@@ -177,7 +203,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("Cannot append same object twice") {
-    val a = new SimpleSourcePipelineObject()
+    val a = new SimpleSourceStage()
 
     builder.append(a)
 
@@ -186,61 +212,81 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     }
   }
 
-  test("Append an anonymous pipeline item") {
-    val pipeline = builder.append(new SimpleSourcePipelineObject())
+  test("Append an anonymous input pipeline item") {
+    val pipeline = builder
+      .appendSource { x: StreamExecutionEnvironment =>
+        x.fromCollection(List(StringType("Test")))
+      }
       .append { x: DataStream[StringType] =>
         x.map(x => x)
-      }.build()
+      }
+      .build()
 
     assert(pipeline.graph.nodes.size == 2)
 
-    pipeline.graph.nodes.head shouldBe an[SimpleSourcePipelineObject]
-    pipeline.graph.nodes.last shouldBe an[PipelineObject[StringType, StringType]]
+    pipeline.graph.nodes.head shouldBe an[Stage[NoType, StringType]]
+    pipeline.graph.nodes.last shouldBe an[Stage[StringType, StringType]]
+  }
+
+  test("Append an anonymous pipeline item") {
+    val pipeline = builder
+      .append(new SimpleSourceStage())
+      .append { x: DataStream[StringType] =>
+        x.map(x => x)
+      }
+      .build()
+
+    assert(pipeline.graph.nodes.size == 2)
+
+    pipeline.graph.nodes.head shouldBe an[SimpleSourceStage]
+    pipeline.graph.nodes.last shouldBe an[Stage[StringType, StringType]]
   }
 
   test("Append an anonymous pipeline job") {
-    val pipeline = builder.append(new SimpleSourcePipelineObject())
+    val pipeline = builder
+      .append(new SimpleSourceStage())
       .append { x: DataStream[StringType] =>
         x.addSink(new SinkFunction[StringType] {})
-      }.build()
+      }
+      .build()
 
     assert(pipeline.graph.nodes.size == 2)
 
-    pipeline.graph.nodes.head shouldBe an[SimpleSourcePipelineObject]
+    pipeline.graph.nodes.head shouldBe an[SimpleSourceStage]
     pipeline.graph.nodes.last shouldBe an[OutputStage[StringType]]
   }
 
   test("Should add parents when using addParents") {
-    val a = new SimpleSourcePipelineObject()
-    val b = new SimpleTransformPipelineObject()
-    val c = new SimpleTransformPipelineObject()
+    val a = new SimpleSourceStage()
+    val b = new SimpleTransformStage()
+    val c = new SimpleTransformStage()
 
     val pipeline = builder
       .addParents(c, a :+ b)
       .build()
 
-    pipeline.graph.getParents(c)(0) shouldBe an[SimpleSourcePipelineObject]
-    pipeline.graph.getParents(c)(1) shouldBe an[SimpleTransformPipelineObject]
+    pipeline.graph.getParents(c)(0) shouldBe an[SimpleSourceStage]
+    pipeline.graph.getParents(c)(1) shouldBe an[SimpleTransformStage]
   }
 
   test("Using add parents when objects already exists only adds edges") {
-    val a = new SimpleSourcePipelineObject()
-    val b = new SimpleTransformPipelineObject()
-    val c = new SimpleTransformPipelineObject()
+    val a = new SimpleSourceStage()
+    val b = new SimpleTransformStage()
+    val c = new SimpleTransformStage()
 
     val pipeline = builder
       .addParents(c, a :+ b)
       .addParents(c, a)
       .build()
 
-    pipeline.graph.getParents(c)(0) shouldBe an[SimpleSourcePipelineObject]
-    pipeline.graph.getParents(c)(1) shouldBe an[SimpleTransformPipelineObject]
+    pipeline.graph.getParents(c)(0) shouldBe an[SimpleSourceStage]
+    pipeline.graph.getParents(c)(1) shouldBe an[SimpleTransformStage]
     assert(pipeline.graph.getParents(c).size == 2)
   }
 
   test("Next level") {
-    val a = new SimpleSourcePipelineObject(StageAttributes(id = Some("testId")))
-    val b = new SimpleTransformPipelineObject()
+    val a = new SimpleSourceStage(StageAttributes(id = Some("testId")))
+    val b = new SimpleTransformStage()
 
     val pipeline = builder
       .append(a)
@@ -248,7 +294,6 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
       //      .usingId("AnId")
       //      .setProperty("foo", "bar")
       //      .setProperty("hello", "world")
-
       .build()
 
     assert(a.id == "testId")

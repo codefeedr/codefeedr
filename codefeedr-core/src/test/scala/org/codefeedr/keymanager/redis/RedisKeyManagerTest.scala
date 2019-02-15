@@ -23,17 +23,23 @@ import java.util.Date
 import com.github.sebruck.EmbeddedRedis
 import com.redis.RedisClient
 import org.codefeedr.keymanager.KeyManagerTest
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, PrivateMethodTester}
+import org.scalatest.{
+  BeforeAndAfter,
+  BeforeAndAfterAll,
+  FunSuite,
+  PrivateMethodTester
+}
 import redis.embedded.RedisServer
 
-class RedisKeyManagerTest extends KeyManagerTest()
-  with BeforeAndAfter
-  with PrivateMethodTester
-  with EmbeddedRedis
-  with BeforeAndAfterAll {
+class RedisKeyManagerTest
+    extends KeyManagerTest()
+    with BeforeAndAfter
+    with PrivateMethodTester
+    with EmbeddedRedis
+    with BeforeAndAfterAll {
 
   var km: RedisKeyManager = _
-  var redis: RedisServer = null
+  var redis: RedisServer = _
   var redisPort: Int = 0
 
   // Before all tests, setup an embedded redis

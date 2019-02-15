@@ -18,6 +18,8 @@
  */
 package org.codefeedr.buffer
 
+/** Thrown when a schema is not found in either ZK or Redis.*/
 final case class SchemaNotFoundException(private val message: String = "",
-                                        private val cause: Throwable = None.orNull)
-  extends Exception(message, cause)
+                                         private val cause: Throwable =
+                                           None.orNull)
+    extends Exception(message, cause)

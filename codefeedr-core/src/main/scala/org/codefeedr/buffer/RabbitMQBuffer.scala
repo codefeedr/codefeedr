@@ -30,48 +30,52 @@ import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 object RabbitMQBuffer {
+
   /**
     * PROPERTIES
     */
   val URI = "URI"
 }
 
-/**
-  * Buffer using a RabbitMQ queue.
+/** Buffer using a RabbitMQ queue.
   *
-  * @param pipeline Pipeline
-  * @param properties Buffer properties
-  * @param stageAttributes Attributes of stage the buffer is for
-  * @param queueName Name of the RabbitMQ queue to read from/write to
-  * @tparam T Element type of the buffer
+  * @param pipeline The pipeline for which we use this Buffer.
+  * @param properties The properties of this Buffer.
+  * @param stageAttributes The attributes of this stage.
+  * @param queueName Name of the RabbitMQ queue to read from/write to.
+  * @tparam T Type of the data in this Buffer.
   */
-class RabbitMQBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, queueName: String)
-  extends Buffer[T](pipeline, properties) {
+class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    pipeline: Pipeline,
+    properties: org.codefeedr.Properties,
+    stageAttributes: StageAttributes,
+    queueName: String)
+    extends Buffer[T](pipeline, properties) {
 
+  /** Default settings for this RabbitMQ buffer. */
   private object RabbitMQBufferDefaults {
     val URI = "amqp://localhost:5672"
   }
 
-  /**
-    * Get a RMQSource for the Buffer.
+  /** Get a RMQSource as source for a stage.
     *
-    * @return Source stream the RMQSource.
+    * @return The DataStream retrieved from the buffer.
     */
   override def getSource: DataStream[T] = {
     val connectionConfig = createConfig()
 
-    // Create a source with correlation id usage enabled for exactly once guarantees
-    val source = new RMQSource[T](connectionConfig, queueName, true, getSerializer)
+    // Create a source with correlation id usage enabled for exactly once guarantees.
+    val source =
+      new RMQSource[T](connectionConfig, queueName, true, getSerializer)
 
     pipeline.environment
       .addSource(source)
       .setParallelism(1) // Needed for exactly one guarantees
   }
 
-  /**
-    * Get a RMQSink for the Buffer.
+  /** Get a RMQSink as sink to the buffer.
     *
-    * @return Sink function
+    * @return The SinkFunction created by this RMQSink.
     */
   override def getSink: SinkFunction[T] = {
     val connectionConfig = createConfig()
@@ -79,26 +83,31 @@ class RabbitMQBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipelin
     new RMQSinkDurable[T](connectionConfig, queueName, getSerializer)
   }
 
-  /**
-    * Create a RabbitMQ configuration using buffer properties and defaults.
+  /** Create a RabbitMQ configuration using buffer properties and defaults.
     *
-    * @return Config
+    * @return A RabbitMQ configuration.
     */
   def createConfig(): RMQConnectionConfig = {
     new RMQConnectionConfig.Builder()
-      .setUri(properties.getOrElse[String](RabbitMQBuffer.URI, RabbitMQBufferDefaults.URI))
+      .setUri(properties.getOrElse[String](RabbitMQBuffer.URI,
+                                           RabbitMQBufferDefaults.URI))
       .build
   }
 }
 
-/**
-  * RMQ Sink but set durable.
+/** Setups a durable RabbitMQ Sink.
   *
-  * The source also has the durable flag set, and we need it both to be the same.
+  * @param rmqConnectionConfig The RabbitMQ connection configuration.
+  * @param queueName The name of the RabbitMQ queue.
+  * @param schema The serialization schema.
+  * @tparam IN Type of data in the queue.
   */
-class RMQSinkDurable[IN](rmqConnectionConfig: RMQConnectionConfig, queueName: String, schema: SerializationSchema[IN])
-  extends RMQSink[IN](rmqConnectionConfig, queueName, schema) {
+class RMQSinkDurable[IN](rmqConnectionConfig: RMQConnectionConfig,
+                         queueName: String,
+                         schema: SerializationSchema[IN])
+    extends RMQSink[IN](rmqConnectionConfig, queueName, schema) {
 
+  /** Setups a new queue. */
   override def setupQueue(): Unit = {
     channel.queueDeclare(queueName, true, false, false, null)
   }

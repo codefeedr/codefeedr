@@ -43,16 +43,16 @@ class HttpdLogInputTest extends FunSuite with BeforeAndAfter {
 
     assert(res.count(x => x.method == "POST") == 5)
     assert(res.count(x => x.method == "GET") == 6)
-    
+
     assert(res.count { x =>
       x.ip == "109.184.11.34" &&
-        x.method == "POST" &&
-        x.path == "/administrator/index.php" &&
-        x.version == "HTTP/1.1" &&
-        x.status == 200 &&
-        x.amountOfBytes == 4494 &&
-        x.referer == "\"http://almhuette-raith.at/administrator/\"" &&
-        x.userAgent == "\"Mozilla/5.0 (Windows NT 6.0; rv:34.0) Gecko/20100101 Firefox/34.0\""
+      x.method == "POST" &&
+      x.path == "/administrator/index.php" &&
+      x.version == "HTTP/1.1" &&
+      x.status == 200 &&
+      x.amountOfBytes == 4494 &&
+      x.referer == "\"http://almhuette-raith.at/administrator/\"" &&
+      x.userAgent == "\"Mozilla/5.0 (Windows NT 6.0; rv:34.0) Gecko/20100101 Firefox/34.0\""
     } == 1)
   }
 
@@ -72,4 +72,3 @@ class ActiveRepoPushEventCollectSink extends SinkFunction[HttpdLogItem] {
     ActiveRepoPushEventCollectSink.add(value)
   }
 }
-

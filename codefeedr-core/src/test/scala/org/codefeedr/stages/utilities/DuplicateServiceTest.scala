@@ -24,7 +24,7 @@ case class Simple(str: String)
 
 class DuplicateServiceTest extends FunSuite with BeforeAndAfter {
 
-  var filter : DuplicateService[String] = null
+  var filter: DuplicateService[String] = null
 
   before {
     filter = new DuplicateService[String](3)
@@ -61,7 +61,9 @@ class DuplicateServiceTest extends FunSuite with BeforeAndAfter {
   }
 
   test("If a different field is specified it should be used") {
-    val firstResult = filter.deduplicate[Simple](List(Simple("1"), Simple("2"), Simple("3"), Simple("4")), _.str) //1 is removed from queue
+    val firstResult = filter.deduplicate[Simple](
+      List(Simple("1"), Simple("2"), Simple("3"), Simple("4")),
+      _.str) //1 is removed from queue
 
     assert(firstResult.size == 4)
   }

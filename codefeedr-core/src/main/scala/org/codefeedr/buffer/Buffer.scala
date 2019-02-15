@@ -27,53 +27,54 @@ import org.codefeedr.pipeline.Pipeline
 import scala.reflect.runtime.universe._
 import scala.reflect.{ClassTag, classTag}
 
-/**
-  * A pipeline buffer.
+/** A buffer is used in between stages.
+  * It is often an external source that stores and queues elements (like Kafka).
   *
-  * A buffer is an often external source that stores and queues elements.
-  *
-  * @param pipeline Pipeline
-  * @param properties Buffer properties
-  * @tparam T Element type of the buffer
+  * @param pipeline The pipeline for which we use this Buffer.
+  * @param properties The properties of this buffer.
+  * @tparam T Type of this buffer.
   */
-abstract class Buffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties) {
+abstract class Buffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    pipeline: Pipeline,
+    properties: org.codefeedr.Properties) {
 
-  //Get type of the class at run time
+  //Get type of the class at run time.
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
 
-  //get TypeInformation of generic (case) class
+  //Get TypeInformation of generic (case) class.
   implicit val typeInfo = TypeInformation.of(inputClassType)
 
-
-  /**
-    * Get the source for this buffer. The buffer ereads from this
+  /** Get the source for this buffer. A stage reads from this.
     *
-    * @return Source stream
+    * @return The DataStream retrieved from a Buffer.
     */
   def getSource: DataStream[T]
 
-  /**
-    * Get the sink function for the buffer. The buffer writes to this.
+  /** Get the sink function for this buffer. A stage writes to this.
     *
-    * @return Sink function
+    * @return The SinkFunction retrieved from a Buffer.
     */
   def getSink: SinkFunction[T]
 
-  /**
-    * Get serializer/deserializer of elements
+  /** Get serializer/deserializer of elements for a buffer.
+    * Defaults to JSON.
     *
-    * @return Serializer
+    * @return The configured serializer.
     */
   def getSerializer: AbstractSerde[T] = {
-    val serializer = properties.getOrElse[String](Buffer.SERIALIZER, Serializer.JSON)
+    val serializer =
+      properties
+        .getOrElse[String](Buffer.SERIALIZER, Serializer.JSON) //default is JSON
 
     Serializer.getSerde[T](serializer)
   }
 }
 
 /**
-  * Buffer static values
+  * Static features of a buffer.
   */
 object Buffer {
+
+  /** Serializer of the buffer (e.g. JSON). */
   val SERIALIZER = "SERIALIZER"
 }

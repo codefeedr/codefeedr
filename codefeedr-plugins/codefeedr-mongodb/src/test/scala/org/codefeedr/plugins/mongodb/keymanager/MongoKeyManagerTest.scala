@@ -26,16 +26,20 @@ import java.util.concurrent.TimeoutException
 import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 
-class MongoKeyManagerTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAll with MongoEmbedDatabase {
+class MongoKeyManagerTest
+    extends FunSuite
+    with BeforeAndAfter
+    with BeforeAndAfterAll
+    with MongoEmbedDatabase {
   var km: MongoKeyManager = _
 
   var mongoProps: MongodProps = null
 
   override def beforeAll() = {
-    mongoProps = mongoStart()   // by default port = 12345 & version = Version.3.3.1
-  }                               // add your own port & version parameters in mongoStart method if you need it
+    mongoProps = mongoStart() // by default port = 12345 & version = Version.3.3.1
+  } // add your own port & version parameters in mongoStart method if you need it
 
-  override def afterAll()  { mongoStop(mongoProps) }
+  override def afterAll() { mongoStop(mongoProps) }
 
   before {
     km = new MongoKeyManager(server = new URI("mongodb://localhost:12345"))
@@ -65,7 +69,6 @@ class MongoKeyManagerTest extends FunSuite with BeforeAndAfter with BeforeAndAft
     assert(key.get.value == "myKey")
     assert(key.get.remainingCalls == 8)
   }
-
 
   test("Should give none is there is no key with available number of calls") {
     km.add("github", "myKey", 10, 60, new Date())
@@ -136,7 +139,8 @@ class MongoKeyManagerTest extends FunSuite with BeforeAndAfter with BeforeAndAft
   }
 
   test("Should use server argument") {
-    val km = new MongoKeyManager("myDb", "myCol", new URI("mongodb://myServer:12345"))
+    val km =
+      new MongoKeyManager("myDb", "myCol", new URI("mongodb://myServer:12345"))
 
     // Throws due to no-connection
     assertThrows[TimeoutException] {

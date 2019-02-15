@@ -29,11 +29,10 @@ import org.scalatest.FunSuite
 //integration test
 class GitHubEventsInputTest extends FunSuite {
 
-
   test("A GitHubEventsInputTest should create the proper results") {
     val pipeLine = new PipelineBuilder()
       .append(new GitHubEventsInput(0, 1000))
-      .append { x : DataStream[Event] =>
+      .append { x: DataStream[Event] =>
         x.addSink(new EventCollectSink)
       }
       .build()

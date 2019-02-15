@@ -24,8 +24,11 @@ import org.codefeedr.stages.OutputStage
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-class PrinterOutput[T <: Serializable with AnyRef : ClassTag : TypeTag] extends OutputStage[T] {
+/** OutputStage which simply prints. **/
+class PrinterOutput[T <: Serializable with AnyRef: ClassTag: TypeTag]
+    extends OutputStage[T] {
 
+  /** Prints elements in DataStream. */
   override def main(source: DataStream[T]): Unit = {
     source.print()
   }

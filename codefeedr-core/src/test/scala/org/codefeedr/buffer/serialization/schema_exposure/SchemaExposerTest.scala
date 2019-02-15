@@ -21,7 +21,6 @@ package org.codefeedr.buffer.serialization.schema_exposure
 import org.apache.avro.Schema
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-
 abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
 
   val schema = """{
@@ -39,7 +38,7 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
                    ]
                  }"""
 
-  val differentSchema =  """{
+  val differentSchema = """{
                    "type": "record",
                    "name": "User2",
                    "fields": [
@@ -54,13 +53,13 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
                    ]
                  }"""
 
-  var exposer : SchemaExposer = _
-  var parsedSchema : Schema = _
-  var parsedSchema2 : Schema = _
+  var exposer: SchemaExposer = _
+  var parsedSchema: Schema = _
+  var parsedSchema2: Schema = _
 
   val subject = "testSubject"
 
-  def getSchemaExposer() : SchemaExposer
+  def getSchemaExposer(): SchemaExposer
 
   before {
     exposer = getSchemaExposer()
@@ -105,7 +104,6 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
     assert(exposer.get(subject).get == parsedSchema2)
   }
 
-
   test("A simple schema should be correctly deleted") {
     //put the schema
     assert(exposer.put(parsedSchema, subject))
@@ -141,6 +139,5 @@ abstract class SchemaExposerTest extends FunSuite with BeforeAndAfter {
     exposer.deleteAll()
     assert(exposer.get(subject) == None)
   }
-
 
 }

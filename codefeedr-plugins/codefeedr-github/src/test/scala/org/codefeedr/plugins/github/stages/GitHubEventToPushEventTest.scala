@@ -34,11 +34,11 @@ import scala.io.Source
 
 class GitHubEventToPushEventTest extends FunSuite {
 
-  test ("GitHubEventToPushEvent integration test") {
+  test("GitHubEventToPushEvent integration test") {
     val pipeLine = new PipelineBuilder()
       .append(new SimpleEventSource("/sample_events.json"))
       .append(new GitHubEventToPushEvent())
-      .append { x : DataStream[PushEvent] =>
+      .append { x: DataStream[PushEvent] =>
         x.addSink(new PushEventCollectSink)
       }
       .build()
@@ -51,8 +51,8 @@ class GitHubEventToPushEventTest extends FunSuite {
 
 class SimpleEventSource(fileName: String) extends InputStage[Event] {
 
-  val stream : InputStream = getClass.getResourceAsStream(fileName)
-  val sampleEvents : String = Source.fromInputStream(stream).getLines.mkString
+  val stream: InputStream = getClass.getResourceAsStream(fileName)
+  val sampleEvents: String = Source.fromInputStream(stream).getLines.mkString
 
   override def main(): DataStream[Event] = {
     val events = new EventService(false, null)

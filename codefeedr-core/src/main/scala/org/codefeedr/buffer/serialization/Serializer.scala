@@ -19,44 +19,89 @@
 package org.codefeedr.buffer.serialization
 
 import scala.reflect.ClassTag
+import scala.reflect._
 import scala.reflect.runtime.universe._
 
-/**
-  * Keeps track of all types of serde's and creates instances of serdes.
-  */
+/** Keeps track of all types of SerDes and creates instances. */
 object Serializer {
 
-  /**
-    * JSON serde support.
+  /** JSON serde support.
     * See: http://json4s.org/
     */
   val JSON = "JSON"
 
-  /**
-    * BSON serde support.
+  /** BSON serde support.
     * See: http://bsonspec.org/
     */
   val BSON = "BSON"
 
-  /**
-    * Kryo serde support.
+  /** Kryo serde support.
     * https://github.com/EsotericSoftware/kryo
     */
   val KRYO = "KRYO"
 
-  /**
-    * Retrieve a serde.
+  /** Reserved key words for serializer names. */
+  private val reserved = List(JSON, BSON, KRYO)
+
+  /** Map containing (type) references to SerDe by name. */
+  private var registry: Map[String, Manifest[_ <: AbstractSerde[_]]] = Map()
+
+  /** Retrieve a serde.
     *
     * Default is JSONSerde.
     * @param name the name of the serde, see values above for the options.
     * @tparam T the type which has to be serialized/deserialized.
     * @return the serde instance.
     */
-  def getSerde[T <: Serializable with AnyRef : ClassTag : TypeTag](name: String) = name match {
-    case "JSON" => JSONSerde[T]
-    case "BSON" => BsonSerde[T]
-    case "KRYO" => KryoSerde[T]
-    case _ => JSONSerde[T] //default is JSON
+  def getSerde[T <: Serializable with AnyRef: ClassTag: TypeTag](name: String) =
+    name match {
+      case "JSON" => JSONSerde[T]
+      case "BSON" => BsonSerde[T]
+      case "KRYO" => KryoSerde[T]
+      case _ if registry.exists(_._1 == name) => {
+        val tt = typeTag[T]
+        val ct = classTag[T]
+
+        registry
+          .get(name)
+          .get
+          .runtimeClass
+          .getConstructors()(0) // Get constructor of runtime class.
+          .newInstance(tt, ct) // Provide class and type tags.
+          .asInstanceOf[AbstractSerde[T]] // Create instance of serde.
+      }
+      case _ => JSONSerde[T] //default is JSON
+    }
+
+  /** Registers a new SerDe. This SerDe needs to be subclassed from [[AbstractSerde]].
+    *
+    * In order to register your own SerDe:
+    * 1. Create one by extending [[AbstractSerde]]:
+    * {{{
+    * class YourSerde[T <: Serializable with AnyRef: TypeTag: ClassTag]
+    *     extends AbstractSerde[T]
+    * }}}
+    * 2. Register your SerDe:
+    * {{{
+    * Serializer.register[YourSerde[_]]("my_serde")
+    * }}}
+    * 3. In the pipeline select your SerDe:
+    * {{{
+    *   pipelineBuilder.setBufferProperty(Buffer.SERIALZER, "my_serde")
+    * }}}
+    *
+    * @param name Name of the SerDe. This needs to be unique. Reserved keywords are: JSON, BSON, KRYO.
+    * @param ev Implicit Manifest of the class.
+    * @tparam T Type of the serializer.
+    * @throws IllegalArgumentException Thrown when name is not unique/already registered.
+    */
+  def register[T <: AbstractSerde[_]](name: String)(
+      implicit ev: Manifest[T]) = {
+    if (reserved.contains(name) || registry.exists(_._1 == name))
+      throw new IllegalArgumentException("Serializer (name) already exists.")
+
+    // Add manifest to map.
+    registry += (name -> ev)
   }
 
 }

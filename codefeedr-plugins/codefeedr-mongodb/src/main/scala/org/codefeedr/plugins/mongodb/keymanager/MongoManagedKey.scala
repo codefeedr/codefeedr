@@ -31,10 +31,20 @@ private[keymanager] case class MongoManagedKey(_id: ObjectId,
                                                numCallsLeft: Int,
                                                limit: Int,
                                                interval: Int,
-                                               refreshTime: Date
-                                              )
+                                               refreshTime: Date)
 
 private object MongoManagedKey {
-  def apply(target: String, key: String, numCallsLeft: Int, limit: Int, interval: Int, refreshTime: Date): MongoManagedKey =
-    MongoManagedKey(new ObjectId(), target, key, numCallsLeft, limit, interval, refreshTime)
+  def apply(target: String,
+            key: String,
+            numCallsLeft: Int,
+            limit: Int,
+            interval: Int,
+            refreshTime: Date): MongoManagedKey =
+    MongoManagedKey(new ObjectId(),
+                    target,
+                    key,
+                    numCallsLeft,
+                    limit,
+                    interval,
+                    refreshTime)
 }

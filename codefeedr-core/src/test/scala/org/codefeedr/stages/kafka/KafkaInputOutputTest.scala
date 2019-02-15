@@ -36,13 +36,16 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 
-
-class KafkaInputOutputTest extends FunSuite with EmbeddedKafka with BeforeAndAfterAll {
+class KafkaInputOutputTest
+    extends FunSuite
+    with EmbeddedKafka
+    with BeforeAndAfterAll {
 
   val someInput = "hi\nthis\nis\na\nreally\nnice\ntest"
 
   override def beforeAll(): Unit = {
-    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
+    implicit val config =
+      EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
     EmbeddedKafka.start()
   }
 
@@ -61,14 +64,15 @@ class KafkaInputOutputTest extends FunSuite with EmbeddedKafka with BeforeAndAft
 
     val pipeline =
       new PipelineBuilder()
-        .edge(new StringInput(someInput), new KafkaOutput[StringType](topic, properties))
-        .edge(new KafkaInput[StringType](topic, properties), new KafkaStringOutput(7))
+        .edge(new StringInput(someInput),
+              new KafkaOutput[StringType](topic, properties))
+        .edge(new KafkaInput[StringType](topic, properties),
+              new KafkaStringOutput(7))
         .build()
 
     assertThrows[JobExecutionException] {
       pipeline.startLocal()
     }
-
 
     assert(KafkaStringCollectSink.result.size() == 7)
   }
@@ -94,8 +98,8 @@ class KafkaInputOutputTest extends FunSuite with EmbeddedKafka with BeforeAndAft
       //TODO check this ^
       println(s"Topic $topic doesn't exist yet, now creating it.")
       val newTopic = new NewTopic(topic, 1, 1)
-      adminClient.
-        createTopics(List(newTopic).asJavaCollection)
+      adminClient
+        .createTopics(List(newTopic).asJavaCollection)
         .all()
         .get() //this blocks the method until the topic is created
     }
@@ -117,7 +121,8 @@ class KafkaStringCollectSink(amount: Int) extends SinkFunction[StringType] {
     synchronized {
       KafkaStringCollectSink.result.add(value.value)
 
-      println(s"Added new element ${value.value}, amountLeft: ${amountLeft -= 1}")
+      amountLeft = amountLeft - 1
+      println(s"Added new element ${value.value}, amountLeft: $amountLeft")
       if (amountLeft == 0) throw new JobFinishedException()
     }
   }
@@ -125,5 +130,6 @@ class KafkaStringCollectSink(amount: Int) extends SinkFunction[StringType] {
 }
 
 class KafkaStringOutput(amount: Int) extends OutputStage[StringType] {
-  override def main(source: DataStream[StringType]): Unit = source.addSink(new KafkaStringCollectSink(amount)).setParallelism(1)
+  override def main(source: DataStream[StringType]): Unit =
+    source.addSink(new KafkaStringCollectSink(amount)).setParallelism(1)
 }

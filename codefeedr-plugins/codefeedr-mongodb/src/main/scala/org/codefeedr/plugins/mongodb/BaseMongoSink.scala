@@ -19,7 +19,10 @@
 package org.codefeedr.plugins.mongodb
 
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.functions.sink.{RichSinkFunction, SinkFunction}
+import org.apache.flink.streaming.api.functions.sink.{
+  RichSinkFunction,
+  SinkFunction
+}
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
@@ -36,8 +39,9 @@ import scala.reflect.ClassTag
   * @param userConfig User configuration. Properties [server, database, collection]
   * @tparam T Type of element that goes into the database
   */
-class BaseMongoSink[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[String,String])
-  extends RichSinkFunction[T] {
+class BaseMongoSink[T <: AnyRef: Manifest: ClassTag](
+    val userConfig: Map[String, String])
+    extends RichSinkFunction[T] {
 
   var client: MongoClient = _
 
@@ -59,7 +63,7 @@ class BaseMongoSink[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Strin
     val collection = getCollection
 
     val json = Serialization.write(value)(formats)
-    val doc =  Document(json)
+    val doc = Document(json)
 
     if (context.timestamp() != null) {
       val time: Long = context.timestamp()

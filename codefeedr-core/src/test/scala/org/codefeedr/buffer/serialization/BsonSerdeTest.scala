@@ -23,21 +23,20 @@ import java.util.Date
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-
 private case class SimpleCaseClassBson(str: String, i: Int)
-private case class ComplexCaseClass(str: String, i : Option[Int], l : List[Date])
+private case class ComplexCaseClass(str: String, i: Option[Int], l: List[Date])
 
 class BsonSerdeTest extends FunSuite with BeforeAndAfter {
 
-  private var serde : BsonSerde[SimpleCaseClassBson] = _
-  private var serde2 : BsonSerde[ComplexCaseClass] = _
+  private var serde: BsonSerde[SimpleCaseClassBson] = _
+  private var serde2: BsonSerde[ComplexCaseClass] = _
 
   before {
     serde = BsonSerde[SimpleCaseClassBson]
     serde2 = BsonSerde[ComplexCaseClass]
   }
 
-  test ("Deserializes complex serialized values") {
+  test("Deserializes complex serialized values") {
     val value = ComplexCaseClass("hello", Some(42), List(new Date, new Date))
 
     val serialized = serde2.serialize(value)
@@ -46,7 +45,7 @@ class BsonSerdeTest extends FunSuite with BeforeAndAfter {
     assert(deserialized == value)
   }
 
-  test ("Deserializes complex serialized values 2") {
+  test("Deserializes complex serialized values 2") {
     val value = ComplexCaseClass("hello", None, List())
 
     val serialized = serde2.serialize(value)

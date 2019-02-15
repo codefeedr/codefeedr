@@ -29,19 +29,28 @@ import org.json4s.jackson.JsonMethods.parse
 /**
   * Transform stage which reads from EventsInput and filters to IssueCommentEvent.
   */
-class GitHubEventToIssueCommentEvent extends TransformStage[Event, IssueCommentEvent] {
+class GitHubEventToIssueCommentEvent
+    extends TransformStage[Event, IssueCommentEvent] {
 
   /**
     * Filter and parses IssueCommentEvent from GitHub Event stream.
     */
-  override def transform(source: DataStream[Event]): DataStream[IssueCommentEvent] = {
+  override def transform(
+      source: DataStream[Event]): DataStream[IssueCommentEvent] = {
     source
       .filter(_.eventType == "IssueCommentEvent")
       .map { x =>
         implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
 
         val issuePayload = parse(x.payload).extract[IssueCommentPayload]
-        IssueCommentEvent(x.id, x.eventType, x.actor, x.repo, x.organization, issuePayload, x.public, x.created_at)
+        IssueCommentEvent(x.id,
+                          x.eventType,
+                          x.actor,
+                          x.repo,
+                          x.organization,
+                          issuePayload,
+                          x.public,
+                          x.created_at)
       }
   }
 

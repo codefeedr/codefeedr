@@ -22,13 +22,13 @@ import org.scalatest.{BeforeAndAfter, FunSuite}
 
 class FiniteQueueTest extends FunSuite with BeforeAndAfter {
 
-  var queue : FiniteQueue[String] = new FiniteQueue[String]()
+  var queue: FiniteQueue[String] = new FiniteQueue[String]()
 
   before {
     queue = new FiniteQueue[String]()
   }
 
-  test ("Should properly enqueue") {
+  test("Should properly enqueue") {
     queue.enqueueFinite("test", 2)
     queue.enqueueFinite("test2", 2)
 
@@ -36,7 +36,7 @@ class FiniteQueueTest extends FunSuite with BeforeAndAfter {
     assert(queue.contains("test2"))
   }
 
-  test ("Should properly remove on enqueue") {
+  test("Should properly remove on enqueue") {
     queue.enqueueFinite("test", 2)
     queue.enqueueFinite("test2", 2)
     queue.enqueueFinite("test3", 2)
@@ -45,6 +45,5 @@ class FiniteQueueTest extends FunSuite with BeforeAndAfter {
     assert(queue.contains("test3"))
     assert(!queue.contains("test"))
   }
-
 
 }

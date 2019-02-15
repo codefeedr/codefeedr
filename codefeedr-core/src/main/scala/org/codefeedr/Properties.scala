@@ -20,16 +20,15 @@ package org.codefeedr
 
 import scala.language.implicitConversions
 
+/** Implicit conversions for Properties. */
 object Properties {
   // Conversion implicits
   implicit def stringToBoolean(str: String): Boolean = str.toBoolean
   implicit def booleanToString(bool: Boolean): String = bool.toString
 }
 
-/**
-  * Object containing configuration properties.
-  */
-class Properties(private val contents: Map[String,String] = Map()) {
+/** Object containing configuration properties. */
+class Properties(private val contents: Map[String, String] = Map()) {
 
   /**
     * Get a value converted to an implicitly converted type.
@@ -57,7 +56,8 @@ class Properties(private val contents: Map[String,String] = Map()) {
     * @tparam T Type of the value
     * @return Value
     */
-  def getOrElse[T](key: String, default: T)(implicit convert: String => T): T = {
+  def getOrElse[T](key: String, default: T)(
+      implicit convert: String => T): T = {
     val option = contents.get(key)
     if (option.isEmpty) {
       return default
@@ -96,7 +96,7 @@ class Properties(private val contents: Map[String,String] = Map()) {
 
   override def equals(that: Any): Boolean = that match {
     case that: Properties => that.contents == contents
-    case _ => false
+    case _                => false
   }
 
   /**
@@ -109,8 +109,9 @@ class Properties(private val contents: Map[String,String] = Map()) {
   def toJavaProperties: java.util.Properties = {
     val props = new java.util.Properties()
 
-    contents.foreach { case (key, value) =>
-      props.setProperty(key, value)
+    contents.foreach {
+      case (key, value) =>
+        props.setProperty(key, value)
     }
 
     props

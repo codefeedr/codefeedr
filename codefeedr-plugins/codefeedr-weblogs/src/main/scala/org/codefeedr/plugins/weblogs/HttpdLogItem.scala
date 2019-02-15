@@ -20,7 +20,6 @@ package org.codefeedr.plugins.weblogs
 
 import java.util.Date
 
-
 /**
   * Pipeline item that contains an entrie from an Apache Request log.
   * @param ip IP Address of the requester

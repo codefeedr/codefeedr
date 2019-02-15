@@ -18,17 +18,17 @@
  */
 package org.codefeedr.stages.utilities
 
-/**
+/** DuplicateService is able to store a set of items and make sure these items are unique.
   *
-  * @param queueSize
-  * @tparam T
+  * @param queueSize The size of the queue.
+  * @tparam T The type of the queue.
   */
 class DuplicateService[T](queueSize: Int) {
 
+  /** We use a [[FiniteQueue]] to store all elements. */
   val queue: FiniteQueue[T] = new FiniteQueue[T]()
 
-  /**
-    * Check and removes duplicates based on the contents of a queue.
+  /**  Check and removes duplicates based on the contents of a queue.
     * @param items the items to check for duplicates.
     * @param getField function which retrieves a field based on the type to check.
     * @tparam IN the type on which the duplicate check should be done.
@@ -43,15 +43,13 @@ class DuplicateService[T](queueSize: Int) {
       }
   }
 
-  /**
-    * Check and removes duplicates based on the contents of a queue.
+  /** Check and removes duplicates based on the contents of a queue.
+    *
     * @param items the items to check for duplicates.
     * @return  a list of T without any duplicates based on a queue.
     */
   def deduplicate(items: List[T]): List[T] = {
     deduplicate[T](items, x => x)
   }
-
-
 
 }

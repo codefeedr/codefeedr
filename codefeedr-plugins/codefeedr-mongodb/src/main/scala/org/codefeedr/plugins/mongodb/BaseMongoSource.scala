@@ -21,7 +21,10 @@ package org.codefeedr.plugins.mongodb
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.{ResultTypeQueryable, TypeExtractor}
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
+import org.apache.flink.streaming.api.functions.source.{
+  RichSourceFunction,
+  SourceFunction
+}
 import org.apache.logging.log4j.scala.Logging
 import org.bson.json.{JsonMode, JsonWriterSettings}
 import org.json4s.NoTypeHints
@@ -39,15 +42,19 @@ import scala.reflect.{ClassTag, classTag}
   * @param userConfig User configuration. Properties [server, database, collection]
   * @tparam T Type of element that comes from the database
   */
-class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[String,String],
-                                                         val query: BsonDocument)
-  extends RichSourceFunction[T] with ResultTypeQueryable[T] with Logging {
+class BaseMongoSource[T <: AnyRef: Manifest: ClassTag](
+    val userConfig: Map[String, String],
+    val query: BsonDocument)
+    extends RichSourceFunction[T]
+    with ResultTypeQueryable[T]
+    with Logging {
 
   var client: MongoClient = _
   var isWaiting = false
 
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
-  val outputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
+  val outputClassType: Class[T] =
+    classTag[T].runtimeClass.asInstanceOf[Class[T]]
 
   override def open(parameters: Configuration): Unit = {
     client = MongoClient(userConfig("server"))
@@ -62,11 +69,13 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
     * The data is then received in an async manner sending items to the context.
     */
   override def run(ctx: SourceFunction.SourceContext[T]): Unit = {
-    val jsonSettings = JsonWriterSettings.builder()
+    val jsonSettings = JsonWriterSettings
+      .builder()
       .outputMode(JsonMode.RELAXED)
       .build()
 
-    val result = if (query == null) getCollection.find() else getCollection.find(query)
+    val result =
+      if (query == null) getCollection.find() else getCollection.find(query)
 
     // Use an observer so not all mongo data needs to be loaded into memory,
     // as would be the case when waiting for a List of results
@@ -96,7 +105,6 @@ class BaseMongoSource[T <: AnyRef : Manifest : ClassTag](val userConfig: Map[Str
 
       def collect(result: Document, timestamp: Long): Unit =
         ctx.collectWithTimestamp(toJson(result), timestamp)
-
 
       override def onError(e: Throwable): Unit = {
         logger.error("Error while reading from mongo:", e)

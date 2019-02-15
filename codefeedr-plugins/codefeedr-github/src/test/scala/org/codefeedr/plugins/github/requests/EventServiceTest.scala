@@ -31,9 +31,9 @@ import scala.io.Source
 
 class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
 
-  val stream : InputStream = getClass.getResourceAsStream("/sample_events.json")
-  val sampleEvents : String = Source.fromInputStream(stream).getLines.mkString
-  var service : EventService = _
+  val stream: InputStream = getClass.getResourceAsStream("/sample_events.json")
+  val sampleEvents: String = Source.fromInputStream(stream).getLines.mkString
+  var service: EventService = _
 
   before {
     service = new EventService(false, new StaticKeyManager())
@@ -85,8 +85,9 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     assert(headerSet.isEmpty)
   }
 
-  test ("Pages should be properly parsed") {
-    val url = "<https://api.github.com/events?per_page=100%3Fpage%3D1&page=2>; rel=\"next\", <https://api.github.com/events?per_page=100%3Fpage%3D1&page=10>; rel=\"last\""
+  test("Pages should be properly parsed") {
+    val url =
+      "<https://api.github.com/events?per_page=100%3Fpage%3D1&page=2>; rel=\"next\", <https://api.github.com/events?per_page=100%3Fpage%3D1&page=10>; rel=\"last\""
     val pages = service.parsePages(url)
 
     assert(pages.size == 2)
@@ -94,8 +95,9 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     assert(pages.contains(Page(10, "last")))
   }
 
-  test ("Next and last pages should be properly retrieved") {
-    val url = "<https://api.github.com/events?per_page=100%3Fpage%3D1&page=2>; rel=\"next\", <https://api.github.com/events?per_page=100%3Fpage%3D1&page=10>; rel=\"last\""
+  test("Next and last pages should be properly retrieved") {
+    val url =
+      "<https://api.github.com/events?per_page=100%3Fpage%3D1&page=2>; rel=\"next\", <https://api.github.com/events?per_page=100%3Fpage%3D1&page=10>; rel=\"last\""
     val linkHeader = Header("Link", Array(url))
     val pages = service.parseNextAndLastPage(linkHeader)
 
@@ -122,7 +124,8 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     assert((n1 ::: n2).size == 2)
   }
 
-  test("There should be a proper duplicate check, but only if there is space left in the queue.") {
+  test(
+    "There should be a proper duplicate check, but only if there is space left in the queue.") {
     val service2 = new EventService(true, new StaticKeyManager(), 1)
 
     //ids: 7688205336 and 7688205331
@@ -139,21 +142,24 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
     assert(nonDuplicates.filter(_ == "7688205336").size == 2)
   }
 
-  test ("Get latest events should return the latest events") {
-   val eventService = spy(new EventService(false, new StaticKeyManager()))
+  test("Get latest events should return the latest events") {
+    val eventService = spy(new EventService(false, new StaticKeyManager()))
 
-    doReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array(""))))).when(eventService).doPagedRequest(any(classOf[String]))
+    doReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
+      .when(eventService)
+      .doPagedRequest(any(classOf[String]))
 
     //should stop after one run
-    doReturn((1, 0)).when(eventService).parseNextAndLastPage(any(classOf[Header]))
-
+    doReturn((1, 0))
+      .when(eventService)
+      .parseNextAndLastPage(any(classOf[Header]))
 
     val events = eventService.getLatestEvents()
 
     assert(events.size == 2)
   }
 
-  test ("Get latest events should return the latest events without duplicates") {
+  test("Get latest events should return the latest events without duplicates") {
     val eventService = spy(new EventService(true, null))
 
     doReturn(GitHubResponse(sampleEvents, 200, List(Header("Link", Array("")))))
@@ -165,18 +171,15 @@ class EventServiceTest extends FunSuite with BeforeAndAfter with MockitoSugar {
       .when(eventService)
       .parseNextAndLastPage(any(classOf[Header]))
 
-
     val events = eventService.getLatestEvents()
 
     assert(events.size == 2)
   }
 
-  test ("A paged request should be properly done.") {
+  test("A paged request should be properly done.") {
     val response = service.doPagedRequest("/rate_limit") //this is a free request
 
     assert(response.status == 200)
   }
-
-
 
 }

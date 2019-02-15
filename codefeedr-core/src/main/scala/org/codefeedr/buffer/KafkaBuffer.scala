@@ -23,11 +23,18 @@ import java.util.Properties
 import org.apache.avro.reflect.ReflectData
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
+import org.apache.flink.streaming.connectors.kafka.{
+  FlinkKafkaConsumer011,
+  FlinkKafkaProducer011
+}
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.Properties._
-import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
+import org.codefeedr.buffer.serialization.schema_exposure.{
+  RedisSchemaExposer,
+  SchemaExposer,
+  ZookeeperSchemaExposer
+}
 import org.codefeedr.pipeline.Pipeline
 import org.codefeedr.stages.StageAttributes
 
@@ -35,10 +42,10 @@ import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
+/** Holds Kafka property names. */
 object KafkaBuffer {
-  /**
-    * PROPERTIES
-    */
+
+  ///KAFKA RELATED
   val BROKER = "bootstrap.servers"
   val ZOOKEEPER = "zookeeper.connect"
 
@@ -49,9 +56,25 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE_DESERIALIZATION = "SCHEMA_EXPOSURE_SERIALIZATION"
 }
 
-class KafkaBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: Pipeline, properties: org.codefeedr.Properties, stageAttributes: StageAttributes, topic: String, groupId: String)
-  extends Buffer[T](pipeline, properties) with Logging {
+/** The implementation for the Kafka buffer. This buffer is the default.
+  *
+  * @param pipeline The pipeline for which we use this Buffer.
+  * @param properties The properties of this Buffer.
+  * @param stageAttributes The attributes of this stage.
+  * @param topic The topic to write to, which is basically the subject.
+  * @param groupId The group id, to specify the consumer group in Kafka.
+  * @tparam T Type of the data in this Buffer.
+  */
+class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    pipeline: Pipeline,
+    properties: org.codefeedr.Properties,
+    stageAttributes: StageAttributes,
+    topic: String,
+    groupId: String)
+    extends Buffer[T](pipeline, properties)
+    with Logging {
 
+  /** Default settings for the Kafka buffer. */
   private object KafkaBufferDefaults {
     //KAFKA RELATED
     val BROKER = "localhost:9092"
@@ -67,52 +90,56 @@ class KafkaBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: 
     val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
   }
 
-  /**
-    * Get a Kafka Producer as source for the buffer.
+  /** Get a Kafka Consumer as source for a stage.
     *
-    * @return Source stream the Kafka Consumer.
+    * @return The DataStream retrieved from the buffer.
     */
   override def getSource: DataStream[T] = {
     val serde = getSerializer
 
-    //make sure the topic already exists
-    checkAndCreateSubject(topic, properties.get[String](KafkaBuffer.BROKER).
-      getOrElse(KafkaBufferDefaults.BROKER))
+    // Make sure the topic already exists, otherwise create it.
+    checkAndCreateSubject(topic,
+                          properties
+                            .get[String](KafkaBuffer.BROKER)
+                            .getOrElse(KafkaBufferDefaults.BROKER))
 
-    pipeline.environment.
-      addSource(new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties))
+    // Add a source.
+    pipeline.environment.addSource(
+      new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties))
   }
 
-  /**
-    * Gets a Kafka Producer as sink for the buffer.
+  /** Get a Kafka Producer as sink to the buffer.
     *
-    * @return Sink function the Kafka Producer.
+    * @return The SinkFunction created by this Producer.
     */
   override def getSink: SinkFunction[T] = {
-    //check if a schema should be exposed
-    if (properties.get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE)
-      .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE)) {
+    // Check if a schema should be exposed.
+    if (properties
+          .get[Boolean](KafkaBuffer.SCHEMA_EXPOSURE)
+          .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE)) {
 
       exposeSchema()
     }
 
-    val producer = new FlinkKafkaProducer011[T](topic, getSerializer, getKafkaProperties)
+    // Create Kafka producer.
+    val producer =
+      new FlinkKafkaProducer011[T](topic, getSerializer, getKafkaProperties)
     producer.setWriteTimestampToKafka(true)
 
     producer
   }
 
-  /**
-    * Get all the Kafka properties.
+  /** Get all the Kafka properties.
     *
-    * @return a map with all the properties.
+    * @return A map with all the properties.
     */
   def getKafkaProperties: java.util.Properties = {
     val kafkaProp = new java.util.Properties()
     kafkaProp.put("bootstrap.servers", KafkaBufferDefaults.BROKER)
     kafkaProp.put("zookeeper.connect", KafkaBufferDefaults.ZOOKEEPER)
     kafkaProp.put("auto.offset.reset", KafkaBufferDefaults.AUTO_OFFSET_RESET)
-    kafkaProp.put("auto.commit.interval.ms", KafkaBufferDefaults.AUTO_COMMIT_INTERVAL_MS)
+    kafkaProp.put("auto.commit.interval.ms",
+                  KafkaBufferDefaults.AUTO_COMMIT_INTERVAL_MS)
     kafkaProp.put("enable.auto.commit", KafkaBufferDefaults.ENABLE_AUTO_COMMIT)
     kafkaProp.put("group.id", groupId)
 
@@ -121,35 +148,36 @@ class KafkaBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: 
     kafkaProp
   }
 
-  /**
-    * Checks if a Kafka topic exists, if not it is created.
+  /** Checks if a Kafka topic exists, if not it is created.
     *
-    * @param topic      the topic to create.
-    * @param connection the kafka broker to connect to.
+    * @param topic      The topic to create.
+    * @param connection The kafka broker to connect to.
     */
   def checkAndCreateSubject(topic: String, connection: String): Unit = {
-    //set all the correct properties
+    // Set all the correct properties.
     val props = new Properties()
     props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, connection)
 
-    //connect with Kafka
+    // Connect with Kafka.
     val adminClient = AdminClient.create(props)
 
-    //check if topic already exists
+    // Check if topic already exists.
     val alreadyCreated = doesTopicExist(adminClient, topic)
 
-    //if topic doesnt exist yet, create it
+    // If topic doesnt exist yet, create it.
     if (!alreadyCreated) {
-      //the topic configuration will probably be overwritten by the producer
-      //TODO check this ^
+      // The topic configuration will probably be overwritten by the producer.
       logger.info(s"Topic $topic doesn't exist yet, now creating it.")
       val newTopic = new NewTopic(topic, 1, 1)
       createTopic(adminClient, newTopic)
     }
   }
 
-  /**
-    * Tests if a topic exists
+  /** Verify a Kafka topic already exists.
+    *
+    * @param client The connection to the Kafka broker.
+    * @param topic The topic to check.
+    * @return True if the topic already exists.
     */
   private def doesTopicExist(client: AdminClient, topic: String): Boolean = {
     client
@@ -159,18 +187,21 @@ class KafkaBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: 
       .contains(topic)
   }
 
-  /**
-    * Creates a new topic
+  /** Creates a new topic.
+    *
+    * @param client The connection to the Kafka broker.
+    * @param topic The topic to create.
     */
   private def createTopic(client: AdminClient, topic: NewTopic): Unit = {
-    client.
-      createTopics(List(topic).asJavaCollection)
+    client
+      .createTopics(List(topic).asJavaCollection)
       .all()
-      .get() //this blocks the method until the topic is created
+      .get() // This blocks the method until the topic is created.
   }
 
-  /**
-    * Exposes the Avro schema to an external service (like redis/zookeeper).
+  /** Exposes the Avro schema to an external service (like redis/zookeeper).
+    *
+    * @return True if successfully exposed.
     */
   def exposeSchema(): Boolean = {
     //get the schema
@@ -180,27 +211,25 @@ class KafkaBuffer[T <: Serializable with AnyRef : ClassTag : TypeTag](pipeline: 
     getExposer.put(schema, topic)
   }
 
-  /**
-    * Get schema exposer based on configuration.
+  /** Get schema exposer based on configuration.
     *
-    * @return a schema exposer.
+    * @return A schema exposer instance.
     */
   def getExposer: SchemaExposer = {
-    val exposeName = properties.
-      get[String](KafkaBuffer.SCHEMA_EXPOSURE_SERVICE).
-      getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_SERVICE)
+    val exposeName = properties
+      .get[String](KafkaBuffer.SCHEMA_EXPOSURE_SERVICE)
+      .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_SERVICE)
 
-    val exposeHost = properties.
-      get[String](KafkaBuffer.SCHEMA_EXPOSURE_HOST).
-      getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_HOST)
+    val exposeHost = properties
+      .get[String](KafkaBuffer.SCHEMA_EXPOSURE_HOST)
+      .getOrElse(KafkaBufferDefaults.SCHEMA_EXPOSURE_HOST)
 
-    //get exposer
+    // Get the exposer.
     val exposer = exposeName match {
       case "zookeeper" => new ZookeeperSchemaExposer(exposeHost)
-      case _ => new RedisSchemaExposer(exposeHost) //default is redis
+      case _           => new RedisSchemaExposer(exposeHost) //default is redis
     }
 
     exposer
   }
 }
-

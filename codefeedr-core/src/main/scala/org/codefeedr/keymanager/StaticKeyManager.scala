@@ -18,15 +18,23 @@
  */
 package org.codefeedr.keymanager
 
-/**
-  * Key manager implementation with a static set of keys. Does not allow for more than one key
+/** Key manager implementation with a static set of keys. Does not allow for more than one key
   * per target, nor does it keep track of the number of uses.
   *
   * @param map Map of target -> key.
   */
-class StaticKeyManager(map: Map[String, String] = Map()) extends KeyManager with Serializable {
+class StaticKeyManager(map: Map[String, String] = Map())
+    extends KeyManager
+    with Serializable {
 
-  override def request(target: String, numberOfCalls: Int): Option[ManagedKey]= {
+  /** Requests a key from memory.
+    *
+    * @param target Target of the key.
+    * @param numberOfCalls The number of calls needed on this key.
+    * @return A managed key.
+    */
+  override def request(target: String,
+                       numberOfCalls: Int): Option[ManagedKey] = {
     if (target == null)
       throw new IllegalArgumentException()
 

@@ -24,9 +24,7 @@ package org.codefeedr.plugins.github.requests
   * @param status the status of the response.
   * @param headers the headers of the response.
   */
-case class GitHubResponse(body: String,
-                             status: Int,
-                             headers: List[Header])
+case class GitHubResponse(body: String, status: Int, headers: List[Header])
 
 /**
   * Represents a header.

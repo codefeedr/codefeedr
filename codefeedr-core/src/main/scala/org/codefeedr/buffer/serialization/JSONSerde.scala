@@ -27,33 +27,40 @@ import org.json4s.jackson.Serialization
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-class JSONSerde[T <: Serializable with AnyRef : TypeTag : ClassTag] extends AbstractSerde[T]{
+/** JSON (de-)serializer
+  *
+  * @tparam T Type of the SerDe.
+  */
+class JSONSerde[T <: Serializable with AnyRef: TypeTag: ClassTag]
+    extends AbstractSerde[T] {
 
-  //implicit serialization format
+  // Implicitly and lazily define the serialization to JSON.
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
 
-  /**
-    * Serializes a (generic) element into a json format.
+  /** Serializes a (generic) element into a json format.
     *
-    * @param element the element to serialized.
-    * @return a serialized byte array.
+    * @param element The element to serialized.
+    * @return A serialized byte array.
     */
   override def serialize(element: T): Array[Byte] = {
     val string = Serialization.write(element)(formats)
     string.getBytes(StandardCharsets.UTF_8)
   }
 
-  /**
-    * Deserializes a (JSON) message into a (generic) case class
+  /** Deserializes a (JSON) message into a (generic) case class
     *
-    * @param message the message to deserialized.
-    * @return a deserialized case class.
+    * @param message The message to deserialized.
+    * @return A deserialized case class.
     */
   override def deserialize(message: Array[Byte]): T = {
     Serialization.read[T](new String(message, StandardCharsets.UTF_8))
   }
 }
 
+/** Companion object to simply instantiation of a JSONSerde. */
 object JSONSerde {
-  def apply[T <: Serializable with AnyRef : ClassTag : TypeTag]: JSONSerde[T] = new JSONSerde[T]()
+
+  /** Creates new JSON Serde. */
+  def apply[T <: Serializable with AnyRef: ClassTag: TypeTag]: JSONSerde[T] =
+    new JSONSerde[T]()
 }

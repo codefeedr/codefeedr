@@ -21,10 +21,10 @@ import org.scalatest.FunSuite
 
 abstract class KeyManagerTest extends FunSuite {
 
-  var keyManager : KeyManager = null
+  var keyManager: KeyManager = null
 
   // Inject a keymanager into this test suite
-  def injectKeyManager(keyManager : KeyManager): Unit = {
+  def injectKeyManager(keyManager: KeyManager): Unit = {
     this.keyManager = keyManager
   }
 

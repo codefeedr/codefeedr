@@ -18,8 +18,10 @@
  */
 package org.codefeedr.buffer
 
-/**
-  * Type of a buffer.
+/** Type of buffer.
+  * Currently we support:
+  * - [[https://kafka.apache.org/ Kafka]]
+  * - [[https://www.rabbitmq.com/ RabbitMQ]]
   */
 object BufferType extends Enumeration {
   type BufferType = Value

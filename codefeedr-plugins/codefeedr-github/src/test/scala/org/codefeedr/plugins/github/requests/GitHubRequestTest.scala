@@ -26,10 +26,13 @@ import scalaj.http.{HttpRequest, HttpResponse}
 
 class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {
 
-  var defaultRequest : GitHubRequest = _
+  var defaultRequest: GitHubRequest = _
 
   before {
-    defaultRequest = new GitHubRequest("/test", List(Header("test", Array("test")), Header("test2", Array("test", "test2"))))
+    defaultRequest =
+      new GitHubRequest("/test",
+                        List(Header("test", Array("test")),
+                             Header("test2", Array("test", "test2"))))
   }
 
   test("200 status should be properly forwarded") {
@@ -55,7 +58,8 @@ class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {
   }
 
   test("A HTTP response should be properly parsed") {
-    val http = HttpResponse[String]("body", 200, Map("testHeader" -> IndexedSeq("test")))
+    val http =
+      HttpResponse[String]("body", 200, Map("testHeader" -> IndexedSeq("test")))
     val response = defaultRequest.parseResponse(http)
 
     assert(response.body == "body")
@@ -71,13 +75,15 @@ class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {
 
     assert(request.headers.contains(("test", "test")))
     assert(request.url == GitHubEndpoints.DEFAULT_URL + "/test")
-    assert(request.headers.contains(("Accept", "application/vnd.github.v3+json")))
+    assert(
+      request.headers.contains(("Accept", "application/vnd.github.v3+json")))
   }
 
   test("A request should be properly handled") {
     val mockHttp = mock[HttpRequest]
     val request = spy(defaultRequest)
-    val simpleResponse = HttpResponse[String]("body", 200, Map("testHeader" -> IndexedSeq("test")))
+    val simpleResponse =
+      HttpResponse[String]("body", 200, Map("testHeader" -> IndexedSeq("test")))
 
     when(request.buildRequest()).thenReturn(mockHttp)
     when(mockHttp.asString).thenReturn(simpleResponse)
@@ -98,7 +104,6 @@ class GitHubRequestTest extends FunSuite with BeforeAndAfter with MockitoSugar {
 
     when(mockHttp.asString)
       .thenThrow(new RuntimeException())
-
 
     assertThrows[GitHubRequestException] {
       request.retrieveResponse(mockHttp, 4)

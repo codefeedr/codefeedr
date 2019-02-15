@@ -22,7 +22,10 @@ import com.github.sebruck.EmbeddedRedis
 import org.scalatest.BeforeAndAfterAll
 import redis.embedded.RedisServer
 
-class RedisSchemaExposerTest extends SchemaExposerTest with BeforeAndAfterAll with EmbeddedRedis {
+class RedisSchemaExposerTest
+    extends SchemaExposerTest
+    with BeforeAndAfterAll
+    with EmbeddedRedis {
   var redis: RedisServer = null
   var redisPort: Int = 0
 
@@ -37,5 +40,6 @@ class RedisSchemaExposerTest extends SchemaExposerTest with BeforeAndAfterAll wi
     stopRedis(redis)
   }
 
-  override def getSchemaExposer(): SchemaExposer = new RedisSchemaExposer(s"redis://localhost:$redisPort")
+  override def getSchemaExposer(): SchemaExposer =
+    new RedisSchemaExposer(s"redis://localhost:$redisPort")
 }

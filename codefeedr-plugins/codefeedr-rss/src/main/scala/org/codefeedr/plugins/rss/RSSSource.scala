@@ -21,7 +21,10 @@ package org.codefeedr.plugins.rss
 import java.text.SimpleDateFormat
 
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.functions.source.{RichSourceFunction, SourceFunction}
+import org.apache.flink.streaming.api.functions.source.{
+  RichSourceFunction,
+  SourceFunction
+}
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.stages.utilities.{HttpRequester, RequestException}
 import scalaj.http.Http
@@ -32,7 +35,8 @@ class RSSSource(url: String,
                 dateFormat: String,
                 pollingInterval: Int = 1000,
                 maxNumberOfRuns: Int = -1)
-  extends RichSourceFunction[RSSItem] with Logging {
+    extends RichSourceFunction[RSSItem]
+    with Logging {
 
   private var isRunning = false
   private var runsLeft = 0
@@ -87,7 +91,8 @@ class RSSSource(url: String,
           lastItem.get.pubDate.before(x.pubDate) && lastItem.get.guid != x.guid
         else
           true
-      }).sortWith((x: RSSItem, y: RSSItem) => x.pubDate.before(y.pubDate))
+      })
+      .sortWith((x: RSSItem, y: RSSItem) => x.pubDate.before(y.pubDate))
   }
 
   /**

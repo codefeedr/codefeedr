@@ -24,78 +24,157 @@ import org.codefeedr.pipeline._
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-/**
-  * The OutputStage class represents the end of a pipeline.
+/** The OutputStage class represents the end of a pipeline.
   * It has an input type but no specific output type since it will not be connected to the buffer.
   *
   * @tparam In the input type of the job.
   */
-abstract class OutputStage[In <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject[In, NoType](attributes) {
+abstract class OutputStage[In <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends Stage[In, NoType](attributes) {
 
+  /** Transforms the stage from its input type to its output type.
+    * This requires using the Flink DataStream API.
+    *
+    * In this case it is already implemented as a helper method. To use `main(source: DataStream[In])` instead.
+    *
+    * @param source The input source with type In.
+    * @return The transformed stream. Since it is an OutputStage it will return null.
+    */
   override def transform(source: DataStream[In]): DataStream[NoType] = {
     main(source)
 
     null
   }
 
-  /**
-    * Use the given datastream
+  /** Processes a DataStream.
     *
-    * @param source Stream
+    * @param source The input source.
     */
   def main(source: DataStream[In]): Unit
 }
 
-abstract class OutputStage2[In <: Serializable with AnyRef : ClassTag : TypeTag, In2 <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject2[In, In2, NoType](attributes) {
+/** The OutputStage class represents the end of a pipeline with two inputs.
+  * It has an input type but no specific output type since it will not be connected to the buffer.
+  *
+  * @tparam In The input type of the stage.
+  * @tparam In2 The second input type of the stage.
+  */
+abstract class OutputStage2[In <: Serializable with AnyRef: ClassTag: TypeTag,
+In2 <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends Stage2[In, In2, NoType](attributes) {
 
-  override def transform(source: DataStream[In], secondSource: DataStream[In2]): DataStream[NoType] = {
+  /** Transforms the stage from its input type to its output type.
+    * This requires using the Flink DataStream API.
+    *
+    * In this case it is already implemented as a helper method. To use `main(source: DataStream[In])` instead.
+    *
+    * @param source The input source with type In.
+    * @param secondSource The second input source with type In2.
+    * @return The transformed stream. Since it is an OutputStage it will return null.
+    */
+  override def transform(source: DataStream[In],
+                         secondSource: DataStream[In2]): DataStream[NoType] = {
     main(source, secondSource)
 
     null
   }
 
-  /**
-    * Use the given datastreams
+  /** Processes a DataStream.
     *
-    * @param source
-    * @param secondSource Stream
+    * @param source The input source.
+    * @param secondSource The second input source.
     */
   def main(source: DataStream[In], secondSource: DataStream[In2]): Unit
 }
 
-abstract class OutputStage3[In <: Serializable with AnyRef : ClassTag : TypeTag, In2 <: Serializable with AnyRef : ClassTag : TypeTag, In3 <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject3[In, In2, In3, NoType](attributes) {
+/** The OutputStage class represents the end of a pipeline with three inputs.
+  * It has an input type but no specific output type since it will not be connected to the buffer.
+  *
+  * @tparam In The input type of the stage.
+  * @tparam In2 The second input type of the stage.
+  * @tparam In3 The third input type of the stage.
+  */
+abstract class OutputStage3[In <: Serializable with AnyRef: ClassTag: TypeTag,
+In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+In3 <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends Stage3[In, In2, In3, NoType](attributes) {
 
-  override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): DataStream[NoType] = {
+  /** Transforms the stage from its input type to its output type.
+    * This requires using the Flink DataStream API.
+    *
+    * In this case it is already implemented as a helper method. To use `main(source: DataStream[In])` instead.
+    *
+    * @param source The input source with type In.
+    * @param secondSource The second input source with type In2.
+    * @param thirdSource The third input source with type In3.
+    * @return The transformed stream. Since it is an OutputStage it will return null.
+    */
+  override def transform(source: DataStream[In],
+                         secondSource: DataStream[In2],
+                         thirdSource: DataStream[In3]): DataStream[NoType] = {
     main(source, secondSource, thirdSource)
 
     null
   }
 
-  /**
-    * Use the given datastreams
+  /** Processes a DataStream.
     *
-    * @param source
-    * @param secondSource Stream
-    * @param thirdSource Stream
+    * @param source The input source.
+    * @param secondSource The second input source.
+    * @param thirdSource The third input source.
     */
-  def main(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3]): Unit
+  def main(source: DataStream[In],
+           secondSource: DataStream[In2],
+           thirdSource: DataStream[In3]): Unit
 }
 
-abstract class OutputStage4[In <: Serializable with AnyRef : ClassTag : TypeTag, In2 <: Serializable with AnyRef : ClassTag : TypeTag, In3 <: Serializable with AnyRef : ClassTag : TypeTag, In4 <: Serializable with AnyRef : ClassTag : TypeTag](attributes: StageAttributes = StageAttributes()) extends PipelineObject4[In, In2, In3, In4, NoType](attributes) {
+/** The OutputStage class represents the end of a pipeline with four inputs.
+  * It has an input type but no specific output type since it will not be connected to the buffer.
+  *
+  * @tparam In The input type of the stage.
+  * @tparam In2 The second input type of the stage.
+  * @tparam In3 The third input type of the stage.
+  * @tparam In4 The fourth input type of the stage.
+  */
+abstract class OutputStage4[In <: Serializable with AnyRef: ClassTag: TypeTag,
+In2 <: Serializable with AnyRef: ClassTag: TypeTag,
+In3 <: Serializable with AnyRef: ClassTag: TypeTag,
+In4 <: Serializable with AnyRef: ClassTag: TypeTag](
+    attributes: StageAttributes = StageAttributes())
+    extends Stage4[In, In2, In3, In4, NoType](attributes) {
 
-  override def transform(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3], fourthSource: DataStream[In4]): DataStream[NoType] = {
+  /** Transforms the stage from its input type to its output type.
+    * This requires using the Flink DataStream API.
+    *
+    * In this case it is already implemented as a helper method. To use `main(source: DataStream[In])` instead.
+    *
+    * @param source The input source with type In.
+    * @param secondSource The second input source with type In2.
+    * @param thirdSource The third input source with type In3.
+    * @param fourthSource The fourth input source with type In4.
+    * @return The transformed stream. Since it is an OutputStage it will return null.
+    */
+  override def transform(source: DataStream[In],
+                         secondSource: DataStream[In2],
+                         thirdSource: DataStream[In3],
+                         fourthSource: DataStream[In4]): DataStream[NoType] = {
     main(source, secondSource, thirdSource, fourthSource)
 
     null
   }
 
-  /**
-    * Use the given datastreams
+  /** Processes a DataStream.
     *
-    * @param source Stream
-    * @param secondSource Stream
-    * @param thirdSource Stream
-    * @param fourthSource Stream
+    * @param source The input source.
+    * @param secondSource The second input source.
+    * @param thirdSource The third input source.
+    * @param fourthSource The fourth input source.
     */
-  def main(source: DataStream[In], secondSource: DataStream[In2], thirdSource: DataStream[In3], fourthSource: DataStream[In4]): Unit
+  def main(source: DataStream[In],
+           secondSource: DataStream[In2],
+           thirdSource: DataStream[In3],
+           fourthSource: DataStream[In4]): Unit
 }

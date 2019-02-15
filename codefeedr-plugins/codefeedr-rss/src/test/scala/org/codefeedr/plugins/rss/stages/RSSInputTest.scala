@@ -28,14 +28,15 @@ import org.codefeedr.stages.OutputStage
 import org.scalatest.FunSuite
 
 //This will be thrown after the print sink received x elements.
-final case class JobFinishedException() extends JobExecutionException(new JobID(), "Job is finished.")
+final case class JobFinishedException()
+    extends JobExecutionException(new JobID(), "Job is finished.")
 class RSSInputTest extends FunSuite {
 
   test("RSS source pipeline build test") {
     println("RSS Test pipeline start")
     val rssURL = "http://lorem-rss.herokuapp.com/feed?unit=second"
     val source = new RSSInput(rssURL, "EEE, dd MMMM yyyy HH:mm:ss z", 1000)
-    val sink = new LimitingSinkPipelineObject(12)
+    val sink = new LimitingSinkStage(12)
 
     val pipeline = new PipelineBuilder()
       .append(source)
@@ -47,7 +48,9 @@ class RSSInputTest extends FunSuite {
 
 // Simple Sink Pipeline Object that limits the output to a certain number
 // and is able to get a list of all the items that were received in the sink
-class LimitingSinkPipelineObject(elements: Int = -1) extends OutputStage[RSSItem] with Serializable {
+class LimitingSinkStage(elements: Int = -1)
+    extends OutputStage[RSSItem]
+    with Serializable {
   var sink: LimitingSink = _
 
   override def main(source: DataStream[RSSItem]): Unit = {
@@ -60,7 +63,8 @@ class LimitingSink(elements: Int) extends SinkFunction[RSSItem] {
   var count = 0
   var items: List[RSSItem] = List()
 
-  override def invoke(value: RSSItem, context: SinkFunction.Context[_]): Unit = {
+  override def invoke(value: RSSItem,
+                      context: SinkFunction.Context[_]): Unit = {
     count += 1
     items = value :: items
 
@@ -72,4 +76,3 @@ class LimitingSink(elements: Int) extends SinkFunction[RSSItem] {
     }
   }
 }
-

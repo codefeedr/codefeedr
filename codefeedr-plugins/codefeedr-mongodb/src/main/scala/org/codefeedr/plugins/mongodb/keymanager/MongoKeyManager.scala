@@ -21,7 +21,10 @@ package org.codefeedr.plugins.mongodb.keymanager
 import java.net.URI
 import java.util.Date
 
-import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
+import org.bson.codecs.configuration.CodecRegistries.{
+  fromProviders,
+  fromRegistries
+}
 import org.codefeedr.keymanager.{KeyManager, ManagedKey}
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.codecs.Macros._
@@ -29,7 +32,12 @@ import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model.Updates._
 import org.mongodb.scala.model.{UpdateOneModel, WriteModel}
-import org.mongodb.scala.{FindObservable, MongoClient, MongoCollection, SingleObservable}
+import org.mongodb.scala.{
+  FindObservable,
+  MongoClient,
+  MongoCollection,
+  SingleObservable
+}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -42,22 +50,27 @@ import scala.concurrent.duration.Duration
 class MongoKeyManager(database: String = "db",
                       collection: String = "codefeedrKeyManager",
                       server: URI = null)
-  extends KeyManager with Serializable {
+    extends KeyManager
+    with Serializable {
 
   // Serialization handling for Mongo BSON
-  private lazy val codecRegistry = fromRegistries(fromProviders(classOf[MongoManagedKey]), DEFAULT_CODEC_REGISTRY )
+  private lazy val codecRegistry = fromRegistries(
+    fromProviders(classOf[MongoManagedKey]),
+    DEFAULT_CODEC_REGISTRY)
 
-  override def request(target: String, numberOfCalls: Int): Option[ManagedKey] = {
+  override def request(target: String,
+                       numberOfCalls: Int): Option[ManagedKey] = {
     require(target != null, "target cannot be null")
 
     refreshKeys(target)
 
     // Find the best fitting key
-    val search = and(equal("target", target), gte("numCallsLeft", numberOfCalls))
+    val search =
+      and(equal("target", target), gte("numCallsLeft", numberOfCalls))
     val update = inc("numCallsLeft", -numberOfCalls)
 
     val action = getCollection
-        .findOneAndUpdate(search, update)
+      .findOneAndUpdate(search, update)
 
     val result = await(action)
 
@@ -79,22 +92,24 @@ class MongoKeyManager(database: String = "db",
     val now = new Date()
 
     // For target, get all keys that can be refreshed
-    val toRefresh = awaitMany(col.find(and(equal("target", target), lt("refreshTime", now))))
+    val toRefresh = awaitMany(
+      col.find(and(equal("target", target), lt("refreshTime", now))))
 
-    val updates: Seq[WriteModel[_ <: MongoManagedKey]] = toRefresh.map { managedKey =>
-      // Find next date in the future
-      var newTime = managedKey.refreshTime.getTime
-      while (newTime < now.getTime) {
-        newTime += managedKey.interval
-      }
+    val updates: Seq[WriteModel[_ <: MongoManagedKey]] = toRefresh.map {
+      managedKey =>
+        // Find next date in the future
+        var newTime = managedKey.refreshTime.getTime
+        while (newTime < now.getTime) {
+          newTime += managedKey.interval
+        }
 
-      UpdateOneModel(
-        Document("_id" -> managedKey._id),
-        combine(
-          set("numCallsLeft", managedKey.limit),
-          set("refreshTime", new Date(newTime))
+        UpdateOneModel(
+          Document("_id" -> managedKey._id),
+          combine(
+            set("numCallsLeft", managedKey.limit),
+            set("refreshTime", new Date(newTime))
+          )
         )
-      )
     }
 
     if (updates.nonEmpty) {
@@ -130,9 +145,11 @@ class MongoKeyManager(database: String = "db",
     * @return Mongo Collection
     */
   private def getCollection: MongoCollection[MongoManagedKey] = {
-    val client = if (server == null) MongoClient() else MongoClient(server.toString)
+    val client =
+      if (server == null) MongoClient() else MongoClient(server.toString)
 
-    val databaseObject = client.getDatabase(database).withCodecRegistry(codecRegistry)
+    val databaseObject =
+      client.getDatabase(database).withCodecRegistry(codecRegistry)
 
     databaseObject.getCollection(collection)
   }
@@ -147,7 +164,11 @@ class MongoKeyManager(database: String = "db",
     * @param refreshTime Next refresh time
     * @return
     */
-  private[mongodb] def add(target: String, key: String, limit: Int, interval: Int, refreshTime: Date = null): Unit = {
+  private[mongodb] def add(target: String,
+                           key: String,
+                           limit: Int,
+                           interval: Int,
+                           refreshTime: Date = null): Unit = {
     val time = if (refreshTime == null) {
       new Date(new Date().getTime() + interval)
     } else

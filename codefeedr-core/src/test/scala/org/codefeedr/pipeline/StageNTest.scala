@@ -25,10 +25,11 @@ import org.codefeedr.stages.utilities.{StringInput, StringType}
 import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-class PipelineObjectNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
+class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
 
   override def beforeAll(): Unit = {
-    implicit val config = EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
+    implicit val config =
+      EmbeddedKafkaConfig(zooKeeperPort = 2181, kafkaPort = 9092)
     EmbeddedKafka.start()
   }
 
@@ -36,9 +37,10 @@ class PipelineObjectNTest extends FunSuite with BeforeAndAfterAll with EmbeddedK
     EmbeddedKafka.stop()
   }
 
-
-  class MyObject2 extends PipelineObject2[StringType, StringType, NoType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType]): DataStream[NoType] = {
+  class MyObject2 extends Stage2[StringType, StringType, NoType] {
+    override def transform(
+        source: DataStream[StringType],
+        secondSource: DataStream[StringType]): DataStream[NoType] = {
       println("TRANSFORM", source, secondSource)
 
       if (source != null && secondSource != null) {
@@ -49,8 +51,10 @@ class PipelineObjectNTest extends FunSuite with BeforeAndAfterAll with EmbeddedK
     }
   }
 
-  class MyBadObject2 extends PipelineObject2[StringType, NoType, NoType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[NoType]): DataStream[NoType] = {
+  class MyBadObject2 extends Stage2[StringType, NoType, NoType] {
+    override def transform(
+        source: DataStream[StringType],
+        secondSource: DataStream[NoType]): DataStream[NoType] = {
       if (source != null && secondSource != null) {
         throw CodeHitException()
       }
@@ -59,8 +63,11 @@ class PipelineObjectNTest extends FunSuite with BeforeAndAfterAll with EmbeddedK
     }
   }
 
-  class MyObject3 extends PipelineObject3[StringType, StringType, StringType, NoType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType]): DataStream[NoType] = {
+  class MyObject3 extends Stage3[StringType, StringType, StringType, NoType] {
+    override def transform(
+        source: DataStream[StringType],
+        secondSource: DataStream[StringType],
+        thirdSource: DataStream[StringType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null) {
         throw CodeHitException()
       }
@@ -69,8 +76,11 @@ class PipelineObjectNTest extends FunSuite with BeforeAndAfterAll with EmbeddedK
     }
   }
 
-  class MyBadObject3 extends PipelineObject3[StringType, StringType, NoType, NoType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[NoType]): DataStream[NoType] = {
+  class MyBadObject3 extends Stage3[StringType, StringType, NoType, NoType] {
+    override def transform(
+        source: DataStream[StringType],
+        secondSource: DataStream[StringType],
+        thirdSource: DataStream[NoType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null) {
         throw CodeHitException()
       }
@@ -79,8 +89,13 @@ class PipelineObjectNTest extends FunSuite with BeforeAndAfterAll with EmbeddedK
     }
   }
 
-  class MyObject4 extends PipelineObject4[StringType, StringType, StringType, StringType, NoType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[StringType]): DataStream[NoType] = {
+  class MyObject4
+      extends Stage4[StringType, StringType, StringType, StringType, NoType] {
+    override def transform(
+        source: DataStream[StringType],
+        secondSource: DataStream[StringType],
+        thirdSource: DataStream[StringType],
+        fourthSource: DataStream[StringType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null && fourthSource != null) {
         throw CodeHitException()
       }
@@ -89,8 +104,13 @@ class PipelineObjectNTest extends FunSuite with BeforeAndAfterAll with EmbeddedK
     }
   }
 
-  class MyBadObject4 extends PipelineObject4[StringType, StringType, StringType, NoType, NoType] {
-    override def transform(source: DataStream[StringType], secondSource: DataStream[StringType], thirdSource: DataStream[StringType], fourthSource: DataStream[NoType]): DataStream[NoType] = {
+  class MyBadObject4
+      extends Stage4[StringType, StringType, StringType, NoType, NoType] {
+    override def transform(
+        source: DataStream[StringType],
+        secondSource: DataStream[StringType],
+        thirdSource: DataStream[StringType],
+        fourthSource: DataStream[NoType]): DataStream[NoType] = {
       if (source != null && secondSource != null && thirdSource != null && fourthSource != null) {
         throw CodeHitException()
       }

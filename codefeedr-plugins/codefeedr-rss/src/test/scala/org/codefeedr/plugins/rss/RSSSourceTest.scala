@@ -27,13 +27,17 @@ import org.scalatest.{BeforeAndAfter, FunSuite}
 
 import scala.io.Source
 
-class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter with Logging {
-
+class RSSSourceTest
+    extends FunSuite
+    with MockFactory
+    with BeforeAndAfter
+    with Logging {
 
   test("RSS source should poll maxNumberOfRuns times") {
     logger.info("RSS Test 1 start")
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 0, 2))
+    val rssItemSource =
+      spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 0, 2))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -55,10 +59,11 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter with L
     logger.info("RSS Test 1 stop")
   }
 
-  test("RSS source should collect all RSS items"){
+  test("RSS source should collect all RSS items") {
     logger.info("RSS Test 2 start")
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",0, 2))
+    val rssItemSource =
+      spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 0, 2))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -80,11 +85,12 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter with L
     logger.info("RSS Test 2 stop")
   }
 
-  test("RSS source should collect RSS items in order"){
+  test("RSS source should collect RSS items in order") {
     logger.info("RSS Test 3 start")
 
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 0, 2))
+    val rssItemSource =
+      spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 0, 2))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -99,21 +105,27 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter with L
 
     //Add RSS items to a list to check later
     var rssItemList: List[RSSItem] = List()
-    (ctxMock.collect _).expects(new FunctionAdapter1[RSSItem, Boolean]((x:RSSItem) => {rssItemList = x :: rssItemList; true})).anyNumberOfTimes()
+    (ctxMock.collect _)
+      .expects(new FunctionAdapter1[RSSItem, Boolean]((x: RSSItem) => {
+        rssItemList = x :: rssItemList; true
+      }))
+      .anyNumberOfTimes()
 
     rssItemSource.open(null)
     rssItemSource.run(ctxMock)
 
     //RSS items should already be in order
-    val orderedRSSItemList = rssItemList.sortWith((x,y) => y.pubDate.before(x.pubDate))
+    val orderedRSSItemList =
+      rssItemList.sortWith((x, y) => y.pubDate.before(x.pubDate))
     assert(rssItemList.equals(orderedRSSItemList))
     logger.info("RSS Test 3 stop")
   }
 
-  test("RSS source should continue when recieving wrong xml"){
+  test("RSS source should continue when recieving wrong xml") {
     logger.info("RSS Test 4 start")
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",0, 5))
+    val rssItemSource =
+      spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 0, 5))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -134,10 +146,12 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter with L
     logger.info("RSS Test 4 stop")
   }
 
-  test("RSS source should collect all RSS items even when request gives exception"){
+  test(
+    "RSS source should collect all RSS items even when request gives exception") {
     logger.info("RSS Test 5 start")
     val fakeUrl = "http://www.example.com"
-    val rssItemSource = spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z",0, 2))
+    val rssItemSource =
+      spy(new RSSSource(fakeUrl, "EEE, dd MMMM yyyy HH:mm:ss z", 0, 2))
 
     val ctxMock = mock[SourceFunction.SourceContext[RSSItem]]
 
@@ -165,7 +179,7 @@ class RSSSourceTest extends FunSuite with MockFactory with BeforeAndAfter with L
 
   test("Cancel should turn make isRunning false") {
     logger.info("RSS Test 6 start")
-    val source = new RSSSource("", "EEE, dd MMMM yyyy HH:mm:ss z",0)
+    val source = new RSSSource("", "EEE, dd MMMM yyyy HH:mm:ss z", 0)
     assert(!source.getIsRunning)
     source.open(null)
     assert(source.getIsRunning)

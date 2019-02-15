@@ -21,22 +21,42 @@ package org.codefeedr.pipeline
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.stages.StageAttributes
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.testUtils.SimpleSourcePipelineObject
+import org.codefeedr.testUtils.SimpleSourceStage
 import org.scalatest.FunSuite
+import org.apache.flink.api.scala._
 
-class PipelineObjectTest extends FunSuite {
+case class IntType(id: Int)
 
-  class BadSourceObject extends PipelineObject[NoType, StringType] {
-    override def transform(source: DataStream[NoType]): DataStream[StringType] = {
+class StageTest extends FunSuite {
+
+  class BadSourceObject extends Stage[NoType, StringType] {
+    override def transform(
+        source: DataStream[NoType]): DataStream[StringType] = {
       getMainSource()
 
       null
     }
   }
 
-  class BadSinkObject extends PipelineObject[StringType, NoType] {
-    override def transform(source: DataStream[StringType]): DataStream[NoType] = {
+  class BadSinkObject extends Stage[StringType, NoType] {
+    override def transform(
+        source: DataStream[StringType]): DataStream[NoType] = {
       getSink()
+
+      null
+    }
+  }
+
+  class StringTypeStage extends Stage[NoType, StringType] {
+    override def transform(
+        source: DataStream[NoType]): DataStream[StringType] = {
+      environment.fromCollection(Seq(StringType("a")))
+    }
+  }
+
+  class IntTypeStage extends Stage[IntType, NoType] {
+    override def transform(source: DataStream[IntType]): DataStream[NoType] = {
+      source.print()
 
       null
     }
@@ -44,8 +64,8 @@ class PipelineObjectTest extends FunSuite {
 
   test("Should throw when getting unknown main source") {
     val pipeline = new PipelineBuilder()
-        .append(new BadSourceObject())
-        .build()
+      .append(new BadSourceObject())
+      .build()
 
     assertThrows[NoSourceException] {
       pipeline.startMock()
@@ -63,8 +83,25 @@ class PipelineObjectTest extends FunSuite {
   }
 
   test("Setting id attributed propagates") {
-    val a = new SimpleSourcePipelineObject(StageAttributes(id = Some("testId")))
+    val a = new SimpleSourceStage(StageAttributes(id = Some("testId")))
 
     assert(a.id == "testId")
   }
+
+  /**
+  test("Compatible types should not throw an exception") {
+    val stringStage = new StringTypeStage
+    val intStage = new IntTypeStage
+
+    val dag = new DirectedAcyclicGraph()
+      .addNode(stringStage)
+      .addNode(intStage)
+      .addEdge(stringStage, intStage)
+
+    assertThrows[StageTypesIncompatibleException] {
+      stringStage.verifyGraph(dag)
+    }
+  }
+
+    **/
 }

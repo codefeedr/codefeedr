@@ -18,6 +18,7 @@
 
 package org.codefeedr.stages
 
+/** Holds additional data about a stage. */
 case class StageAttributes(
-                            id: Option[String] = None
-                          )
+    id: Option[String] = None
+)

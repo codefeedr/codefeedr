@@ -45,9 +45,11 @@ class RabbitMQBufferTest extends FunSuite with BeforeAndAfter {
       .setBufferType(BufferType.RabbitMQ)
       .append(new StringInput("hello world"))
       .append { x: DataStream[StringType] =>
-        x.map { v => {
-          if (v.value == "hello") throw new CodeHitException
-        }}
+        x.map { v =>
+          {
+            if (v.value == "hello") throw new CodeHitException
+          }
+        }
       }
       .build()
 

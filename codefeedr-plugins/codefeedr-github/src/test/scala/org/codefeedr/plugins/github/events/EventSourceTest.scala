@@ -30,12 +30,13 @@ import org.scalatest.mockito.MockitoSugar
 
 class EventSourceTest extends FunSuite with MockitoSugar {
 
-  test ("The event service should be properly stopped.") {
+  test("The event service should be properly stopped.") {
     val mockContext = mock[SourceFunction.SourceContext[Event]]
     val mockService = mock[EventService]
     val mockEvent = mock[Event]
 
-    val eventSource = spy(new EventSource(2, 0, new StaticKeyManager(), true, 3))
+    val eventSource =
+      spy(new EventSource(2, 0, new StaticKeyManager(), true, 3))
     eventSource.open(new Configuration())
     eventSource.eventService = mockService
 
@@ -49,15 +50,17 @@ class EventSourceTest extends FunSuite with MockitoSugar {
 
     assert(eventSource.numOfPollsRemaining == 0)
     verify(eventSource).cancel()
-    verify(mockContext, times(4)).collect(any[Event]) // 2 runs * 2 events = 4 calls
+    verify(mockContext, times(4))
+      .collect(any[Event]) // 2 runs * 2 events = 4 calls
   }
 
-  test ("The eventsource should be unbounded if configured") {
+  test("The eventsource should be unbounded if configured") {
     val mockContext = mock[SourceFunction.SourceContext[Event]]
     val mockService = mock[EventService]
     val mockEvent = mock[Event]
 
-    val eventSource = spy(new EventSource(-1, 500, new StaticKeyManager(), true, 3))
+    val eventSource =
+      spy(new EventSource(-1, 500, new StaticKeyManager(), true, 3))
     eventSource.open(new Configuration())
     eventSource.eventService = mockService
 
@@ -77,7 +80,5 @@ class EventSourceTest extends FunSuite with MockitoSugar {
     verify(eventSource).cancel()
     verify(mockContext, atLeast(1)).collect(any[Event])
   }
-
-
 
 }

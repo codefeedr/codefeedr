@@ -52,9 +52,7 @@ object TravisProtocol {
                          tag: String,
                          commit: TravisCommit)
 
-  case class TravisPermissions(read: Boolean,
-                               cancel: Boolean,
-                               restart: Boolean)
+  case class TravisPermissions(read: Boolean, cancel: Boolean, restart: Boolean)
 
   case class TravisPagination(limit: Int,
                               offset: Int,
@@ -66,9 +64,7 @@ object TravisProtocol {
                               first: TravisPage,
                               last: TravisPage)
 
-  case class TravisPage(`@href`: String,
-                        offset: Int,
-                        limit: Int)
+  case class TravisPage(`@href`: String, offset: Int, limit: Int)
 
   case class TravisRepository(id: Int,
                               name: String,
@@ -81,13 +77,11 @@ object TravisProtocol {
                               default_branch: Option[TravisBranch],
                               starred: Option[Boolean],
                               managed_by_installation: Option[Boolean],
-                              active_on_org: Option[Boolean]
-                             )
+                              active_on_org: Option[Boolean])
 
   case class TravisBranch(name: String,
                           default_branch: Option[Boolean],
                           exists_on_github: Option[Boolean])
-
 
   case class TravisCommit(id: Int,
                           sha: String,
@@ -96,4 +90,3 @@ object TravisProtocol {
                           compare_url: String,
                           committed_at: String)
 }
-

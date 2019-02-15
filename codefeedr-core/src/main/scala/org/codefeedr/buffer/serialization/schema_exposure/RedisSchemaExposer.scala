@@ -23,42 +23,39 @@ import java.net.URI
 import com.redis.RedisClient
 import org.apache.avro.Schema
 
-/**
-  * Exposes (Avro) schema's to Redis.
+/** Exposes (Avro) schema's to Redis.
+  *
   * @param host the server host of Redis.
   * @param root the root location of the schema's
   *             DEFAULT: /codefeedr:schemas
   */
-class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") extends SchemaExposer {
+class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas")
+    extends SchemaExposer {
 
   private var connection: RedisClient = _
 
   //connect to the redis client
   connect()
 
-  /**
-    * Connect with the RedisClient.
-    */
+  /** Connect with the RedisClient. */
   private def connect(): Unit = {
     val uri = new URI(host)
     connection = new RedisClient(uri)
   }
 
-  /**
-    * Stores a schema bound to a subject.
+  /** Stores a schema bound to a subject.
     *
-    * @param schema the schema belonging to that topic.
-    * @param subject the subject belonging to that schema.
-    * @return true if correctly saved
+    * @param schema The schema belonging to that topic.
+    * @param subject The subject belonging to that schema.
+    * @return True if correctly saved.
     */
   override def put(schema: Schema, subject: String): Boolean = {
     connection.set(s"$root:$subject", schema.toString(true))
   }
 
-  /**
-    * Get a schema based on a subject.
+  /** Get a schema based on a subject.
     *
-    * @param subject the subject the schema belongs to.
+    * @param subject The subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
   override def get(subject: String): Option[Schema] = {
@@ -71,12 +68,10 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
     parse(schemaString.get)
   }
 
-
-  /**
-    * Deletes a schema.
+  /** Deletes a schema.
     *
-    * @param subject the subject the schema belongs to.
-    * @return true if successfully deleted, otherwise false.
+    * @param subject The subject the schema belongs to.
+    * @return True if successfully deleted, otherwise false.
     */
   override def delete(subject: String): Boolean = {
     val deleted = connection.del(s"$root:$subject")
@@ -89,14 +84,11 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas") exten
     true
   }
 
-  /**
-    * Deletes all schemas 'under' the root.
-    */
+  /** Deletes all schemas 'below' the root. */
   override def deleteAll(): Unit = {
     val keys = connection.keys(s"[$root]*")
 
-    keys
-      .get
+    keys.get
       .map(_.get)
       .foreach(connection.del(_))
   }

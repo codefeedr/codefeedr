@@ -18,20 +18,31 @@
  */
 package org.codefeedr.buffer.serialization
 
-import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
+import org.apache.flink.api.common.serialization.{
+  AbstractDeserializationSchema,
+  SerializationSchema
+}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
 
 import scala.reflect.{ClassTag, classTag}
 
-abstract class AbstractSerde[T <: Serializable : ClassTag]() extends AbstractDeserializationSchema[T](TypeExtractor.createTypeInfo(classTag[T].runtimeClass.asInstanceOf[Class[T]])) with SerializationSchema[T] {
+/** Abstract class for a SerDe.
+  *
+  * @tparam T Type of the SerDe.
+  */
+abstract class AbstractSerde[T <: Serializable: ClassTag]()
+    extends AbstractDeserializationSchema[T](
+      TypeExtractor.createTypeInfo(
+        classTag[T].runtimeClass.asInstanceOf[Class[T]]))
+    with SerializationSchema[T] {
 
   // Get type of class
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
 
-  /**
-    * Get type information of (de)serialized clss.
-    * @return the typeinformation of the generic class.
+  /** Get type information of (de)serialized class.
+    *
+    * @return The typeinformation of the generic class.
     */
   override def getProducedType: TypeInformation[T] = {
     TypeExtractor.createTypeInfo(inputClassType)

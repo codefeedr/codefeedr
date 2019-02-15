@@ -24,8 +24,7 @@ import java.util.Date
 import com.redis._
 import org.codefeedr.keymanager.{KeyManager, ManagedKey}
 
-/**
-  * A key manager using Redis, supporting refresh intervals and call counting.
+/** A key manager using Redis, supporting refresh intervals and call counting.
   *
   * <h3>Adding keys to Redis</h3>
   * When adding a key to Redis, a refresh policy is required:
@@ -60,15 +59,15 @@ import org.codefeedr.keymanager.{KeyManager, ManagedKey}
   * @param host Hostname and port of Redis. Use the redis scheme: 'redis://localhost:6379'
   * @param root Root path of the key manager within Redis. Defaults to 'codefeedr:keymanager'
   */
-class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") extends KeyManager {
+class RedisKeyManager(host: String, root: String = "codefeedr:keymanager")
+    extends KeyManager {
   private var connection: RedisClient = _
   private var scriptId: String = _
 
+  // After constructing, connect.
   connect()
 
-  /**
-    * Start a new connection to Redis and configure it properly.
-    */
+  /** Start a new connection to Redis and configure it properly. */
   private def connect(): Unit = {
     val uri = new URI(host)
     connection = new RedisClient(uri)
@@ -76,10 +75,9 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     scriptId = connection.scriptLoad(getRequestLuaScript).get
   }
 
-  /**
-    * Custom script for getting a key from the KV-store.
+  /** Custom LUA script for getting a key from the KV-store.
     *
-    * @return script
+    * @return The LUA script.
     */
   private def getRequestLuaScript: String = {
     val stream = getClass.getResourceAsStream("/redis_request.lua")
@@ -87,14 +85,21 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     scala.io.Source.fromInputStream(stream).mkString
   }
 
-  /**
-    * Get the Redis key for given target.
-    * @param target Target of the key pool
-    * @return Target key
+  /** Get the Redis key for a given target.
+    *
+    * @param target Target of the key pool.
+    * @return Get target key.
     */
   private def redisKeyForTarget(target: String): String = root + ":" + target
 
-  override def request(target: String, numberOfCalls: Int): Option[ManagedKey] = {
+  /** Request a number of calls.
+    *
+    * @param target Target of the key.
+    * @param numberOfCalls The number of calls needed on this key.
+    * @return A key which can be used.
+    */
+  override def request(target: String,
+                       numberOfCalls: Int): Option[ManagedKey] = {
     require(target != null, "target cannot be null")
 
     import serialization.Parse.Implicits.parseString
@@ -103,7 +108,10 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     val time = new Date().getTime
 
     // Run the custom script for a fully atomic get+decr operation
-    val result: Option[List[Option[String]]] = connection.evalMultiSHA(scriptId, List(targetKey), List(numberOfCalls, time))
+    val result: Option[List[Option[String]]] = connection.evalMultiSHA(
+      scriptId,
+      List(targetKey),
+      List(numberOfCalls, time))
 
     val data = result.get
     if (data.isEmpty)
@@ -112,20 +120,23 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
       Some(ManagedKey(data.head.get, data.last.get.toInt))
   }
 
+  /** Disconnect from the redis server */
   private[redis] def disconnect(): Unit = {
     connection.disconnect
     connection = null
   }
 
-  /**
-    * Add a new key to redis for testing.
+  /** Add a new key to Redis.
     *
-    * @param target Key target
-    * @param key Key
-    * @param numCalls Number of calls allowed within interval
-    * @param interval Interval in milliseconds
+    * @param target Target of the key.
+    * @param key The key itself.
+    * @param numCalls Number of calls allowed within interval.
+    * @param interval Interval in milliseconds.
     */
-  private[redis] def set(target: String, key: String, numCalls: Int, interval: Int): Unit = {
+  private[redis] def set(target: String,
+                         key: String,
+                         numCalls: Int,
+                         interval: Int): Unit = {
     val targetKey = redisKeyForTarget(target)
     val time = new Date().getTime + interval
 
@@ -135,8 +146,12 @@ class RedisKeyManager(host: String, root: String = "codefeedr:keymanager") exten
     connection.hset(targetKey + ":interval", key, interval)
   }
 
+  /** Delete all keys in the store. */
   private[redis] def deleteAll(): Unit = {
-    connection.evalBulk("for _,k in ipairs(redis.call('keys',ARGV[1])) do redis.call('del',k) end", List(), List(root + ":*"))
+    connection.evalBulk(
+      "for _,k in ipairs(redis.call('keys',ARGV[1])) do redis.call('del',k) end",
+      List(),
+      List(root + ":*"))
   }
 
 }
