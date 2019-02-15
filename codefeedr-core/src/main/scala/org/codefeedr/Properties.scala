@@ -20,15 +20,14 @@ package org.codefeedr
 
 import scala.language.implicitConversions
 
+/** Implicit conversions for Properties. */
 object Properties {
   // Conversion implicits
   implicit def stringToBoolean(str: String): Boolean = str.toBoolean
   implicit def booleanToString(bool: Boolean): String = bool.toString
 }
 
-/**
-  * Object containing configuration properties.
-  */
+/** Object containing configuration properties. */
 class Properties(private val contents: Map[String, String] = Map()) {
 
   /**
