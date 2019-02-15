@@ -46,4 +46,23 @@ class SerializerTest extends FunSuite {
 
     assert(serde.isInstanceOf[JSONSerde[Item]])
   }
+
+  test("I should be able to add my own serializer") {
+    Serializer.register[JSONSerde[_]]("my_very_own_serializer")
+
+    val serde = Serializer.getSerde[Item]("my_very_own_serializer")
+    assert(serde.isInstanceOf[JSONSerde[Item]])
+  }
+
+  test("Cannot register duplicate names.") {
+    assertThrows[IllegalArgumentException] {
+      Serializer.register[JSONSerde[_]]("BSON")
+    }
+
+    Serializer.register[BsonSerde[_]]("very_unique")
+
+    assertThrows[IllegalArgumentException] {
+      Serializer.register[JSONSerde[_]]("very_unique")
+    }
+  }
 }

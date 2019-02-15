@@ -66,7 +66,7 @@ object Serializer {
           .get(name)
           .get
           .runtimeClass
-          .getConstructor() // Get constructor of runtime class.
+          .getConstructors()(0) // Get constructor of runtime class.
           .newInstance(tt, ct) // Provide class and type tags.
           .asInstanceOf[AbstractSerde[T]] // Create instance of serde.
       }
@@ -93,7 +93,7 @@ object Serializer {
     * @param name Name of the SerDe. This needs to be unique. Reserved keywords are: JSON, BSON, KRYO.
     * @param ev Implicit Manifest of the class.
     * @tparam T Type of the serializer.
-    * @throws IllegalArgumentException
+    * @throws IllegalArgumentException Thrown when name is not unique/already registered.
     */
   def register[T <: AbstractSerde[_]](name: String)(
       implicit ev: Manifest[T]) = {
