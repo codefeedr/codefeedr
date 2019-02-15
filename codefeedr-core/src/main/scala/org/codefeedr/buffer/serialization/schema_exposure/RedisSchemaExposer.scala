@@ -53,12 +53,12 @@ class RedisSchemaExposer(host: String, root: String = "codefeedr:schemas")
     connection.set(s"$root:$subject", schema.toString(true))
   }
 
-  /**  Get a schema based on a subject.
+  /** Get a schema based on a subject.
     *
     * @param subject The subject the schema belongs to.
     * @return None if no schema is found or an invalid schema. Otherwise it returns the schema.
     */
-  override def get(subject: String*): Option[Schema] = {
+  override def get(subject: String): Option[Schema] = {
     val schemaString = connection.get[String](s"$root:$subject")
 
     //if no string is found, return None
