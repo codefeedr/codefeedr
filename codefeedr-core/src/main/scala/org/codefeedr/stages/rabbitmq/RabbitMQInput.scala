@@ -30,11 +30,12 @@ import org.codefeedr.stages.{InputStage, StageAttributes}
 import scala.reflect.runtime.universe._
 import scala.reflect.{ClassTag, classTag}
 
-/**
-  * Input stage pulling data from a RabbitMQ queue.
+/** Input stage pulling data from a RabbitMQ queue.
   *
-  * @param stageAttributes Optional attributes
-  * @tparam T Type of value to pull from the queue
+  * @param queue The queue id to read from.
+  * @param server The server connection string.
+  * @param stageAttributes Attributes of this stage.
+  * @tparam T Type of value to pull from the queue.
   */
 class RabbitMQInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
     queue: String,
@@ -48,6 +49,7 @@ class RabbitMQInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
   //get TypeInformation of generic (case) class
   implicit val typeInfo = TypeInformation.of(inputClassType)
 
+  /** Add the InputSource to the Flink environment. */
   override def main(): DataStream[T] = {
     val config = new RMQConnectionConfig.Builder()
       .setUri(server.toString)
@@ -61,12 +63,10 @@ class RabbitMQInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
       .setParallelism(1) // Needed for exactly one guarantees
   }
 
-  /**
-    * The serializer to use for reading data from RabbitMQ.
+  /** The serializer to use for reading data from RabbitMQ.
+    * Override to use a different serialization then JSON.
     *
-    * Override to use a different serialization than JSON.
-    *
-    * @return Serializer
+    * @return The correct SerDe.
     */
   protected def getSerializer: AbstractSerde[T] = {
     val serializer = Serializer.JSON

@@ -29,11 +29,12 @@ import org.codefeedr.stages.{OutputStage, StageAttributes}
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
-/**
-  * Output stage for sending data to a RabbitMQ queue.
+/** Output stage for sending data to a RabbitMQ queue.
   *
-  * @param stageAttributes Optional stage attributes
-  * @tparam T
+  * @param queue The queue id to read from.
+  * @param server The server connection string.
+  * @param stageAttributes Attributes of this stage.
+  * @tparam T Type of value to pull from the queue.
   */
 class RabbitMQOutput[T <: Serializable with AnyRef: ClassTag: TypeTag](
     queue: String,
@@ -41,21 +42,20 @@ class RabbitMQOutput[T <: Serializable with AnyRef: ClassTag: TypeTag](
     stageAttributes: StageAttributes = StageAttributes())
     extends OutputStage[T](stageAttributes) {
 
+  /** Add the InputSource to the Flink environment. */
   override def main(source: DataStream[T]): Unit = {
     val config = new RMQConnectionConfig.Builder()
       .setUri(server.toString)
       .build
 
     // Use a durable sink to match the RabbitMQInput version
-    new RMQSinkDurable[T](config, queue, getSerializer)
+    source.addSink(new RMQSinkDurable[T](config, queue, getSerializer))
   }
 
-  /**
-    * The serializer to use for sending data to RabbitMQ.
+  /** The serializer to use for sending data to RabbitMQ.
+    * Override to use a different serialization then JSON.
     *
-    * Override to use a different serialization than JSON.
-    *
-    * @return Serializer
+    * @return The correct SerDe.
     */
   protected def getSerializer: AbstractSerde[T] = {
     val serializer = Serializer.JSON

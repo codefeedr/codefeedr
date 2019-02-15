@@ -29,12 +29,13 @@ import org.codefeedr.stages.{InputStage, StageAttributes}
 import scala.reflect.runtime.universe._
 import scala.reflect.{ClassTag, classTag}
 
-/**
-  * KafkaInput stage, which reads from a Kafka topic.
-  * @param topic the topic to read from.
-  * @param properties kafka properties, see https://kafka.apache.org/documentation/#consumerconfigs
-  * @param serializer the serializer to use for deserialization of the data, see [[Serializer]].
-  * @param stageAttributes attributes of this stage.
+/** KafkaInput stage, which reads from a Kafka topic.
+  *
+  * @param topic The topic to read from.
+  * @param properties Kafka properties, see https://kafka.apache.org/documentation/#consumerconfigs
+  * @param serializer The serializer to use for deserialization of the data, see [[Serializer]].
+  * @param stageAttributes Attributes of this stage.
+  * @tparam T Type of data in Kafka.
   */
 class KafkaInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
     topic: String,
