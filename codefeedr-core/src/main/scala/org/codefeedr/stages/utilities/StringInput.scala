@@ -21,22 +21,27 @@ package org.codefeedr.stages.utilities
 import org.apache.flink.streaming.api.scala.{DataStream, _}
 import org.codefeedr.stages.{InputStage, StageAttributes}
 
-case class StringType(value: String) extends Serializable
+/** Simple String wrapper case class. */
+case class StringType(value: String)
 
+/** Create InputStage based on a String.
+  *
+  * @param str The string to split.
+  */
 class StringInput(str: String = "",
                   stageAttributes: StageAttributes = StageAttributes())
     extends InputStage[StringType](stageAttributes) {
 
+  /** Splits a String into elements of [[StringType]].
+    *
+    * @return A newly created DataStream.
+    */
   override def main(): DataStream[StringType] = {
     val list = str.split("[ \n]")
 
     pipeline.environment
       .fromCollection(list)
-      .setParallelism(1)
-      .map { str =>
-        StringType(str)
-      }
-      .setParallelism(1)
+      .map(StringType(_))
   }
 
 }

@@ -24,11 +24,20 @@ import org.codefeedr.stages.InputStage
 
 import scala.reflect.{ClassTag, Manifest}
 
+/** Creates an InputStage from a sequence.
+  *
+  * @param seq The sequence to create the InputStage from.
+  * @tparam T Type of the sequence.
+  */
 class SeqInput[
     T <: Serializable with AnyRef: ClassTag: Manifest: TypeInformation](
     seq: Seq[T])
     extends InputStage[T] {
 
+  /** Creates a DataStream for the collection.
+    *
+    * @return A newly created DataStream.
+    */
   override def main(): DataStream[T] = {
     pipeline.environment.fromCollection(seq)
   }

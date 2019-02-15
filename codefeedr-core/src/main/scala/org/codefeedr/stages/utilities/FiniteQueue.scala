@@ -20,11 +20,12 @@ package org.codefeedr.stages.utilities
 
 import scala.collection.mutable
 
+/** A mutable queue with a finite size. */
 class FiniteQueue[T] extends mutable.Queue[T] {
 
-  /**
-    * Enqueues with a finite size.
+  /** Enqueues with a finite size.
     * Dequeues according to the FIFO principle.
+    *
     * @param elem the element to add.
     * @param maxSize the maximum size.
     */
