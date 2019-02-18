@@ -85,7 +85,7 @@ class BufferFactory[In <: Serializable with AnyRef,
           .get
           .runtimeClass
           .getConstructors()(0)
-          .newInstance(tt, ct, pipeline, pipeline.bufferProperties)
+          .newInstance(pipeline, pipeline.bufferProperties, ct, tt)
           .asInstanceOf[Buffer[T]]
       }
       case _ => {

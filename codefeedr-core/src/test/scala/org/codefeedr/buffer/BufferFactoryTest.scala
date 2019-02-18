@@ -17,10 +17,16 @@
  */
 package org.codefeedr.buffer
 
-import org.codefeedr.pipeline.PipelineBuilder
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.Properties
+import org.codefeedr.pipeline.{Pipeline, PipelineBuilder}
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.{SimpleSourceStage, SimpleTransformStage}
 import org.scalatest.{BeforeAndAfter, FunSuite}
+
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 
 class BufferFactoryTest extends FunSuite with BeforeAndAfter {
 
@@ -57,4 +63,54 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
     assert(buffer.isInstanceOf[KafkaBuffer[StringType]])
   }
 
+  test("Register your own buffer.") {
+    BufferFactory.register[DummyBuffer[_]]("my_buffer!")
+
+    val pipeline = new PipelineBuilder()
+      .setBufferType("my_buffer!")
+      .append(nodeA)
+      .append(nodeB)
+      .build()
+
+    val factory = new BufferFactory(pipeline, nodeA, nodeB)
+    val buffer = factory.create[StringType]()
+
+    assert(buffer.isInstanceOf[DummyBuffer[StringType]])
+  }
+
+  test("Default fallback should be Kafka") {
+    val pipeline = new PipelineBuilder()
+      .setBufferType("doesn't exist!!!!")
+      .append(nodeA)
+      .append(nodeB)
+      .build()
+
+    val factory = new BufferFactory(pipeline, nodeA, nodeB)
+    val buffer = factory.create[StringType]()
+
+    assert(buffer.isInstanceOf[KafkaBuffer[StringType]])
+  }
+
+  test("Cannot set Buffer with reserved keyword.") {
+    assertThrows[IllegalArgumentException] {
+      BufferFactory.register[DummyBuffer[_]](BufferType.Kafka)
+    }
+  }
+
+  test("Cannot set Buffer with name already registered.") {
+    BufferFactory.register[DummyBuffer[_]]("unique_name")
+    assertThrows[IllegalArgumentException] {
+      BufferFactory.register[DummyBuffer[_]]("unique_name")
+    }
+  }
+
+}
+
+class DummyBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
+    pipeline: Pipeline,
+    properties: Properties)
+    extends Buffer[T](pipeline, properties) {
+
+  override def getSource: DataStream[T] = null
+  override def getSink: SinkFunction[T] = null
 }
