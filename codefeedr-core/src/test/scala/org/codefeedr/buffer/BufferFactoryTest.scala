@@ -24,6 +24,7 @@ import org.codefeedr.pipeline.{Pipeline, PipelineBuilder}
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.{SimpleSourceStage, SimpleTransformStage}
 import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.codefeedr._
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -102,6 +103,21 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
     assertThrows[IllegalArgumentException] {
       BufferFactory.register[DummyBuffer[_]]("unique_name")
     }
+  }
+
+  test("Register through codefeedr entry point.") {
+    registerBuffer[DummyBuffer[_]]("my_bufferr!")
+
+    val pipeline = new PipelineBuilder()
+      .setBufferType("my_bufferr!")
+      .append(nodeA)
+      .append(nodeB)
+      .build()
+
+    val factory = new BufferFactory(pipeline, nodeA, nodeB)
+    val buffer = factory.create[StringType]()
+
+    assert(buffer.isInstanceOf[DummyBuffer[StringType]])
   }
 
 }
