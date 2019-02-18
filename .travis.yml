@@ -1,11 +1,10 @@
 language: scala
-scala: 2.11.11
+scala:
+  - 2.11.11
+  - 2.12.8
 sudo: required
 dist: trusty
-
-services:
-  - docker
-  - redis
+jdk: oraclejdk8
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -17,25 +16,12 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
 
-#before_install:
-#  - docker-compose -f "docker-compose.yml" up -d
-#  - docker ps -a
-
-matrix:
-  include:
-    - env: SCALA_VERSION=2.11.11
-      os: linux
-      jdk: oraclejdk8
-
-before_script:
-  - sleep 10
-
 script:
-  - sbt package
-  - sbt 'set parallelExecution in ThisBuild := false' clean coverage test
+  - sbt 'set parallelExecution in ThisBuild := false' clean coverage test coverageReport && sbt coverageAggregate
 
 after_success:
-  - sbt coverageReport coveralls
+  - sbt scalafmtCheck
+  - sbt coveralls
 
 notifications:
   email: false
