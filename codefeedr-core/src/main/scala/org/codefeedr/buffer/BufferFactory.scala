@@ -80,6 +80,7 @@ class BufferFactory[In <: Serializable with AnyRef,
         val tt = typeTag[T]
         val ct = classTag[T]
 
+        // Get Buffer from registry and instantiate using reflection.
         BufferFactory.registry
           .get(x)
           .get
@@ -103,10 +104,35 @@ class BufferFactory[In <: Serializable with AnyRef,
 }
 
 object BufferFactory {
+
+  /** Reserved keywords for buffer names. */
   private val reserved = List(BufferType.Kafka, BufferType.RabbitMQ)
 
+  /** Map containing (type) references to Buffer by name. */
   private var registry: Map[String, Manifest[_ <: Buffer[_]]] = Map()
 
+  /** Registers a new Buffer. This Buffer needs to be subclassed from [[Buffer]].
+    *
+    * In order to register your own SerDe:
+    * 1. Create one by extending [[Buffer]]:
+    * {{{
+    * class YourBuffer[T <: Serializable with AnyRef: TypeTag: ClassTag]
+    *     extends Buffer[T]
+    * }}}
+    * 2. Register your Buffer:
+    * {{{
+    * BufferFactory.register[Buffer[_]]("my_buffer")
+    * }}}
+    * 3. In the pipeline select your Buffer:
+    * {{{
+    *   pipelineBuilder.setBufferType("my_buffer")
+    * }}}
+    *
+    * @param name Name of the Buffer. This needs to be unique. Reserved keywords are: Kafka, RabbitMQ.
+    * @param ev Implicit Manifest of the class.
+    * @tparam T Type of the buffer.
+    * @throws IllegalArgumentException Thrown when name is not unique/already registered.
+    */
   def register[T <: Buffer[_]](name: String)(implicit ev: Manifest[T]) = {
     if (reserved.contains(name) || registry.exists(_._1 == name))
       throw new IllegalArgumentException("Buffer already exists.")
