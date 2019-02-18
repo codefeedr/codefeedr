@@ -72,9 +72,6 @@ lazy val core = (project in file("codefeedr-core"))
       dependencies.kafkaClient,
       dependencies.flinkKafka,
 
-      // RabbitMQBuffer
-      dependencies.flinkRabbitMQ,
-
       // RedisKeyManager
       dependencies.redis,
 

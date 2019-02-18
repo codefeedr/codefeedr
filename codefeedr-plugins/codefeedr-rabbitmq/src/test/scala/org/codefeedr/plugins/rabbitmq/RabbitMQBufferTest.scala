@@ -21,8 +21,8 @@ import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.api.scala._
 import org.codefeedr.pipeline.PipelineBuilder
+import org.codefeedr.plugins.rabbitmq.testUtils.CodeHitException
 import org.codefeedr.stages.utilities.{StringInput, StringType}
-import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 import org.codefeedr.rabbitmq._
 

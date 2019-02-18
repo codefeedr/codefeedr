@@ -21,8 +21,8 @@ import java.net.URI
 
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
-import org.codefeedr.buffer.RMQSinkDurable
 import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
+import org.codefeedr.plugins.rabbitmq.RMQSinkDurable
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 
 import scala.reflect.ClassTag
