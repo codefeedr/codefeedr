@@ -14,16 +14,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-package org.codefeedr.buffer
+package org.codefeedr
 
-/** Type of buffer.
-  * Currently we support:
-  * - [[https://kafka.apache.org/ Kafka]]
-  */
-object BufferType extends Enumeration {
-  type BufferType = String
+import org.codefeedr.api._
+import org.codefeedr.plugins.rabbitmq.RabbitMQBuffer
 
-  val Kafka = "Kafka"
+/** Entry point of the RabbitMQ plugin. */
+package object rabbitmq {
+
+  /** Registers a serializer with the name RabbitMQ */
+  def registerRabbitMQ() = registerBuffer[RabbitMQBuffer[_]]("RabbitMQ")
 }

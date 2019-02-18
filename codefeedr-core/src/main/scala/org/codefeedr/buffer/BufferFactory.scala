@@ -70,12 +70,6 @@ class BufferFactory[In <: Serializable with AnyRef,
                            cleanedSubject,
                            kafkaGroupId)
       }
-      case BufferType.RabbitMQ => {
-        new RabbitMQBuffer[T](pipeline,
-                              pipeline.bufferProperties,
-                              stage.attributes,
-                              subject)
-      }
       case x if BufferFactory.registry.exists(_._1 == x) => {
         val tt = typeTag[T]
         val ct = classTag[T]
@@ -106,7 +100,7 @@ class BufferFactory[In <: Serializable with AnyRef,
 object BufferFactory {
 
   /** Reserved keywords for buffer names. */
-  private val reserved = List(BufferType.Kafka, BufferType.RabbitMQ)
+  private val reserved = List(BufferType.Kafka)
 
   /** Map containing (type) references to Buffer by name. */
   private var registry: Map[String, Manifest[_ <: Buffer[_]]] = Map()

@@ -50,7 +50,8 @@ lazy val root = (project in file("."))
     pluginGitHub,
     pluginTravis,
     pluginWeblogs,
-    pluginTwitter)
+    pluginTwitter,
+    pluginRabbitMQ)
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
@@ -196,6 +197,18 @@ lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter")
   )
   .dependsOn(
     core
+  )
+
+lazy val pluginRabbitMQ = (project in file("codefeedr-plugins/codefeedr-rabbitmq"))
+  .settings(
+    name := pluginPrefix + "rabbitmq",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.flinkRabbitMQ
+    )
+  )
+  .dependsOn(core
   )
 
 
