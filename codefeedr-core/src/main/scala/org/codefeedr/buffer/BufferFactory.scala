@@ -66,7 +66,6 @@ class BufferFactory[In <: Serializable with AnyRef,
         val kafkaGroupId = if (groupId != null) groupId else stage.id
         new KafkaBuffer[T](pipeline,
                            pipeline.bufferProperties,
-                           stage.attributes,
                            cleanedSubject,
                            kafkaGroupId)
       }
@@ -89,7 +88,6 @@ class BufferFactory[In <: Serializable with AnyRef,
         val kafkaGroupId = if (groupId != null) groupId else stage.id
         new KafkaBuffer[T](pipeline,
                            pipeline.bufferProperties,
-                           stage.attributes,
                            cleanedSubject,
                            kafkaGroupId)
       }

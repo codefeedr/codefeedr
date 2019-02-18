@@ -30,8 +30,8 @@ import scala.reflect.runtime.universe._
   * @tparam Out The output type of the job.
   */
 abstract class InputStage[Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage[NoType, Out](attributes) {
+    stageId: Option[String] = None)
+    extends Stage[NoType, Out](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
@@ -50,4 +50,5 @@ abstract class InputStage[Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @return A newly created DataStream.
     */
   def main(): DataStream[Out]
+
 }

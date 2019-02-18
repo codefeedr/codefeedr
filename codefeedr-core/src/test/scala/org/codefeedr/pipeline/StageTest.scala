@@ -19,7 +19,6 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.stages.StageAttributes
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.SimpleSourceStage
 import org.scalatest.FunSuite
@@ -83,7 +82,7 @@ class StageTest extends FunSuite {
   }
 
   test("Setting id attributed propagates") {
-    val a = new SimpleSourceStage(StageAttributes(id = Some("testId")))
+    val a = new SimpleSourceStage(Some("testId"))
 
     assert(a.id == "testId")
   }

@@ -27,7 +27,7 @@ import org.codefeedr.buffer.BufferType
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.stages.{OutputStage, StageAttributes}
+import org.codefeedr.stages.OutputStage
 import org.codefeedr.testUtils.{
   SimpleSinkStage,
   SimpleSourceStage,
@@ -285,7 +285,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   }
 
   test("Next level") {
-    val a = new SimpleSourceStage(StageAttributes(id = Some("testId")))
+    val a = new SimpleSourceStage(Some("testId"))
     val b = new SimpleTransformStage()
 
     val pipeline = builder

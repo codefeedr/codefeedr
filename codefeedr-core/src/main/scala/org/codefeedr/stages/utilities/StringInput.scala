@@ -19,7 +19,7 @@
 package org.codefeedr.stages.utilities
 
 import org.apache.flink.streaming.api.scala.{DataStream, _}
-import org.codefeedr.stages.{InputStage, StageAttributes}
+import org.codefeedr.stages.InputStage
 
 /** Simple String wrapper case class. */
 case class StringType(value: String)
@@ -28,9 +28,8 @@ case class StringType(value: String)
   *
   * @param str The string to split.
   */
-class StringInput(str: String = "",
-                  stageAttributes: StageAttributes = StageAttributes())
-    extends InputStage[StringType](stageAttributes) {
+class StringInput(str: String = "", stageId: Option[String] = None)
+    extends InputStage[StringType](stageId) {
 
   /** Splits a String into elements of [[StringType]].
     *

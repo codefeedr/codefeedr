@@ -35,7 +35,7 @@ import org.apache.flink.streaming.connectors.elasticsearch6.{
 }
 import org.apache.http.HttpHost
 import org.apache.logging.log4j.scala.Logging
-import org.codefeedr.stages.{OutputStage, StageAttributes}
+import org.codefeedr.stages.OutputStage
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.{Requests, RestClientBuilder}
 import org.elasticsearch.common.xcontent.XContentType
@@ -59,8 +59,8 @@ class ElasticSearchOutput[T <: Serializable with AnyRef: ClassTag: Manifest](
     index: String,
     servers: Set[String] = Set(),
     config: Map[String, String] = Map(),
-    attributes: StageAttributes = StageAttributes())
-    extends OutputStage[T](attributes)
+    stageId: Option[String] = None)
+    extends OutputStage[T](stageId)
     with Logging {
 
   //TODO Add configuration support

@@ -24,7 +24,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
 import org.codefeedr.buffer.serialization.Serializer
-import org.codefeedr.stages.{InputStage, StageAttributes}
+import org.codefeedr.stages.InputStage
 
 import scala.reflect.runtime.universe._
 import scala.reflect.{ClassTag, classTag}
@@ -34,15 +34,14 @@ import scala.reflect.{ClassTag, classTag}
   * @param topic The topic to read from.
   * @param properties Kafka properties, see https://kafka.apache.org/documentation/#consumerconfigs
   * @param serializer The serializer to use for deserialization of the data, see [[Serializer]].
-  * @param stageAttributes Attributes of this stage.
   * @tparam T Type of data in Kafka.
   */
 class KafkaInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
     topic: String,
     properties: Properties,
     serializer: String = Serializer.JSON,
-    stageAttributes: StageAttributes = StageAttributes())
-    extends InputStage[T] {
+    stageId: Option[String] = None)
+    extends InputStage[T](stageId) {
   //Get type of the class at run time
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
 

@@ -1,0 +1,62 @@
+[
+
+  
+    
+    
+    {
+      "title": "Welcome",
+      "url": "/docs/home/"
+
+    },
+  
+    
+    
+    {
+      "title": "Themes",
+      "url": "/docs/themes/"
+
+    },
+  
+    
+    
+    {
+      "title": "Customization",
+      "url": "/docs/customization/"
+
+    },
+  
+
+  
+    
+    
+    {
+      "title": "Markdown Cheatsheet",
+      "url": "/docs/cheatsheet/"
+
+    },
+  
+    
+    
+    {
+      "title": "Font Awesome Icon List",
+      "url": "/docs/font-awesome/"
+
+    },
+  
+    
+    
+    {
+      "title": "Bootstrap Features",
+      "url": "/docs/bootstrap/"
+
+    },
+  
+
+
+  
+  {
+  "title": "New CodeFeedr Theme",
+  "url": "/blog/2019/02/18/new-theme/"
+  }
+  
+]
