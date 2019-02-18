@@ -25,8 +25,10 @@ import org.apache.flink.streaming.api.scala.{
 }
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.Properties
-import org.codefeedr.buffer.BufferType
+import org.codefeedr.buffer.{Buffer, BufferType}
 import org.codefeedr.buffer.BufferType.BufferType
+import org.codefeedr.buffer.serialization.Serializer
+import org.codefeedr.buffer.serialization.Serializer.SerializerType
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.stages.{InputStage, OutputStage}
@@ -178,6 +180,17 @@ class PipelineBuilder extends Logging {
     */
   def setStreamTimeCharacteristic(timeCharacteristic: TimeCharacteristic) = {
     this.streamTimeCharacteristic = timeCharacteristic
+
+    this
+  }
+
+  /** Sets the serializer type for the buffer.
+    *
+    * @param serializer The serializer type (which is basically a string).
+    * @return This builder instance.
+    */
+  def setSerializer(serializer: SerializerType) = {
+    this.setBufferProperty(Buffer.SERIALIZER, serializer)
 
     this
   }
