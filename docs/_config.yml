@@ -1,0 +1,55 @@
+# Site settings
+title: CodeFeedr Documentation
+email: w.d.zorgdrager@tudelft.nl
+description: CodeFeedr documentation
+lang: en-US
+
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: https://codefeedr.org # the base hostname & protocol for your site
+git_address: https://github.com/codefeedr/codefeedr
+git_edit_address: https://github.com/codefeedr/codefeedr/blob/gh-pages
+
+# theme options from https://bootswatch.com/
+# comment out this to use default Bootstrap
+bootwatch: paper
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+gems:
+  - jekyll-feed
+  - jekyll-redirect-from
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - .idea/
+  - .gitignore
+  - README.md
+timezone: Europe/Amsterdam
+defaults:
+- scope:
+    path: _posts
+    type: posts
+  values:
+    layout: post
+    sectionid: blog
+
+- scope:
+    path: _docs
+    type: docs
+  values:
+    layout: docs
+    sectionid: docs
+    seo:
+      type: "WebPage"
+
+collections:
+  docs:
+    permalink: /:collection/:path/
+    output: true
+  posts:
+    permalink: /blog/:year/:month/:day/:title/
+    output: true
