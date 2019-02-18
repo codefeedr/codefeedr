@@ -20,7 +20,7 @@ package org.codefeedr.buffer
 
 import org.codefeedr.pipeline.{Pipeline, Stage}
 
-import scala.reflect.ClassTag
+import scala.reflect._
 import scala.reflect.runtime.universe._
 
 /** Factory for a Buffer.
@@ -76,6 +76,42 @@ class BufferFactory[In <: Serializable with AnyRef,
                               stage.attributes,
                               subject)
       }
+      case x if BufferFactory.registry.exists(_._1 == x) => {
+        val tt = typeTag[T]
+        val ct = classTag[T]
+
+        BufferFactory.registry
+          .get(x)
+          .get
+          .runtimeClass
+          .getConstructors()(0)
+          .newInstance(tt, ct, pipeline, pipeline.bufferProperties)
+          .asInstanceOf[Buffer[T]]
+      }
+      case _ => {
+        //Switch to Kafka
+        val cleanedSubject = subject.replace("$", "-")
+        val kafkaGroupId = if (groupId != null) groupId else stage.id
+        new KafkaBuffer[T](pipeline,
+                           pipeline.bufferProperties,
+                           stage.attributes,
+                           cleanedSubject,
+                           kafkaGroupId)
+      }
     }
+  }
+}
+
+object BufferFactory {
+  private val reserved = List(BufferType.Kafka, BufferType.RabbitMQ)
+
+  private var registry: Map[String, Manifest[_ <: Buffer[_]]] = Map()
+
+  def register[T <: Buffer[_]](name: String)(implicit ev: Manifest[T]) = {
+    if (reserved.contains(name) || registry.exists(_._1 == name))
+      throw new IllegalArgumentException("Buffer already exists.")
+
+    // Add manifest to registry
+    registry += (name -> ev)
   }
 }

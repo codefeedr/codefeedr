@@ -24,6 +24,8 @@ package org.codefeedr.buffer
   * - [[https://www.rabbitmq.com/ RabbitMQ]]
   */
 object BufferType extends Enumeration {
-  type BufferType = Value
-  val Kafka, RabbitMQ = Value
+  type BufferType = String
+
+  val Kafka = "Kafka"
+  val RabbitMQ = "RabbitMQ"
 }
