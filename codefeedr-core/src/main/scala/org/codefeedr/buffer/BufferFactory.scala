@@ -20,7 +20,7 @@ package org.codefeedr.buffer
 
 import org.codefeedr.pipeline.{Pipeline, Stage}
 
-import scala.reflect.ClassTag
+import scala.reflect._
 import scala.reflect.runtime.universe._
 
 /** Factory for a Buffer.
@@ -70,12 +70,68 @@ class BufferFactory[In <: Serializable with AnyRef,
                            cleanedSubject,
                            kafkaGroupId)
       }
-      case BufferType.RabbitMQ => {
-        new RabbitMQBuffer[T](pipeline,
-                              pipeline.bufferProperties,
-                              stage.attributes,
-                              subject)
+      case x if BufferFactory.registry.exists(_._1 == x) => {
+        val tt = typeTag[T]
+        val ct = classTag[T]
+
+        // Get Buffer from registry and instantiate using reflection.
+        BufferFactory.registry
+          .get(x)
+          .get
+          .runtimeClass
+          .getConstructors()(0)
+          .newInstance(pipeline, pipeline.bufferProperties, ct, tt)
+          .asInstanceOf[Buffer[T]]
+      }
+      case _ => {
+        //Switch to Kafka
+        val cleanedSubject = subject.replace("$", "-")
+        val kafkaGroupId = if (groupId != null) groupId else stage.id
+        new KafkaBuffer[T](pipeline,
+                           pipeline.bufferProperties,
+                           stage.attributes,
+                           cleanedSubject,
+                           kafkaGroupId)
       }
     }
+  }
+}
+
+object BufferFactory {
+
+  /** Reserved keywords for buffer names. */
+  private val reserved = List(BufferType.Kafka)
+
+  /** Map containing (type) references to Buffer by name. */
+  private var registry: Map[String, Manifest[_ <: Buffer[_]]] = Map()
+
+  /** Registers a new Buffer. This Buffer needs to be subclassed from [[Buffer]].
+    *
+    * In order to register your own SerDe:
+    * 1. Create one by extending [[Buffer]]:
+    * {{{
+    * class YourBuffer[T <: Serializable with AnyRef: TypeTag: ClassTag]
+    *     extends Buffer[T]
+    * }}}
+    * 2. Register your Buffer:
+    * {{{
+    * BufferFactory.register[Buffer[_]]("my_buffer")
+    * }}}
+    * 3. In the pipeline select your Buffer:
+    * {{{
+    *   pipelineBuilder.setBufferType("my_buffer")
+    * }}}
+    *
+    * @param name Name of the Buffer. This needs to be unique. Reserved keywords are: Kafka, RabbitMQ.
+    * @param ev Implicit Manifest of the class.
+    * @tparam T Type of the buffer.
+    * @throws IllegalArgumentException Thrown when name is not unique/already registered.
+    */
+  def register[T <: Buffer[_]](name: String)(implicit ev: Manifest[T]) = {
+    if (reserved.contains(name) || registry.exists(_._1 == name))
+      throw new IllegalArgumentException("Buffer already exists.")
+
+    // Add manifest to registry
+    registry += (name -> ev)
   }
 }

@@ -18,6 +18,7 @@
 package org.codefeedr.buffer.serialization
 
 import org.scalatest.FunSuite
+import org.codefeedr.api._
 
 class SerializerTest extends FunSuite {
 
@@ -51,6 +52,13 @@ class SerializerTest extends FunSuite {
     Serializer.register[JSONSerde[_]]("my_very_own_serializer")
 
     val serde = Serializer.getSerde[Item]("my_very_own_serializer")
+    assert(serde.isInstanceOf[JSONSerde[Item]])
+  }
+
+  test("I should be able to add my own serializer through codefeedr entrypoint") {
+    registerSerializer[JSONSerde[_]]("wow")
+
+    val serde = Serializer.getSerde[Item]("wow")
     assert(serde.isInstanceOf[JSONSerde[Item]])
   }
 

@@ -15,8 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.codefeedr.stages.rabbitmq
+package org.codefeedr.plugins.rabbitmq.stages
 
 import java.net.URI
 
@@ -27,8 +26,8 @@ import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
 import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
 import org.codefeedr.stages.{InputStage, StageAttributes}
 
-import scala.reflect.runtime.universe._
 import scala.reflect.{ClassTag, classTag}
+import scala.reflect.runtime.universe._
 
 /** Input stage pulling data from a RabbitMQ queue.
   *

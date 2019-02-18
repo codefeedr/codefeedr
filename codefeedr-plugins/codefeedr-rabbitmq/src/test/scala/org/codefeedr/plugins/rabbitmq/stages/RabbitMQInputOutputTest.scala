@@ -15,17 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.codefeedr.stages.rabbitmq
+package org.codefeedr.plugins.rabbitmq.stages
 
 import java.util
 
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
-import org.codefeedr.pipeline.PipelineBuilder
-import org.codefeedr.stages.utilities.{StringInput, StringType}
+import org.codefeedr.stages.utilities.StringType
 import org.scalatest.FunSuite
-
 import scala.collection.JavaConversions._
 
 class RabbitMQInputOutputTest extends FunSuite {
@@ -48,7 +45,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
     pipeline.startMock()
   }
-  **/
+    **/
 
   //  test("All data can be read from mongo") {
   //    RMQStringCollectSink.reset()

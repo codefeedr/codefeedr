@@ -50,7 +50,8 @@ lazy val root = (project in file("."))
     pluginGitHub,
     pluginTravis,
     pluginWeblogs,
-    pluginTwitter)
+    pluginTwitter,
+    pluginRabbitMQ)
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
@@ -70,9 +71,6 @@ lazy val core = (project in file("codefeedr-core"))
       // KafkaBuffer
       dependencies.kafkaClient,
       dependencies.flinkKafka,
-
-      // RabbitMQBuffer
-      dependencies.flinkRabbitMQ,
 
       // RedisKeyManager
       dependencies.redis,
@@ -198,6 +196,19 @@ lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter")
     core
   )
 
+lazy val pluginRabbitMQ = (project in file("codefeedr-plugins/codefeedr-rabbitmq"))
+  .settings(
+    name := pluginPrefix + "rabbitmq",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.flinkRabbitMQ,
+      //dependencies.embeddedRabbitMQ
+    )
+  )
+  .dependsOn(core
+  )
+
 
 lazy val dependencies =
   new {
@@ -239,6 +250,7 @@ lazy val dependencies =
     val embeddedRedis      = "com.github.sebruck"        %% "scalatest-embedded-redis"       % "0.3.0"           % Test
     val embeddedKafka      = "net.manub"                 %% "scalatest-embedded-kafka"       % "2.0.0"           % Test
     val embeddedMongo      = "com.github.simplyscala"    %% "scalatest-embedmongo"           % "0.2.4"           % Test
+    //val embeddedRabbitMQ   = "io.arivera.oss"            %% "embedded-rabbitmq"              % "1.3.0"           % Test
 
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
     val twitter            = "com.danielasfregola"        %% "twitter4s"                     % "5.5"

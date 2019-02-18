@@ -15,16 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.codefeedr.buffer
+package org.codefeedr.plugins.rabbitmq
 
 import org.apache.flink.api.common.serialization.SerializationSchema
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
 import org.apache.flink.streaming.connectors.rabbitmq.{RMQSink, RMQSource}
+import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
+import org.codefeedr.buffer.Buffer
 import org.codefeedr.pipeline.Pipeline
-import org.codefeedr.stages.StageAttributes
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -41,15 +40,11 @@ object RabbitMQBuffer {
   *
   * @param pipeline The pipeline for which we use this Buffer.
   * @param properties The properties of this Buffer.
-  * @param stageAttributes The attributes of this stage.
-  * @param queueName Name of the RabbitMQ queue to read from/write to.
   * @tparam T Type of the data in this Buffer.
   */
 class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     pipeline: Pipeline,
-    properties: org.codefeedr.Properties,
-    stageAttributes: StageAttributes,
-    queueName: String)
+    properties: org.codefeedr.Properties)
     extends Buffer[T](pipeline, properties) {
 
   /** Default settings for this RabbitMQ buffer. */
@@ -63,6 +58,8 @@ class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     */
   override def getSource: DataStream[T] = {
     val connectionConfig = createConfig()
+
+    val queueName = properties.getOrElse[String]("queueName", "default_queue")
 
     // Create a source with correlation id usage enabled for exactly once guarantees.
     val source =
@@ -79,6 +76,7 @@ class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     */
   override def getSink: SinkFunction[T] = {
     val connectionConfig = createConfig()
+    val queueName = properties.getOrElse[String]("queueName", "default_queue")
 
     new RMQSinkDurable[T](connectionConfig, queueName, getSerializer)
   }

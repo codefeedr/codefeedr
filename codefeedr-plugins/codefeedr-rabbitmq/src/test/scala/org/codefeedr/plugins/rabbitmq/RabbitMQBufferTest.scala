@@ -15,22 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.codefeedr.plugins.rabbitmq
 
-package org.codefeedr.buffer
-
-import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
 import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.api.scala._
 import org.codefeedr.pipeline.PipelineBuilder
+import org.codefeedr.plugins.rabbitmq.testUtils.CodeHitException
 import org.codefeedr.stages.utilities.{StringInput, StringType}
-import org.codefeedr.testUtils.CodeHitException
-import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
+import org.codefeedr.rabbitmq._
 
-class RabbitMQBufferTest extends FunSuite with BeforeAndAfter {
+class RabbitMQBufferTest extends FunSuite with BeforeAndAfterAll {
+
+  override def beforeAll() = {
+    registerRabbitMQ()
+  }
 
   test("Should throw when using address of non-existing server") {
     val pipeline = new PipelineBuilder()
-      .setBufferType(BufferType.RabbitMQ)
+      .setBufferType("RabbitMQ")
       .setBufferProperty(RabbitMQBuffer.URI, "amqp://localhost:10000")
       .append(new StringInput("hello world"))
       .build()
@@ -42,7 +46,7 @@ class RabbitMQBufferTest extends FunSuite with BeforeAndAfter {
 
   test("Should pass through messages between stages") {
     val pipeline = new PipelineBuilder()
-      .setBufferType(BufferType.RabbitMQ)
+      .setBufferType("RabbitMQ")
       .append(new StringInput("hello world"))
       .append { x: DataStream[StringType] =>
         x.map { v =>

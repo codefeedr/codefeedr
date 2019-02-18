@@ -15,15 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.codefeedr.stages.rabbitmq
+package org.codefeedr.plugins.rabbitmq.stages
 
 import java.net.URI
 
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
-import org.codefeedr.buffer.RMQSinkDurable
 import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
+import org.codefeedr.plugins.rabbitmq.RMQSinkDurable
 import org.codefeedr.stages.{OutputStage, StageAttributes}
 
 import scala.reflect.ClassTag
