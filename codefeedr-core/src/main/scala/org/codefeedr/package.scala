@@ -1,10 +1,10 @@
-package org
+package org.codefeedr
 
 import org.codefeedr.buffer.{Buffer, BufferFactory}
 import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
 
 /** Some helper functions to make your life easier **/
-package object codefeedr {
+package object api {
 
   /** Registers a new SerDe. This SerDe needs to be subclassed from [[AbstractSerde]].
     *

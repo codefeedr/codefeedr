@@ -24,7 +24,7 @@ import org.codefeedr.pipeline.{Pipeline, PipelineBuilder}
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.{SimpleSourceStage, SimpleTransformStage}
 import org.scalatest.{BeforeAndAfter, FunSuite}
-import org.codefeedr._
+import org.codefeedr.api._
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._

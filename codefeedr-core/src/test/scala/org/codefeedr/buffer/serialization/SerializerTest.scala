@@ -18,7 +18,7 @@
 package org.codefeedr.buffer.serialization
 
 import org.scalatest.FunSuite
-import org.codefeedr._
+import org.codefeedr.api._
 
 class SerializerTest extends FunSuite {
 
