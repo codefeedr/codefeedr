@@ -124,8 +124,9 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
 
 class DummyBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     pipeline: Pipeline,
-    properties: Properties)
-    extends Buffer[T](pipeline, properties, "") {
+    properties: Properties,
+    stageName: String)
+    extends Buffer[T](pipeline, properties, stageName) {
 
   override def getSource: DataStream[T] = null
   override def getSink: SinkFunction[T] = null
