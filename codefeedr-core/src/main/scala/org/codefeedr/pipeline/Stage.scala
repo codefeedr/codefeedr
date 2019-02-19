@@ -31,8 +31,9 @@ import scala.reflect.runtime.universe._
   * @tparam In  Input type for this stage.
   * @tparam Out Output type for this stage.
   */
-abstract class Stage[In <: Serializable with AnyRef: ClassTag: TypeTag,
-Out <: Serializable with AnyRef: ClassTag: TypeTag](
+protected abstract class Stage[
+    In <: Serializable with AnyRef: ClassTag: TypeTag,
+    Out <: Serializable with AnyRef: ClassTag: TypeTag](
     val stageId: Option[String] = None) {
 
   /** The pipeline this stage belongs to. */

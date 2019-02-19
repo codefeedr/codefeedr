@@ -21,6 +21,7 @@ package org.codefeedr.pipeline
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.stages.utilities.StringType
 import org.apache.flink.streaming.api.scala._
+import org.codefeedr.stages.{InputStage, OutputStage, OutputStage2}
 import org.scalatest.FunSuite
 
 class DirectedAcyclicGraphTest extends FunSuite {
@@ -30,19 +31,28 @@ class DirectedAcyclicGraphTest extends FunSuite {
   val nodeC = "c"
   val nodeD = "d"
 
-  class NothingStringType extends Stage[Nothing, StringType] {
-    override def transform(
-        source: DataStream[Nothing]): DataStream[StringType] = {
+  class NothingStringType extends InputStage[StringType] {
+    override def main(): DataStream[StringType] = {
       environment.fromCollection(Seq(StringType("a")))
     }
   }
 
-  class IntTypeNothing extends Stage[IntType, Nothing] {
-    override def transform(source: DataStream[IntType]): DataStream[Nothing] = {
-      source.print()
+  class StringTypeStringTypeNothing
+      extends OutputStage2[StringType, StringType] {
+    override def main(source: DataStream[StringType],
+                      secondSource: DataStream[StringType]): Unit = null
+  }
 
-      null
-    }
+  class StringTypeNothing extends OutputStage[StringType] {
+    override def main(source: DataStream[StringType]) = null
+  }
+
+  class IntTypeNothing extends OutputStage[IntType] {
+    override def main(source: DataStream[IntType]) = null
+  }
+
+  class NothingIntType extends InputStage[IntType] {
+    override def main(): DataStream[IntType] = null
   }
 
   test("Added nodes are testable") {
@@ -261,6 +271,91 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addNode(stageOne)
       .addNode(stageTwo)
       .addEdge(stageOne, stageTwo)
+
+    assertThrows[StageTypesIncompatibleException] {
+      dag.verifyGraph()
+    }
+  }
+
+  test("Verify that graph is type compatible") {
+    val stageOne = new NothingStringType
+    val stageTwo = new StringTypeNothing
+
+    val dag = new DirectedAcyclicGraph()
+      .addNode(stageOne)
+      .addNode(stageTwo)
+      .addEdge(stageOne, stageTwo)
+
+    dag.verifyGraph()
+  }
+
+  test("Verify that graph is invalid; inputstage has incoming edge.") {
+    val stageOne = new NothingStringType
+    val stageTwo = new IntTypeNothing
+
+    val dag = new DirectedAcyclicGraph()
+      .addNode(stageOne)
+      .addEdge(stageOne, stageOne)
+
+    assertThrows[InvalidPipelineException] {
+      dag.verifyGraph()
+    }
+  }
+
+  test("Verify that graph is invalid: outputstage has outgoing edges.") {
+    val stageTwo = new IntTypeNothing
+
+    val dag = new DirectedAcyclicGraph()
+      .addNode(stageTwo)
+      .addEdge(stageTwo, stageTwo)
+
+    assertThrows[InvalidPipelineException] {
+      dag.verifyGraph()
+    }
+  }
+
+  test("Verify that stages are incompatible; 2 outputs, 1 input.") {
+    val stageOne = new NothingStringType
+    val stageTwo = new NothingStringType
+    val stageThree = new StringTypeStringTypeNothing
+
+    val dag = new DirectedAcyclicGraph()
+      .addNode(stageOne)
+      .addNode(stageThree)
+      .addEdge(stageOne, stageThree) // we only add 1 edge
+
+    assertThrows[StageTypesIncompatibleException] {
+      dag.verifyGraph()
+    }
+  }
+
+  test("Verify that stages are compatible; 2 outputs, 2 input.") {
+    val stageOne = new NothingStringType
+    val stageTwo = new NothingStringType
+    val stageThree = new StringTypeStringTypeNothing
+
+    val dag = new DirectedAcyclicGraph()
+      .addNode(stageOne)
+      .addNode(stageTwo)
+      .addNode(stageThree)
+      .addEdge(stageTwo, stageThree)
+      .addEdge(stageOne, stageThree)
+
+    dag.verifyGraph()
+  }
+
+  test(
+    "Verify that stages are in-compatible; 2 outputs, 2 input but at least 1 wrong type.") {
+    val stageOne = new NothingStringType
+    val stageTwo = new NothingIntType
+    val stageThree = new StringTypeStringTypeNothing
+
+    val dag = new DirectedAcyclicGraph()
+      .addNode(stageOne)
+      .addNode(stageTwo)
+      .addNode(stageThree)
+      .addEdge(stageTwo, stageThree)
+      .addEdge(stageOne, stageThree)
 
     assertThrows[StageTypesIncompatibleException] {
       dag.verifyGraph()
