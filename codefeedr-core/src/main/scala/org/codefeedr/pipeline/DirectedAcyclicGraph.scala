@@ -18,6 +18,8 @@
  */
 package org.codefeedr.pipeline
 
+import java.lang.reflect.ParameterizedType
+
 /** Links two nodes. */
 final case class Edge(from: AnyRef, to: AnyRef)
 
@@ -192,14 +194,25 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(),
     */
   def verifyGraph() = {
     edges.foreach { e =>
-      val stageOne = e.from
-        .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
-      val stageTwo = e.from
-        .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
+      val stageOneName = e.from.getClass.getName
 
-      if (stageOne.getOutType != stageTwo.getInType)
+      val stageOneOutput = e.from.asInstanceOf[Stage[_, _]].getOutType.getName
+      val stageTwoOutput =
+        e.to.asInstanceOf[Stage[_, _]].getOutType.getName
+
+      val stageTwoTypes =
+        e.to.getClass.getGenericSuperclass //We get a list of types in the second stage.
+          .asInstanceOf[ParameterizedType]
+          .getActualTypeArguments()
+          .map(_.getTypeName)
+          .filter(_ != stageTwoOutput) // Make sure we exclude the output type of this stage.
+
+      // Make sure the type is actually there.
+      if (stageTwoTypes.filter(_ == stageOneOutput).isEmpty) {
         throw new StageTypesIncompatibleException(
-          s"Output type of ${stageOne.id}: ${stageOne.getOutType} is not compatible with ${stageTwo.id}: ${stageTwo.getInType}.")
+          s"Expected output type of $stageOneName to be one of the following: [${stageTwoTypes
+            .mkString(", ")}], but was $stageOneOutput.")
+      }
     }
 
   }

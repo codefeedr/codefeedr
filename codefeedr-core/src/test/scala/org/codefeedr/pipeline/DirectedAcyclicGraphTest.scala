@@ -30,14 +30,14 @@ class DirectedAcyclicGraphTest extends FunSuite {
   val nodeC = "c"
   val nodeD = "d"
 
-  class StringTypeStage extends Stage[Nothing, StringType] {
+  class NothingStringType extends Stage[Nothing, StringType] {
     override def transform(
         source: DataStream[Nothing]): DataStream[StringType] = {
       environment.fromCollection(Seq(StringType("a")))
     }
   }
 
-  class IntTypeStage extends Stage[IntType, Nothing] {
+  class IntTypeNothing extends Stage[IntType, Nothing] {
     override def transform(source: DataStream[IntType]): DataStream[Nothing] = {
       source.print()
 
@@ -254,14 +254,17 @@ class DirectedAcyclicGraphTest extends FunSuite {
   }
 
   test("Verify that graph is type in-compatible") {
-    val stageOne = new StringTypeStage
-    val stageTwo = new IntTypeStage
+    val stageOne = new NothingStringType
+    val stageTwo = new IntTypeNothing
 
     val dag = new DirectedAcyclicGraph()
       .addNode(stageOne)
       .addNode(stageTwo)
       .addEdge(stageOne, stageTwo)
 
-    assertThrows[StageTypesIncompatibleException](dag.verifyGraph())
+    assertThrows[StageTypesIncompatibleException] {
+      dag.verifyGraph()
+    }
   }
+
 }
