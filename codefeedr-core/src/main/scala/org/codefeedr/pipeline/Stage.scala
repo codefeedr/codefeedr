@@ -94,7 +94,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @return True if this stage has a Buffer source.
     */
   def hasMainSource: Boolean =
-    typeOf[In] != typeOf[NoType] && pipeline.graph
+    typeOf[In] != typeOf[Nothing] && pipeline.graph
       .getFirstParent(this)
       .isDefined
 
@@ -102,7 +102,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     *
     * @return True if this stage has a Buffer sink.
     */
-  def hasSink: Boolean = typeOf[Out] != typeOf[NoType]
+  def hasSink: Boolean = typeOf[Out] != typeOf[Nothing]
 
   /** Returns the (main)buffer source of this stage.
     * The main source is the first parent of this stage. Other sources need to be joined in the Flink job.

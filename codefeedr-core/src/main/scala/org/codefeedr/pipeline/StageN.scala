@@ -48,7 +48,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @param graph The graph the stage is in.
     */
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
-    if (typeOf[In] == typeOf[NoType] || typeOf[In2] == typeOf[NoType]) {
+    if (typeOf[In] == typeOf[Nothing] || typeOf[In2] == typeOf[Nothing]) {
       throw new IllegalStateException(
         "Cannot use NoType on stages with multiple input sources")
     }
@@ -102,7 +102,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     super.verifyGraph(graph)
 
-    if (typeOf[In3] == typeOf[NoType]) {
+    if (typeOf[In3] == typeOf[Nothing]) {
       throw new IllegalStateException(
         "Cannot use NoType on stages with multiple input sources")
     }
@@ -162,7 +162,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     super.verifyGraph(graph)
 
-    if (typeOf[In4] == typeOf[NoType]) {
+    if (typeOf[In4] == typeOf[Nothing]) {
       throw new IllegalStateException(
         "Cannot use NoType on stages with multiple input sources")
     }

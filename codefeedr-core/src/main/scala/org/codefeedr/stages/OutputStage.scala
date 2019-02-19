@@ -31,7 +31,7 @@ import scala.reflect.runtime.universe._
   */
 abstract class OutputStage[In <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
-    extends Stage[In, NoType](stageId) {
+    extends Stage[In, Nothing](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
@@ -41,7 +41,7 @@ abstract class OutputStage[In <: Serializable with AnyRef: ClassTag: TypeTag](
     * @param source The input source with type In.
     * @return The transformed stream. Since it is an OutputStage it will return null.
     */
-  override def transform(source: DataStream[In]): DataStream[NoType] = {
+  override def transform(source: DataStream[In]): DataStream[Nothing] = {
     main(source)
 
     null
@@ -63,7 +63,7 @@ abstract class OutputStage[In <: Serializable with AnyRef: ClassTag: TypeTag](
 abstract class OutputStage2[In <: Serializable with AnyRef: ClassTag: TypeTag,
 In2 <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
-    extends Stage2[In, In2, NoType](stageId) {
+    extends Stage2[In, In2, Nothing](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
@@ -75,7 +75,7 @@ In2 <: Serializable with AnyRef: ClassTag: TypeTag](
     * @return The transformed stream. Since it is an OutputStage it will return null.
     */
   override def transform(source: DataStream[In],
-                         secondSource: DataStream[In2]): DataStream[NoType] = {
+                         secondSource: DataStream[In2]): DataStream[Nothing] = {
     main(source, secondSource)
 
     null
@@ -100,7 +100,7 @@ abstract class OutputStage3[In <: Serializable with AnyRef: ClassTag: TypeTag,
 In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 In3 <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
-    extends Stage3[In, In2, In3, NoType](stageId) {
+    extends Stage3[In, In2, In3, Nothing](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
@@ -114,7 +114,7 @@ In3 <: Serializable with AnyRef: ClassTag: TypeTag](
     */
   override def transform(source: DataStream[In],
                          secondSource: DataStream[In2],
-                         thirdSource: DataStream[In3]): DataStream[NoType] = {
+                         thirdSource: DataStream[In3]): DataStream[Nothing] = {
     main(source, secondSource, thirdSource)
 
     null
@@ -144,7 +144,7 @@ In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 In3 <: Serializable with AnyRef: ClassTag: TypeTag,
 In4 <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
-    extends Stage4[In, In2, In3, In4, NoType](stageId) {
+    extends Stage4[In, In2, In3, In4, Nothing](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
@@ -160,7 +160,7 @@ In4 <: Serializable with AnyRef: ClassTag: TypeTag](
   override def transform(source: DataStream[In],
                          secondSource: DataStream[In2],
                          thirdSource: DataStream[In3],
-                         fourthSource: DataStream[In4]): DataStream[NoType] = {
+                         fourthSource: DataStream[In4]): DataStream[Nothing] = {
     main(source, secondSource, thirdSource, fourthSource)
 
     null

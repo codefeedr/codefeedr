@@ -225,7 +225,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     assert(pipeline.graph.nodes.size == 2)
 
-    pipeline.graph.nodes.head shouldBe an[Stage[NoType, StringType]]
+    pipeline.graph.nodes.head shouldBe an[Stage[Nothing, StringType]]
     pipeline.graph.nodes.last shouldBe an[Stage[StringType, StringType]]
   }
 

@@ -30,15 +30,15 @@ class DirectedAcyclicGraphTest extends FunSuite {
   val nodeC = "c"
   val nodeD = "d"
 
-  class StringTypeStage extends Stage[NoType, StringType] {
+  class StringTypeStage extends Stage[Nothing, StringType] {
     override def transform(
-        source: DataStream[NoType]): DataStream[StringType] = {
+        source: DataStream[Nothing]): DataStream[StringType] = {
       environment.fromCollection(Seq(StringType("a")))
     }
   }
 
-  class IntTypeStage extends Stage[IntType, NoType] {
-    override def transform(source: DataStream[IntType]): DataStream[NoType] = {
+  class IntTypeStage extends Stage[IntType, Nothing] {
+    override def transform(source: DataStream[IntType]): DataStream[Nothing] = {
       source.print()
 
       null

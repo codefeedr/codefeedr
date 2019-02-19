@@ -35,10 +35,10 @@ import scala.reflect.runtime.universe._
   * @param relatedStage The related-stage to which the stage either has to read or write to.
   * @param groupId Custom group id, to read from Kafka. Default is set to stage id.
   */
-class BufferFactory[In <: Serializable with AnyRef,
-                    Out <: Serializable with AnyRef,
-                    In1 <: Serializable with AnyRef,
-                    Out2 <: Serializable with AnyRef](
+class BufferFactory[+In <: Serializable with AnyRef,
+                    +Out <: Serializable with AnyRef,
+                    +In1 <: Serializable with AnyRef,
+                    +Out2 <: Serializable with AnyRef](
     pipeline: Pipeline,
     stage: Stage[In, Out],
     relatedStage: Stage[In1, Out2],

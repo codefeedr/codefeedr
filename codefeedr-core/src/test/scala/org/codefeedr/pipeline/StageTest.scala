@@ -28,33 +28,33 @@ case class IntType(id: Int)
 
 class StageTest extends FunSuite {
 
-  class BadSourceObject extends Stage[NoType, StringType] {
+  class BadSourceObject extends Stage[Nothing, StringType] {
     override def transform(
-        source: DataStream[NoType]): DataStream[StringType] = {
+        source: DataStream[Nothing]): DataStream[StringType] = {
       getMainSource()
 
       null
     }
   }
 
-  class BadSinkObject extends Stage[StringType, NoType] {
+  class BadSinkObject extends Stage[StringType, Nothing] {
     override def transform(
-        source: DataStream[StringType]): DataStream[NoType] = {
+        source: DataStream[StringType]): DataStream[Nothing] = {
       getSink()
 
       null
     }
   }
 
-  class StringTypeStage extends Stage[NoType, StringType] {
+  class StringTypeStage extends Stage[Nothing, StringType] {
     override def transform(
-        source: DataStream[NoType]): DataStream[StringType] = {
+        source: DataStream[Nothing]): DataStream[StringType] = {
       environment.fromCollection(Seq(StringType("a")))
     }
   }
 
-  class IntTypeStage extends Stage[IntType, NoType] {
-    override def transform(source: DataStream[IntType]): DataStream[NoType] = {
+  class IntTypeStage extends Stage[IntType, Nothing] {
+    override def transform(source: DataStream[IntType]): DataStream[Nothing] = {
       source.print()
 
       null
