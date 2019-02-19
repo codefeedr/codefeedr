@@ -191,8 +191,14 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(),
     nodes.find(node => !nodes.exists(toNode => hasEdge(node, toNode)))
   }
 
-  /**
+  /** Verifies the graph.
     *
+    * 1) InputStages cannot have incoming edges.
+    * 2) OutputStages cannot have outgoing edges.
+    * 3) The input types of stage must be equal to the output types of its incoming edges.
+    *
+    * @throws InvalidPipelineException if the pipeline is invalid (invalid edges).
+    * @throws StageTypesIncompatibleException if types within the pipeline are invalid.
     */
   def verifyGraph() = {
     // Get all input stages nodes.
