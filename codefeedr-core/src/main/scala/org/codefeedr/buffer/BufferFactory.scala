@@ -57,7 +57,7 @@ class BufferFactory[In <: Serializable with AnyRef,
       "Buffer factory requires a sink object to determine buffer location")
 
     /** Get the id to read from or write to. */
-    val subject = relatedStage.getSinkSubject
+    val subject = relatedStage.getId
 
     // Create the correct buffer.
     pipeline.bufferType match {
@@ -79,7 +79,7 @@ class BufferFactory[In <: Serializable with AnyRef,
           .get
           .runtimeClass
           .getConstructors()(0)
-          .newInstance(pipeline, pipeline.bufferProperties, ct, tt)
+          .newInstance(pipeline, pipeline.bufferProperties, subject, ct, tt)
           .asInstanceOf[Buffer[T]]
       }
       case _ => {

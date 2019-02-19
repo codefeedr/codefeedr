@@ -32,11 +32,13 @@ import scala.reflect.{ClassTag, classTag}
   *
   * @param pipeline The pipeline for which we use this Buffer.
   * @param properties The properties of this buffer.
+  * @param relatedStageName The name of the related stage the buffer is linked to. We need this to for instance set the topic id.
   * @tparam T Type of this buffer.
   */
 abstract class Buffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     pipeline: Pipeline,
-    properties: org.codefeedr.Properties) {
+    properties: org.codefeedr.Properties,
+    relatedStageName: String) {
 
   //Get type of the class at run time.
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]

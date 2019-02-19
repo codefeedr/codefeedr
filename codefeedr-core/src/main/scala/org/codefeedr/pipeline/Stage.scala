@@ -151,7 +151,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     *
     * @return Sink subject which is basically the stage id.
     */
-  def getSinkSubject: String = this.id
+  def getId: String = this.id
 
   /** Returns the buffer source of this stage.
     *

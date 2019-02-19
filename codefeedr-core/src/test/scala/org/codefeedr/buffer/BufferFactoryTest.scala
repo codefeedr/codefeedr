@@ -58,7 +58,7 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
     val factory = new BufferFactory(pipeline, nodeA, nodeB)
 
     // created for nodeB sink, so should have subject of nodeB
-    val nodeSubject = nodeB.getSinkSubject
+    val nodeSubject = nodeB.getId
     val buffer = factory.create[StringType]()
 
     assert(buffer.isInstanceOf[KafkaBuffer[StringType]])
@@ -125,7 +125,7 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
 class DummyBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     pipeline: Pipeline,
     properties: Properties)
-    extends Buffer[T](pipeline, properties) {
+    extends Buffer[T](pipeline, properties, "") {
 
   override def getSource: DataStream[T] = null
   override def getSink: SinkFunction[T] = null

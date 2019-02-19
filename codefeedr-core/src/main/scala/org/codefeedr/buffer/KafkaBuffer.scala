@@ -68,7 +68,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     properties: org.codefeedr.Properties,
     topic: String,
     groupId: String)
-    extends Buffer[T](pipeline, properties)
+    extends Buffer[T](pipeline, properties, topic)
     with Logging {
 
   /** Default settings for the Kafka buffer. */

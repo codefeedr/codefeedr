@@ -206,7 +206,7 @@ class NumberInput() extends InputStage[StringType] {
     pipeline.environment.addSource(numberSource)
   }
 
-  override def getSinkSubject: String = {
+  override def getId: String = {
     idd
   }
 }
