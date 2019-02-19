@@ -20,7 +20,7 @@ package org.codefeedr.plugins.mongodb.stages
 
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.plugins.mongodb.BaseMongoSink
-import org.codefeedr.stages.{OutputStage, StageAttributes}
+import org.codefeedr.stages.OutputStage
 
 import scala.reflect.{ClassTag, Manifest}
 
@@ -39,8 +39,8 @@ class MongoOutput[T <: Serializable with AnyRef: ClassTag: Manifest](
     database: String,
     collection: String,
     server: String = "mongodb://localhost:27017",
-    stageAttributes: StageAttributes = StageAttributes())
-    extends OutputStage[T](stageAttributes) {
+    stageId: Option[String] = None)
+    extends OutputStage[T](stageId) {
 
   override def main(source: DataStream[T]): Unit = {
     val config = Map("database" -> database,

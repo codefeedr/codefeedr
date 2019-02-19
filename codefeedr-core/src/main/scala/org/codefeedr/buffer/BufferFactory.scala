@@ -57,7 +57,7 @@ class BufferFactory[In <: Serializable with AnyRef,
       "Buffer factory requires a sink object to determine buffer location")
 
     /** Get the id to read from or write to. */
-    val subject = relatedStage.getSinkSubject
+    val subject = relatedStage.getId
 
     // Create the correct buffer.
     pipeline.bufferType match {
@@ -66,7 +66,6 @@ class BufferFactory[In <: Serializable with AnyRef,
         val kafkaGroupId = if (groupId != null) groupId else stage.id
         new KafkaBuffer[T](pipeline,
                            pipeline.bufferProperties,
-                           stage.attributes,
                            cleanedSubject,
                            kafkaGroupId)
       }
@@ -80,16 +79,15 @@ class BufferFactory[In <: Serializable with AnyRef,
           .get
           .runtimeClass
           .getConstructors()(0)
-          .newInstance(pipeline, pipeline.bufferProperties, ct, tt)
+          .newInstance(pipeline, pipeline.bufferProperties, subject, ct, tt)
           .asInstanceOf[Buffer[T]]
       }
       case _ => {
-        //Switch to Kafka
+        //Switch to Kafka.
         val cleanedSubject = subject.replace("$", "-")
         val kafkaGroupId = if (groupId != null) groupId else stage.id
         new KafkaBuffer[T](pipeline,
                            pipeline.bufferProperties,
-                           stage.attributes,
                            cleanedSubject,
                            kafkaGroupId)
       }

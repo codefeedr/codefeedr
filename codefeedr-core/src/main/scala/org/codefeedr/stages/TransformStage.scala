@@ -29,8 +29,8 @@ import scala.reflect.runtime.universe._
   */
 abstract class TransformStage[In <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage[In, Out](attributes)
+    stageId: Option[String] = None)
+    extends Stage[In, Out](stageId)
 
 /** This class represents a TransformStage within a pipeline with two inputs.
   *
@@ -42,8 +42,8 @@ abstract class TransformStage2[
     In <: Serializable with AnyRef: ClassTag: TypeTag,
     In2 <: Serializable with AnyRef: ClassTag: TypeTag,
     Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage2[In, In2, Out](attributes)
+    stageId: Option[String] = None)
+    extends Stage2[In, In2, Out](stageId)
 
 /** This class represents a TransformStage within a pipeline with three inputs.
   *
@@ -57,8 +57,8 @@ abstract class TransformStage3[
     In2 <: Serializable with AnyRef: ClassTag: TypeTag,
     In3 <: Serializable with AnyRef: ClassTag: TypeTag,
     Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage3[In, In2, In3, Out](attributes)
+    stageId: Option[String] = None)
+    extends Stage3[In, In2, In3, Out](stageId)
 
 /** This class represents a TransformStage within a pipeline with four inputs.
   *
@@ -74,5 +74,5 @@ abstract class TransformStage4[
     In3 <: Serializable with AnyRef: ClassTag: TypeTag,
     In4 <: Serializable with AnyRef: ClassTag: TypeTag,
     Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage4[In, In2, In3, In4, Out](attributes)
+    stageId: Option[String] = None)
+    extends Stage4[In, In2, In3, In4, Out](stageId)

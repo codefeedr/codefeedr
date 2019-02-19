@@ -22,7 +22,6 @@ import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferFactory
-import org.codefeedr.stages.StageAttributes
 
 import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
@@ -34,7 +33,7 @@ import scala.reflect.runtime.universe._
   */
 abstract class Stage[In <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    val attributes: StageAttributes = StageAttributes()) {
+    val stageId: Option[String] = None) {
 
   /** The pipeline this stage belongs to. */
   var pipeline: Pipeline = _
@@ -43,7 +42,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
   def environment = pipeline.environment
 
   /** Get the id of this stage */
-  def id: String = attributes.id.getOrElse(getClass.getName)
+  def id: String = stageId.getOrElse(getClass.getName)
 
   /** Get the type of IN */
   def getInType = classTag[In].runtimeClass.asInstanceOf[Class[In]]
@@ -152,7 +151,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     *
     * @return Sink subject which is basically the stage id.
     */
-  def getSinkSubject: String = this.id
+  def getId: String = this.id
 
   /** Returns the buffer source of this stage.
     *

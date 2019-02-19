@@ -23,11 +23,12 @@ import org.apache.flink.streaming.api.scala.{
   StreamExecutionEnvironment
 }
 import org.codefeedr.keymanager.StaticKeyManager
-import org.codefeedr.buffer.BufferType
+import org.codefeedr.buffer.{Buffer, BufferType}
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
+import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.stages.{OutputStage, StageAttributes}
+import org.codefeedr.stages.OutputStage
 import org.codefeedr.testUtils.{
   SimpleSinkStage,
   SimpleSourceStage,
@@ -284,8 +285,17 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assert(pipeline.graph.getParents(c).size == 2)
   }
 
+  test("Set the serializer directly") {
+    val pipeline = builder
+      .append(new SimpleSourceStage())
+      .setSerializer(Serializer.JSON)
+      .build()
+
+    assert(pipeline.bufferProperties.get(Buffer.SERIALIZER).get == "JSON")
+  }
+
   test("Next level") {
-    val a = new SimpleSourceStage(StageAttributes(id = Some("testId")))
+    val a = new SimpleSourceStage(Some("testId"))
     val b = new SimpleTransformStage()
 
     val pipeline = builder

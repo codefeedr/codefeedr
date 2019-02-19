@@ -30,8 +30,8 @@ import scala.reflect.runtime.universe._
   * @tparam In the input type of the job.
   */
 abstract class OutputStage[In <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage[In, NoType](attributes) {
+    stageId: Option[String] = None)
+    extends Stage[In, NoType](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
@@ -62,8 +62,8 @@ abstract class OutputStage[In <: Serializable with AnyRef: ClassTag: TypeTag](
   */
 abstract class OutputStage2[In <: Serializable with AnyRef: ClassTag: TypeTag,
 In2 <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage2[In, In2, NoType](attributes) {
+    stageId: Option[String] = None)
+    extends Stage2[In, In2, NoType](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
@@ -99,8 +99,8 @@ In2 <: Serializable with AnyRef: ClassTag: TypeTag](
 abstract class OutputStage3[In <: Serializable with AnyRef: ClassTag: TypeTag,
 In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 In3 <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage3[In, In2, In3, NoType](attributes) {
+    stageId: Option[String] = None)
+    extends Stage3[In, In2, In3, NoType](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
@@ -143,8 +143,8 @@ abstract class OutputStage4[In <: Serializable with AnyRef: ClassTag: TypeTag,
 In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 In3 <: Serializable with AnyRef: ClassTag: TypeTag,
 In4 <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage4[In, In2, In3, In4, NoType](attributes) {
+    stageId: Option[String] = None)
+    extends Stage4[In, In2, In3, In4, NoType](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.

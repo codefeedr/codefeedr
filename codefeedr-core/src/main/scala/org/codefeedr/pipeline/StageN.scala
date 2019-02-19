@@ -18,7 +18,6 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.stages.StageAttributes
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -32,8 +31,8 @@ import scala.reflect.runtime.universe._
 abstract class Stage2[In <: Serializable with AnyRef: ClassTag: TypeTag,
 In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage[In, Out](attributes) {
+    stageId: Option[String] = None)
+    extends Stage[In, Out](stageId) {
 
   /** Transforms from type In to type Out.
     *
@@ -82,8 +81,8 @@ abstract class Stage3[In <: Serializable with AnyRef: ClassTag: TypeTag,
 In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 In3 <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage2[In, In2, Out](attributes) {
+    stageId: Option[String] = None)
+    extends Stage2[In, In2, Out](stageId) {
 
   /** Transforms from type In and In2 to type Out.
     *
@@ -140,8 +139,8 @@ In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 In3 <: Serializable with AnyRef: ClassTag: TypeTag,
 In4 <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage3[In, In2, In3, Out](attributes) {
+    stageId: Option[String] = None)
+    extends Stage3[In, In2, In3, Out](stageId) {
 
   /** Transforms from type In, In2, In3 to type Out.
     *
