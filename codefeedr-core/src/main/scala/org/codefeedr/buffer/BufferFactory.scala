@@ -83,7 +83,7 @@ class BufferFactory[In <: Serializable with AnyRef,
           .asInstanceOf[Buffer[T]]
       }
       case _ => {
-        //Switch to Kafka
+        //Switch to Kafka.
         val cleanedSubject = subject.replace("$", "-")
         val kafkaGroupId = if (groupId != null) groupId else stage.id
         new KafkaBuffer[T](pipeline,
