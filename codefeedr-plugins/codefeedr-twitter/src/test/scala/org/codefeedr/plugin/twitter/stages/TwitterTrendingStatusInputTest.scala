@@ -37,6 +37,7 @@ import com.danielasfregola.twitter4s.http.clients.streaming.TwitterStream
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
+import org.codefeedr.pipeline.Context
 import org.codefeedr.plugin.twitter.TwitterProtocol.TweetWrapper
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.any
@@ -191,14 +192,15 @@ class TwitterTrendingStatusInputTest extends FunSuite with MockitoSugar {
 
   test("A source needs to be properly added to the environment") {
     val env = mock[StreamExecutionEnvironment]
+    val context = Context(env, "", null, null)
     val stage = spy(new TwitterTrendingStatusInput(consumerToken, accessToken))
 
-    doReturn(env)
+    doReturn(context)
       .when(stage)
-      .environment
+      .getContext
 
     stage
-      .main()
+      .main(context)
 
     //for some reason this doesn't work, gives exception: 2 matches expected, 1 recorded
     // verify(env, times(1)).addSource(any[SourceFunction[TweetWrapper]])

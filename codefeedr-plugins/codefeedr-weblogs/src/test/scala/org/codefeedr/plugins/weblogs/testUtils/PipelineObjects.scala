@@ -44,7 +44,7 @@ class SimpleSourceStage(stageId: Option[String] = None)
     extends Stage[Nothing, StringType](stageId) {
   override def transform(
       source: DataStream[Nothing]): DataStream[StringType] = {
-    pipeline.environment.addSource {
+    getContext.env.addSource {
       new RichSourceFunction[StringType] {
         override def run(
             ctx: SourceFunction.SourceContext[StringType]): Unit = {
@@ -97,7 +97,7 @@ class HitObjectTest extends Stage[Nothing, Nothing] {
 class FlinkCrashObjectTest extends Stage[Nothing, StringType] {
   override def transform(
       source: DataStream[Nothing]): DataStream[StringType] = {
-    pipeline.environment
+    getContext.env
       .fromCollection[String](Seq("a", "b"))
       .map { a =>
         throw CodeHitException()

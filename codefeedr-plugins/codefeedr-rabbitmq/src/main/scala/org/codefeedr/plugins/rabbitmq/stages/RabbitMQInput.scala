@@ -24,6 +24,7 @@ import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.rabbitmq.RMQSource
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
 import org.codefeedr.buffer.serialization.{AbstractSerde, Serializer}
+import org.codefeedr.pipeline.Context
 import org.codefeedr.stages.InputStage
 
 import scala.reflect.{ClassTag, classTag}
@@ -49,7 +50,7 @@ class RabbitMQInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
   implicit val typeInfo = TypeInformation.of(inputClassType)
 
   /** Add the InputSource to the Flink environment. */
-  override def main(): DataStream[T] = {
+  override def main(context: Context): DataStream[T] = {
     val config = new RMQConnectionConfig.Builder()
       .setUri(server.toString)
       .build
@@ -57,7 +58,7 @@ class RabbitMQInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
     // Create a source with correlation id usage enabled for exactly once guarantees
     val source = new RMQSource[T](config, queue, true, getSerializer)
 
-    pipeline.environment
+    context.env
       .addSource(source)
       .setParallelism(1) // Needed for exactly one guarantees
   }

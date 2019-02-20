@@ -32,8 +32,8 @@ class DirectedAcyclicGraphTest extends FunSuite {
   val nodeD = "d"
 
   class NothingStringType extends InputStage[StringType] {
-    override def main(): DataStream[StringType] = {
-      environment.fromCollection(Seq(StringType("a")))
+    override def main(context: Context): DataStream[StringType] = {
+      context.env.fromCollection(Seq(StringType("a")))
     }
   }
 
@@ -52,7 +52,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
   }
 
   class NothingIntType extends InputStage[IntType] {
-    override def main(): DataStream[IntType] = null
+    override def main(context: Context): DataStream[IntType] = null
   }
 
   test("Added nodes are testable") {

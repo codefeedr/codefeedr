@@ -57,8 +57,9 @@ class BufferFactory[+In <: Serializable with AnyRef,
       "Buffer factory requires a sink object to determine buffer location")
 
     /** Get the id to read from or write to. */
-    val subject = relatedStage.getId
-    val groupIdFinal = if (groupId != null) groupId else stage.id
+    val subject = relatedStage.getContext.stageId
+    val groupIdFinal =
+      if (groupId != null) groupId else stage.getContext.stageId
 
     // Create the correct buffer.
     pipeline.bufferType match {

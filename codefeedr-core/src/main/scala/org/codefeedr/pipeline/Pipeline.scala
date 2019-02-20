@@ -143,7 +143,7 @@ case class Pipeline(var name: String,
 
   /** Validates the uniqueness of the stage IDs, needed for clustered running. */
   def validateUniqueness(): Unit = {
-    val list = getNodes.map(_.id)
+    val list = getNodes.map(_.getContext.stageId)
     val uniqList = list.distinct
     val overlap = list.diff(uniqList)
 
@@ -161,14 +161,14 @@ case class Pipeline(var name: String,
     if (asException) {
       val contents = getNodes
         .map { item =>
-          '"' + item.id + '"'
+          '"' + item.getContext.stageId + '"'
         }
         .mkString(",")
       val json = s"[$contents]"
 
       throw PipelineListException(json)
     } else {
-      getNodes.foreach(item => println(item.id))
+      getNodes.foreach(item => println(item.getContext.stageId))
     }
   }
 
@@ -245,7 +245,8 @@ case class Pipeline(var name: String,
     val optObj = graph.nodes.find { node =>
       node
         .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
-        .id == stage
+        .getContext
+        .stageId == stage
     }
 
     // If cannot be find, throw an exception.

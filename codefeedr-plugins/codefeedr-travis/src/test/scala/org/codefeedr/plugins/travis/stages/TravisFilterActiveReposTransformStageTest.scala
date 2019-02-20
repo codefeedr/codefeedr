@@ -24,7 +24,7 @@ import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.keymanager.StaticKeyManager
-import org.codefeedr.pipeline.PipelineBuilder
+import org.codefeedr.pipeline.{Context, PipelineBuilder}
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.requests.EventService
 import org.codefeedr.plugins.github.stages.GitHubEventToPushEvent
@@ -85,10 +85,10 @@ class SimpleEventSource(fileName: String) extends InputStage[Event] {
   val stream: InputStream = getClass.getResourceAsStream(fileName)
   val sampleEvents: String = Source.fromInputStream(stream).getLines.mkString
 
-  override def main(): DataStream[Event] = {
+  override def main(context: Context): DataStream[Event] = {
     val events = new EventService(false, null)
       .parseEvents(sampleEvents)
 
-    pipeline.environment.fromCollection(events)
+    context.env.fromCollection(events)
   }
 }

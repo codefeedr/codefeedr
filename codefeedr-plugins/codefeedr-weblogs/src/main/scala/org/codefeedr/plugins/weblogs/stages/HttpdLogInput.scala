@@ -19,9 +19,11 @@
 package org.codefeedr.plugins.weblogs.stages
 
 import java.text.SimpleDateFormat
+
 import org.apache.flink.api.common.functions.FlatMapFunction
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector
+import org.codefeedr.pipeline.Context
 import org.codefeedr.plugins.weblogs.HttpdLogItem
 import org.codefeedr.stages.InputStage
 
@@ -34,8 +36,8 @@ class HttpdLogInput(absolutePath: String, stageId: Option[String] = None)
     extends InputStage[HttpdLogItem](stageId)
     with Serializable {
 
-  override def main(): DataStream[HttpdLogItem] = {
-    pipeline.environment
+  override def main(context: Context): DataStream[HttpdLogItem] = {
+    context.env
       .readTextFile(absolutePath)
       .setParallelism(1)
       .flatMap(_.split('\n'))

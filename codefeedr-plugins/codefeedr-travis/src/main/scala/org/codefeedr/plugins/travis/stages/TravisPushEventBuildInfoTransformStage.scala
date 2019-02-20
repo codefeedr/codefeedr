@@ -42,7 +42,8 @@ import scala.util.{Failure, Success}
 class TravisPushEventBuildInfoTransformStage(capacity: Int = 100)
     extends TransformStage[PushEventFromActiveTravisRepo, TravisBuild] {
 
-  lazy val travisService: TravisService = new TravisService(pipeline.keyManager)
+  lazy val travisService: TravisService = new TravisService(
+    getContext.pipeline.keyManager)
   def travis: TravisService = travisService
 
   def transform(source: DataStream[PushEventFromActiveTravisRepo])

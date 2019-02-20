@@ -20,6 +20,7 @@ package org.codefeedr.stages.utilities
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.pipeline.Context
 import org.codefeedr.stages.InputStage
 
 import scala.reflect.{ClassTag, Manifest}
@@ -38,7 +39,7 @@ class SeqInput[
     *
     * @return A newly created DataStream.
     */
-  override def main(): DataStream[T] = {
-    pipeline.environment.fromCollection(seq)
+  override def main(context: Context): DataStream[T] = {
+    context.env.fromCollection(seq)
   }
 }

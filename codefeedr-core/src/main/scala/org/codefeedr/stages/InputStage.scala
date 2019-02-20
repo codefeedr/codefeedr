@@ -19,7 +19,7 @@
 package org.codefeedr.stages
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.Stage
+import org.codefeedr.pipeline.{Context, Stage}
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -42,13 +42,13 @@ abstract class InputStage[Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @return The transformed stream with type Out.
     */
   override def transform(source: DataStream[Nothing]): DataStream[Out] = {
-    main()
+    main(getContext)
   }
 
   /** Creates a DataStream with type Out.
     *
     * @return A newly created DataStream.
     */
-  def main(): DataStream[Out]
+  def main(context: Context): DataStream[Out]
 
 }
