@@ -59,6 +59,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   test("Every pipeline object should appear in the pipeline (1)") {
     val pipeline = builder
       .append(new SimpleSourceStage())
+      .disablePipelineVerification()
       .build()
 
     assert(pipeline.graph.nodes.size == 1)
@@ -84,6 +85,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     val pipeline = builder
       .append(stage)
+      .disablePipelineVerification()
       .setStageProperty(stage.id, "key", "value")
       .setStageProperty(stage.id, "anotherKey", "true")
       .build()
@@ -263,6 +265,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val c = new SimpleTransformStage()
 
     val pipeline = builder
+      .disablePipelineVerification()
       .addParents(c, a :+ b)
       .build()
 
@@ -276,6 +279,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val c = new SimpleTransformStage()
 
     val pipeline = builder
+      .disablePipelineVerification()
       .addParents(c, a :+ b)
       .addParents(c, a)
       .build()

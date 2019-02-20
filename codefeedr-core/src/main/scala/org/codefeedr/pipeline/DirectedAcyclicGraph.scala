@@ -200,7 +200,7 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(),
     * @throws InvalidPipelineException if the pipeline is invalid (invalid edges).
     * @throws StageTypesIncompatibleException if types within the pipeline are invalid.
     */
-  def verifyGraph() = {
+  def verify() = {
     // Get all input stages nodes.
     val nodesInputStages = nodes.filter(x => x.isInstanceOf[InputStage[_]])
 
@@ -229,20 +229,19 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(),
         // Get output type of this stage.
         val stageOutputType = n
           .asInstanceOf[Stage[_, _]]
-          .getOutType
-          .getName
+          .outType
+          .toString
 
         // Get all the input types of this stage as a set.
-        val inputTypes = n.getClass.getGenericSuperclass
-          .asInstanceOf[ParameterizedType]
-          .getActualTypeArguments
-          .map(_.getTypeName)
-          .filter(_ != stageOutputType)
+        val inputTypes = n
+          .asInstanceOf[Stage[_, _]]
+          .inTypes
+          .map(_.toString)
 
         // Get all the types of the incoming edges (which is the output type of the other stage).
         val edgesOutputTypes =
           getParents(n)
-            .map(_.asInstanceOf[Stage[_, _]].getOutType.getName)
+            .map(_.asInstanceOf[Stage[_, _]].outType.toString)
 
         /**
           * The amount of inputTypes should be equal to the amount of incoming edges.

@@ -273,7 +273,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(stageOne, stageTwo)
 
     assertThrows[StageTypesIncompatibleException] {
-      dag.verifyGraph()
+      dag.verify()
     }
   }
 
@@ -286,7 +286,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addNode(stageTwo)
       .addEdge(stageOne, stageTwo)
 
-    dag.verifyGraph()
+    dag.verify()
   }
 
   test("Verify that graph is invalid; inputstage has incoming edge.") {
@@ -298,7 +298,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(stageOne, stageOne)
 
     assertThrows[InvalidPipelineException] {
-      dag.verifyGraph()
+      dag.verify()
     }
   }
 
@@ -310,7 +310,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(stageTwo, stageTwo)
 
     assertThrows[InvalidPipelineException] {
-      dag.verifyGraph()
+      dag.verify()
     }
   }
 
@@ -325,7 +325,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(stageOne, stageThree) // we only add 1 edge
 
     assertThrows[StageTypesIncompatibleException] {
-      dag.verifyGraph()
+      dag.verify()
     }
   }
 
@@ -341,7 +341,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(stageTwo, stageThree)
       .addEdge(stageOne, stageThree)
 
-    dag.verifyGraph()
+    dag.verify()
   }
 
   test(
@@ -358,7 +358,7 @@ class DirectedAcyclicGraphTest extends FunSuite {
       .addEdge(stageOne, stageThree)
 
     assertThrows[StageTypesIncompatibleException] {
-      dag.verifyGraph()
+      dag.verify()
     }
   }
 

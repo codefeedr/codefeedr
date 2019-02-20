@@ -36,6 +36,12 @@ protected[codefeedr] abstract class Stage[
     Out <: Serializable with AnyRef: ClassTag: TypeTag](
     val stageId: Option[String] = None) {
 
+  /** Keep track of all incoming types. **/
+  var inTypes: List[Type] = typeOf[In] :: Nil
+
+  /** Keep track of the outgoing type. **/
+  val outType: Type = typeOf[Out]
+
   /** The pipeline this stage belongs to. */
   var pipeline: Pipeline = _
 
@@ -44,12 +50,6 @@ protected[codefeedr] abstract class Stage[
 
   /** Get the id of this stage */
   def id: String = stageId.getOrElse(getClass.getName)
-
-  /** Get the type of IN */
-  def getInType = classTag[In].runtimeClass.asInstanceOf[Class[In]]
-
-  /** Get the type of OUT */
-  def getOutType = classTag[Out].runtimeClass.asInstanceOf[Class[Out]]
 
   /** Get the properties of this stage.
     *

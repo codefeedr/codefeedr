@@ -34,6 +34,8 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
     extends Stage[In, Out](stageId) {
 
+  this.inTypes = typeOf[In2] :: this.inTypes
+
   /** Transforms from type In to type Out.
     *
     * @param source The input source with type In.
@@ -83,6 +85,8 @@ In3 <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
     extends Stage2[In, In2, Out](stageId) {
+
+  this.inTypes = typeOf[In3] :: this.inTypes
 
   /** Transforms from type In and In2 to type Out.
     *
@@ -141,6 +145,8 @@ In4 <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
     extends Stage3[In, In2, In3, Out](stageId) {
+
+  this.inTypes = typeOf[In3] :: this.inTypes
 
   /** Transforms from type In, In2, In3 to type Out.
     *

@@ -218,6 +218,7 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
     val job = new MyObject4()
 
     val builder = new PipelineBuilder()
+      .disablePipelineVerification()
       .setBufferType(BufferType.Kafka)
       .addParents(job, a :+ b :+ c :+ d :+ e)
 

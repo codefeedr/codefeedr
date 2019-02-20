@@ -63,6 +63,7 @@ class StageTest extends FunSuite {
 
   test("Should throw when getting unknown main source") {
     val pipeline = new PipelineBuilder()
+      .disablePipelineVerification()
       .append(new BadSourceObject())
       .build()
 
@@ -73,6 +74,7 @@ class StageTest extends FunSuite {
 
   test("Should throw when getting unknown sink") {
     val pipeline = new PipelineBuilder()
+      .disablePipelineVerification()
       .append(new BadSinkObject())
       .build()
 

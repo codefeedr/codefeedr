@@ -270,6 +270,7 @@ class PipelineTest
 
     builder
       .append(source)
+      .disablePipelineVerification()
       .setPipelineType(PipelineType.DAG)
       .edge(source, a)
       .edge(source, b)
@@ -283,6 +284,7 @@ class PipelineTest
     val sink = new SimpleSinkStage(1)
 
     val pipeline = builder
+      .disablePipelineVerification()
       .setBufferType(BufferType.Kafka)
       .edge(source, sink)
       .build()
@@ -301,6 +303,7 @@ class PipelineTest
     val sink = new SimpleSinkStage(1)
 
     val pipeline = builder
+      .disablePipelineVerification()
       .setBufferType(BufferType.Kafka)
       .edge(source, sink)
       .build()
@@ -315,6 +318,7 @@ class PipelineTest
     val sink = new SimpleSinkStage(1)
 
     val pipeline = builder
+      .disablePipelineVerification()
       .setBufferType(BufferType.Kafka)
       .edge(source, sink)
       .build()
@@ -339,6 +343,7 @@ class PipelineTest
 
   test("Show list of pipeline item ids") {
     val pipeline = builder
+      .disablePipelineVerification()
       .append(new StringInput())
       .append(new JsonPrinterOutput())
       .build()
@@ -356,6 +361,7 @@ class PipelineTest
 
   test("Show list of pipeline item ids in an exception") {
     val pipeline = builder
+      .disablePipelineVerification()
       .append(new StringInput())
       .append(new JsonPrinterOutput())
       .build()
