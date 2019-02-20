@@ -64,6 +64,9 @@ class PipelineBuilder extends Logging {
   /** Key manager */
   protected var keyManager: KeyManager = _
 
+  /** Pipeline verification toggle, defaults to true **/
+  protected var pipelineVerificationToggle: Boolean = true
+
   /** The StreamTimeCharacteristic. Default: [[TimeCharacteristic.EventTime]]*/
   protected var streamTimeCharacteristic: TimeCharacteristic =
     TimeCharacteristic.EventTime
@@ -99,6 +102,17 @@ class PipelineBuilder extends Logging {
     * @return Type of pipeline: Sequential or DAG.
     */
   def getPipelineType: PipelineType = pipelineType
+
+  /** Disables the pipeline verification.
+    * This is not recommended, it allows for nasty pipelines.
+    *
+    * @return The builder instance.
+    */
+  def disablePipelineVerification(): PipelineBuilder = {
+    this.pipelineVerificationToggle = false
+
+    this
+  }
 
   /** Set the type of the pipeline.
     *
@@ -385,12 +399,20 @@ class PipelineBuilder extends Logging {
   def build(): Pipeline = {
     if (graph.isEmpty) throw EmptyPipelineException()
 
-    // Correctly map and verify graph.
+    // Correctly map and verify graph for every node.
     graph.nodes
       .foreach(
         _.asInstanceOf[Stage[Serializable with AnyRef,
                              Serializable with AnyRef]]
           .verifyGraph(graph))
+
+    // This will verify the graph in terms of types.
+    if (pipelineVerificationToggle) {
+      graph.verify()
+    } else {
+      logger.warn(
+        "Pipeline verification has been disabled manually. No type guarantee between stages can be given. Consider enabling it again.")
+    }
 
     logger.info(
       s"Created pipeline with ${graph.nodes.size} nodes and ${graph.edges.size} edges.")

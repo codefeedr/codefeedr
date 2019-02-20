@@ -31,9 +31,16 @@ import scala.reflect.runtime.universe._
   * @tparam In  Input type for this stage.
   * @tparam Out Output type for this stage.
   */
-abstract class Stage[In <: Serializable with AnyRef: ClassTag: TypeTag,
-Out <: Serializable with AnyRef: ClassTag: TypeTag](
+protected[codefeedr] abstract class Stage[
+    In <: Serializable with AnyRef: ClassTag: TypeTag,
+    Out <: Serializable with AnyRef: ClassTag: TypeTag](
     val stageId: Option[String] = None) {
+
+  /** Keep track of all incoming types. **/
+  var inTypes: List[Type] = typeOf[In] :: Nil
+
+  /** Keep track of the outgoing type. **/
+  val outType: Type = typeOf[Out]
 
   /** The pipeline this stage belongs to. */
   var pipeline: Pipeline = _
@@ -43,12 +50,6 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
 
   /** Get the id of this stage */
   def id: String = stageId.getOrElse(getClass.getName)
-
-  /** Get the type of IN */
-  def getInType = classTag[In].runtimeClass.asInstanceOf[Class[In]]
-
-  /** Get the type of OUT */
-  def getOutType = classTag[Out].runtimeClass.asInstanceOf[Class[Out]]
 
   /** Get the properties of this stage.
     *
@@ -94,7 +95,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @return True if this stage has a Buffer source.
     */
   def hasMainSource: Boolean =
-    typeOf[In] != typeOf[NoType] && pipeline.graph
+    typeOf[In] != typeOf[Nothing] && pipeline.graph
       .getFirstParent(this)
       .isDefined
 
@@ -102,7 +103,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     *
     * @return True if this stage has a Buffer sink.
     */
-  def hasSink: Boolean = typeOf[Out] != typeOf[NoType]
+  def hasSink: Boolean = typeOf[Out] != typeOf[Nothing]
 
   /** Returns the (main)buffer source of this stage.
     * The main source is the first parent of this stage. Other sources need to be joined in the Flink job.

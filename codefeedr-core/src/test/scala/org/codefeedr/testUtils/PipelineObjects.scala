@@ -31,7 +31,7 @@ import org.apache.flink.streaming.api.functions.sink.{
 }
 import org.codefeedr.pipeline._
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.stages.OutputStage
+import org.codefeedr.stages.{InputStage, OutputStage}
 
 //This will be thrown after the print sink received x elements.
 final case class JobFinishedException()
@@ -41,8 +41,8 @@ final case class CodeHitException() extends RuntimeException
 
 //a simple test source which generates some StringType messages
 class SimpleSourceStage(stageId: Option[String] = None)
-    extends Stage[NoType, StringType](stageId) {
-  override def transform(source: DataStream[NoType]): DataStream[StringType] = {
+    extends InputStage[StringType](stageId) {
+  override def main(): DataStream[StringType] = {
     pipeline.environment.addSource {
       new RichSourceFunction[StringType] {
         override def run(
@@ -87,14 +87,15 @@ class PrintSinkElements(elements: Int) extends PrintSinkFunction[StringType] {
   }
 }
 
-class HitObjectTest extends Stage[NoType, NoType] {
-  override def transform(source: DataStream[NoType]): DataStream[NoType] = {
+class HitObjectTest extends Stage[Nothing, Nothing] {
+  override def transform(source: DataStream[Nothing]): DataStream[Nothing] = {
     throw CodeHitException()
   }
 }
 
-class FlinkCrashObjectTest extends Stage[NoType, NoType] {
-  override def transform(source: DataStream[NoType]): DataStream[NoType] = {
+class FlinkCrashObjectTest extends Stage[Nothing, StringType] {
+  override def transform(
+      source: DataStream[Nothing]): DataStream[StringType] = {
     pipeline.environment
       .fromCollection[String](Seq("a", "b"))
       .map { a =>

@@ -37,10 +37,10 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
     EmbeddedKafka.stop()
   }
 
-  class MyObject2 extends Stage2[StringType, StringType, NoType] {
+  class MyObject2 extends Stage2[StringType, StringType, Nothing] {
     override def transform(
         source: DataStream[StringType],
-        secondSource: DataStream[StringType]): DataStream[NoType] = {
+        secondSource: DataStream[StringType]): DataStream[Nothing] = {
       println("TRANSFORM", source, secondSource)
 
       if (source != null && secondSource != null) {
@@ -51,10 +51,10 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
     }
   }
 
-  class MyBadObject2 extends Stage2[StringType, NoType, NoType] {
+  class MyBadObject2 extends Stage2[StringType, Nothing, Nothing] {
     override def transform(
         source: DataStream[StringType],
-        secondSource: DataStream[NoType]): DataStream[NoType] = {
+        secondSource: DataStream[Nothing]): DataStream[Nothing] = {
       if (source != null && secondSource != null) {
         throw CodeHitException()
       }
@@ -63,11 +63,11 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
     }
   }
 
-  class MyObject3 extends Stage3[StringType, StringType, StringType, NoType] {
+  class MyObject3 extends Stage3[StringType, StringType, StringType, Nothing] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[StringType],
-        thirdSource: DataStream[StringType]): DataStream[NoType] = {
+        thirdSource: DataStream[StringType]): DataStream[Nothing] = {
       if (source != null && secondSource != null && thirdSource != null) {
         throw CodeHitException()
       }
@@ -76,11 +76,11 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
     }
   }
 
-  class MyBadObject3 extends Stage3[StringType, StringType, NoType, NoType] {
+  class MyBadObject3 extends Stage3[StringType, StringType, Nothing, Nothing] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[StringType],
-        thirdSource: DataStream[NoType]): DataStream[NoType] = {
+        thirdSource: DataStream[Nothing]): DataStream[Nothing] = {
       if (source != null && secondSource != null && thirdSource != null) {
         throw CodeHitException()
       }
@@ -90,12 +90,12 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
   }
 
   class MyObject4
-      extends Stage4[StringType, StringType, StringType, StringType, NoType] {
+      extends Stage4[StringType, StringType, StringType, StringType, Nothing] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[StringType],
         thirdSource: DataStream[StringType],
-        fourthSource: DataStream[StringType]): DataStream[NoType] = {
+        fourthSource: DataStream[StringType]): DataStream[Nothing] = {
       if (source != null && secondSource != null && thirdSource != null && fourthSource != null) {
         throw CodeHitException()
       }
@@ -105,12 +105,12 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
   }
 
   class MyBadObject4
-      extends Stage4[StringType, StringType, StringType, NoType, NoType] {
+      extends Stage4[StringType, StringType, StringType, Nothing, Nothing] {
     override def transform(
         source: DataStream[StringType],
         secondSource: DataStream[StringType],
         thirdSource: DataStream[StringType],
-        fourthSource: DataStream[NoType]): DataStream[NoType] = {
+        fourthSource: DataStream[Nothing]): DataStream[Nothing] = {
       if (source != null && secondSource != null && thirdSource != null && fourthSource != null) {
         throw CodeHitException()
       }
@@ -218,6 +218,7 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
     val job = new MyObject4()
 
     val builder = new PipelineBuilder()
+      .disablePipelineVerification()
       .setBufferType(BufferType.Kafka)
       .addParents(job, a :+ b :+ c :+ d :+ e)
 
@@ -226,7 +227,7 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
     }
   }
 
-  test("Should throw when input type of object2 is NoType") {
+  test("Should throw when input type of object2 is Nothing") {
     val a = new StringInput()
     val b = new StringInput()
     val job = new MyBadObject2()
@@ -240,7 +241,7 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
     }
   }
 
-  test("Should throw when input type of object3 is NoType") {
+  test("Should throw when input type of object3 is Nothing") {
     val a = new StringInput()
     val b = new StringInput()
     val c = new StringInput()
@@ -255,7 +256,7 @@ class StageNTest extends FunSuite with BeforeAndAfterAll with EmbeddedKafka {
     }
   }
 
-  test("Should throw when input type of object4 is NoType") {
+  test("Should throw when input type of object4 is Nothing") {
     val a = new StringInput()
     val b = new StringInput()
     val c = new StringInput()

@@ -19,7 +19,7 @@
 package org.codefeedr.stages
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.{NoType, Stage}
+import org.codefeedr.pipeline.Stage
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -31,7 +31,7 @@ import scala.reflect.runtime.universe._
   */
 abstract class InputStage[Out <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
-    extends Stage[NoType, Out](stageId) {
+    extends Stage[Nothing, Out](stageId) {
 
   /** Transforms the stage from its input type to its output type.
     * This requires using the Flink DataStream API.
@@ -41,7 +41,7 @@ abstract class InputStage[Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @param source The input source with type In. In the case of an InputStage it is a NoType.
     * @return The transformed stream with type Out.
     */
-  override def transform(source: DataStream[NoType]): DataStream[Out] = {
+  override def transform(source: DataStream[Nothing]): DataStream[Out] = {
     main()
   }
 

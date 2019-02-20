@@ -28,33 +28,33 @@ case class IntType(id: Int)
 
 class StageTest extends FunSuite {
 
-  class BadSourceObject extends Stage[NoType, StringType] {
+  class BadSourceObject extends Stage[Nothing, StringType] {
     override def transform(
-        source: DataStream[NoType]): DataStream[StringType] = {
+        source: DataStream[Nothing]): DataStream[StringType] = {
       getMainSource()
 
       null
     }
   }
 
-  class BadSinkObject extends Stage[StringType, NoType] {
+  class BadSinkObject extends Stage[StringType, Nothing] {
     override def transform(
-        source: DataStream[StringType]): DataStream[NoType] = {
+        source: DataStream[StringType]): DataStream[Nothing] = {
       getSink()
 
       null
     }
   }
 
-  class StringTypeStage extends Stage[NoType, StringType] {
+  class StringTypeStage extends Stage[Nothing, StringType] {
     override def transform(
-        source: DataStream[NoType]): DataStream[StringType] = {
+        source: DataStream[Nothing]): DataStream[StringType] = {
       environment.fromCollection(Seq(StringType("a")))
     }
   }
 
-  class IntTypeStage extends Stage[IntType, NoType] {
-    override def transform(source: DataStream[IntType]): DataStream[NoType] = {
+  class IntTypeStage extends Stage[IntType, Nothing] {
+    override def transform(source: DataStream[IntType]): DataStream[Nothing] = {
       source.print()
 
       null
@@ -63,6 +63,7 @@ class StageTest extends FunSuite {
 
   test("Should throw when getting unknown main source") {
     val pipeline = new PipelineBuilder()
+      .disablePipelineVerification()
       .append(new BadSourceObject())
       .build()
 
@@ -73,6 +74,7 @@ class StageTest extends FunSuite {
 
   test("Should throw when getting unknown sink") {
     val pipeline = new PipelineBuilder()
+      .disablePipelineVerification()
       .append(new BadSinkObject())
       .build()
 
@@ -87,20 +89,19 @@ class StageTest extends FunSuite {
     assert(a.id == "testId")
   }
 
-  /**
-  test("Compatible types should not throw an exception") {
-    val stringStage = new StringTypeStage
-    val intStage = new IntTypeStage
+  test("Properties should be properly propagated.") {
+    val stage = new SimpleSourceStage(Some("ha"))
 
-    val dag = new DirectedAcyclicGraph()
-      .addNode(stringStage)
-      .addNode(intStage)
-      .addEdge(stringStage, intStage)
+    val pipeline = new PipelineBuilder()
+      .disablePipelineVerification()
+      .setStageProperty("ha", "a", "b")
+      .setStageProperty("no", "c", "d")
+      .append(stage)
+      .build()
 
-    assertThrows[StageTypesIncompatibleException] {
-      stringStage.verifyGraph(dag)
-    }
+    stage.setUp(pipeline)
+
+    assert(stage.properties.get("a").get == "b")
+    assert(stage.properties.get("c").isEmpty)
   }
-
-    **/
 }

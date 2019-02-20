@@ -35,10 +35,10 @@ import scala.reflect.runtime.universe._
   * @param relatedStage The related-stage to which the stage either has to read or write to.
   * @param groupId Custom group id, to read from Kafka. Default is set to stage id.
   */
-class BufferFactory[In <: Serializable with AnyRef,
-                    Out <: Serializable with AnyRef,
-                    In1 <: Serializable with AnyRef,
-                    Out2 <: Serializable with AnyRef](
+class BufferFactory[+In <: Serializable with AnyRef,
+                    +Out <: Serializable with AnyRef,
+                    +In1 <: Serializable with AnyRef,
+                    +Out2 <: Serializable with AnyRef](
     pipeline: Pipeline,
     stage: Stage[In, Out],
     relatedStage: Stage[In1, Out2],
@@ -58,16 +58,16 @@ class BufferFactory[In <: Serializable with AnyRef,
 
     /** Get the id to read from or write to. */
     val subject = relatedStage.getId
+    val groupIdFinal = if (groupId != null) groupId else stage.id
 
     // Create the correct buffer.
     pipeline.bufferType match {
       case BufferType.Kafka => {
         val cleanedSubject = subject.replace("$", "-")
-        val kafkaGroupId = if (groupId != null) groupId else stage.id
         new KafkaBuffer[T](pipeline,
                            pipeline.bufferProperties,
                            cleanedSubject,
-                           kafkaGroupId)
+                           groupIdFinal)
       }
       case x if BufferFactory.registry.exists(_._1 == x) => {
         val tt = typeTag[T]
@@ -85,11 +85,10 @@ class BufferFactory[In <: Serializable with AnyRef,
       case _ => {
         //Switch to Kafka.
         val cleanedSubject = subject.replace("$", "-")
-        val kafkaGroupId = if (groupId != null) groupId else stage.id
         new KafkaBuffer[T](pipeline,
                            pipeline.bufferProperties,
                            cleanedSubject,
-                           kafkaGroupId)
+                           groupIdFinal)
       }
     }
   }

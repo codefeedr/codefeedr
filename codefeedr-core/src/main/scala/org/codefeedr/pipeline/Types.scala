@@ -18,9 +18,6 @@
  */
 package org.codefeedr.pipeline
 
-/** This class is used for the InputStage input and for the OutputStage output. */
-case class NoType()
-
 /** Types for different run-times.
   *
   * Three types of run-modes are available:

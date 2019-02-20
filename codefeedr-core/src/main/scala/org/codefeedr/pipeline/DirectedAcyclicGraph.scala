@@ -18,6 +18,10 @@
  */
 package org.codefeedr.pipeline
 
+import java.lang.reflect.ParameterizedType
+import org.codefeedr.stages.InputStage
+import org.codefeedr.stages.OutputStage
+
 /** Links two nodes. */
 final case class Edge(from: AnyRef, to: AnyRef)
 
@@ -187,20 +191,74 @@ final class DirectedAcyclicGraph(val nodes: Vector[AnyRef] = Vector(),
     nodes.find(node => !nodes.exists(toNode => hasEdge(node, toNode)))
   }
 
-  /** Verifies graph make sure that if two stages are connected, they are type compatible.
-    * I.e. Stage[A, B] => Stage[C, D], that B == C.
+  /** Verifies the graph.
+    *
+    * 1) InputStages cannot have incoming edges.
+    * 2) OutputStages cannot have outgoing edges.
+    * 3) The input types of stage must be equal to the output types of its incoming edges.
+    *
+    * @throws InvalidPipelineException if the pipeline is invalid (invalid edges).
+    * @throws StageTypesIncompatibleException if types within the pipeline are invalid.
     */
-  def verifyGraph() = {
-    edges.foreach { e =>
-      val stageOne = e.from
-        .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
-      val stageTwo = e.from
-        .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
+  def verify() = {
+    // Get all input stages nodes.
+    val nodesInputStages = nodes.filter(x => x.isInstanceOf[InputStage[_]])
 
-      if (stageOne.getOutType != stageTwo.getInType)
-        throw new StageTypesIncompatibleException(
-          s"Output type of ${stageOne.id}: ${stageOne.getOutType} is not compatible with ${stageTwo.id}: ${stageTwo.getInType}.")
+    // Get all output stages nodes.
+    val nodesOutputStages = nodes.filter(x => x.isInstanceOf[OutputStage[_]])
+
+    // If there are InputStages which have incoming edges, something is going wrong.
+    if (nodesInputStages.exists(getParents(_).size > 0)) {
+      throw new InvalidPipelineException(
+        "Check your pipeline, there are InputStages which have incoming edges. This is not possible.")
     }
+
+    // If there are OutputStages which have outgoing edges, something is going wrong.
+    if (nodesOutputStages.exists(getChildren(_).size > 0)) {
+      throw new InvalidPipelineException(
+        "Check your pipeline, there are OutputStages which have outgoing edges. This is not possible.")
+    }
+
+    // Verify types.
+    nodes
+      .filterNot(x => x.isInstanceOf[InputStage[_]]) // We ignore input stages, they don't have incoming edges.
+      .foreach { n =>
+        // Get the name of this stage.
+        val stageName = n.getClass.getName
+
+        // Get output type of this stage.
+        val stageOutputType = n
+          .asInstanceOf[Stage[_, _]]
+          .outType
+          .toString
+
+        // Get all the input types of this stage as a set.
+        val inputTypes = n
+          .asInstanceOf[Stage[_, _]]
+          .inTypes
+          .map(_.toString)
+
+        // Get all the types of the incoming edges (which is the output type of the other stage).
+        val edgesOutputTypes =
+          getParents(n)
+            .map(_.asInstanceOf[Stage[_, _]].outType.toString)
+
+        /**
+          * The amount of inputTypes should be equal to the amount of incoming edges.
+          * This is actually also checked in the [[StageN]] class.
+          */
+        if (inputTypes.size != edgesOutputTypes.size) {
+          throw new StageTypesIncompatibleException(
+            s"The stage $stageName requires ${inputTypes.size} input types, but retrieves ${edgesOutputTypes.size} input types.")
+        }
+
+        // The set of both the input types and the 'output' types of all incoming edges should be equal.
+        if (inputTypes.toSet != edgesOutputTypes.toSet) {
+          throw new StageTypesIncompatibleException(
+            s"The stage $stageName has incompatible types, it expects [${inputTypes.mkString(
+              ", ")}] but instead got [${edgesOutputTypes.mkString(", ")}].")
+        }
+      }
 
   }
 

@@ -34,6 +34,8 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
     extends Stage[In, Out](stageId) {
 
+  this.inTypes = typeOf[In2] :: this.inTypes
+
   /** Transforms from type In to type Out.
     *
     * @param source The input source with type In.
@@ -48,7 +50,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @param graph The graph the stage is in.
     */
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
-    if (typeOf[In] == typeOf[NoType] || typeOf[In2] == typeOf[NoType]) {
+    if (typeOf[In] == typeOf[Nothing] || typeOf[In2] == typeOf[Nothing]) {
       throw new IllegalStateException(
         "Cannot use NoType on stages with multiple input sources")
     }
@@ -84,6 +86,8 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
     extends Stage2[In, In2, Out](stageId) {
 
+  this.inTypes = typeOf[In3] :: this.inTypes
+
   /** Transforms from type In and In2 to type Out.
     *
     * @param source The input source with type In.
@@ -102,7 +106,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     super.verifyGraph(graph)
 
-    if (typeOf[In3] == typeOf[NoType]) {
+    if (typeOf[In3] == typeOf[Nothing]) {
       throw new IllegalStateException(
         "Cannot use NoType on stages with multiple input sources")
     }
@@ -142,6 +146,8 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     stageId: Option[String] = None)
     extends Stage3[In, In2, In3, Out](stageId) {
 
+  this.inTypes = typeOf[In3] :: this.inTypes
+
   /** Transforms from type In, In2, In3 to type Out.
     *
     * @param source The input source with type In.
@@ -162,7 +168,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     super.verifyGraph(graph)
 
-    if (typeOf[In4] == typeOf[NoType]) {
+    if (typeOf[In4] == typeOf[Nothing]) {
       throw new IllegalStateException(
         "Cannot use NoType on stages with multiple input sources")
     }
