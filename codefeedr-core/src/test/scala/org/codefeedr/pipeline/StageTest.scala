@@ -49,7 +49,7 @@ class StageTest extends FunSuite {
   class StringTypeStage extends Stage[Nothing, StringType] {
     override def transform(
         source: DataStream[Nothing]): DataStream[StringType] = {
-      environment.fromCollection(Seq(StringType("a")))
+      getContext.env.fromCollection(Seq(StringType("a")))
     }
   }
 
@@ -86,22 +86,23 @@ class StageTest extends FunSuite {
   test("Setting id attributed propagates") {
     val a = new SimpleSourceStage(Some("testId"))
 
-    assert(a.id == "testId")
+    assert(a.getContext.stageId == "testId")
   }
 
   test("Properties should be properly propagated.") {
     val stage = new SimpleSourceStage(Some("ha"))
+    val diffStage = new SimpleSourceStage(Some("other"))
 
     val pipeline = new PipelineBuilder()
       .disablePipelineVerification()
-      .setStageProperty("ha", "a", "b")
-      .setStageProperty("no", "c", "d")
+      .setStageProperty(stage, "a", "b")
+      .setStageProperty(diffStage, "c", "d")
       .append(stage)
       .build()
 
     stage.setUp(pipeline)
 
-    assert(stage.properties.get("a").get == "b")
-    assert(stage.properties.get("c").isEmpty)
+    assert(stage.getContext.stageProperties.get("a").get == "b")
+    assert(stage.getContext.stageProperties.get("c").isEmpty)
   }
 }

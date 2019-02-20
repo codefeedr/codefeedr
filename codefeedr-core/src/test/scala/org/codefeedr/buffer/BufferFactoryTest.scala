@@ -58,7 +58,7 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
     val factory = new BufferFactory(pipeline, nodeA, nodeB)
 
     // created for nodeB sink, so should have subject of nodeB
-    val nodeSubject = nodeB.getId
+    val nodeSubject = nodeB.getContext.stageId
     val buffer = factory.create[StringType]()
 
     assert(buffer.isInstanceOf[KafkaBuffer[StringType]])

@@ -149,17 +149,17 @@ class PipelineBuilder extends Logging {
 
   /** Set a stage property.
     *
-    * @param id The id of the stage.
+    * @param id The stage to assign the property to.
     * @param key Key of the property.
     * @param value Value of the property.
     * @return This builder instance.
     */
-  def setStageProperty(id: String,
+  def setStageProperty(stage: Stage[_, _],
                        key: String,
                        value: String): PipelineBuilder = {
 
-    val properties = stageProperties.getOrElse(id, new Properties())
-    stageProperties.put(id, properties.set(key, value))
+    val properties = stageProperties.getOrElse(stage.id, new Properties())
+    stageProperties.put(stage.id, properties.set(key, value))
 
     this
   }
@@ -249,7 +249,7 @@ class PipelineBuilder extends Logging {
   def appendSource[In <: Serializable with AnyRef: ClassTag: TypeTag](
       input: StreamExecutionEnvironment => DataStream[In]): PipelineBuilder = {
     val pipelineItem = new InputStage[In] {
-      override def main(): DataStream[In] = input(this.environment)
+      override def main(context: Context): DataStream[In] = input(context.env)
     }
 
     append(pipelineItem)

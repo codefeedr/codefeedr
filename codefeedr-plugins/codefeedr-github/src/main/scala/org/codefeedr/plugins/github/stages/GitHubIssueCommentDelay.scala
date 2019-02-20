@@ -69,7 +69,6 @@ class GitHubIssueCommentDelay
     * Sets the correct event time.
     */
   def setEventTime() =
-    pipeline.environment.setStreamTimeCharacteristic(
-      TimeCharacteristic.EventTime)
+    getContext.env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
 }

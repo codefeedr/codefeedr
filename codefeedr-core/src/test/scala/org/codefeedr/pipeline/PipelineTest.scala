@@ -48,8 +48,8 @@ import scala.collection.JavaConverters._
 
 class StageOne(name: String, input: Seq[String])
     extends InputStage[StringType](Some(name)) {
-  override def main(): DataStream[StringType] = {
-    this.environment
+  override def main(context: Context): DataStream[StringType] = {
+    context.env
       .fromCollection(input.map(StringType(_)))
   }
 }

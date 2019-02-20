@@ -32,6 +32,7 @@ import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.plugin.twitter.TwitterProtocol.TweetWrapper
 import org.codefeedr.stages.InputStage
 import org.apache.flink.api.scala._
+import org.codefeedr.pipeline.Context
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
@@ -53,8 +54,8 @@ class TwitterTrendingStatusInput(consumerToken: ConsumerToken,
                                  stageId: Option[String] = None)
     extends InputStage[TweetWrapper](stageId) {
 
-  override def main(): DataStream[TweetWrapper] = {
-    environment.addSource(
+  override def main(context: Context): DataStream[TweetWrapper] = {
+    context.env.addSource(
       new TwitterTrendingStatusSource(consumerToken, accessToken, sleepTime))
   }
 }

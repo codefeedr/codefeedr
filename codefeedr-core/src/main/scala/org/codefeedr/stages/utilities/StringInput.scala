@@ -19,6 +19,7 @@
 package org.codefeedr.stages.utilities
 
 import org.apache.flink.streaming.api.scala.{DataStream, _}
+import org.codefeedr.pipeline.Context
 import org.codefeedr.stages.InputStage
 
 /** Simple String wrapper case class. */
@@ -35,10 +36,10 @@ class StringInput(str: String = "", stageId: Option[String] = None)
     *
     * @return A newly created DataStream.
     */
-  override def main(): DataStream[StringType] = {
+  override def main(context: Context): DataStream[StringType] = {
     val list = str.split("[ \n]")
 
-    pipeline.environment
+    context.env
       .fromCollection(list)
       .map(StringType(_))
   }

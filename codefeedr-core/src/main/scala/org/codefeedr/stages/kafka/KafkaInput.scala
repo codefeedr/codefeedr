@@ -24,6 +24,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
 import org.codefeedr.buffer.serialization.Serializer
+import org.codefeedr.pipeline.Context
 import org.codefeedr.stages.InputStage
 
 import scala.reflect.runtime.universe._
@@ -52,8 +53,8 @@ class KafkaInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
   private val serde = Serializer.getSerde[T](serializer)
 
   //add flink kafka consumer
-  override def main(): DataStream[T] = {
-    pipeline.environment
+  override def main(context: Context): DataStream[T] = {
+    context.env
       .addSource(new FlinkKafkaConsumer011[T](topic, serde, properties))
   }
 

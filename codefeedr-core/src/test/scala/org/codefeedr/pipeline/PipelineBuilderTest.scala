@@ -86,8 +86,8 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val pipeline = builder
       .append(stage)
       .disablePipelineVerification()
-      .setStageProperty(stage.id, "key", "value")
-      .setStageProperty(stage.id, "anotherKey", "true")
+      .setStageProperty(stage, "key", "value")
+      .setStageProperty(stage, "anotherKey", "true")
       .build()
 
     assert(pipeline.propertiesOf(stage).get("key").get == "value")
@@ -310,6 +310,6 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
       //      .setProperty("hello", "world")
       .build()
 
-    assert(a.id == "testId")
+    assert(a.getContext.stageId == "testId")
   }
 }

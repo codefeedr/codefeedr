@@ -198,17 +198,15 @@ class StringCollectSink extends SinkFunction[StringType] {
   }
 }
 
-class NumberInput() extends InputStage[StringType] {
-  val idd = UUID.randomUUID().toString
+class NumberInput()
+    extends InputStage[StringType](Some(UUID.randomUUID().toString)) {
   val numberSource = new NumberSource()
 
-  override def main(): DataStream[StringType] = {
-    pipeline.environment.addSource(numberSource)
+  override def main(
+      context: org.codefeedr.pipeline.Context): DataStream[StringType] = {
+    context.env.addSource(numberSource)
   }
 
-  override def getId: String = {
-    idd
-  }
 }
 
 class NumberSource() extends SourceFunction[StringType] {

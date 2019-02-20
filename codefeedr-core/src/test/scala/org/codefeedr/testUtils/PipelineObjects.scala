@@ -42,8 +42,8 @@ final case class CodeHitException() extends RuntimeException
 //a simple test source which generates some StringType messages
 class SimpleSourceStage(stageId: Option[String] = None)
     extends InputStage[StringType](stageId) {
-  override def main(): DataStream[StringType] = {
-    pipeline.environment.addSource {
+  override def main(context: Context): DataStream[StringType] = {
+    context.env.addSource {
       new RichSourceFunction[StringType] {
         override def run(
             ctx: SourceFunction.SourceContext[StringType]): Unit = {
@@ -96,7 +96,7 @@ class HitObjectTest extends Stage[Nothing, Nothing] {
 class FlinkCrashObjectTest extends Stage[Nothing, StringType] {
   override def transform(
       source: DataStream[Nothing]): DataStream[StringType] = {
-    pipeline.environment
+    getContext.env
       .fromCollection[String](Seq("a", "b"))
       .map { a =>
         throw CodeHitException()

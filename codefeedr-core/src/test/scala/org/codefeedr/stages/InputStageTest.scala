@@ -19,7 +19,7 @@
 package org.codefeedr.stages
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.pipeline.PipelineBuilder
+import org.codefeedr.pipeline.{Context, PipelineBuilder}
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.testUtils.CodeHitException
 import org.scalatest.FunSuite
@@ -27,7 +27,7 @@ import org.scalatest.FunSuite
 class InputStageTest extends FunSuite {
 
   class MyInputStage extends InputStage[StringType] {
-    override def main(): DataStream[StringType] = {
+    override def main(context: Context): DataStream[StringType] = {
       throw CodeHitException()
     }
   }
