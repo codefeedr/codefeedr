@@ -102,7 +102,7 @@ class StageTest extends FunSuite {
 
     stage.setUp(pipeline)
 
-    assert(stage.properties.get("a").get == "b")
-    assert(stage.properties.get("c").isEmpty)
+    assert(stage.getContext.stageProperties.get("a").get == "b")
+    assert(stage.getContext.stageProperties.get("c").isEmpty)
   }
 }

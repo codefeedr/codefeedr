@@ -73,7 +73,7 @@ protected[codefeedr] abstract class Stage[
     *
     * @return The properties of this stage.
     */
-  def properties: Properties =
+  private def properties: Properties =
     if (pipeline != null) pipeline.propertiesOf(this) else null
 
   /** Setups the pipeline object with a pipeline.
