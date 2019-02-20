@@ -17,6 +17,8 @@
  */
 package org.codefeedr.pipeline
 
+import java.util
+
 import com.github.sebruck.EmbeddedRedis
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.streaming.api.scala.{
@@ -27,11 +29,13 @@ import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.buffer.serialization.schema_exposure.{
   RedisSchemaExposer,
   ZookeeperSchemaExposer
 }
+import org.codefeedr.stages.{InputStage, OutputStage2}
 import org.codefeedr.stages.utilities.{
   JsonPrinterOutput,
   StringInput,
@@ -41,6 +45,42 @@ import org.codefeedr.testUtils._
 import redis.embedded.RedisServer
 
 import scala.collection.JavaConverters._
+
+class StageOne(name: String, input: Seq[String])
+    extends InputStage[StringType](Some(name)) {
+  override def main(): DataStream[StringType] = {
+    this.environment
+      .fromCollection(input.map(StringType(_)))
+  }
+}
+
+class StageTwo(elementsExpected: Int)
+    extends OutputStage2[StringType, StringType] {
+  override def main(source: DataStream[StringType],
+                    secondSource: DataStream[StringType]): Unit = {
+    source.addSink(new StringTypeSink(elementsExpected))
+  }
+}
+
+object StringTypeSink {
+  val result = new util.ArrayList[StringType]() //mutable list
+}
+
+class StringTypeSink(elementsExpected: Int) extends SinkFunction[StringType] {
+
+  var amount = elementsExpected
+
+  override def invoke(value: StringType): Unit = {
+    synchronized {
+      StringTypeSink.result.add(value)
+
+      amount = amount - 1
+
+      if (amount <= 0) throw new JobFinishedException()
+    }
+  }
+
+}
 
 class PipelineTest
     extends FunSuite
@@ -323,5 +363,25 @@ class PipelineTest
     assertThrows[PipelineListException] {
       pipeline.start(Array("--list", "--asException"))
     }
+  }
+
+  test("Order of pipeline is based on addition order of edges.") {
+    val stageOne = new StageOne("firstStage", Seq("a", "b", "c"))
+    val stageTwo = new StageOne("secondStage", Seq("d", "e"))
+    val finalStage = new StageTwo(3)
+
+    val pipeline = builder
+      .edge(stageOne, finalStage)
+      .edge(stageTwo, finalStage)
+      .build()
+
+    assertThrows[JobExecutionException] {
+      pipeline.startLocal()
+    }
+
+    assert(StringTypeSink.result.size == 3)
+    assert(
+      StringTypeSink.result.asScala.map(_.value).toSet == Set("a", "b", "c"))
+
   }
 }
