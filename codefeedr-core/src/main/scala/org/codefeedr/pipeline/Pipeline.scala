@@ -52,7 +52,7 @@ case class Pipeline(var name: String,
                     objectProperties: Map[String, Properties]) {
 
   /** The mutable StreamExecutionEnvironment. */
-  var _environment: StreamExecutionEnvironment = _
+  var _environment: StreamExecutionEnvironment = null
 
   /** Immutable StreamExecutionEnvironment.
     *

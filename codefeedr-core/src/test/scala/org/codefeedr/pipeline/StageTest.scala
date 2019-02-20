@@ -89,20 +89,19 @@ class StageTest extends FunSuite {
     assert(a.id == "testId")
   }
 
-  /**
-  test("Compatible types should not throw an exception") {
-    val stringStage = new StringTypeStage
-    val intStage = new IntTypeStage
+  test("Properties should be properly propagated.") {
+    val stage = new SimpleSourceStage(Some("ha"))
 
-    val dag = new DirectedAcyclicGraph()
-      .addNode(stringStage)
-      .addNode(intStage)
-      .addEdge(stringStage, intStage)
+    val pipeline = new PipelineBuilder()
+      .disablePipelineVerification()
+      .setStageProperty("ha", "a", "b")
+      .setStageProperty("no", "c", "d")
+      .append(stage)
+      .build()
 
-    assertThrows[StageTypesIncompatibleException] {
-      stringStage.verifyGraph(dag)
-    }
+    stage.setUp(pipeline)
+
+    assert(stage.properties.get("a").get == "b")
+    assert(stage.properties.get("c").isEmpty)
   }
-
-    **/
 }
