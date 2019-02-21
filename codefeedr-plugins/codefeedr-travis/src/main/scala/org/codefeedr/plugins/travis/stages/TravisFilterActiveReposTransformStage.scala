@@ -31,7 +31,8 @@ import org.codefeedr.stages.TransformStage
 class TravisFilterActiveReposTransformStage()
     extends TransformStage[PushEvent, PushEventFromActiveTravisRepo] {
 
-  lazy val travisService: TravisService = new TravisService(pipeline.keyManager)
+  lazy val travisService: TravisService = new TravisService(
+    getContext.pipeline.keyManager)
   def travis: TravisService = travisService
 
   override def transform(source: DataStream[PushEvent])

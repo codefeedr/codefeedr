@@ -23,7 +23,7 @@ import java.util.Properties
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
 import org.codefeedr.buffer.serialization.Serializer
-import org.codefeedr.stages.{OutputStage, StageAttributes}
+import org.codefeedr.stages.OutputStage
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -33,15 +33,14 @@ import scala.reflect.runtime.universe._
   * @param topic The topic to send to.
   * @param properties Kafka properties, see https://kafka.apache.org/documentation/#consumerconfigs
   * @param serializer The serializer to use for serialization of the data, see [[Serializer]].
-  * @param stageAttributes Attributes of this stage.
   * @tparam T Type of data in Kafka.
   */
 class KafkaOutput[T <: Serializable with AnyRef: ClassTag: TypeTag](
     topic: String,
     properties: Properties,
     serializer: String = Serializer.JSON,
-    stageAttributes: StageAttributes = StageAttributes())
-    extends OutputStage[T] {
+    stageId: Option[String] = None)
+    extends OutputStage[T](stageId) {
 
   //get correct serde, will fallback to JSON
   private val serde = Serializer.getSerde[T](serializer)

@@ -32,7 +32,7 @@ import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig}
 import org.codefeedr.pipeline.PipelineBuilder
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.stages.{InputStage, OutputStage, StageAttributes}
+import org.codefeedr.stages.{InputStage, OutputStage}
 import org.codefeedr.testUtils.{JobFinishedException, SimpleSourceStage}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 import redis.embedded.RedisServer
@@ -82,7 +82,6 @@ class KafkaBufferTest
       .build()
     kafkaBuffer = new KafkaBuffer[StringType](pipeline,
                                               pipeline.bufferProperties,
-                                              StageAttributes(),
                                               "test-subject",
                                               null)
 
@@ -115,7 +114,7 @@ class KafkaBufferTest
 
   test("Stage should read from kafka where it left off") {
     val id = UUID.randomUUID().toString
-    val numberOutput = new NumberOutput(StageAttributes(Some(id)))
+    val numberOutput = new NumberOutput(Some("testId"))
     val numberInput = new NumberInput()
 
     val pipeline = new PipelineBuilder()
@@ -144,7 +143,7 @@ class KafkaBufferTest
     val emptyProperties = new org.codefeedr.Properties()
 
     val kafkaBuffer =
-      new KafkaBuffer[StringType](null, emptyProperties, null, null, "test")
+      new KafkaBuffer[StringType](null, emptyProperties, null, "test")
     val correctDefaultProperties = new java.util.Properties()
     correctDefaultProperties.put("bootstrap.servers", "localhost:9092")
     correctDefaultProperties.put("zookeeper.connect", "localhost:2181")
@@ -161,7 +160,7 @@ class KafkaBufferTest
       .set("some.other.property", "some-value")
 
     val kafkaBuffer2 =
-      new KafkaBuffer[StringType](null, properties, null, null, "test")
+      new KafkaBuffer[StringType](null, properties, null, "test")
     val correctProperties = new java.util.Properties()
     correctProperties.put("bootstrap.servers", "nonlocalhost:9092")
     correctProperties.put("zookeeper.connect", "nonlocalhost:2181")
@@ -199,17 +198,15 @@ class StringCollectSink extends SinkFunction[StringType] {
   }
 }
 
-class NumberInput() extends InputStage[StringType] {
-  val idd = UUID.randomUUID().toString
+class NumberInput()
+    extends InputStage[StringType](Some(UUID.randomUUID().toString)) {
   val numberSource = new NumberSource()
 
-  override def main(): DataStream[StringType] = {
-    pipeline.environment.addSource(numberSource)
+  override def main(
+      context: org.codefeedr.pipeline.Context): DataStream[StringType] = {
+    context.env.addSource(numberSource)
   }
 
-  override def getSinkSubject: String = {
-    idd
-  }
 }
 
 class NumberSource() extends SourceFunction[StringType] {
@@ -229,8 +226,8 @@ class NumberSource() extends SourceFunction[StringType] {
   override def cancel(): Unit = {}
 }
 
-class NumberOutput(stageAttributes: StageAttributes)
-    extends OutputStage[StringType](stageAttributes) {
+class NumberOutput(stageId: Option[String] = None)
+    extends OutputStage[StringType](stageId) {
   override def main(source: DataStream[StringType]): Unit =
     source.addSink(new StringCollectSink)
 }

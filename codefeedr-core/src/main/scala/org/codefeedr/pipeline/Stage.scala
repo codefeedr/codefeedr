@@ -19,44 +19,62 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
-import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.streaming.api.scala.{
+  DataStream,
+  StreamExecutionEnvironment
+}
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferFactory
-import org.codefeedr.stages.StageAttributes
 
 import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
+
+/** The context of this stage.
+  *
+  * @param env The execution environment it is running in.
+  * @param stageId the name of this stage.
+  * @param stageProperties the properties of this stage.
+  * @param pipeline the pipeline this stage belongs to.
+  */
+case class Context(env: StreamExecutionEnvironment = null,
+                   stageId: String,
+                   stageProperties: Properties = null,
+                   pipeline: Pipeline = null)
 
 /** This class represents a stage within a pipeline. I.e. a node in the graph.
   *
   * @tparam In  Input type for this stage.
   * @tparam Out Output type for this stage.
   */
-abstract class Stage[In <: Serializable with AnyRef: ClassTag: TypeTag,
-Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    val attributes: StageAttributes = StageAttributes()) {
+protected[codefeedr] abstract class Stage[
+    In <: Serializable with AnyRef: ClassTag: TypeTag,
+    Out <: Serializable with AnyRef: ClassTag: TypeTag](
+    val stageId: Option[String] = None) {
+
+  /** Keep track of all incoming types. **/
+  var inTypes: List[Type] = typeOf[In] :: Nil
+
+  /** Keep track of the outgoing type. **/
+  val outType: Type = typeOf[Out]
 
   /** The pipeline this stage belongs to. */
-  var pipeline: Pipeline = _
+  private var pipeline: Pipeline = null
 
-  /** Get the StreamExecutionEnvironment. */
-  def environment = pipeline.environment
+  /** Get the StreamExecutionEnvironment if the pipeline already exists. */
+  private def environment = if (pipeline != null) pipeline.environment else null
+
+  /** Get the Context of this stage. */
+  def getContext: Context = Context(environment, id, properties, pipeline)
 
   /** Get the id of this stage */
-  def id: String = attributes.id.getOrElse(getClass.getName)
+  protected[codefeedr] val id: String = stageId.getOrElse(getClass.getName)
 
-  /** Get the type of IN */
-  def getInType = classTag[In].runtimeClass.asInstanceOf[Class[In]]
-
-  /** Get the type of OUT */
-  def getOutType = classTag[Out].runtimeClass.asInstanceOf[Class[Out]]
-
-  /** Get the properties of this stage.
+  /** Get the properties of this stage if the pipeline already exists.
     *
     * @return The properties of this stage.
     */
-  def properties: Properties =
-    pipeline.propertiesOf(this)
+  private def properties: Properties =
+    if (pipeline != null) pipeline.propertiesOf(this) else null
 
   /** Setups the pipeline object with a pipeline.
     *
@@ -95,7 +113,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @return True if this stage has a Buffer source.
     */
   def hasMainSource: Boolean =
-    typeOf[In] != typeOf[NoType] && pipeline.graph
+    typeOf[In] != typeOf[Nothing] && pipeline.graph
       .getFirstParent(this)
       .isDefined
 
@@ -103,7 +121,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     *
     * @return True if this stage has a Buffer sink.
     */
-  def hasSink: Boolean = typeOf[Out] != typeOf[NoType]
+  def hasSink: Boolean = typeOf[Out] != typeOf[Nothing]
 
   /** Returns the (main)buffer source of this stage.
     * The main source is the first parent of this stage. Other sources need to be joined in the Flink job.
@@ -146,13 +164,6 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
 
     buffer.getSink
   }
-
-  /** Get the sink subject used by the buffer.
-    * This is also used for child objects to read from the buffer again.
-    *
-    * @return Sink subject which is basically the stage id.
-    */
-  def getSinkSubject: String = this.id
 
   /** Returns the buffer source of this stage.
     *

@@ -23,11 +23,12 @@ import org.apache.flink.streaming.api.scala.{
   StreamExecutionEnvironment
 }
 import org.codefeedr.keymanager.StaticKeyManager
-import org.codefeedr.buffer.BufferType
+import org.codefeedr.buffer.{Buffer, BufferType}
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.TimeCharacteristic
+import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.stages.utilities.StringType
-import org.codefeedr.stages.{OutputStage, StageAttributes}
+import org.codefeedr.stages.OutputStage
 import org.codefeedr.testUtils.{
   SimpleSinkStage,
   SimpleSourceStage,
@@ -58,6 +59,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   test("Every pipeline object should appear in the pipeline (1)") {
     val pipeline = builder
       .append(new SimpleSourceStage())
+      .disablePipelineVerification()
       .build()
 
     assert(pipeline.graph.nodes.size == 1)
@@ -83,8 +85,9 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     val pipeline = builder
       .append(stage)
-      .setStageProperty(stage.id, "key", "value")
-      .setStageProperty(stage.id, "anotherKey", "true")
+      .disablePipelineVerification()
+      .setStageProperty(stage, "key", "value")
+      .setStageProperty(stage, "anotherKey", "true")
       .build()
 
     assert(pipeline.propertiesOf(stage).get("key").get == "value")
@@ -224,7 +227,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     assert(pipeline.graph.nodes.size == 2)
 
-    pipeline.graph.nodes.head shouldBe an[Stage[NoType, StringType]]
+    pipeline.graph.nodes.head shouldBe an[Stage[Nothing, StringType]]
     pipeline.graph.nodes.last shouldBe an[Stage[StringType, StringType]]
   }
 
@@ -262,6 +265,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val c = new SimpleTransformStage()
 
     val pipeline = builder
+      .disablePipelineVerification()
       .addParents(c, a :+ b)
       .build()
 
@@ -275,6 +279,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     val c = new SimpleTransformStage()
 
     val pipeline = builder
+      .disablePipelineVerification()
       .addParents(c, a :+ b)
       .addParents(c, a)
       .build()
@@ -284,8 +289,17 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assert(pipeline.graph.getParents(c).size == 2)
   }
 
+  test("Set the serializer directly") {
+    val pipeline = builder
+      .append(new SimpleSourceStage())
+      .setSerializer(Serializer.JSON)
+      .build()
+
+    assert(pipeline.bufferProperties.get(Buffer.SERIALIZER).get == "JSON")
+  }
+
   test("Next level") {
-    val a = new SimpleSourceStage(StageAttributes(id = Some("testId")))
+    val a = new SimpleSourceStage(Some("testId"))
     val b = new SimpleTransformStage()
 
     val pipeline = builder
@@ -296,6 +310,6 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
       //      .setProperty("hello", "world")
       .build()
 
-    assert(a.id == "testId")
+    assert(a.getContext.stageId == "testId")
   }
 }

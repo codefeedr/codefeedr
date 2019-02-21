@@ -25,8 +25,10 @@ import org.apache.flink.streaming.api.scala.{
 }
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.Properties
-import org.codefeedr.buffer.BufferType
+import org.codefeedr.buffer.{Buffer, BufferType}
 import org.codefeedr.buffer.BufferType.BufferType
+import org.codefeedr.buffer.serialization.Serializer
+import org.codefeedr.buffer.serialization.Serializer.SerializerType
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.PipelineType.PipelineType
 import org.codefeedr.stages.{InputStage, OutputStage}
@@ -61,6 +63,9 @@ class PipelineBuilder extends Logging {
 
   /** Key manager */
   protected var keyManager: KeyManager = _
+
+  /** Pipeline verification toggle, defaults to true **/
+  protected var pipelineVerificationToggle: Boolean = true
 
   /** The StreamTimeCharacteristic. Default: [[TimeCharacteristic.EventTime]]*/
   protected var streamTimeCharacteristic: TimeCharacteristic =
@@ -98,6 +103,17 @@ class PipelineBuilder extends Logging {
     */
   def getPipelineType: PipelineType = pipelineType
 
+  /** Disables the pipeline verification.
+    * This is not recommended, it allows for nasty pipelines.
+    *
+    * @return The builder instance.
+    */
+  def disablePipelineVerification(): PipelineBuilder = {
+    this.pipelineVerificationToggle = false
+
+    this
+  }
+
   /** Set the type of the pipeline.
     *
     * @param pipelineType Type of the pipeline.
@@ -133,17 +149,17 @@ class PipelineBuilder extends Logging {
 
   /** Set a stage property.
     *
-    * @param id The id of the stage.
+    * @param id The stage to assign the property to.
     * @param key Key of the property.
     * @param value Value of the property.
     * @return This builder instance.
     */
-  def setStageProperty(id: String,
+  def setStageProperty(stage: Stage[_, _],
                        key: String,
                        value: String): PipelineBuilder = {
 
-    val properties = stageProperties.getOrElse(id, new Properties())
-    stageProperties.put(id, properties.set(key, value))
+    val properties = stageProperties.getOrElse(stage.id, new Properties())
+    stageProperties.put(stage.id, properties.set(key, value))
 
     this
   }
@@ -178,6 +194,17 @@ class PipelineBuilder extends Logging {
     */
   def setStreamTimeCharacteristic(timeCharacteristic: TimeCharacteristic) = {
     this.streamTimeCharacteristic = timeCharacteristic
+
+    this
+  }
+
+  /** Sets the serializer type for the buffer.
+    *
+    * @param serializer The serializer type (which is basically a string).
+    * @return This builder instance.
+    */
+  def setSerializer(serializer: SerializerType) = {
+    this.setBufferProperty(Buffer.SERIALIZER, serializer)
 
     this
   }
@@ -222,7 +249,7 @@ class PipelineBuilder extends Logging {
   def appendSource[In <: Serializable with AnyRef: ClassTag: TypeTag](
       input: StreamExecutionEnvironment => DataStream[In]): PipelineBuilder = {
     val pipelineItem = new InputStage[In] {
-      override def main(): DataStream[In] = input(this.environment)
+      override def main(context: Context): DataStream[In] = input(context.env)
     }
 
     append(pipelineItem)
@@ -372,12 +399,20 @@ class PipelineBuilder extends Logging {
   def build(): Pipeline = {
     if (graph.isEmpty) throw EmptyPipelineException()
 
-    // Correctly map and verify graph.
+    // Correctly map and verify graph for every node.
     graph.nodes
       .foreach(
         _.asInstanceOf[Stage[Serializable with AnyRef,
                              Serializable with AnyRef]]
           .verifyGraph(graph))
+
+    // This will verify the graph in terms of types.
+    if (pipelineVerificationToggle) {
+      graph.verify()
+    } else {
+      logger.warn(
+        "Pipeline verification has been disabled manually. No type guarantee between stages can be given. Consider enabling it again.")
+    }
 
     logger.info(
       s"Created pipeline with ${graph.nodes.size} nodes and ${graph.edges.size} edges.")

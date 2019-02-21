@@ -20,8 +20,9 @@ package org.codefeedr.plugins.mongodb.stages
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.pipeline.Context
 import org.codefeedr.plugins.mongodb.{BaseMongoSource, MongoQuery}
-import org.codefeedr.stages.{InputStage, StageAttributes}
+import org.codefeedr.stages.InputStage
 
 import scala.reflect.{ClassTag, Manifest}
 
@@ -42,16 +43,16 @@ class MongoInput[
     collection: String,
     server: String = "mongodb://localhost:27017",
     query: MongoQuery = MongoQuery.empty,
-    stageAttributes: StageAttributes = StageAttributes())
-    extends InputStage[T](stageAttributes) {
+    stageId: Option[String] = None)
+    extends InputStage[T](stageId) {
 
-  override def main(): DataStream[T] = {
+  override def main(context: Context): DataStream[T] = {
     val config = Map("database" -> database,
                      "collection" -> collection,
                      "server" -> server)
 
     val bsonDocument = query.underlyingDocument
 
-    pipeline.environment.addSource(new BaseMongoSource[T](config, bsonDocument))
+    context.env.addSource(new BaseMongoSource[T](config, bsonDocument))
   }
 }

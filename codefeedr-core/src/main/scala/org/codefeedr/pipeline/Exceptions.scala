@@ -46,6 +46,12 @@ final case class StageTypesIncompatibleException(
     private val cause: Throwable = None.orNull)
     extends Exception(message, cause)
 
+/** Thrown when a pipeline is built which is invalid. **/
+final case class InvalidPipelineException(private val message: String = "",
+                                          private val cause: Throwable =
+                                            None.orNull)
+    extends Exception(message, cause)
+
 /** Thrown to list all stages in a pipelines. It's not really an exception, but necessary since Flink has no graceful shutdown.  */
 final case class PipelineListException(private val json: String)
     extends Exception(json, null)
