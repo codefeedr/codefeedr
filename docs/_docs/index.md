@@ -31,6 +31,7 @@ permalink: /docs/my-page/
 Hello World!
 ```
 
+
 **2.** Add the pagename to `_data/docs.yml` file in order to list in docs navigation panel:
 
 ```
