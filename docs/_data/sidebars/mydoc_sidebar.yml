@@ -43,6 +43,9 @@ entries:
     output: web, pdf
 
     folderitems:
+      - title: Overview
+        url: /mydoc_plugin_overview.html
+        output: web, pdf
 
   - title: Internals
     output: web, pdf
