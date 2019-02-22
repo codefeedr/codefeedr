@@ -12,7 +12,7 @@ Status](https://coveralls.io/repos/github/codefeedr/codefeedr/badge.svg?branch=d
 [![University](https://img.shields.io/badge/university-tudelft-blue.svg)](http://swerl.tudelft.nl/bin/view/Main/WebHome)
 
 A framework for easily building Flink streaming programs. Documentation
-can be found [here](https://codefeedr.readthedocs.io).
+can be found [here](https://codefeedr.org/codefeedr).
 ## Contributors
 Main contributors:
 - [Wouter

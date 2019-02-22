@@ -1,0 +1,113 @@
+# This is your sidebar TOC. The sidebar code loops through sections here and provides the appropriate formatting.
+
+entries:
+- title: sidebar
+  product: CodeFeedr
+  version: 0.1
+  folders:
+
+  - title:
+    output: pdf
+    type: frontmatter
+    folderitems:
+    - title:
+      url: /titlepage.html
+      output: pdf
+      type: frontmatter
+    - title:
+      url: /tocpage.html
+      output: pdf
+      type: frontmatter
+
+  - title: Overview
+    output: web, pdf
+    folderitems:
+
+    - title: What is CodeFeedr?
+      url: /index.html
+      output: web, pdf
+      type: homepage
+
+    - title: Architecture
+      url: /mydoc_architecture.html
+      output: web, pdf
+
+    - title: Frequently Asked Questions
+      url: /mydoc_codefeedr_faq.html
+      output: web, pdf
+
+#    - title: Git collaboration
+#      url: /mydoc_git_collaboration
+#      output: web, pdf
+  - title: Plugins
+    output: web, pdf
+
+    folderitems:
+      - title: Overview
+        url: /mydoc_plugin_overview.html
+        output: web, pdf
+      - title: ElasticSearch
+        url: /mydoc_elastic_search.html
+        output: web, pdf
+      - title: GitHub
+        url: /mydoc_github.html
+        output: web, pdf
+      - title: MongoDB
+        url: /mydoc_mongo.html
+        output: web, pdf
+      - title: RSS
+        url: /mydoc_rss.html
+        output: web, pdf
+      - title: TravisCI
+        url: /mydoc_travis.html
+        output: web, pdf
+      - title: Twitter
+        url: /mydoc_twitter.html
+        output: web, pdf
+      - title: Weblogs
+        url: /mydoc_weblogs.html
+        output: web, pdf
+
+  - title: Internals
+    output: web, pdf
+
+    folderitems:
+    - title: Pipeline
+      url: /mydoc_pipeline.html
+      output: web, pdf
+    - title: Buffers
+      url: /mydoc_buffer.html
+      output: web, pdf
+
+      subfolders:
+        - title: Key Management
+          output: web
+          subfolderitems:
+          - title: Keymanager
+            url: /mydoc_keymanager.html
+            output: web
+          - title: Redis
+            url: /mydoc_redis_keymanager.html
+            output: web
+
+  - title: Orchestration
+    output: web, pdf
+
+    folderitems:
+    - title: Docker
+      url: /mydoc_docker.html
+      output: web, pdf
+    - title: Cluster Tool
+      url: /mydoc_cluster.html
+      output: web, pdf
+
+
+  - title: Contribute
+    output: web, pdf
+    folderitems:
+    - title: Write your own plugin!
+      url: /mydoc_write_your_own_plugin.html
+      output: web, pdf
+    - title: Contribute to CodeFeedr
+      url: /mydoc_contribute.html
+      output: web, pdf
