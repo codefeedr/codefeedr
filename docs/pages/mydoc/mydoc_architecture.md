@@ -14,6 +14,7 @@ Using the output of one job as input for another job is not natively supported. 
 
 
 ## Pipeline
+The main functionality of CodeFeedr is pipelining Flink jobs. Data flow from one job to another is coordinated by a buffer (default this buffer is [Apache Kafka](https://kafka.apache.org)).
 
 ### Stage
 

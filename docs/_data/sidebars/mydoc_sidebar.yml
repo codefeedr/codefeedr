@@ -53,6 +53,13 @@ entries:
     output: web, pdf
 
     folderitems:
+    - title: Docker
+      url: /mydoc_docker.html
+      output: web, pdf
+    - title: Cluster Tool
+      url: /mydoc_cluster.html
+      output: web, pdf
+
 
   - title: Contribute
     output: web, pdf
