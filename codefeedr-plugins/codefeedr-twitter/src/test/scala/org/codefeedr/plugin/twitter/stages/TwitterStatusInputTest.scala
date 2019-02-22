@@ -48,6 +48,7 @@ import org.mockito.Mockito._
 import org.mockito.Matchers._
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.codefeedr.pipeline.Context
 import org.mockito.exceptions.verification.NoInteractionsWanted
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -133,14 +134,15 @@ class TwitterStatusInputTest extends FunSuite with MockitoSugar {
 
   test("A source needs to be properly added to the environment") {
     val env = mock[StreamExecutionEnvironment]
+    val context = Context(env, "", null, null)
     val stage = spy(new TwitterStatusInput(consumerToken, accessToken))
 
-    doReturn(env)
+    doReturn(context)
       .when(stage)
-      .environment
+      .getContext
 
     stage
-      .main()
+      .main(context)
 
     //for some reason this doesn't work, gives exception: 2 matches expected, 1 recorded
     // verify(env, times(1)).addSource(any[SourceFunction[TweetWrapper]])

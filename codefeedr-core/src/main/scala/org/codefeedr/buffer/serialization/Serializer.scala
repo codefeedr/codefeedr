@@ -23,7 +23,9 @@ import scala.reflect._
 import scala.reflect.runtime.universe._
 
 /** Keeps track of all types of SerDes and creates instances. */
-object Serializer {
+object Serializer extends Enumeration {
+
+  type SerializerType = String
 
   /** JSON serde support.
     * See: http://json4s.org/

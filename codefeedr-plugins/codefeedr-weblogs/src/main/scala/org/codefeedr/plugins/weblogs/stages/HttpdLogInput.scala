@@ -19,24 +19,25 @@
 package org.codefeedr.plugins.weblogs.stages
 
 import java.text.SimpleDateFormat
+
 import org.apache.flink.api.common.functions.FlatMapFunction
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.util.Collector
+import org.codefeedr.pipeline.Context
 import org.codefeedr.plugins.weblogs.HttpdLogItem
-import org.codefeedr.stages.{InputStage, StageAttributes}
+import org.codefeedr.stages.InputStage
 
 /**
   * Source that streams Apache log files
   *
   * @param absolutePath Absolute file path to the log
   */
-class HttpdLogInput(absolutePath: String,
-                    stageAttributes: StageAttributes = StageAttributes())
-    extends InputStage[HttpdLogItem](stageAttributes)
+class HttpdLogInput(absolutePath: String, stageId: Option[String] = None)
+    extends InputStage[HttpdLogItem](stageId)
     with Serializable {
 
-  override def main(): DataStream[HttpdLogItem] = {
-    pipeline.environment
+  override def main(context: Context): DataStream[HttpdLogItem] = {
+    context.env
       .readTextFile(absolutePath)
       .setParallelism(1)
       .flatMap(_.split('\n'))

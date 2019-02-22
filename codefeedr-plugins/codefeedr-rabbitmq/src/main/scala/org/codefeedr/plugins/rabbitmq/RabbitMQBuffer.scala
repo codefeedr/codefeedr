@@ -44,8 +44,9 @@ object RabbitMQBuffer {
   */
 class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     pipeline: Pipeline,
-    properties: org.codefeedr.Properties)
-    extends Buffer[T](pipeline, properties) {
+    properties: org.codefeedr.Properties,
+    relatedStageName: String)
+    extends Buffer[T](pipeline, properties, relatedStageName) {
 
   /** Default settings for this RabbitMQ buffer. */
   private object RabbitMQBufferDefaults {
@@ -59,7 +60,8 @@ class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
   override def getSource: DataStream[T] = {
     val connectionConfig = createConfig()
 
-    val queueName = properties.getOrElse[String]("queueName", "default_queue")
+    // We use the related stage name for the queue.
+    val queueName = relatedStageName
 
     // Create a source with correlation id usage enabled for exactly once guarantees.
     val source =
@@ -76,7 +78,9 @@ class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     */
   override def getSink: SinkFunction[T] = {
     val connectionConfig = createConfig()
-    val queueName = properties.getOrElse[String]("queueName", "default_queue")
+
+    // We use the related stage name for the queue.
+    val queueName = relatedStageName
 
     new RMQSinkDurable[T](connectionConfig, queueName, getSerializer)
   }

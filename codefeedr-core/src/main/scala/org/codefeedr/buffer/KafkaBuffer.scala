@@ -36,7 +36,6 @@ import org.codefeedr.buffer.serialization.schema_exposure.{
   ZookeeperSchemaExposer
 }
 import org.codefeedr.pipeline.Pipeline
-import org.codefeedr.stages.StageAttributes
 
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
@@ -60,7 +59,6 @@ object KafkaBuffer {
   *
   * @param pipeline The pipeline for which we use this Buffer.
   * @param properties The properties of this Buffer.
-  * @param stageAttributes The attributes of this stage.
   * @param topic The topic to write to, which is basically the subject.
   * @param groupId The group id, to specify the consumer group in Kafka.
   * @tparam T Type of the data in this Buffer.
@@ -68,10 +66,9 @@ object KafkaBuffer {
 class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     pipeline: Pipeline,
     properties: org.codefeedr.Properties,
-    stageAttributes: StageAttributes,
     topic: String,
     groupId: String)
-    extends Buffer[T](pipeline, properties)
+    extends Buffer[T](pipeline, properties, topic)
     with Logging {
 
   /** Default settings for the Kafka buffer. */

@@ -18,7 +18,6 @@
 package org.codefeedr.pipeline
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.codefeedr.stages.StageAttributes
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -32,8 +31,10 @@ import scala.reflect.runtime.universe._
 abstract class Stage2[In <: Serializable with AnyRef: ClassTag: TypeTag,
 In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage[In, Out](attributes) {
+    stageId: Option[String] = None)
+    extends Stage[In, Out](stageId) {
+
+  this.inTypes = typeOf[In2] :: this.inTypes
 
   /** Transforms from type In to type Out.
     *
@@ -49,7 +50,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
     * @param graph The graph the stage is in.
     */
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
-    if (typeOf[In] == typeOf[NoType] || typeOf[In2] == typeOf[NoType]) {
+    if (typeOf[In] == typeOf[Nothing] || typeOf[In2] == typeOf[Nothing]) {
       throw new IllegalStateException(
         "Cannot use NoType on stages with multiple input sources")
     }
@@ -82,8 +83,10 @@ abstract class Stage3[In <: Serializable with AnyRef: ClassTag: TypeTag,
 In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 In3 <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage2[In, In2, Out](attributes) {
+    stageId: Option[String] = None)
+    extends Stage2[In, In2, Out](stageId) {
+
+  this.inTypes = typeOf[In3] :: this.inTypes
 
   /** Transforms from type In and In2 to type Out.
     *
@@ -103,7 +106,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     super.verifyGraph(graph)
 
-    if (typeOf[In3] == typeOf[NoType]) {
+    if (typeOf[In3] == typeOf[Nothing]) {
       throw new IllegalStateException(
         "Cannot use NoType on stages with multiple input sources")
     }
@@ -140,8 +143,10 @@ In2 <: Serializable with AnyRef: ClassTag: TypeTag,
 In3 <: Serializable with AnyRef: ClassTag: TypeTag,
 In4 <: Serializable with AnyRef: ClassTag: TypeTag,
 Out <: Serializable with AnyRef: ClassTag: TypeTag](
-    attributes: StageAttributes = StageAttributes())
-    extends Stage3[In, In2, In3, Out](attributes) {
+    stageId: Option[String] = None)
+    extends Stage3[In, In2, In3, Out](stageId) {
+
+  this.inTypes = typeOf[In3] :: this.inTypes
 
   /** Transforms from type In, In2, In3 to type Out.
     *
@@ -163,7 +168,7 @@ Out <: Serializable with AnyRef: ClassTag: TypeTag](
   override def verifyGraph(graph: DirectedAcyclicGraph): Unit = {
     super.verifyGraph(graph)
 
-    if (typeOf[In4] == typeOf[NoType]) {
+    if (typeOf[In4] == typeOf[Nothing]) {
       throw new IllegalStateException(
         "Cannot use NoType on stages with multiple input sources")
     }

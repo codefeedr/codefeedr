@@ -20,6 +20,7 @@ package org.codefeedr.plugins.github.stages
 
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.pipeline.Context
 import org.codefeedr.plugins.github.GitHubProtocol.Event
 import org.codefeedr.plugins.github.events.EventSource
 import org.codefeedr.stages.InputStage
@@ -41,12 +42,12 @@ class GitHubEventsInput(numOfPolls: Int = -1,
   /**
     * Add (GitHub) EventSource.
     */
-  override def main(): DataStream[Event] = {
-    pipeline.environment
+  override def main(context: Context): DataStream[Event] = {
+    context.env
       .addSource(
         new EventSource(numOfPolls,
                         waitTime,
-                        pipeline.keyManager,
+                        context.pipeline.keyManager,
                         duplicateFilter,
                         duplicateCheckSize))
   }
