@@ -72,6 +72,23 @@ entries:
     output: web, pdf
 
     folderitems:
+    - title: Pipeline
+      url: /mydoc_pipeline.html
+      output: web, pdf
+    - title: Buffers
+      url: /mydoc_buffer.html
+      output: web, pdf
+
+      subfolders:
+        - title: Key Management
+          output: web
+          subfolderitems:
+          - title: Keymanager
+            url: /mydoc_keymanager.html
+            output: web
+          - title: Redis
+            url: /mydoc_redis_keymanager.html
+            output: web
 
   - title: Orchestration
     output: web, pdf
