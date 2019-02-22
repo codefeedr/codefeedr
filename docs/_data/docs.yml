@@ -2,10 +2,24 @@
   docs:
   - home
   - themes
-  - customization
+  - faq
 
-- title: Examples
+- title: Plugins
   docs:
   - cheatsheet
   - font-awesome
   - bootstrap
+
+- title: Orchestration
+
+- title: Internals
+  docs:
+    - cheatsheet
+    - font-awesome
+    - bootstrap
+
+- title: Contribute
+  docs:
+    - cheatsheet
+    - font-awesome
+    - bootstrap

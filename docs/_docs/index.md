@@ -1,51 +1,49 @@
 ---
-title: Welcome
+title: CodeFeedr
 permalink: /docs/home/
 redirect_from: /docs/index.html
 ---
 
-## Getting started
+## What is CodeFeedr?
 
-[GitHub Pages](https://pages.github.com) can automatically generate and serve the website for you.
-Let's say you have a username/organisation `my-org` and project `my-proj`; if you locate Jekyll source under `docs` folder of master branch in your repo `github.com/my-org/my-proj`, the website will be served on `my-org.github.io/my-proj`.
-The good thing about coupling your documentation with the source repo is, whenever you merge features with regarding content to master branch, it will also be published on the webpage instantly.
+CodeFeedr is a software analytics infrastructure designed to simplify setting up complex stream processing architectures. 
+It is built on top of [Apache Flink](https://flink.apache.org/) and [Apache Kafka](https://kafka.apache.org/) and has the following features:
+- (Inter)connecting Apache Flink streaming jobs using Kafka as message broker.
+- Orchestration tools to run interconnected Flink setup.
+- Distributed API key management.
+- Plugin system to share re-usable streaming components. 
 
-1. Just [download the source](https://github.com/aksakalli/jekyll-doc-theme/archive/gh-pages.zip) into your repo under `docs` folder.
-2. Edit site settings in  `_config.yml` file according to your project. !!! `baseurl` should be your website's relative URI like `/my-proj` !!!
-3. Replace `favicon.ico` and `img/logonav.png` with your own logo.
+<div class="row">
 
-## Writing content
+  <div class="col-lg-3">
+  </div>
 
-### Docs
+  <div class="col-lg-3">
+  <img width="100px" src="https://flink.apache.org/img/logo/png/500/flink500_color_black.png" />
+  </div>
 
-Docs are [collections](https://jekyllrb.com/docs/collections/) of pages stored under `_docs` folder. To create a new page:
+  <div class="col-lg-3">
+  <img width="200px" src="http://apache-kafka.org/images/apache-kafka.png">
+  </div>
+  
+  <div class="col-lg-3">
+    </div>
+</div> 
 
-**1.** Create a new Markdown as `_docs/my-page.md` and write [front matter](https://jekyllrb.com/docs/frontmatter/) & content such as:
+## Documentation
+### Structure
+In order to get a grasp of the architecture of CodeFeedr have a look at the ... page. In general CodeFeedr can be split into three parts:
+- Core: All the implementations for stages, pipelines and utilities.
+- Plugins: Set of plugins, which contain context related stages.
+- Orchestration: Tools for running your pipeline on a cluster.
 
-```
----
-title: My Page
-permalink: /docs/my-page/
----
+You can contribute to CodeFeedr by either improving and extending the core and already existing plugins or by writing your own plugin.
 
-Hello World!
-```
+### Terminology
+In this section some terminology from the CodeFeedr framework will be discussed:
 
-
-**2.** Add the pagename to `_data/docs.yml` file in order to list in docs navigation panel:
-
-```
-- title: My Group Title
-  docs:
-  - my-page
-```
-
-### Blog posts
-
-Add a new Markdown file such as `2017-05-09-my-post.md` and write the content similar to other post examples.
-
-### Pages
-
-The homepage is located under `index.html` file. You can change the content or design completely different welcome page for your taste. (You can use [bootstrap components](http://getbootstrap.com/components/))
-
-In order to add a new page, create a new `.html` or `.md` (markdown) file under root directory and link it in `_includes/topnav.html`.
+- Stage: A [Flink](https://flink.apache.org/) job. There are three types; InputStage, TransformStage and OutputStage.
+- Buffer: A message broker in between stages to flow data from one stage to another (like Apache Kafka). 
+- Pipeline: A set of stages linked with buffers.
+- PipelineBuilder: API interface to build a pipeline.
+- Plugin: A set of stages in a certain context which can be used to build a pipeline.
