@@ -32,7 +32,7 @@ It is built on top of [Apache Flink](https://flink.apache.org/) and [Apache Kafk
 
 ## Documentation
 ### Structure
-In order to get a grasp of the architecture of CodeFeedr have a look at the ... page. In general CodeFeedr can be split into three parts:
+In order to get a grasp of the architecture of CodeFeedr have a look at the [architecture](/docs/architecture) page. In general CodeFeedr can be split into three parts:
 - Core: All the implementations for stages, pipelines and utilities.
 - Plugins: Set of plugins, which contain context related stages.
 - Orchestration: Tools for running your pipeline on a cluster.
@@ -47,3 +47,11 @@ In this section some terminology from the CodeFeedr framework will be discussed:
 - Pipeline: A set of stages linked with buffers.
 - PipelineBuilder: API interface to build a pipeline.
 - Plugin: A set of stages in a certain context which can be used to build a pipeline.
+
+### Contributors
+CodeFeedr is currently maintained and improved by:
+- [Wouter Zorgdrager](https://www.linkedin.com/in/wouter-zorgdrager-a4746512a/)
+
+Former contributors:
+- [Jos Kuijpers](https://nl.linkedin.com/in/jos-kuijpers-4b714032)
+- [Joris Quist](https://www.linkedin.com/in/joris-quist-a44245170)
