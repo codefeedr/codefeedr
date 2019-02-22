@@ -6,7 +6,8 @@ permalink: mydoc_plugin_overview.html
 sidebar: mydoc_sidebar
 folder: mydoc
 ---
-
+{% include important.html content="Work in progress!" %}
+{% include warning.html content="Some plugin documentation pages are outdated!" %}
 Plugins are sets of stages and other pieces of code that plug into the CodeFeedr system. The CodeFeedr 
 repository contains a bunch of plugins already. All of them provide stages, and the MongoDB plugin 
 also provides a key manager.

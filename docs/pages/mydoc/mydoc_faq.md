@@ -14,7 +14,7 @@ folder: mydoc
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4 class="panel-title">
-                                <a class="noCrossRef accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">I'm getting an error related to missing an implicit evidence parameter type.</a>
+                                <a class="noCrossRef accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">I'm getting an error related to 'missing an implicit evidence parameter type'.</a>
                             </h4>
                         </div>
                         <div id="collapseOne" class="panel-collapse collapse noCrossRef">

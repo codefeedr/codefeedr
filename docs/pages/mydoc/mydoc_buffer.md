@@ -6,7 +6,7 @@ permalink: mydoc_buffer.html
 sidebar: mydoc_sidebar
 folder: mydoc
 ---
-
+{% include warning.html content="This page is outdated!" %}
 Between each stage a buffer is added. These buffers are necessary to allow a directed acylic graph as pipeline where a plugin might read from multiple other stages (using this buffer). Currently [Kafka](https://kafka.apache.org/) and [RabbitMQ](https://www.rabbitmq.com/) are supported as buffers.
 
 Buffers can be selected through the pipeline builder:

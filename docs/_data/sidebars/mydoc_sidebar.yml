@@ -109,5 +109,5 @@ entries:
       url: /mydoc_write_your_own_plugin.html
       output: web, pdf
     - title: Contribute to CodeFeedr
-      url: /mydoc_write_your_own_plugin.html
+      url: /mydoc_contribute.html
       output: web, pdf

@@ -6,6 +6,7 @@ permalink: mydoc_pipeline.html
 sidebar: mydoc_sidebar
 folder: mydoc
 ---
+{% include warning.html content="This page is outdated!" %}
 
 The pipeline system is the core of the framework. It allows you to combine and pipeline multiple Flink jobs using a configurable buffer. 
 

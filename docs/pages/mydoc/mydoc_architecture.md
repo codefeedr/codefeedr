@@ -5,6 +5,7 @@ tags: [architecture]
 sidebar: mydoc_sidebar
 permalink: mydoc_architecture.html
 ---
+{% include important.html content="Work in progress!" %}
 ## Apache Flink
 In order to understand the CodeFeedr architecture first a quick look into Flink.
 A typical Flink job looks like this:
