@@ -1,13 +1,13 @@
 ---
 title: "GitHub"
 keywords: plugins, github
-tags: [plugins]
+tags: [plugins, github]
 sidebar: mydoc_sidebar
 permalink: mydoc_github.html
 ---
 
 The GitHub plugin provides stages for interaction with the [GitHubAPI](https://developer.github.com/v3/?). 
-### Installation
+## Installation
 
 ```scala
 dependencies += "org.codefeedr" %% "codefeedr-github" % "0.1-SNAPSHOT"
@@ -51,7 +51,7 @@ new PipelineBuilder()
 This pipeline will create a real-time pushevents stream by reading from a the `/events` endpoint (GitHubEventsInput stage) and filter (& parse) the PushEvents (GitHubEventsToPushEvent stage).
 
 
-### Notes
+## Notes
 If the GitHub stages has interaction with the API, make sure to configure a KeyManager accordingly. More about GitHub ratelimits can be found [here](https://developer.github.com/v3/?#rate-limiting).
 
 When using the `GitHubEventsInput` make sure choose a wait time based on the amount of keys/request you have available. E.g. if you have `5000` request p/h, you can make around `5000/3 = 1666` polls p/h, `3600/1666= 2.16` seconds between each poll.
