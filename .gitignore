@@ -9,6 +9,14 @@ target/
 #remove documentation build
 site/
 
+# caches related to documentation
+_site/
+.sass-cache/
+.jekyll-metadata
+_pdf
+.DS_Store
+.idea
+
 */.idea/*
 .idea/*
 
