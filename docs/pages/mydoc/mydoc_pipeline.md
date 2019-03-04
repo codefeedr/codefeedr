@@ -158,12 +158,13 @@ seen in this figure:
 <p align="center"><img src="https://i.imgur.com/9k4puOS.png"
 style="width: 500px"></p>
 
-**Note:** Type-safety is **NOT** guaranteed in between stages. E.g. if
-Stage1 outputs type `A` and Stage2 reads from Stage1, Stage2 is not
-explicitly required to have `A` as input type. As long as the
-serialization framework will support the conversion (if you remove
-fields, this is often supported)  or the type is the same, it will not
-give problems.  
+**Note:** Type-safety is guaranteed in between stages. E.g. if
+Stage1 outputs type `A` and Stage2 reads from Stage1, Stage2 is
+explicitly required to have `A` as input type. An error will be thrown
+if this is not satisfied. This can be disabled in the pipeline builder
+by `builder.disablePipelineVerification()`, however we do not recommend
+this. If you disable this, make sure the serialization framework will
+support the conversion (if you remove fields, this is often supported).
 
 ### Start the pipeline
 If the Pipeline is properly build using the PipelineBuilder, it can be
@@ -171,7 +172,8 @@ started in three modes:
 
 - mock: creates one Flink `DataStream` of all the stages and runs it
 without buffer. Only works for **sequential** pipelines.
-- local: start all stages in different threads.
+- local: start all stages in different threads as separate Flink
+applications. 
 - clustered: start each stage individually.
 
 
