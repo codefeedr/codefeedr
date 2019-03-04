@@ -34,8 +34,8 @@ TypeInformation implicits: `import org.apache.flink.api.scala._`
 ### InputStage
 The InputStage will push data into your pipeline using a Flink source.
 To retrieve the Flink `StreamExecutionEnviroment` use the `Context`. The
-`stage id` can be passed through the constructor, if none is given the
-class name will be used.   
+[stage id](#stage-id) can be passed through the constructor, if none is
+given the class name will be used.   
 
 A simple example of an InputStage:
 ```scala
@@ -172,16 +172,15 @@ started in three modes:
 
 - mock: creates one Flink `DataStream` of all the stages and runs it
 without buffer. Only works for **sequential** pipelines.
-- local: start all stages in different threads as separate Flink
-applications. 
+- local: start all stages as separate Flink
+applications.
 - clustered: start each stage individually.
 
 
-## Subjects
+## Stage id
 In order to let the stages interact with each other they all have a
-subject. By default this subject is equal to the name of the class.
-This subject is used to identify the name of the buffer and therefore
+stage id. By default this is equal to the name of the class.
+This id is used to identify the name of the buffer and therefore
 this should be unique. If you have stages with the same name which
-should **not** share the same buffer, you should override its subject by
-using the `StageAttributes` and passing it to the constructor of the
-Stage.
+should **not** share the same buffer, you should override its stage id
+by passing it in the constructor of the stage.
