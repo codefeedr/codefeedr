@@ -166,6 +166,27 @@ by `builder.disablePipelineVerification()`, however we do not recommend
 this. If you disable this, make sure the serialization framework will
 support the conversion (if you remove fields, this is often supported).
 
+### Stage Properties
+In the PipelineBuilder properties can be specified **per** stage. This
+properties map is available to the Stage at run-time. To set a stage
+property; the stage, a key and a value need to be specified. E.g.:
+
+```scala
+val stage = new SimpleInputStage()
+
+new PipelineBuilder()
+  .append(stage)
+  .setStageProperty(stage, "the_key", "the_value")
+  ...
+```
+
+Now within the stage a property can be retrieved like this:
+```scala
+getContext.getStageProperties("the_key")
+```
+This will return `Some("the_value")`, if the key is unknown `None` will
+be returned.
+
 ### Start the pipeline
 If the Pipeline is properly build using the PipelineBuilder, it can be
 started in three modes:
