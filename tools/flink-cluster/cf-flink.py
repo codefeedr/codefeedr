@@ -14,7 +14,7 @@ import sys
 ################################################
 
 def get_url(args, path):
-    host = args.host or os.environ["FLINK_HOST"] or "localhost:8081"
+    host = args.host or os.environ.get("FLINK_HOST") or "localhost:8081"
     return "http://" + host + path
 
 def get_job_state(jobId):
@@ -53,6 +53,7 @@ def get_stages_from_jar(programId):
     result = None
     badStage = None
 
+    print(r)
     for line in r.text.split("\n"):
         if line.startswith(prefix):
             text = line[len(prefix):]
@@ -112,7 +113,7 @@ def get_job(jobId):
 def get_jobs():
     r = requests.get(get_url(args, "/jobs"))
     if r.status_code is not 200:
-        print("Could not connect to host")
+        print("Could not connect to host.")
         return
 
     data = r.json()
@@ -196,15 +197,19 @@ def get_stages_from_jar_or_exit(programId):
 ### COMMANDS
 ################################################
 
-# List jobs. Arguments: -a to show inactive jobs too
+# List jobs. Arguments: -a to show inactive jobs too, -q only show job ids
 # cf jobs
 def cmd_list_jobs(args):
     jobs = get_jobs()
 
     table = []
 
-    if args.q is False:
+    if args.q is False and len(jobs) > 0:
         table.append(["JOBID", "STATUS", "STAGE"])
+
+    if len(jobs) == 0:
+        print("No running jobs.")
+        return
 
     for job in jobs:
         if job["status"] == "running" or args.a is True:
