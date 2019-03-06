@@ -417,7 +417,8 @@ class PipelineBuilder extends Logging {
     logger.info(
       s"Created pipeline with ${graph.nodes.size} nodes and ${graph.edges.size} edges.")
     logger.info(
-      s"Buffer type: $bufferType, key manager: ${keyManager.getClass.getName}.")
+      s"Buffer type: $bufferType, key manager: ${if (keyManager != null) keyManager.getClass.getName
+      else "null"}.")
 
     // Setup properties for pipeline.
     val props = PipelineProperties(bufferType,

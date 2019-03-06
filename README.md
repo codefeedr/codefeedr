@@ -12,7 +12,7 @@ Status](https://coveralls.io/repos/github/codefeedr/codefeedr/badge.svg?branch=d
 [![University](https://img.shields.io/badge/university-tudelft-blue.svg)](http://swerl.tudelft.nl/bin/view/Main/WebHome)
 
 A framework for easily building Flink streaming programs. Documentation
-can be found [here](https://codefeedr.org/codefeedr).
+can be found [here](http://codefeedr.org/codefeedr).
 ## Contributors
 Main contributors:
 - [Wouter
@@ -55,3 +55,12 @@ In order to run your application from within IntelliJ, you have to
 select the classpath of the 'mainRunner' module in  the run/debug
 configurations. Simply open 'Run -> Edit configurations...' and then
 select 'mainRunner' from the "Use  classpath of module" dropbox.
+
+## Run documentation locally
+In order to run the documentation locally, make sure to have [Ruby and Rubygem](https://guides.rubygems.org/rubygems-basics/) installed.
+
+1. Install [Jekyll](https://jekyllrb.com/): `gem install jekyll`
+2. Install dependencies: `gem install bundler`
+3. Move to the docs directory: `cd docs`
+4. Serve the website: `jekyll serve`
+By default the documentation will be served at [http://127.0.0.1:4000](http://127.0.0.1:4000)
