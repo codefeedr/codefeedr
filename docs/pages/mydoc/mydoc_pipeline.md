@@ -151,11 +151,11 @@ can be recreated using `edge` like this:
    .build()
 ```
 This flow of this simple pipeline with Kafka as buffer is visualized as:
-<p align="center"><img src="https://i.imgur.com/g4C3AB0.png"
+<p align="center"><img src="images/codefeedr_buffer.png"
 width="600"></p> However the actual architecture of this pipeline can be
 seen in this figure:
 
-<p align="center"><img src="https://i.imgur.com/9k4puOS.png"
+<p align="center"><img src="images/flink_kafka_cluster.png"
 style="width: 500px"></p>
 
 **Note:** Type-safety is guaranteed in between stages. E.g. if

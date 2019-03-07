@@ -49,7 +49,7 @@ the Scala plugin. Then
 2. Select the top level checkout directory for CodeFeedr.
 3. On the dialog that appears, select "SBT"
 4. Click Next and then Finish
-5. From the "SBT Projet Data To Import", select all modules
+5. From the "SBT Project Data To Import", select all modules
 
 In order to run your application from within IntelliJ, you have to
 select the classpath of the 'mainRunner' module in  the run/debug
@@ -64,3 +64,9 @@ In order to run the documentation locally, make sure to have [Ruby and Rubygem](
 3. Move to the docs directory: `cd docs`
 4. Serve the website: `jekyll serve`
 By default the documentation will be served at [http://127.0.0.1:4000](http://127.0.0.1:4000)
+
+## Use orchestration tools
+The orchestration tools are located under [`/tools`](/tools). They depends on:
+- Python
+- Docker
+- Redis
