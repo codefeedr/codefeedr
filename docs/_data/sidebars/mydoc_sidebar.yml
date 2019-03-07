@@ -105,8 +105,8 @@ entries:
   - title: Contribute
     output: web, pdf
     folderitems:
-    - title: Write your own plugin!
-      url: /mydoc_write_your_own_plugin.html
+    - title: Create your own plugin!
+      url: /mydoc_create_your_own_plugin.html
       output: web, pdf
     - title: Contribute to CodeFeedr
       url: /mydoc_contribute.html

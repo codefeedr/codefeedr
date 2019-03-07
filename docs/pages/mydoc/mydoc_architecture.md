@@ -5,7 +5,6 @@ tags: [architecture]
 sidebar: mydoc_sidebar
 permalink: mydoc_architecture.html
 ---
-{% include important.html content="Work in progress!" %}
 ## Apache Flink
 In order to understand the CodeFeedr architecture first a quick look
 into Flink. A typical Flink job looks like this:
@@ -24,7 +23,10 @@ is a directed acyclic graph. Data flow from one job to another is
 coordinated by a buffer (default this buffer is [Apache
 Kafka](https://kafka.apache.org)). Within a pipeline multiple _stages_
 are connected, using a _buffer_. A pipeline is created using the
-_PipelineBuilder_.  
+_PipelineBuilder_.  ## Example CodeFeedr use-case
+Add example use-case here.
+
+
 
 ### Stage
 Since pipelines are directed acyclic graph in which we identify three
@@ -39,6 +41,9 @@ multiple stages as well as outputting to multiple stages.
 - *OutputStage*: the end point of a pipeline, typically writing the data
 to an (external) database. An output stage reads from one or more stages
 and outputs to none.
+
+For more information on how to write your own stages, see
+[this](/mydoc_pipeline.html) page.
 
 ### Buffer
 Buffers are used to _flow_ data from one Flink job to another. We chose
@@ -59,9 +64,23 @@ be configured with your own buffer.
 <p align="center"><img src="./images/codefeedr_pipeline.png"
 style="width: 600px"></p>
 
-### PipelineBuilder
+For more information on how to write and configure your own buffer, see
+[this](/mydoc_buffer.html) page.
+
+### Building a pipeline
+To create a pipeline CodeFeedr provides a `PipelineBuilder`. This
+builder class allows you to construct a (complex) pipeline in an
+intuitive way. For the specifics, see the
+[pipeline](/mydoc_pipeline.html) page.
 
 ## Plugins
+CodeFeedr plugins are re-usable streaming components within a certain
+context. These components include stages, buffers and pipelines. A set
+of useful plugins are included in the [codefeedr
+repository](https://github.com/codefeedr/codefeedr). You can contribute
+to CodeFeedr by [creating your own
+plugin](/mydoc_create_your_own_plugin.html) or improving an [already
+existing plugin](/mydoc_plugin_overview.html).  
 
 ## Deployment
 In practical, CodeFeedr pipelines are nothing more than a set of Flink
@@ -73,10 +92,5 @@ specifically we provide:
 configuration](https://github.com/codefeedr/codefeedr/tree/develop/tools/docker) file to setup both Kafka and Flink.
   - A [Python
 script](https://github.com/codefeedr/codefeedr/blob/develop/tools/flink-cluster/cf-flink.py) to upload and manage your CodeFeedr pipeline on the Flink cluster.  
-
-
-## Example use-case
-Add example use-case here.
-
 
 {% include links.html %}
