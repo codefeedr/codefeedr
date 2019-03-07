@@ -51,7 +51,8 @@ lazy val root = (project in file("."))
     pluginTravis,
     pluginWeblogs,
     pluginTwitter,
-    pluginRabbitMQ)
+    pluginRabbitMQ,
+    pluginGHTorrent)
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
@@ -104,9 +105,7 @@ lazy val pluginRss = (project in file("codefeedr-plugins/codefeedr-rss"))
       dependencies.httpj
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb"))
   .settings(
@@ -118,9 +117,7 @@ lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb")
       dependencies.embeddedMongo
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-elasticsearch"))
   .settings(
@@ -131,9 +128,7 @@ lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-ela
       dependencies.flinkElasticSearch
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
   .settings(
@@ -148,9 +143,7 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
       dependencies.json4sExt
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
   .settings(
@@ -174,9 +167,7 @@ lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs")
     libraryDependencies ++= commonDependencies ++ Seq(
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter"))
   .settings(
@@ -192,9 +183,7 @@ lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter")
       "org.json4s" %% "json4s-ext" % "3.5.3"
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginRabbitMQ = (project in file("codefeedr-plugins/codefeedr-rabbitmq"))
   .settings(
@@ -206,9 +195,18 @@ lazy val pluginRabbitMQ = (project in file("codefeedr-plugins/codefeedr-rabbitmq
       //dependencies.embeddedRabbitMQ
     )
   )
-  .dependsOn(core
-  )
+  .dependsOn(core)
 
+lazy val pluginGHTorrent = (project in file("codefeedr-plugins/codefeedr-ghtorrent"))
+  .settings(
+    name := pluginPrefix + "ghtorrent",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.flinkRabbitMQ,
+      //dependencies.embeddedRabbitMQ
+    )
+  ).dependsOn(core)
 
 lazy val dependencies =
   new {
