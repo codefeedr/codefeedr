@@ -8,27 +8,34 @@ permalink: mydoc_cluster.html
 
 ## Cluster Tool
 
-This Flink cluster tool, named `cf-flink`, helps with starting and managing CodeFeedr pipelines.
+This Flink cluster tool, named `cf-flink`, helps with starting and
+managing CodeFeedr pipelines.
 
-The 8081 port of the Flink Job Manager needs to be open (or mapped to another port).
+The 8081 port of the Flink Job Manager needs to be open (or mapped to
+another port).
 
-Pipeline programs for a Flink cluster are to be JARs without any external dependencies,
-but without Scala and the core Flink dependencies. The codefeedr example project is correctly
-configured to supply a JAR when running `sbt assembly`.
+Pipeline programs for a Flink cluster are to be JARs without any
+external dependencies, but without Scala and the core Flink
+dependencies. The codefeedr example project is correctly configured to
+supply a JAR when running `sbt assembly`.
 
 ### Setting the Flink server
 
-The tool accepts a `--host` parameter to set the Flink host. It is also possible to use the `FLINK_HOST` environment variable. This environment variable is overwritten by any supplied host. If no host configuration is found, `localhost:8081` is used.
+The tool accepts a `--host` parameter to set the Flink host. It is also
+possible to use the `FLINK_HOST` environment variable. This environment
+variable is overwritten by any supplied host. If no host configuration
+is found, `localhost:8081` is used.
 
 ### Commands
 
-Below a list of commands. When an argument is given with `<>` it is mandatory.
+Below a list of commands. When an argument is given with `<>` it is
+mandatory.
 
 #### Getting info of a pipeline
 
-Get a bunch of info about a pipeline. This commands uploads the JAR to the Flink server
-to analyze it. The output contains a list of stages in the pipeline. If any duplicate stage IDs
-exist it will throw an error.
+Get a bunch of info about a pipeline. This commands uploads the JAR to
+the Flink server to analyze it. The output contains a list of stages in
+the pipeline. If any duplicate stage IDs exist it will throw an error.
 
 `cf-flink pipeline info <jarfile>`
 
@@ -41,44 +48,53 @@ org.codefeedr.plugins.github.stages.GitHubEventToPushEvent
 org.codefeedr.plugins.elasticsearch.stages.ElasticSearchOutput
 ```
 
+**Note.** If the jar size is big, it might take some time to upload to
+the Flink cluster.  
+
 #### Starting a pipeline
-Start a whole pipeline from the given JAR file. The stages need to have unique IDs, otherwise an
-error will be thrown. Only non-running stages will start.
+Start a whole pipeline from the given JAR file. The stages need to have
+unique IDs, otherwise an error will be thrown. Only non-running stages
+will start.
 
 `cf-flink pipeline start <jarfile>`
 
-The JAR is uploaded to the Flink server, after which a list of stages is retrieved.
-Then each stage will be started __if and only if_ not a job with such stage name is already running.
+The JAR is uploaded to the Flink server, after which a list of stages is
+retrieved. Then each stage will be started _if and only if_ not a job
+with such stage name is already running.
 
 #### Stopping a pipeline
 Stops the whole pipeline from the given JAR file.
 
 `cf-flink pipeline stop <jarfile>`
 
-__Note:__ Any job with a stage ID corresponding to a stage inside the JAR will be cancelled, even
-if it was started with another pipeline.
+__Note:__ Any job with a stage ID corresponding to a stage inside the
+JAR will be cancelled, even if it was started with another pipeline.
 
 #### Starting a single stage
-Start a single stage from the pipeline in the JAR. Useful when wanting to run only a part of the pipeline.
+Start a single stage from the pipeline in the JAR. Useful when wanting
+to run only a part of the pipeline.
 
 Will not start the stage if it already running.
 
 `cf-flink stage start <jarfile> <stageId>`
 
-The `-s 5` optionl parameter will set parallism of the job to 5.
+The `-s 5` optional parameter will set parallism of the job to 5.
 
 #### Stopping a single stage
-Stop any job with given stage ID attached. (See 'Stopping a pipeline')
+Stop any job with given stage ID attached. (See [Stopping a
+pipeline](/mydoc_cluster.html#stopping-a-pipeline))
 
 `cf-flink stage stop <jarfile> <stageId>`
 
 #### Rescaling a single stage
-Set the parallism of a given stage by stopping and starting the job with the new scale.
+Set the parallism of a given stage by stopping and starting the job with
+the new scale.
 
 `cf-flink stage rescale -s <scale> <jarfile> <stageId>`
 
 #### Getting a list of all jobs
-Get a list of all jobs on the Flink server. By default shows only the jobs that are running.
+Get a list of all jobs on the Flink server. By default shows only the
+jobs that are running.
 
 `cf-flink jobs`
 
@@ -107,7 +123,8 @@ ce4c08231d4c99f60ecc8853c1a12922	running		org.codefeedr.plugins.mongodb.stages.M
 ```
 
 #### Cancelling a job
-Cancel a running job, without directly referencing a pipeline. Useful when the JAR file is not known / near.
+Cancel a running job, without directly referencing a pipeline. Useful
+when the JAR file is not known / near.
 
 `cf-flink cancel <jobId>`
 
