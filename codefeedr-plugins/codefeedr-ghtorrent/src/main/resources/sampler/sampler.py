@@ -2,13 +2,15 @@
 import argparse
 import pika
 import json
+import os
 
-# Parse routing argument.
+# Parse arguments.
 parser = argparse.ArgumentParser("sampler")
-parser.add_argument("-u", help="Your username, this needs to be declared in the queue-name.", required=True)
-parser.add_argument("-x", help="The amount of messages to sample.", default=10)
-parser.add_argument("-r", help="The routing key to sample from.", default="#")
-parser.add_argument("-f", help="Filename to save to (default: ROUTING_KEY.json).")
+parser.add_argument("-u", metavar="<username>", help="Your username, this needs to be declared in the queue-name.", required=True)
+parser.add_argument("-x", metavar="<amount>", help="The amount of messages to sample.", default=10)
+parser.add_argument("-r", metavar="<key>", help="The routing key to sample from.", default="#")
+parser.add_argument("-f", metavar="<name>", help="Filename to save to (default: ROUTING_KEY.json).")
+parser.add_argument("-d", metavar="<directory>", help="Directory to save to (default: samples/).", default="samples/")
 
 args = parser.parse_args()
 
@@ -16,7 +18,7 @@ args = parser.parse_args()
 route = args.r
 username = args.u
 amount = args.x
-folder = "samples/"
+folder = args.d
 filename = route + ".json"
 
 if args.f:
@@ -46,6 +48,7 @@ def callback(ch, method, properties, body):
     global processed
 
     processed += 1
+    records.append(json.loads(body.decode("utf-8")))
 
     if processed >= amount:
         channel.stop_consuming()
@@ -55,7 +58,9 @@ def callback(ch, method, properties, body):
 
 # Write to file.
 def write_samples():
-    with open(folder + filename, 'w') as outfile:
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    with open(folder + filename, 'w+') as outfile:
         json.dump(records, outfile)
 
 
