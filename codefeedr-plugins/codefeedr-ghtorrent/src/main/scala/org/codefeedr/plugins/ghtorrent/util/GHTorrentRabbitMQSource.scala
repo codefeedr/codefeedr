@@ -5,10 +5,7 @@ import java.util
 
 import com.rabbitmq.client._
 import org.apache.flink.api.common.functions.RuntimeContext
-import org.apache.flink.api.common.serialization.{
-  DeserializationSchema,
-  SimpleStringSchema
-}
+import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable
 import org.apache.flink.configuration.Configuration
@@ -17,10 +14,8 @@ import org.apache.flink.streaming.api.functions.source.{
   SourceFunction
 }
 import org.apache.flink.streaming.api.operators.StreamingRuntimeContext
-import org.apache.flink.streaming.connectors.rabbitmq.RMQSource
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
 import org.apache.flink.util.Preconditions
-import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.Record
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.io.Source
@@ -57,7 +52,8 @@ class GHTorrentRMQSource(username: String,
   @transient @volatile
   private var running: Boolean = false
 
-  private var queueName = ""
+  /** Setting queueName according to GHTorrent specification **/
+  private val queueName = username + "_queue"
 
   /** Parse all routing keys from the file. We assume they are separated by new lines. **/
   val routingKeys = parseRoutingKeys()
@@ -73,17 +69,14 @@ class GHTorrentRMQSource(username: String,
     channel.exchangeDeclare(exchangeName, "topic", true)
 
     // Create a queue with auto delete.
-    val queue = channel.queueDeclare(username + "_queue",
-                                     false,
-                                     false,
-                                     true,
-                                     new util.HashMap[String, AnyRef]())
+    channel.queueDeclare(username + "_queue",
+                         false,
+                         false,
+                         true,
+                         new util.HashMap[String, AnyRef]())
 
     // For each routing key, bind it to the channel.
-    val queueN = queue.getQueue()
     routingKeys.foreach(channel.queueBind(queueName, exchangeName, _))
-
-    this.queueName = queueN
   }
 
   override def open(parameters: Configuration): Unit = {
