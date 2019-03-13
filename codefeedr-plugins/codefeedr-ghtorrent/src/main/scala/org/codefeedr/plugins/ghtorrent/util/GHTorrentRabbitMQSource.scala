@@ -23,6 +23,7 @@ import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.Record
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.io.Source
+import collection.JavaConverters._
 
 class GHTorrentRMQSource(username: String,
                          routingKeysFile: String = "routing_keys.txt",
@@ -124,13 +125,39 @@ class GHTorrentRMQSource(username: String,
     running = true
   }
 
-  override def acknowledgeSessionIDs(sessionIds: util.List[Long]): Unit = ???
+  override def close(): Unit = {
+    super.close()
 
-  override def getProducedType: TypeInformation[String] = ???
+    try {
+      if (connection != null) {
+        connection.close()
+      }
+    } catch {
+      case e: IOException =>
+        throw new RuntimeException(
+          "Error while closing RabbitMQ connection at " + rmConnectionConfig.getHost,
+          e)
+    }
 
-  override def run(ctx: SourceFunction.SourceContext[String]): Unit = ???
+  }
 
-  override def cancel(): Unit = ???
+  override def run(ctx: SourceFunction.SourceContext[String]): Unit = {}
+
+  override def acknowledgeSessionIDs(sessionIds: util.List[Long]): Unit = {
+    try {
+      sessionIds.asScala.foreach(channel.basicAck(_, false))
+      channel.txCommit()
+    } catch {
+      case e: IOException =>
+        throw new RuntimeException(
+          "Messages could not be acknowledged during checkpoint creation.",
+          e)
+    }
+  }
+
+  override def getProducedType: TypeInformation[String] = schema.getProducedType
+
+  override def cancel(): Unit = running = false
 
   /** Parses all routing keys from the file.
     *
