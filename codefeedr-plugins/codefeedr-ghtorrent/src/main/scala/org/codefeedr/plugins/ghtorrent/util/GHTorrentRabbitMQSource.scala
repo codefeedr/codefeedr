@@ -28,9 +28,13 @@ class GHTorrentRMQSource(username: String,
       classOf[String])
     with ResultTypeQueryable[String] {
 
-  private val serialVersionUID: Long = 1L
+  // Logger instance.
   private val LOG: Logger = LoggerFactory.getLogger(classOf[GHTorrentRMQSource])
+
+  // We parse it into a String in the format: routing_key#body
   private val schema: SimpleStringSchema = new SimpleStringSchema()
+
+  // Configuration of RabbitMQ (also according to GHTorrent spec).
   private val rmConnectionConfig: RMQConnectionConfig =
     new RMQConnectionConfig.Builder()
       .setHost("localhost")
@@ -79,6 +83,10 @@ class GHTorrentRMQSource(username: String,
     routingKeys.foreach(channel.queueBind(queueName, exchangeName, _))
   }
 
+  /** Opens this source by creating a new connection and channel.
+    *
+    * @param parameters the parameters of this Flink job.
+    */
   override def open(parameters: Configuration): Unit = {
     super.open(parameters)
 
@@ -86,6 +94,7 @@ class GHTorrentRMQSource(username: String,
 
     try {
 
+      // Create connection and channel.
       connection = factory.newConnection()
       channel = connection.createChannel()
 
@@ -93,10 +102,11 @@ class GHTorrentRMQSource(username: String,
         throw new RuntimeException("None of RabbitMQ channels are available.")
       }
 
+      // Setups a queue.
       setupQueue()
 
+      // Find out if checkpointing is enabled, then enable transactional mode.
       val runtimeContext: RuntimeContext = getRuntimeContext()
-
       if (runtimeContext.isInstanceOf[StreamingRuntimeContext] && runtimeContext
             .asInstanceOf[StreamingRuntimeContext]
             .isCheckpointingEnabled) {
@@ -116,6 +126,7 @@ class GHTorrentRMQSource(username: String,
     running = true
   }
 
+  /** Closes the RabbitMQ channel */
   override def close(): Unit = {
     super.close()
 
@@ -132,14 +143,20 @@ class GHTorrentRMQSource(username: String,
 
   }
 
+  /** Runs the GHTorrentSource by listening to the setup queue.
+    *
+    * @param ctx the Flink context.
+    */
   override def run(ctx: SourceFunction.SourceContext[String]): Unit = {
     LOG.debug("Starting RabbitMQ source with autoAck status: " + autoAck)
-    val consumerTag = "codefeedrConsumerTag"
+
+    val consumerTag = "codefeedrConsumerTag" //we keep this tag to also cancel the consumption.
+
     channel.basicConsume(
       queueName,
       autoAck,
       "codefeedrConsumerTag",
-      new DefaultConsumer(channel) {
+      new DefaultConsumer(channel) { // Setup a consumer callback.
         override def handleDelivery(consumerTag: String,
                                     envelope: Envelope,
                                     properties: AMQP.BasicProperties,
@@ -147,15 +164,17 @@ class GHTorrentRMQSource(username: String,
 
           ctx.getCheckpointLock.synchronized {
 
+            // Get the routing key and the body of the consumed message.
             val routingKey = envelope.getRoutingKey()
             val result = schema.deserialize(body)
 
+            // Stops the stream.
             if (schema.isEndOfStream(result)) {
               running = false
               channel.basicCancel(consumerTag)
             }
 
-            if (!autoAck) {
+            if (!autoAck) { //If autoAck is disabled, we provide the delivery tag to a list of sessionIds.
               val deliveryTag = envelope.getDeliveryTag
 
               if (usesCorrelationId) {
@@ -164,13 +183,15 @@ class GHTorrentRMQSource(username: String,
                 Preconditions.checkNotNull(
                   correlationId,
                   "RabbitMQ source was instantiated " + "with usesCorrelationId set to true but a message was received with " + "correlation id set to null!")
-                if (!addId(correlationId)) {
+                if (!addId(correlationId)) { //Ignore if we already processed this message.
                   return
                 }
               }
-              sessionIds.add(deliveryTag)
+              sessionIds
+                .add(deliveryTag) //Add the delivery tag so that it can be checkpointed.
             }
 
+            // Collect element in the form routing_key#body
             ctx.collect(s"$routingKey#$result")
           }
 
@@ -179,10 +200,11 @@ class GHTorrentRMQSource(username: String,
       }
     )
 
-    while (running) {}
-
+    while (running) {} // Make sure we keep running.
+    channel.basicCancel(consumerTag) // After running, cancel the channel.
   }
 
+  /** Called by the checkpoint to acknowledge the seen id's. */
   override def acknowledgeSessionIDs(sessionIds: util.List[Long]): Unit = {
     try {
       sessionIds.asScala.foreach(channel.basicAck(_, false))
@@ -195,8 +217,10 @@ class GHTorrentRMQSource(username: String,
     }
   }
 
+  /** Get the produced type. */
   override def getProducedType: TypeInformation[String] = schema.getProducedType
 
+  /** Cancel the source. */
   override def cancel(): Unit = running = false
 
   /** Parses all routing keys from the file.
