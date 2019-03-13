@@ -19,6 +19,7 @@ import org.apache.flink.streaming.api.functions.source.{
 import org.apache.flink.streaming.api.operators.StreamingRuntimeContext
 import org.apache.flink.streaming.connectors.rabbitmq.RMQSource
 import org.apache.flink.streaming.connectors.rabbitmq.common.RMQConnectionConfig
+import org.apache.flink.util.Preconditions
 import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.Record
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -49,13 +50,12 @@ class GHTorrentRMQSource(username: String,
   protected var channel: Channel = null
 
   @transient
-  protected var consumer: DefaultConsumer = null
-
-  @transient
   protected var autoAck: Boolean = false
 
   @transient @volatile
   private var running: Boolean = false
+
+  private var queueName = ""
 
   /** Parse all routing keys from the file. We assume they are separated by new lines. **/
   val routingKeys = parseRoutingKeys()
@@ -66,7 +66,7 @@ class GHTorrentRMQSource(username: String,
   /**
     * Setups queue according to http://ghtorrent.org/streaming.html
     */
-  def setupQueue(): String = {
+  def setupQueue(): Unit = {
     // First of all, we declare an exchange with the correct name and type.
     channel.exchangeDeclare(exchangeName, "topic", true)
 
@@ -78,10 +78,10 @@ class GHTorrentRMQSource(username: String,
                                      new util.HashMap[String, AnyRef]())
 
     // For each routing key, bind it to the channel.
-    val queueName = queue.getQueue()
+    val queueN = queue.getQueue()
     routingKeys.foreach(channel.queueBind(queueName, exchangeName, _))
 
-    queueName
+    this.queueName = queueN
   }
 
   override def open(parameters: Configuration): Unit = {
@@ -98,8 +98,7 @@ class GHTorrentRMQSource(username: String,
         throw new RuntimeException("None of RabbitMQ channels are available.")
       }
 
-      val queueName = setupQueue()
-      consumer = new DefaultConsumer(channel)
+      setupQueue()
 
       val runtimeContext: RuntimeContext = getRuntimeContext()
 
@@ -111,9 +110,6 @@ class GHTorrentRMQSource(username: String,
       } else {
         autoAck = true
       }
-
-      LOG.debug("Starting RabbitMQ source with autoAck status: " + autoAck)
-      channel.basicConsume(queueName, autoAck, consumer)
 
     } catch {
       case e: IOException =>
@@ -141,7 +137,53 @@ class GHTorrentRMQSource(username: String,
 
   }
 
-  override def run(ctx: SourceFunction.SourceContext[String]): Unit = {}
+  override def run(ctx: SourceFunction.SourceContext[String]): Unit = {
+    LOG.debug("Starting RabbitMQ source with autoAck status: " + autoAck)
+    val consumerTag = "codefeedrConsumerTag"
+    channel.basicConsume(
+      queueName,
+      autoAck,
+      "codefeedrConsumerTag",
+      new DefaultConsumer(channel) {
+        override def handleDelivery(consumerTag: String,
+                                    envelope: Envelope,
+                                    properties: AMQP.BasicProperties,
+                                    body: Array[Byte]): Unit = {
+
+          synchronized(ctx.getCheckpointLock) {
+
+            val routingKey = envelope.getRoutingKey()
+            val result = schema.deserialize(body)
+
+            if (schema.isEndOfStream(result)) {
+              channel.basicCancel(consumerTag)
+            }
+
+            if (!autoAck) {
+              val deliveryTag = envelope.getDeliveryTag
+
+              if (usesCorrelationId) {
+                val correlationId = properties.getCorrelationId
+
+                Preconditions.checkNotNull(
+                  correlationId,
+                  "RabbitMQ source was instantiated " + "with usesCorrelationId set to true but a message was received with " + "correlation id set to null!")
+                if (!addId(correlationId)) {
+                  return
+                }
+              }
+              sessionIds.add(deliveryTag)
+            }
+
+            ctx.collect(s"$routingKey#$result")
+          }
+
+        }
+
+      }
+    )
+
+  }
 
   override def acknowledgeSessionIDs(sessionIds: util.List[Long]): Unit = {
     try {
