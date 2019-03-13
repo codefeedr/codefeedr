@@ -39,6 +39,8 @@ class GHTorrentRMQSource(username: String,
   private val rmConnectionConfig: RMQConnectionConfig =
     new RMQConnectionConfig.Builder()
       .setHost("localhost")
+      .setPort(5672)
+      .setVirtualHost("/")
       .setUserName("streamer")
       .setPassword("streamer")
       .build()
@@ -150,12 +152,13 @@ class GHTorrentRMQSource(username: String,
                                     properties: AMQP.BasicProperties,
                                     body: Array[Byte]): Unit = {
 
-          synchronized(ctx.getCheckpointLock) {
+          ctx.getCheckpointLock.synchronized {
 
             val routingKey = envelope.getRoutingKey()
             val result = schema.deserialize(body)
 
             if (schema.isEndOfStream(result)) {
+              running = false
               channel.basicCancel(consumerTag)
             }
 
@@ -182,6 +185,8 @@ class GHTorrentRMQSource(username: String,
 
       }
     )
+
+    while (running) {}
 
   }
 
