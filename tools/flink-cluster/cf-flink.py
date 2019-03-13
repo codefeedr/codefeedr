@@ -53,7 +53,7 @@ def get_stages_from_jar(programId):
     result = None
     badStage = None
 
-    print(r)
+    print(r.url)
     for line in r.text.split("\n"):
         if line.startswith(prefix):
             text = line[len(prefix):]
@@ -83,7 +83,8 @@ def upload_jar(jar):
     if result["status"] != "success":
         return None
 
-    return result["filename"]
+    print(result["filename"].split("/")[-1])
+    return result["filename"].split("/")[-1]
 
 def start_stage(programId, stage, scale):
     params = {"program-args": "--stage " + stage, "parallelism": scale}
