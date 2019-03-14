@@ -55,7 +55,7 @@ class GHTorrentRMQSource(username: String,
   private val schema: SimpleStringSchema = new SimpleStringSchema()
 
   // Configuration of RabbitMQ (also according to GHTorrent spec).
-  private val rmConnectionConfig: RMQConnectionConfig =
+  val rmConnectionConfig: RMQConnectionConfig =
     new RMQConnectionConfig.Builder()
       .setHost(host)
       .setPort(port)
@@ -65,13 +65,13 @@ class GHTorrentRMQSource(username: String,
       .build()
 
   @transient
-  protected var connection: Connection = null
+  var connection: Connection = null
 
   @transient
-  protected var channel: Channel = null
+  var channel: Channel = null
 
   @transient
-  protected var autoAck: Boolean = false
+  var autoAck: Boolean = false
 
   @transient @volatile
   private var running: Boolean = false
