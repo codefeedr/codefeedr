@@ -117,5 +117,8 @@ class Properties(private val contents: Map[String, String] = Map()) {
     props
   }
 
+  /** Get contents of the this properties set. */
+  def getContents: Map[String, String] = contents
+
   override def toString: String = contents.toString()
 }

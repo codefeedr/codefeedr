@@ -140,7 +140,10 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     kafkaProp.put("enable.auto.commit", KafkaBufferDefaults.ENABLE_AUTO_COMMIT)
     kafkaProp.put("group.id", groupId)
 
-    kafkaProp.putAll(properties.toJavaProperties)
+    properties.getContents.foreach {
+      case (k, v) =>
+        kafkaProp.setProperty(k, v)
+    }
 
     kafkaProp
   }

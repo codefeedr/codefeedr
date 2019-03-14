@@ -2,8 +2,7 @@ import sbt.Credentials
 import sbt.Keys.{credentials, name, publishMavenStyle}
 
 lazy val scala212 = "2.12.8"
-lazy val scala211 = "2.11.11"
-lazy val supportedScalaVersions = List(scala211, scala212)
+lazy val supportedScalaVersions = List(scala212)
 
 ThisBuild / organization := "org.codefeedr"
 ThisBuild / organizationName := "CodeFeedr"
