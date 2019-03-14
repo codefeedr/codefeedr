@@ -25,11 +25,11 @@ import org.codefeedr.plugins.ghtorrent.util.GHTorrentRabbitMQSource
 import org.codefeedr.stages.InputStage
 import org.apache.flink.api.scala._
 
-class GHTorrentInputStage(username: String,
-                          stageName: String = "ghtorrent_input",
-                          host: String = "localhost",
-                          port: Int = 5672,
-                          routingKeysFile: String = "routing_keys.txt")
+class GHTInputStage(username: String,
+                    stageName: String = "ghtorrent_input",
+                    host: String = "localhost",
+                    port: Int = 5672,
+                    routingKeysFile: String = "routing_keys.txt")
     extends InputStage[Record](Some(stageName)) {
 
   override def main(context: Context): DataStream[Record] = {
