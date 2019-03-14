@@ -1,10 +1,9 @@
 language: scala
 scala:
-  - 2.11.11
   - 2.12.8
 sudo: required
 dist: trusty
-jdk: oraclejdk8
+jdk: oraclejdk11
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
