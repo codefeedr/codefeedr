@@ -111,12 +111,17 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
     val mockedConnection = mock[Connection]
     val mockedChannel = mock[Channel]
     val mockedContext = mock[StreamingRuntimeContext]
+    val mockedFactory = mock[ConnectionFactory]
 
-    val source = new GHTorrentRabbitMQSource(username = "username")
+    // a lot of mockito magic
+    when(mockedContext.isCheckpointingEnabled).thenReturn(false)
+    val source = spy(new GHTorrentRabbitMQSource(username = "username"))
+    doReturn(mockedContext).when(source).getRuntimeContext
+    doReturn(mockedFactory).when(source).getFactory()
+    when(mockedFactory.newConnection).thenReturn(mockedConnection)
+    when(mockedConnection.createChannel()).thenReturn(mockedChannel)
+
     source.connection = mockedConnection
-    source.channel = mockedChannel
-
-    source.setRuntimeContext(mockedContext)
     source.open(config)
     assert(source.autoAck)
   }
