@@ -13,6 +13,7 @@ import org.scalatest.FunSuite
 import org.scalatest.mockito.MockitoSugar
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.mockito.stubbing.Answer
 
 class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
 
@@ -179,6 +180,67 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
     when(mockEnv.getRoutingKey).thenReturn("test")
     consumer.handleDelivery("", mockEnv, null, Array())
     verify(context).collect("test#")
+  }
+
+  test("RabbitMQSource should properly run without autoack") {
+    val source = spy(new GHTorrentRabbitMQSource(""))
+    val channel = mock[Channel]
+    val context = mock[SourceFunction.SourceContext[String]]
+    val captor = ArgumentCaptor.forClass(classOf[DefaultConsumer])
+    val mockSessionIds = mock[java.util.ArrayList[Long]]
+    doReturn(new Object()).when(context).getCheckpointLock
+    doReturn(mockSessionIds).when(source).getSessionIds
+
+    source.channel = channel
+    source.autoAck = false
+
+    source.run(context)
+
+    verify(channel).basicConsume(any[String],
+                                 any[Boolean],
+                                 any[String],
+                                 captor.capture())
+
+    val consumer = captor.getValue
+    val mockEnv = mock[Envelope]
+
+    when(mockEnv.getRoutingKey).thenReturn("test")
+    consumer.handleDelivery("", mockEnv, null, Array())
+    verify(context).collect("test#")
+    verify(mockSessionIds).add(any[Long])
+  }
+
+  test("RabbitMQSource should properly run without autoack with correlation id") {
+    val source = spy(new GHTorrentRabbitMQSource("", usesCorrelationId = true))
+    val channel = mock[Channel]
+    val context = mock[SourceFunction.SourceContext[String]]
+    val captor = ArgumentCaptor.forClass(classOf[DefaultConsumer])
+    val mockSessionIds = mock[java.util.ArrayList[Long]]
+    val mockProps = mock[AMQP.BasicProperties]
+    doReturn(new Object()).when(context).getCheckpointLock
+    doReturn(mockSessionIds).when(source).getSessionIds
+
+    doReturn(false).when(source).alreadyProcessed(any[String])
+
+    when(mockProps.getCorrelationId).thenReturn("corId")
+
+    source.channel = channel
+    source.autoAck = false
+
+    source.run(context)
+
+    verify(channel).basicConsume(any[String],
+                                 any[Boolean],
+                                 any[String],
+                                 captor.capture())
+
+    val consumer = captor.getValue
+    val mockEnv = mock[Envelope]
+
+    when(mockEnv.getRoutingKey).thenReturn("test")
+    consumer.handleDelivery("", mockEnv, mockProps, Array())
+    verify(context, times(0)).collect(any[String])
+    verify(mockSessionIds, times(0)).add(any[Long])
   }
 
 }

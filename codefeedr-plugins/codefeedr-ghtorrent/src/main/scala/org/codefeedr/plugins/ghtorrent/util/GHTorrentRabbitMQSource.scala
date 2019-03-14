@@ -198,11 +198,11 @@ class GHTorrentRabbitMQSource(username: String,
                 Preconditions.checkNotNull(
                   correlationId,
                   "RabbitMQ source was instantiated " + "with usesCorrelationId set to true but a message was received with " + "correlation id set to null!")
-                if (!addId(correlationId)) { //Ignore if we already processed this message.
+                if (!alreadyProcessed(correlationId)) { //Ignore if we already processed this message.
                   return
                 }
               }
-              sessionIds
+              getSessionIds
                 .add(deliveryTag) //Add the delivery tag so that it can be checkpointed.
             }
 
@@ -240,6 +240,12 @@ class GHTorrentRabbitMQSource(username: String,
 
   /** Creates factory based on RMConnectionConfig. */
   def getFactory() = rmConnectionConfig.getConnectionFactory()
+
+  /** Return a list of session ids */
+  def getSessionIds = sessionIds
+
+  /** Check if a message has already been processed. */
+  def alreadyProcessed(correlationId: String) = addId(correlationId)
 
   /** Parses all routing keys from the file.
     *
