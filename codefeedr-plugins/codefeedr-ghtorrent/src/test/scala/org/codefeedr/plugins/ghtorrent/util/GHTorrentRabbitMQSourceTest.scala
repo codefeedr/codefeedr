@@ -3,9 +3,12 @@ package org.codefeedr.plugins.ghtorrent.util
 import java.io.IOException
 import java.util
 
-import com.rabbitmq.client.{Channel, Connection, ConnectionFactory}
+import com.rabbitmq.client._
+import org.apache.flink.api.common.typeinfo.{BasicTypeInfo, TypeInformation}
 import org.apache.flink.configuration.Configuration
+import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.operators.StreamingRuntimeContext
+import org.mockito.ArgumentCaptor
 import org.scalatest.FunSuite
 import org.scalatest.mockito.MockitoSugar
 import org.mockito.Matchers._
@@ -14,9 +17,9 @@ import org.mockito.Mockito._
 class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
 
   test("RabbitMQ is correctly configured with host and port.") {
-    val source = new GHTorrentRMQSource(username = "username",
-                                        host = "host_name",
-                                        port = 0)
+    val source = new GHTorrentRabbitMQSource(username = "username",
+                                             host = "host_name",
+                                             port = 0)
 
     assert(source.rmConnectionConfig.getHost == "host_name")
     assert(source.rmConnectionConfig.getPort == 0)
@@ -24,7 +27,8 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
 
   test("Correct routing_keys are loaded.") {
     val source =
-      new GHTorrentRMQSource(username = "test", routingKeysFile = "routing.txt")
+      new GHTorrentRabbitMQSource(username = "test",
+                                  routingKeysFile = "routing.txt")
 
     assert(source.routingKeys.length == 3)
     assert(source.routingKeys.contains("a"))
@@ -33,8 +37,8 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
   }
 
   test("Queue should be properly setup.") {
-    val source = new GHTorrentRMQSource(username = "username",
-                                        routingKeysFile = "routing.txt")
+    val source = new GHTorrentRabbitMQSource(username = "username",
+                                             routingKeysFile = "routing.txt")
     val mockChannel = mock[Channel]
 
     source.channel = mockChannel
@@ -56,7 +60,7 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
   test("Connection throws IOException while closing") {
     val mockedConnection = mock[Connection]
 
-    val source = new GHTorrentRMQSource(username = "username")
+    val source = new GHTorrentRabbitMQSource(username = "username")
     source.connection = mockedConnection
     when(mockedConnection.close()).thenThrow(new IOException())
 
@@ -69,7 +73,7 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
     val config = new Configuration()
     val mockedConnection = mock[Connection]
 
-    val source = new GHTorrentRMQSource(username = "username")
+    val source = new GHTorrentRabbitMQSource(username = "username")
     source.connection = mockedConnection
     source.channel = null
 
@@ -87,7 +91,7 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
 
     // a lot of mockito magic
     when(mockedContext.isCheckpointingEnabled).thenReturn(true)
-    val source = spy(new GHTorrentRMQSource(username = "username"))
+    val source = spy(new GHTorrentRabbitMQSource(username = "username"))
     doReturn(mockedContext).when(source).getRuntimeContext
     doReturn(mockedFactory).when(source).getFactory()
     when(mockedFactory.newConnection).thenReturn(mockedConnection)
@@ -107,7 +111,7 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
     val mockedChannel = mock[Channel]
     val mockedContext = mock[StreamingRuntimeContext]
 
-    val source = new GHTorrentRMQSource(username = "username")
+    val source = new GHTorrentRabbitMQSource(username = "username")
     source.connection = mockedConnection
     source.channel = mockedChannel
 
@@ -126,7 +130,7 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
 
     // a lot of mockito magic
     when(mockedContext.isCheckpointingEnabled).thenReturn(true)
-    val source = spy(new GHTorrentRMQSource(username = "username"))
+    val source = spy(new GHTorrentRabbitMQSource(username = "username"))
     doReturn(mockedContext).when(source).getRuntimeContext
     doReturn(mockedFactory).when(source).getFactory()
     when(mockedFactory.newConnection()).thenThrow(new IOException())
@@ -134,6 +138,47 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
     assertThrows[RuntimeException] {
       source.open(config)
     }
+  }
+
+  test("Produced type should be a String") {
+    assert(
+      new GHTorrentRabbitMQSource("").getProducedType == BasicTypeInfo.STRING_TYPE_INFO)
+  }
+
+  test("acknowledgeSessionsIds could catch an IOException") {
+    val source = new GHTorrentRabbitMQSource("")
+    val channel = mock[Channel]
+    source.channel = channel
+
+    when(channel.txCommit()).thenThrow(new IOException())
+
+    assertThrows[RuntimeException] {
+      source.acknowledgeSessionIDs(new util.ArrayList[Long]())
+    }
+  }
+
+  test("RabbitMQSource should properly run with autoack") {
+    val source = new GHTorrentRabbitMQSource("")
+    val channel = mock[Channel]
+    val context = mock[SourceFunction.SourceContext[String]]
+    val captor = ArgumentCaptor.forClass(classOf[DefaultConsumer])
+
+    doReturn(new Object()).when(context).getCheckpointLock
+
+    source.channel = channel
+    source.autoAck = true
+    source.run(context)
+
+    verify(channel).basicConsume(any[String],
+                                 any[Boolean],
+                                 any[String],
+                                 captor.capture())
+
+    val consumer = captor.getValue
+    val mockEnv = mock[Envelope]
+    when(mockEnv.getRoutingKey).thenReturn("test")
+    consumer.handleDelivery("", mockEnv, null, Array())
+    verify(context).collect("test#")
   }
 
 }

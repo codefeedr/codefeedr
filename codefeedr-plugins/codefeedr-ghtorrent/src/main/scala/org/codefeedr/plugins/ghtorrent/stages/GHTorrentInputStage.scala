@@ -21,7 +21,7 @@ package org.codefeedr.plugins.ghtorrent.stages
 import org.apache.flink.streaming.api.scala.DataStream
 import org.codefeedr.pipeline.Context
 import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.Record
-import org.codefeedr.plugins.ghtorrent.util.GHTorrentRMQSource
+import org.codefeedr.plugins.ghtorrent.util.GHTorrentRabbitMQSource
 import org.codefeedr.stages.InputStage
 import org.apache.flink.api.scala._
 
@@ -34,7 +34,8 @@ class GHTorrentInputStage(username: String,
 
   override def main(context: Context): DataStream[Record] = {
     context.env
-      .addSource(new GHTorrentRMQSource(username, host, port, routingKeysFile))
+      .addSource(
+        new GHTorrentRabbitMQSource(username, host, port, routingKeysFile))
       .map { x =>
         val splitEl = x.split("#", 2)
         val routingKey = splitEl(0)

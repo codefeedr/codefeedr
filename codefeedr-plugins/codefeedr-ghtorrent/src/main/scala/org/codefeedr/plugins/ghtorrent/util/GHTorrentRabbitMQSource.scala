@@ -39,17 +39,18 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.io.Source
 import collection.JavaConverters._
 
-class GHTorrentRMQSource(username: String,
-                         host: String = "localhost",
-                         port: Int = 5672,
-                         routingKeysFile: String = "routing_keys.txt",
-                         usesCorrelationId: Boolean = false)
+class GHTorrentRabbitMQSource(username: String,
+                              host: String = "localhost",
+                              port: Int = 5672,
+                              routingKeysFile: String = "routing_keys.txt",
+                              usesCorrelationId: Boolean = false)
     extends MultipleIdsMessageAcknowledgingSourceBase[String, String, Long](
       classOf[String])
     with ResultTypeQueryable[String] {
 
   // Logger instance.
-  private val LOG: Logger = LoggerFactory.getLogger(classOf[GHTorrentRMQSource])
+  private val LOG: Logger =
+    LoggerFactory.getLogger(classOf[GHTorrentRabbitMQSource])
 
   // We parse it into a String in the format: routing_key#body
   private val schema: SimpleStringSchema = new SimpleStringSchema()
@@ -132,7 +133,6 @@ class GHTorrentRMQSource(username: String,
             .isCheckpointingEnabled) {
         autoAck = false
         channel.txSelect() // enable transaction mode
-        println("now here funny " + channel)
       } else {
         autoAck = true
       }
@@ -188,12 +188,6 @@ class GHTorrentRMQSource(username: String,
             // Get the routing key and the body of the consumed message.
             val routingKey = envelope.getRoutingKey()
             val result = schema.deserialize(body)
-
-            // Stops the stream.
-            if (schema.isEndOfStream(result)) {
-              running = false
-              channel.basicCancel(consumerTag)
-            }
 
             if (!autoAck) { //If autoAck is disabled, we provide the delivery tag to a list of sessionIds.
               val deliveryTag = envelope.getDeliveryTag
