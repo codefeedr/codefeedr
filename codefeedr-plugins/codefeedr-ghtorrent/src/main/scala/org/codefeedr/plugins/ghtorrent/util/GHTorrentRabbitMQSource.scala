@@ -40,6 +40,8 @@ import scala.io.Source
 import collection.JavaConverters._
 
 class GHTorrentRMQSource(username: String,
+                         host: String = "localhost",
+                         port: Int = 5672,
                          routingKeysFile: String = "routing_keys.txt",
                          usesCorrelationId: Boolean = false)
     extends MultipleIdsMessageAcknowledgingSourceBase[String, String, Long](
@@ -55,8 +57,8 @@ class GHTorrentRMQSource(username: String,
   // Configuration of RabbitMQ (also according to GHTorrent spec).
   private val rmConnectionConfig: RMQConnectionConfig =
     new RMQConnectionConfig.Builder()
-      .setHost("localhost")
-      .setPort(5672)
+      .setHost(host)
+      .setPort(port)
       .setVirtualHost("/")
       .setUserName("streamer")
       .setPassword("streamer")
