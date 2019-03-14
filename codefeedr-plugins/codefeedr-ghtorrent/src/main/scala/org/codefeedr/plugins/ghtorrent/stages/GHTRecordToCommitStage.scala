@@ -27,15 +27,15 @@ import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.JsonMethods.parse
 import org.apache.flink.api.scala._
 
-class GHTRecordToCommitStage extends TransformStage[Record, Commit] {
-
-  private val commitRoutingKey = "ent.commits.insert"
+class GHTRecordToCommitStage(stageName: String = "commits")
+    extends TransformStage[Record, Commit](Some(stageName)) {
 
   override def transform(source: DataStream[Record]): DataStream[Commit] = {
-    source.filter(_.routingKey == commitRoutingKey).map { x =>
-      implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
-
-      parse(x.contents).extract[Commit]
-    }
+    source
+      .filter(_.routingKey == "ent.commits.insert")
+      .map { x =>
+        implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
+        parse(x.contents).extract[Commit]
+      }
   }
 }

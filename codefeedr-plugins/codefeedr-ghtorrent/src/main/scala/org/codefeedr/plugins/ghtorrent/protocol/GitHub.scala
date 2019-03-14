@@ -1,11 +1,15 @@
 package org.codefeedr.plugins.ghtorrent.protocol
 
+import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent._id
+
 object GitHub {
 
   /**
     * START Commit
     */
-  case class Commit(sha: String,
+  case class Commit(_id: _id,
+                    node_id: String,
+                    sha: String,
                     url: String,
                     commit: CommitData,
                     author: Option[User],

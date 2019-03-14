@@ -26,4 +26,6 @@ object GHTorrent {
     * @param contents the content of the queue record.
     */
   case class Record(routingKey: String, contents: String)
+
+  case class _id(`$oid`: String)
 }
