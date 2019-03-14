@@ -248,4 +248,16 @@ class GHTorrentRabbitMQSourceTest extends FunSuite with MockitoSugar {
     verify(mockSessionIds, times(0)).add(any[Long])
   }
 
+  test("Verify some getters") {
+    val source = new GHTorrentRabbitMQSource("")
+
+    source.cancel()
+
+    assert(source.getSessionIds == null)
+
+    assertThrows[NullPointerException] {
+      source.alreadyProcessed("")
+    }
+  }
+
 }
