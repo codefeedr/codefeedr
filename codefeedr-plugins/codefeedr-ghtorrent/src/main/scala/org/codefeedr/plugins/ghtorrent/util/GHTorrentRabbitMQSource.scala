@@ -110,7 +110,7 @@ class GHTorrentRMQSource(username: String,
   override def open(parameters: Configuration): Unit = {
     super.open(parameters)
 
-    val factory: ConnectionFactory = rmConnectionConfig.getConnectionFactory()
+    val factory: ConnectionFactory = getFactory()
 
     try {
 
@@ -126,12 +126,13 @@ class GHTorrentRMQSource(username: String,
       setupQueue()
 
       // Find out if checkpointing is enabled, then enable transactional mode.
-      val runtimeContext: RuntimeContext = getRuntimeContext()
+      val runtimeContext: RuntimeContext = this.getRuntimeContext()
       if (runtimeContext.isInstanceOf[StreamingRuntimeContext] && runtimeContext
             .asInstanceOf[StreamingRuntimeContext]
             .isCheckpointingEnabled) {
         autoAck = false
         channel.txSelect() // enable transaction mode
+        println("now here funny " + channel)
       } else {
         autoAck = true
       }
@@ -242,6 +243,9 @@ class GHTorrentRMQSource(username: String,
 
   /** Cancel the source. */
   override def cancel(): Unit = running = false
+
+  /** Creates factory based on RMConnectionConfig. */
+  def getFactory() = rmConnectionConfig.getConnectionFactory()
 
   /** Parses all routing keys from the file.
     *
