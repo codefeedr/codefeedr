@@ -67,6 +67,9 @@ entries:
       - title: Weblogs
         url: /mydoc_weblogs.html
         output: web, pdf
+      - title: GHTorrent
+        url: /mydoc_ghtorrent.html
+        output: web, pdf
 
   - title: Internals
     output: web, pdf
