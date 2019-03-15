@@ -39,6 +39,15 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.io.Source
 import collection.JavaConverters._
 
+/** This class is based on the orginal Flink RabbitMQSource.
+  * It creates a queue bound to a set of routing keys according to the GHTorrent protocol.
+  *
+  * @param username your username to specify to GHTorrent.
+  * @param host the host name, default is localhost.
+  * @param port the port, default is 5672.
+  * @param routingKeysFile the location of the routingKeysFile (in the resources directory).
+  * @param usesCorrelationId if correlation id's should be enabled, default is false.
+  */
 class GHTorrentRabbitMQSource(username: String,
                               host: String = "localhost",
                               port: Int = 5672,
