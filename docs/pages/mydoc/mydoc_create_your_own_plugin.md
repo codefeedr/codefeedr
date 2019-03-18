@@ -72,8 +72,8 @@ object Main {
 The StringInput is a stage pre-defined in the CodeFeedr framework, it
 simple converts a string into words and parses it to the `StringType`
 case class. By default a Kafka buffer is used. Starting this pipeline
-will result in the following data flow: <p align="center"><img
-src="https://i.imgur.com/LOGmdK2.png" width="400"></p>
+will result in the following data flow: 
+<p align="center"><img src="https://i.imgur.com/LOGmdK2.png" style="width: 400px"></p>
 
 ## How To Run
 Currently three running modes are supported.
