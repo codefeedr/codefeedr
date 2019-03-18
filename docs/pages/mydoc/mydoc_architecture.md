@@ -23,8 +23,7 @@ is a directed acyclic graph. Data flow from one job to another is
 coordinated by a buffer (default this buffer is [Apache
 Kafka](https://kafka.apache.org)). Within a pipeline multiple _stages_
 are connected, using a _buffer_. A pipeline is created using the
-_PipelineBuilder_.  ## Example CodeFeedr use-case
-Add example use-case here.
+_PipelineBuilder_. 
 
 
 

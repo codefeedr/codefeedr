@@ -6,15 +6,19 @@ sidebar: mydoc_sidebar
 permalink: mydoc_create_your_own_plugin.html
 ---
 
-{% include warning.html content="This page is outdated!" %}
 ## Setup
 To use the framework import the following dependency in your project:
+```scala
+libraryDependencies += "org.codefeedr" %% "codefeedr-core" %  "0.1.0"
+libraryDependencies += "org.apache.flink" %% "flink-scala" % "1.7.0"
+libraryDependencies += "org.apache.flink" %% "flink-streaming-scala" % "1.7.0"
+```
 
 ## Template
 If you want to start from scratch, you can download our template using
 [Giter8](http://www.foundweekends.org/giter8/):
 
-`sbt new Jorisq/bep_codefeedr-project.g8`
+`sbt new codefeedr/codefeedr-plugin-template.g8`
 
 This template contains a simple WordCount example, which is discussed
 below.
@@ -68,8 +72,8 @@ object Main {
 The StringInput is a stage pre-defined in the CodeFeedr framework, it
 simple converts a string into words and parses it to the `StringType`
 case class. By default a Kafka buffer is used. Starting this pipeline
-will result in the following data flow: <p align="center"><img
-src="https://i.imgur.com/LOGmdK2.png" width="400"></p>
+will result in the following data flow: 
+<p align="center"><img src="https://i.imgur.com/LOGmdK2.png" style="width: 400px"></p>
 
 ## How To Run
 Currently three running modes are supported.
