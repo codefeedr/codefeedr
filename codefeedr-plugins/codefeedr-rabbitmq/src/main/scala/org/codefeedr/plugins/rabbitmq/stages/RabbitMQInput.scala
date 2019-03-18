@@ -60,7 +60,6 @@ class RabbitMQInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
     context.env
       .addSource(source)
-      .setParallelism(1) // Needed for exactly one guarantees
   }
 
   /** The serializer to use for reading data from RabbitMQ.
