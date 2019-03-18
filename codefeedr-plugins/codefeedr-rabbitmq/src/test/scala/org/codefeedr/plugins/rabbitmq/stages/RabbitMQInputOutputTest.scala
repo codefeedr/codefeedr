@@ -19,13 +19,27 @@ package org.codefeedr.plugins.rabbitmq.stages
 
 import java.util
 
+import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.functions.sink.SinkFunction.Context
+import org.apache.flink.streaming.api.scala.{
+  DataStream,
+  StreamExecutionEnvironment
+}
+import org.apache.flink.streaming.connectors.rabbitmq.RMQSource
+import org.codefeedr.pipeline
+import org.codefeedr.pipeline.Context
 import org.codefeedr.stages.utilities.StringType
 import org.scalatest.FunSuite
+import org.scalatest.mockito.MockitoSugar
+import org.mockito.Matchers._
+import org.mockito.Mockito._
+import org.apache.flink.api.scala._
+import org.codefeedr.plugins.rabbitmq.RMQSinkDurable
+
 import scala.collection.JavaConversions._
 
-class RabbitMQInputOutputTest extends FunSuite {
+class RabbitMQInputOutputTest extends FunSuite with MockitoSugar {
 
   val longString =
     """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt posuere urna vitae lacinia. Ut fringilla erat at finibus varius. Etiam molestie nunc in dictum pulvinar. Nulla at ligula nec ante viverra varius. Aenean tincidunt enim vestibulum, ultrices diam ut, varius nulla. Sed nec massa orci. Nunc lacinia aliquam enim blandit facilisis. Quisque nec mollis ante. Etiam convallis ut nulla sed cursus. Curabitur in mauris sit amet elit sagittis sollicitudin vel nec eros. Proin condimentum, eros eget dapibus pulvinar, neque eros vestibulum dui, et sodales odio quam et nibh. Nunc egestas fringilla urna, sed pharetra magna. Cras in commodo felis.
@@ -46,7 +60,6 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
     pipeline.startMock()
   }
     **/
-
   //  test("All data can be read from mongo") {
   //    RMQStringCollectSink.reset()
   //
@@ -66,6 +79,22 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
   //    assert(list.size == items.size)
   //    assert(RMQStringCollectSink.numEventTimes == 0)
   //  }
+
+  test("Source should be properly bound to DataStream.") {
+    val input = new RabbitMQInput[StringType]("")
+    val output = new RabbitMQOutput[StringType]("")
+    val stream = mock[DataStream[StringType]]
+    val env = mock[StreamExecutionEnvironment]
+
+    val context = pipeline.Context(env, "")
+
+    input.main(context)
+    verify(env).addSource(any[RMQSource[StringType]])(
+      any[TypeInformation[StringType]])
+
+    output.main(stream)
+    verify(stream).addSink(any[RMQSinkDurable[StringType]])
+  }
 }
 
 object RMQStringCollectSink {
@@ -82,7 +111,8 @@ object RMQStringCollectSink {
 
 class RMQStringCollectSink extends SinkFunction[StringType] {
 
-  override def invoke(value: StringType, context: Context[_]): Unit = {
+  override def invoke(value: StringType,
+                      context: SinkFunction.Context[_]): Unit = {
     synchronized {
       RMQStringCollectSink.result.add(value.value)
 

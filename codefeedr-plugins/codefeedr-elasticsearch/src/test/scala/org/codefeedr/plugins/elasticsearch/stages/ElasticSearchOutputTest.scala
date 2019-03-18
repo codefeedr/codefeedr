@@ -18,10 +18,18 @@
 
 package org.codefeedr.plugins.elasticsearch.stages
 
+import org.apache.flink.api.common.functions.RuntimeContext
+import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer
+import org.apache.flink.streaming.connectors.elasticsearch6.ElasticsearchSink
 import org.codefeedr.stages.utilities.StringType
+import org.elasticsearch.action.index.IndexRequest
 import org.scalatest.FunSuite
+import org.scalatest.mockito.MockitoSugar
+import org.mockito.Matchers._
+import org.mockito.Mockito._
 
-class ElasticSearchOutputTest extends FunSuite {
+class ElasticSearchOutputTest extends FunSuite with MockitoSugar {
   val index = "testIndex"
 
   test("Should create config object") {
@@ -67,6 +75,25 @@ class ElasticSearchOutputTest extends FunSuite {
     val sink = new ElasticSearchSink[StringType](index)
 
     assert(sink.serialize(StringType("test")).isInstanceOf[Array[Byte]])
+  }
+
+  test("An element should be properly processed.") {
+    val sink = new ElasticSearchSink[StringType](index)
+    val mockedContext = mock[RuntimeContext]
+    val mockedIndex = mock[RequestIndexer]
+
+    sink.process(new StringType(""), mockedContext, mockedIndex)
+
+    verify(mockedIndex).add(any[IndexRequest])
+  }
+
+  test("ElasticSearchOutput should properly bind to DataStream") {
+    val stage = new ElasticSearchOutput[StringType](index)
+    val mockedStream = mock[DataStream[StringType]]
+
+    stage.main(mockedStream)
+
+    verify(mockedStream).addSink(any[ElasticsearchSink[StringType]])
   }
 
 }

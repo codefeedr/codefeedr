@@ -55,18 +55,6 @@ entries:
       - title: MongoDB
         url: /mydoc_mongo.html
         output: web, pdf
-      - title: RSS
-        url: /mydoc_rss.html
-        output: web, pdf
-      - title: TravisCI
-        url: /mydoc_travis.html
-        output: web, pdf
-      - title: Twitter
-        url: /mydoc_twitter.html
-        output: web, pdf
-      - title: Weblogs
-        url: /mydoc_weblogs.html
-        output: web, pdf
 
   - title: Internals
     output: web, pdf
