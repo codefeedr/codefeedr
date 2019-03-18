@@ -43,13 +43,9 @@ val pluginPrefix = projectPrefix + "plugin-"
 lazy val root = (project in file("."))
   .settings(settings ++ noPublishSettings)
   .aggregate(core,
-    pluginRss,
     pluginMongodb,
     pluginElasticSearch,
     pluginGitHub,
-    pluginTravis,
-    pluginWeblogs,
-    pluginTwitter,
     pluginRabbitMQ)
 
 lazy val core = (project in file("codefeedr-core"))
@@ -94,19 +90,6 @@ lazy val core = (project in file("codefeedr-core"))
     )
   )
 
-lazy val pluginRss = (project in file("codefeedr-plugins/codefeedr-rss"))
-  .settings(
-    name := pluginPrefix + "rss",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.httpj
-    )
-  )
-  .dependsOn(
-    core
-  )
-
 lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb"))
   .settings(
     name := pluginPrefix + "mongodb",
@@ -145,50 +128,6 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
       dependencies.json4s,
       dependencies.jackson,
       dependencies.json4sExt
-    )
-  )
-  .dependsOn(
-    core
-  )
-
-lazy val pluginTravis = (project in file("codefeedr-plugins/codefeedr-travis"))
-  .settings(
-    name := pluginPrefix + "travis",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.httpj
-    )
-  )
-  .dependsOn(
-    core,
-    pluginGitHub
-  )
-
-lazy val pluginWeblogs = (project in file("codefeedr-plugins/codefeedr-weblogs"))
-  .settings(
-    name := pluginPrefix + "weblogs",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-    )
-  )
-  .dependsOn(
-    core
-  )
-
-lazy val pluginTwitter = (project in file("codefeedr-plugins/codefeedr-twitter"))
-  .settings(
-    name := pluginPrefix + "twitter",
-    settings,
-    assemblySettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
-      dependencies.twitter
-    ),
-    dependencyOverrides ++= Seq( //override json4s dependencies
-      "org.json4s" %% "json4s-scalap" % "3.5.3",
-      "org.json4s" %% "json4s-jackson" % "3.5.3",
-      "org.json4s" %% "json4s-ext" % "3.5.3"
     )
   )
   .dependsOn(
@@ -252,7 +191,6 @@ lazy val dependencies =
     //val embeddedRabbitMQ   = "io.arivera.oss"            %% "embedded-rabbitmq"              % "1.3.0"           % Test
 
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
-    val twitter            = "com.danielasfregola"        %% "twitter4s"                     % "5.5"
   }
 
 lazy val commonDependencies = Seq(
