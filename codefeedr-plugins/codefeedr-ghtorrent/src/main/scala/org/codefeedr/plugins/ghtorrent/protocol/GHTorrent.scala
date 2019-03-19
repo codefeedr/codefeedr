@@ -33,6 +33,6 @@ object GHTorrent {
     */
   case class _id(`$oid`: String)
 
-  /** Every event should subtype from this case class. */
-  case class Event()
+  /** Every event should subtype from this class. */
+  abstract class Event() extends Serializable
 }

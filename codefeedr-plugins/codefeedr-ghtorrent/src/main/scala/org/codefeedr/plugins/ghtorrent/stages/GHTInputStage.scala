@@ -34,7 +34,7 @@ import org.apache.flink.api.scala._
   * @param routingKeysFile the location of the routingKeysFile (in the resources directory).
   */
 class GHTInputStage(username: String,
-                    stageName: String = "ghtorrent_input",
+                    stageName: String = "ght_input",
                     host: String = "localhost",
                     port: Int = 5672,
                     routingKeysFile: String = "routing_keys.txt")

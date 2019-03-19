@@ -1,6 +1,8 @@
 package org.codefeedr.plugins.ghtorrent.protocol
 
-import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent._id
+import java.util.Date
+
+import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.{Event, _id}
 
 object GitHub {
 
@@ -56,6 +58,54 @@ object GitHub {
   case class Tree(sha: String)
 
   /**
-  * END Commit
+    * END Commit
+    */
+  /**
+    * START Event
+    */
+  case class Actor(id: Long,
+                   login: String,
+                   display_login: String,
+                   gravatar_id: String,
+                   url: String,
+                   avatar_url: String)
+
+  case class Repo(id: Long, name: String, url: String)
+
+  case class Organization(id: Long, login: String)
+
+  /**
+    * END Event
+    */
+  /**
+    * START PushEvent
+    */
+  case class PushEvent(id: String,
+                       _id: _id,
+                       `type`: String,
+                       actor: Actor,
+                       repo: Repo,
+                       organization: Option[Organization],
+                       payload: PushPayload,
+                       public: Boolean,
+                       created_at: Date)
+      extends Event
+
+  case class PushPayload(push_id: Long,
+                         size: Int,
+                         distinct_size: Int,
+                         ref: String,
+                         head: String,
+                         before: String,
+                         commits: List[PushCommit])
+
+  case class PushCommit(sha: String,
+                        author: PushAuthor,
+                        message: String,
+                        distinct: Boolean)
+
+  case class PushAuthor(email: String, name: String)
+  /**
+  * END PushEvent
   */
 }
