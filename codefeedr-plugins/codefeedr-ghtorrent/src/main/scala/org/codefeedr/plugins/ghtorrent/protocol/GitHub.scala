@@ -147,7 +147,121 @@ object GitHub {
       extends Event
 
   case class DeletePayload(ref: String, ref_type: String, pusher_type: String)
+
   /**
-  * END Delete
+    * END Delete
+    */
+  /**
+    * START CommitComment
+    */
+  case class CommitCommentEvent(id: String,
+                                _id: _id,
+                                `type`: String,
+                                actor: Actor,
+                                repo: Repo,
+                                organization: Option[Organization],
+                                payload: CommitCommentPayload,
+                                public: Boolean,
+                                created_at: Date)
+      extends Event
+
+  case class CommitCommentPayload(comment: Comment)
+
+  case class Comment(url: String,
+                     html_url: String,
+                     id: Long,
+                     node_id: String,
+                     user: User,
+                     position: Option[Int],
+                     line: Option[Int],
+                     path: Option[String],
+                     commit_id: String,
+                     created_at: Date,
+                     updated_at: Date,
+                     author_association: String,
+                     body: String)
+
+  /**
+    * END CommitComment
+    */
+  /**
+    * START PullRequest
+    */
+  case class PullRequestEvent(id: String,
+                              _id: _id,
+                              `type`: String,
+                              actor: Actor,
+                              repo: Repo,
+                              organization: Option[Organization],
+                              payload: PullRequestPayload,
+                              public: Boolean,
+                              created_at: Date)
+
+  case class PullRequestPayload(action: String,
+                                number: Int,
+                                pull_request: PullRequest)
+
+  case class PullRequest(url: String,
+                         id: Long,
+                         node_id: String,
+                         number: Int,
+                         state: String,
+                         locked: Boolean,
+                         title: String,
+                         user: User,
+                         body: String,
+                         created_at: Date,
+                         updated_at: Date,
+                         closed_at: Date,
+                         merged_at: Date,
+                         merge_commit_sha: String,
+                         assignee: Option[User],
+                         assignees: List[User],
+                         requested_reviewers: List[User],
+                         requested_teams: List[Team],
+                         milestone: Option[Milestone],
+                         head: PullRequestMarker,
+                         base: PullRequestMarker,
+                         author_association: String,
+                         merged: Boolean,
+                         merged_by: User,
+                         comments: Int,
+                         review_comments: Int,
+                         maintainer_can_modify: Boolean,
+                         commits: Int,
+                         additions: Double,
+                         deletions: Double,
+                         changed_files: Int)
+
+  case class Team(id: Long,
+                  node_id: String,
+                  url: String,
+                  name: String,
+                  slug: String,
+                  description: String,
+                  privacy: String,
+                  permission: String,
+                  members_url: String,
+                  repositories_url: String)
+
+  case class Milestone(url: String,
+                       html_url: String,
+                       labels_url: String,
+                       id: Long,
+                       node_id: String,
+                       number: Int,
+                       state: String,
+                       title: String,
+                       description: String,
+                       creator: User,
+                       open_issues: Int,
+                       closed_issues: Int,
+                       created_at: Date,
+                       updated_at: Date,
+                       due_on: Date)
+
+  case class PullRequestMarker()
+  /**
+  * END PullRequest
   */
 }
