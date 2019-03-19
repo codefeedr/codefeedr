@@ -105,7 +105,30 @@ object GitHub {
                         distinct: Boolean)
 
   case class PushAuthor(email: String, name: String)
+
   /**
-  * END PushEvent
+    * END PushEvent
+    */
+  /**
+    * START Create
+    */
+  case class CreateEvent(id: String,
+                         _id: _id,
+                         `type`: String,
+                         actor: Actor,
+                         repo: Repo,
+                         organization: Option[Organization],
+                         payload: CreatePayload,
+                         public: Boolean,
+                         created_at: Date)
+      extends Event
+
+  case class CreatePayload(ref: String,
+                           ref_type: String,
+                           master_branch: String,
+                           description: String,
+                           pusher_type: String)
+  /**
+  * END Create
   */
 }
