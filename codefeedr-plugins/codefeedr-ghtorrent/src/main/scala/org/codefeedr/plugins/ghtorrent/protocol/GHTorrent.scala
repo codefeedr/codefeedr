@@ -27,5 +27,12 @@ object GHTorrent {
     */
   case class Record(routingKey: String, contents: String)
 
+  /** Every GHTorrent record has an _id objet.
+    *
+    * @param `$oid` the object id.
+    */
   case class _id(`$oid`: String)
+
+  /** Every event should subtype from this case class. */
+  case class Event()
 }
