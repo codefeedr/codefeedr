@@ -128,7 +128,26 @@ object GitHub {
                            master_branch: String,
                            description: String,
                            pusher_type: String)
+
   /**
-  * END Create
+    * END Create
+    */
+  /**
+    * START Delete
+    */
+  case class DeleteEvent(id: String,
+                         _id: _id,
+                         `type`: String,
+                         actor: Actor,
+                         repo: Repo,
+                         organization: Option[Organization],
+                         payload: DeletePayload,
+                         public: Boolean,
+                         created_at: Date)
+      extends Event
+
+  case class DeletePayload(ref: String, ref_type: String, pusher_type: String)
+  /**
+  * END Delete
   */
 }
