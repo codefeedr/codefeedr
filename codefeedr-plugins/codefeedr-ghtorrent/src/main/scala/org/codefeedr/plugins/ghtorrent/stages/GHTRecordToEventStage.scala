@@ -40,7 +40,7 @@ class GHTRecordToEventStage[
     sideOutput: Boolean = true,
     sideOutputTopic: String = "parse_exception",
     sideOutputKafkaServer: String = "localhost:9092")
-    extends TransformStage[Record, T] {
+    extends TransformStage[Record, T](Some(stageName)) {
 
   val outputTag = OutputTag[Record]("parse_exception")
 
@@ -79,12 +79,14 @@ class EventExtract[T: Manifest](routingKey: String,
                               ctx: ProcessFunction[Record, T]#Context,
                               out: Collector[T]): Unit = {
     if (value.routingKey != routingKey) return //filter on routing keys
-    val parsedEvent = parse(value.contents).extract[T]
 
     try {
+      val parsedEvent = parse(value.contents).extract[T]
       out.collect(parsedEvent)
     } catch {
-      case e: Exception => ctx.output(outputTag, value)
+      case e: Exception => {
+        ctx.output(outputTag, value)
+      }
     }
   }
 }
