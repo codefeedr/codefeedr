@@ -80,13 +80,13 @@ class EventExtract[T: Manifest](routingKey: String,
                               out: Collector[T]): Unit = {
     if (value.routingKey != routingKey) return //filter on routing keys
 
-    try {
-      val parsedEvent = parse(value.contents).extract[T]
-      out.collect(parsedEvent)
-    } catch {
-      case e: Exception => {
-        ctx.output(outputTag, value)
-      }
+    // Extract it into an optional.
+    val parsedEvent = parse(value.contents).extractOpt[T]
+
+    if (parsedEvent.isEmpty) {
+      ctx.output(outputTag, value)
+    } else {
+      out.collect(parsedEvent.get)
     }
   }
 }
