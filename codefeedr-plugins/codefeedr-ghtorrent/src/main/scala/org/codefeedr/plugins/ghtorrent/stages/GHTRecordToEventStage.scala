@@ -33,7 +33,7 @@ import scala.reflect.runtime.universe._
   * @param routingKey the routing_key to filter on.
   * @tparam T the type of this event.
   */
-class GHTRecordToEventStage[
+protected class GHTRecordToEventStage[
     T <: Serializable with AnyRef with Event: TypeTag: ClassTag: TypeInformation](
     stageName: String,
     routingKey: String,
