@@ -196,6 +196,7 @@ object GitHub {
                               payload: PullRequestPayload,
                               public: Boolean,
                               created_at: Date)
+      extends Event
 
   case class PullRequestPayload(action: String,
                                 number: Int,
@@ -224,7 +225,7 @@ object GitHub {
                          base: PullRequestMarker,
                          author_association: String,
                          merged: Boolean,
-                         merged_by: User,
+                         merged_by: Option[User],
                          comments: Int,
                          review_comments: Int,
                          maintainer_can_modify: Boolean,
@@ -242,7 +243,8 @@ object GitHub {
                   privacy: String,
                   permission: String,
                   members_url: String,
-                  repositories_url: String)
+                  repositories_url: String,
+                  parent: Option[Team])
 
   case class Milestone(url: String,
                        html_url: String,
