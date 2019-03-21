@@ -263,6 +263,38 @@ object GitHub {
                        due_on: Date)
 
   case class PullRequestMarker()
+
+  case class Repository(id: Long,
+                        name: String,
+                        full_name: String,
+                        `private`: Boolean,
+                        owner: User,
+                        description: String,
+                        fork: Boolean,
+                        homepage: String,
+                        size: Double,
+                        stargazers_count: Double,
+                        language: String,
+                        has_issues: Boolean,
+                        has_projects: Boolean,
+                        has_downloads: Boolean,
+                        has_wiki: Boolean,
+                        has_pages: Boolean,
+                        archived: Boolean,
+                        open_issues_count: Double,
+                        license: License,
+                        forks: Double,
+                        open_issues: Double,
+                        watchers: Double,
+                        default_branch: String)
+
+  case class RepositoryStats()
+
+  case class License(key: String,
+                     name: String,
+                     spdx_id: String,
+                     url: String,
+                     node_id: String)
   /**
   * END PullRequest
   */
