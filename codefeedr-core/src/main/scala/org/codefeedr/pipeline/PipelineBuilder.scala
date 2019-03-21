@@ -312,6 +312,51 @@ class PipelineBuilder extends Logging {
     this
   }
 
+  /** Directs a stage to multiple other stages.
+    *
+    * @param from The stage to start from.
+    * @param to The list of stages to direct to.
+    * @return The builder instance.
+    */
+  def edge[In <: Serializable with AnyRef, Out <: Serializable with AnyRef](
+      from: Stage[In, Out],
+      to: List[
+        Stage[_ <: Serializable with AnyRef, _ <: Serializable with AnyRef]])
+    : PipelineBuilder = {
+    to.foreach(makeEdge(from, _))
+
+    this
+  }
+
+  /** Directs multiple stages to one stage.
+    *
+    * @param from The list of stages to start from.
+    * @param to The stage to end.
+    * @return The builder instance.
+    */
+  def edge[In <: Serializable with AnyRef, Out <: Serializable with AnyRef](
+      from: List[
+        Stage[_ <: Serializable with AnyRef, _ <: Serializable with AnyRef]],
+      to: Stage[In, Out]): PipelineBuilder = {
+    from.foreach(makeEdge(_, to))
+
+    this
+  }
+
+  /** Links multiple stages to multiple stages.
+    *
+    * @param from The list of stages to start from.
+    * @param to The list of stages to direct to.
+    */
+  def edge(
+      from: List[
+        Stage[_ <: Serializable with AnyRef, _ <: Serializable with AnyRef]],
+      to: List[
+        Stage[_ <: Serializable with AnyRef, _ <: Serializable with AnyRef]])
+    : Unit = {
+    from.foreach(edge(_, to))
+  }
+
   /** Creates an edge between two stages. The 'to' must not already have a parent.
     *
     * If the graph is not configured yet (has no nodes), the graph is switched to a DAG automatically.

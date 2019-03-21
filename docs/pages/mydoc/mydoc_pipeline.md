@@ -158,6 +158,15 @@ seen in this figure:
 <p align="center"><img src="images/flink_kafka_cluster.png"
 style="width: 500px"></p>
 
+It is also possible to link multiple stages in one statement:
+```scala
+.edge([Stage], List[Stage])
+
+.edge(List[Stage], [Stage])
+
+.edge(List[Stage], List[Stage])
+```
+
 **Note:** Type-safety is guaranteed in between stages. E.g. if
 Stage1 outputs type `A` and Stage2 reads from Stage1, Stage2 is
 explicitly required to have `A` as input type. An error will be thrown

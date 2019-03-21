@@ -32,7 +32,8 @@ import org.codefeedr.stages.OutputStage
 import org.codefeedr.testUtils.{
   SimpleSinkStage,
   SimpleSourceStage,
-  SimpleTransformStage
+  SimpleTransformStage,
+  SimpleTwoTransformStage
 }
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
@@ -191,6 +192,54 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assertThrows[IllegalArgumentException] {
       builder.edge(a, b)
     }
+  }
+
+  test("Direct link from one stage to a list of others.") {
+    val a = new SimpleSourceStage()
+    val b = new SimpleTransformStage()
+    val c = new SimpleTransformStage()
+
+    builder.edge(a, List(b, c))
+
+    assert(builder.getPipelineType == PipelineType.DAG)
+
+    val pipeline = builder.build()
+
+    assert(pipeline.graph.getChildren(a).size == 2)
+  }
+
+  test("Direct link from list of stages to one stage.") {
+    val a = new SimpleSourceStage()
+    val b = new SimpleSourceStage()
+    val c = new SimpleTwoTransformStage()
+
+    builder.edge(List(a, b), c)
+
+    assert(builder.getPipelineType == PipelineType.DAG)
+
+    val pipeline = builder.build()
+
+    assert(pipeline.graph.getParents(c).size == 2)
+  }
+
+  test("Direct link from list of stages to other list of stages.") {
+    val a = new SimpleSourceStage()
+    val b = new SimpleSourceStage()
+    val c = new SimpleTwoTransformStage()
+    val d = new SimpleTwoTransformStage()
+    val e = new SimpleTwoTransformStage()
+
+    builder.edge(List(a, b), List(c, d, e))
+
+    assert(builder.getPipelineType == PipelineType.DAG)
+
+    val pipeline = builder.build()
+
+    assert(pipeline.graph.getParents(c).size == 2)
+    assert(pipeline.graph.getParents(d).size == 2)
+    assert(pipeline.graph.getParents(e).size == 2)
+    assert(pipeline.graph.getChildren(a).size == 3)
+    assert(pipeline.graph.getChildren(b).size == 3)
   }
 
   test("Appending after switching to seq") {
