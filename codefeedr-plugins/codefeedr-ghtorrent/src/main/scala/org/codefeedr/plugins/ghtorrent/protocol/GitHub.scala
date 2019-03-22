@@ -427,8 +427,46 @@ object GitHub {
                   action: String,
                   sha: String,
                   html_url: String)
-  /**
-  * END GollumEvent
-  */
 
+  /**
+    * END GollumEvent
+    */
+  /**
+    * START IssuesEvent
+    */
+  case class IssueEvent(id: String,
+                        _id: _id,
+                        `type`: String,
+                        actor: Actor,
+                        repo: Repo,
+                        organization: Option[Organization],
+                        payload: IssuePayload,
+                        public: Boolean,
+                        created_at: Date)
+      extends Event
+
+  case class IssuePayload(action: String, issue: Issue)
+
+  case class Issue(url: String,
+                   id: Long,
+                   node_id: String,
+                   number: Double,
+                   title: String,
+                   user: User,
+                   labels: List[Label],
+                   state: String,
+                   locked: Boolean,
+                   assignee: Option[User],
+                   assignees: List[User],
+                   milestone: Option[Milestone],
+                   comments: Double,
+                   created_at: Date,
+                   updated_at: Date,
+                   closed_at: Option[Date],
+                   author_association: String,
+                   body: String)
+
+  /**
+  * END IssuesEvent
+  */
 }
