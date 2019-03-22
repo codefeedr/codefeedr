@@ -203,7 +203,7 @@ object GitHub {
                                 pull_request: PullRequest)
 
   case class PullRequest(url: String,
-                         id: Long,
+                         id: String,
                          node_id: String,
                          number: Int,
                          state: String,
@@ -220,11 +220,15 @@ object GitHub {
                          assignees: List[User],
                          requested_reviewers: List[User],
                          requested_teams: List[Team],
-                         milestone: Option[Milestone],
                          head: PullRequestMarker,
                          base: PullRequestMarker,
+                         labels: List[Label],
+                         milestone: Option[Milestone],
                          author_association: String,
                          merged: Boolean,
+                         mergeable: Option[Boolean],
+                         rebaseable: Option[Boolean],
+                         mergeable_state: String,
                          merged_by: Option[User],
                          comments: Int,
                          review_comments: Int,
@@ -262,18 +266,27 @@ object GitHub {
                        updated_at: Date,
                        due_on: Date)
 
-  case class PullRequestMarker()
+  case class PullRequestMarker(label: String,
+                               ref: String,
+                               sha: String,
+                               user: User,
+                               repo: Repository)
 
   case class Repository(id: Long,
                         name: String,
+                        node_id: String,
                         full_name: String,
                         `private`: Boolean,
                         owner: User,
                         description: String,
                         fork: Boolean,
+                        created_at: Date,
+                        updated_at: Date,
+                        pushed_at: Date,
                         homepage: String,
                         size: Double,
                         stargazers_count: Double,
+                        watchers_count: Double,
                         language: String,
                         has_issues: Boolean,
                         has_projects: Boolean,
@@ -288,13 +301,19 @@ object GitHub {
                         watchers: Double,
                         default_branch: String)
 
-  case class RepositoryStats()
-
   case class License(key: String,
                      name: String,
                      spdx_id: String,
                      url: String,
                      node_id: String)
+
+  case class Label(id: Long,
+                   node_id: String,
+                   url: String,
+                   name: String,
+                   description: String,
+                   color: String,
+                   default: Boolean)
   /**
   * END PullRequest
   */
