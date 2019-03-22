@@ -1,11 +1,6 @@
 package org.codefeedr.plugins.ghtorrent.stages
 
-import org.codefeedr.plugins.ghtorrent.protocol.GitHub.{
-  CommitCommentEvent,
-  CreateEvent,
-  DeleteEvent,
-  PushEvent
-}
+import org.codefeedr.plugins.ghtorrent.protocol.GitHub._
 import org.apache.flink.api.scala._
 
 object GHTEventStages {
@@ -24,4 +19,8 @@ object GHTEventStages {
       extends GHTRecordToEventStage[CommitCommentEvent](
         "ght_commitcomment",
         "evt.commitcomment.insert")
+
+  class GHTRecordToPullRequestEventStage()
+      extends GHTRecordToEventStage[PullRequestEvent]("ght_pullrequest",
+                                                      "evt.pullrequest.insert")
 }
