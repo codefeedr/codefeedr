@@ -5,22 +5,21 @@ import org.apache.flink.api.scala._
 
 object GHTEventStages {
 
-  class GHTRecordToCreateEventStage()
-      extends GHTRecordToEventStage[CreateEvent]("ght_create",
-                                                 "evt.create.insert")
-  class GHTRecordToDeleteEventStage()
-      extends GHTRecordToEventStage[DeleteEvent]("ght_delete",
-                                                 "evt.delete.insert")
+  class GHTRecordToCreateEventStage(stageName: String = "ght_create")
+      extends GHTRecordToEventStage[CreateEvent](stageName, "evt.create.insert")
+  class GHTRecordToDeleteEventStage(stageName: String = "ght_delete")
+      extends GHTRecordToEventStage[DeleteEvent](stageName, "evt.delete.insert")
 
-  class GHTRecordToPushEventStage()
-      extends GHTRecordToEventStage[PushEvent]("ght_push", "evt.push.insert")
+  class GHTRecordToPushEventStage(stageName: String = "ght_push")
+      extends GHTRecordToEventStage[PushEvent](stageName, "evt.push.insert")
 
-  class GHTRecordToCommitCommentEventStage()
+  class GHTRecordToCommitCommentEventStage(
+      stageName: String = "ght_commitcomment")
       extends GHTRecordToEventStage[CommitCommentEvent](
-        "ght_commitcomment",
+        stageName,
         "evt.commitcomment.insert")
 
-  class GHTRecordToPullRequestEventStage()
-      extends GHTRecordToEventStage[PullRequestEvent]("ght_pullrequest",
+  class GHTRecordToPullRequestEventStage(stageName: String = "ght_pullrequest")
+      extends GHTRecordToEventStage[PullRequestEvent](stageName,
                                                       "evt.pullrequest.insert")
 }
