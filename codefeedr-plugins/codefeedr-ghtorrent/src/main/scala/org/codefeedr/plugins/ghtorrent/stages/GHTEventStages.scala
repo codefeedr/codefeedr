@@ -22,4 +22,14 @@ object GHTEventStages {
   class GHTRecordToPullRequestEventStage(stageName: String = "ght_pullrequest")
       extends GHTRecordToEventStage[PullRequestEvent](stageName,
                                                       "evt.pullrequest.insert")
+
+  class GHTRecordToDeploymentEventStage(stageName: String = "ght_deployment")
+      extends GHTRecordToEventStage[DeploymentEvent](stageName,
+                                                     "evt.deployment.insert")
+
+  class GHTRecordToDeploymentStatusEventStage(
+      stageName: String = "ght_deploymentstatus")
+      extends GHTRecordToEventStage[DeploymentStatusEvent](
+        stageName,
+        "evt.deploymentstatus.insert")
 }

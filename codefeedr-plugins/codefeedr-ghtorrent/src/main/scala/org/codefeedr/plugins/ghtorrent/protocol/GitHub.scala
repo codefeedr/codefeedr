@@ -348,7 +348,41 @@ object GitHub {
                         updated_at: Date,
                         statuses_url: String,
                         repository_url: String)
+
   /**
-  * END Deployment
+    * END Deployment
+    */
+  /**
+    * START DeploymentStatus
+    */
+  case class DeploymentStatusEvent(id: String,
+                                   _id: _id,
+                                   `type`: String,
+                                   actor: Actor,
+                                   repo: Repo,
+                                   organization: Option[Organization],
+                                   payload: DeploymentStatusPayload,
+                                   public: Boolean,
+                                   created_at: Date)
+      extends Event
+
+  case class DeploymentStatusPayload(deployment_status: DeploymentStatus,
+                                     deployment: Deployment,
+                                     repository: Repository,
+                                     sender: Option[User])
+
+  case class DeploymentStatus(url: String,
+                              id: Long,
+                              node_id: String,
+                              state: String,
+                              creator: User,
+                              description: String,
+                              target_url: String,
+                              created_at: Date,
+                              updated_at: Date,
+                              deployment_url: String,
+                              repository_url: String)
+  /**
+  * END DeploymentStatus
   */
 }
