@@ -314,7 +314,41 @@ object GitHub {
                    description: String,
                    color: String,
                    default: Boolean)
+
   /**
-  * END PullRequest
+    * END PullRequest
+    */
+  /**
+    * START Deployment
+    */
+  case class DeploymentEvent(id: String,
+                             _id: _id,
+                             `type`: String,
+                             actor: Actor,
+                             repo: Repo,
+                             organization: Option[Organization],
+                             payload: DeploymentPayload,
+                             public: Boolean,
+                             created_at: Date)
+      extends Event
+
+  case class DeploymentPayload(deployment: Deployment,
+                               repository: Repository,
+                               sender: Option[User])
+
+  case class Deployment(url: String,
+                        id: Long,
+                        node_id: String,
+                        sha: String,
+                        ref: String,
+                        task: String,
+                        environment: String,
+                        creator: User,
+                        created_at: Date,
+                        updated_at: Date,
+                        statuses_url: String,
+                        repository_url: String)
+  /**
+  * END Deployment
   */
 }
