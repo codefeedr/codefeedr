@@ -401,7 +401,33 @@ object GitHub {
       extends Event
 
   case class ForkPayload(forkee: Repository)
+
   /**
-  * END ForkEvent
+    * END ForkEvent
+    */
+  /**
+    * START GollumEvent
+    */
+  case class GollumEvent(id: String,
+                         _id: _id,
+                         `type`: String,
+                         actor: Actor,
+                         repo: Repo,
+                         organization: Option[Organization],
+                         payload: GollumPayload,
+                         public: Boolean,
+                         created_at: Date)
+      extends Event
+
+  case class GollumPayload(pages: List[Page])
+
+  case class Page(page_name: String,
+                  title: String,
+                  summary: Option[String],
+                  action: String,
+                  sha: String,
+                  html_url: String)
+  /**
+  * END GollumEvent
   */
 }
