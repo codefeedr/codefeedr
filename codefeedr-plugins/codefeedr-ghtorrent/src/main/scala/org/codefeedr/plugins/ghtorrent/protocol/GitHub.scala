@@ -430,4 +430,5 @@ object GitHub {
   /**
   * END GollumEvent
   */
+
 }

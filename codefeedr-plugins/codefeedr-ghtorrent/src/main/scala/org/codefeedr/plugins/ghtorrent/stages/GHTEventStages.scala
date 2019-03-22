@@ -35,4 +35,7 @@ object GHTEventStages {
 
   class GHTRecordToForkEventStage(stageName: String = "ght_fork")
       extends GHTRecordToEventStage[ForkEvent](stageName, "evt.fork.insert")
+
+  class GHTRecordToGolumEventStage(stageName: String = "ght_gollum")
+      extends GHTRecordToEventStage[GollumEvent](stageName, "evt.gollum.insert")
 }
