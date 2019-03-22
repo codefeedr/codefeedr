@@ -41,4 +41,14 @@ object GHTEventStages {
 
   class GHTRecordToIssuesEvent(stageName: String = "ght_issues")
       extends GHTRecordToEventStage[IssuesEvent](stageName, "evt.issues.insert")
+
+  class GHTRecordToIssueCommentEvent(stageName: String = "ght_issuecomment")
+      extends GHTRecordToEventStage[IssuesEvent](stageName,
+                                                 "evt.issuecomment.insert")
+  class GHTRecordToMemberEvent(stageName: String = "ght_member")
+      extends GHTRecordToEventStage[MemberEvent](stageName, "evt.member.insert")
+
+  class GHTRecordToMemberShipEvent(stageName: String = "ght_membership")
+      extends GHTRecordToEventStage[MemberShipEvent](stageName,
+                                                     "evt.membership.insert")
 }

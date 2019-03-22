@@ -165,21 +165,21 @@ object GitHub {
                                 created_at: Date)
       extends Event
 
-  case class CommitCommentPayload(comment: Comment)
+  case class CommitCommentPayload(comment: CommitComment)
 
-  case class Comment(url: String,
-                     html_url: String,
-                     id: Long,
-                     node_id: String,
-                     user: User,
-                     position: Option[Int],
-                     line: Option[Int],
-                     path: Option[String],
-                     commit_id: String,
-                     created_at: Date,
-                     updated_at: Date,
-                     author_association: String,
-                     body: String)
+  case class CommitComment(url: String,
+                           html_url: String,
+                           id: Long,
+                           node_id: String,
+                           user: User,
+                           position: Option[Int],
+                           line: Option[Int],
+                           path: Option[String],
+                           commit_id: String,
+                           created_at: Date,
+                           updated_at: Date,
+                           author_association: String,
+                           body: String)
 
   /**
     * END CommitComment
@@ -440,12 +440,12 @@ object GitHub {
                          actor: Actor,
                          repo: Repo,
                          organization: Option[Organization],
-                         payload: IssuePayload,
+                         payload: IssuesPayload,
                          public: Boolean,
                          created_at: Date)
       extends Event
 
-  case class IssuePayload(action: String, issue: Issue)
+  case class IssuesPayload(action: String, issue: Issue)
 
   case class Issue(url: String,
                    id: Long,
@@ -467,6 +467,77 @@ object GitHub {
                    body: String)
 
   /**
-  * END IssuesEvent
+    * END IssuesEvent
+    */
+  /**
+    * START IssueCommentEvent
+    */
+  case class IssueCommentEvent(id: String,
+                               _id: _id,
+                               `type`: String,
+                               actor: Actor,
+                               repo: Repo,
+                               organization: Option[Organization],
+                               payload: IssueCommentPayload,
+                               public: Boolean,
+                               created_at: Date)
+      extends Event
+
+  case class IssueCommentPayload(action: String,
+                                 issue: Issue,
+                                 comment: IssueComment)
+
+  case class IssueComment(url: String,
+                          node_id: String,
+                          user: User,
+                          created_at: Date,
+                          updated_at: Date,
+                          author_association: String,
+                          body: String)
+
+  /**
+    * END IssueCommentEvent
+    */
+  /**
+    * START Member
+    */
+  case class MemberEvent(id: String,
+                         _id: _id,
+                         `type`: String,
+                         actor: Actor,
+                         repo: Repo,
+                         organization: Option[Organization],
+                         payload: MemberPayload,
+                         public: Boolean,
+                         created_at: Date)
+      extends Event
+
+  case class MemberPayload(member: User, action: String)
+
+  /**
+    * END Member
+    */
+  /**
+    * START MemberShip
+    */
+  case class MemberShipEvent(id: String,
+                             _id: _id,
+                             `type`: String,
+                             actor: Actor,
+                             repo: Repo,
+                             organization: Option[Organization],
+                             payload: MemberShipPayload,
+                             public: Boolean,
+                             created_at: Date)
+
+  case class MemberShipPayload(action: String,
+                               scope: String,
+                               member: User,
+                               sender: User,
+                               team: Team,
+                               org: Option[Organization])
+
+  /**
+  * END MemberShip
   */
 }
