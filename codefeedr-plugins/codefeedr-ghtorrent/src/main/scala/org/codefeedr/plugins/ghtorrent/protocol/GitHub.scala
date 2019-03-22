@@ -382,7 +382,26 @@ object GitHub {
                               updated_at: Date,
                               deployment_url: String,
                               repository_url: String)
+
   /**
-  * END DeploymentStatus
+    * END DeploymentStatus
+    */
+  /**
+    * START ForkEvent
+    */
+  case class ForkEvent(id: String,
+                       _id: _id,
+                       `type`: String,
+                       actor: Actor,
+                       repo: Repo,
+                       organization: Option[Organization],
+                       payload: ForkPayload,
+                       public: Boolean,
+                       created_at: Date)
+      extends Event
+
+  case class ForkPayload(forkee: Repository)
+  /**
+  * END ForkEvent
   */
 }
