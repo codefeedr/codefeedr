@@ -529,6 +529,7 @@ object GitHub {
                              payload: MemberShipPayload,
                              public: Boolean,
                              created_at: Date)
+      extends Event
 
   case class MemberShipPayload(action: String,
                                scope: String,
@@ -551,6 +552,7 @@ object GitHub {
                          organization: Option[Organization],
                          public: Boolean,
                          created_at: Date)
+      extends Event
   /**
   * END PublicEvent
   */
