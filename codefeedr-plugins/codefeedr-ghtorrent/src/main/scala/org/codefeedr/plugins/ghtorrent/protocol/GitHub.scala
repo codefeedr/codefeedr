@@ -434,15 +434,15 @@ object GitHub {
   /**
     * START IssuesEvent
     */
-  case class IssueEvent(id: String,
-                        _id: _id,
-                        `type`: String,
-                        actor: Actor,
-                        repo: Repo,
-                        organization: Option[Organization],
-                        payload: IssuePayload,
-                        public: Boolean,
-                        created_at: Date)
+  case class IssuesEvent(id: String,
+                         _id: _id,
+                         `type`: String,
+                         actor: Actor,
+                         repo: Repo,
+                         organization: Option[Organization],
+                         payload: IssuePayload,
+                         public: Boolean,
+                         created_at: Date)
       extends Event
 
   case class IssuePayload(action: String, issue: Issue)

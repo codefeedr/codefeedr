@@ -38,4 +38,7 @@ object GHTEventStages {
 
   class GHTRecordToGolumEventStage(stageName: String = "ght_gollum")
       extends GHTRecordToEventStage[GollumEvent](stageName, "evt.gollum.insert")
+
+  class GHTRecordToIssuesEvent(stageName: String = "ght_issues")
+      extends GHTRecordToEventStage[IssuesEvent](stageName, "evt.issues.insert")
 }
