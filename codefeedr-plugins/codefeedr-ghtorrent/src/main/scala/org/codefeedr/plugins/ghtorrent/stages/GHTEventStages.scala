@@ -51,4 +51,8 @@ object GHTEventStages {
   class GHTRecordToMemberShipEvent(stageName: String = "ght_membership")
       extends GHTRecordToEventStage[MemberShipEvent](stageName,
                                                      "evt.membership.insert")
+
+  class GHTRecordToPublicEvent(stageName: String = "ght_public")
+      extends GHTRecordToEventStage[MemberShipEvent](stageName,
+                                                     "evt.public.insert")
 }

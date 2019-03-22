@@ -538,6 +538,20 @@ object GitHub {
                                org: Option[Organization])
 
   /**
-  * END MemberShip
+    * END MemberShip
+    */
+  /**
+    * START PublicEvent
+    */
+  case class PublicEvent(id: String,
+                         _id: _id,
+                         `type`: String,
+                         actor: Actor,
+                         repo: Repo,
+                         organization: Option[Organization],
+                         public: Boolean,
+                         created_at: Date)
+  /**
+  * END PublicEvent
   */
 }
