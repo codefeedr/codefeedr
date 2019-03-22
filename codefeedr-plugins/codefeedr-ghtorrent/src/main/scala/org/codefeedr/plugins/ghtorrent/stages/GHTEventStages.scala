@@ -33,5 +33,6 @@ object GHTEventStages {
         stageName,
         "evt.deploymentstatus.insert")
 
-  class GHTRecordToForkEventStage()
+  class GHTRecordToForkEventStage(stageName: String = "ght_fork")
+      extends GHTRecordToEventStage[ForkEvent](stageName, "evt.fork.insert")
 }
