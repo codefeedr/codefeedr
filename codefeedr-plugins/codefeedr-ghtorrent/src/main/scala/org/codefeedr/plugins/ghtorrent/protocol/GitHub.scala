@@ -737,6 +737,28 @@ object GitHub {
   case class BranchCommit(sha: String, url: String)
 
   /**
-  * END Status
+    * END Status
+    */
+  /**
+    * START TeamAdd
+    */
+  case class TeamAddEvent(id: String,
+                          _id: _id,
+                          `type`: String,
+                          actor: Actor,
+                          repo: Repo,
+                          organization: Option[Organization],
+                          payload: TeamAddPayload,
+                          public: Boolean,
+                          created_at: Date)
+      extends Event
+
+  case class TeamAddPayload(team: Team,
+                            repository: Repository,
+                            organization: Option[Organization],
+                            sender: User)
+
+  /**
+  * END TeamAdd
   */
 }
