@@ -586,7 +586,49 @@ object GitHub {
                        updated_at: Date)
 
   case class Error(message: Option[String])
+
   /**
-  * END PageBuild
+    * END PageBuild
+    */
+  /**
+    * START PullRequestReviewComment
+    */
+  case class PullRequestReviewCommentEvent(
+      id: String,
+      _id: _id,
+      `type`: String,
+      actor: Actor,
+      repo: Repo,
+      organization: Option[Organization],
+      payload: PullRequestReviewCommentPayload,
+      public: Boolean,
+      created_at: Date)
+      extends Event
+
+  case class PullRequestReviewCommentPayload(action: String,
+                                             comment: PullRequestComment,
+                                             pull_request: PullRequest,
+                                             repository: Repository,
+                                             sender: User)
+
+  case class PullRequestComment(url: String,
+                                pull_request_review_id: Long,
+                                id: Long,
+                                node_id: String,
+                                diff_hunk: String,
+                                path: String,
+                                position: Double,
+                                original_position: Double,
+                                commit_id: String,
+                                original_commit_id: String,
+                                user: User,
+                                body: String,
+                                created_at: Date,
+                                updated_at: Date,
+                                html_url: String,
+                                pull_request_url: String,
+                                author_association: String)
+  /**
+  * END PullRequestReviewComment
   */
 }
