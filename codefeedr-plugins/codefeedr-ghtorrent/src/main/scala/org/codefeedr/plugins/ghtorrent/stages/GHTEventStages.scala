@@ -65,4 +65,8 @@ object GHTEventStages {
       extends GHTRecordToEventStage[PullRequestReviewCommentEvent](
         stageName,
         "evt.pullrequestreviewcomment.insert")
+
+  class GHTRecordToReleaseEventStage(stageName: String = "ght_release")
+      extends GHTRecordToEventStage[ReleaseEvent](stageName,
+                                                  "evt.release.insert")
 }

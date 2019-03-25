@@ -683,6 +683,25 @@ object GitHub {
                    uploader: User)
 
   /**
-  * END Release
+    * END Release
+    */
+  /**
+    * START Repository
+    */
+  case class RepositoryEvent(id: String,
+                             _id: _id,
+                             `type`: String,
+                             actor: Actor,
+                             repo: Repo,
+                             organization: Option[Organization],
+                             payload: RepositoryPayload,
+                             public: Boolean,
+                             created_at: Date)
+      extends Event
+
+  case class RepositoryPayload(action: String, repository: Repository)
+
+  /**
+  * END Repository
   */
 }
