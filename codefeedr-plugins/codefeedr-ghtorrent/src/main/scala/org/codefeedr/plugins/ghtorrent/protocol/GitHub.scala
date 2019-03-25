@@ -759,6 +759,24 @@ object GitHub {
                             sender: User)
 
   /**
-  * END TeamAdd
+    * END TeamAdd
+    */
+  /**
+    * START WatchEvent
+    */
+  case class WatchEvent(id: String,
+                        _id: _id,
+                        `type`: String,
+                        actor: Actor,
+                        repo: Repo,
+                        organization: Option[Organization],
+                        payload: WatchPayload,
+                        public: Boolean,
+                        created_at: Date)
+      extends Event
+
+  case class WatchPayload(action: String)
+  /**
+  * END WatchEvent
   */
 }

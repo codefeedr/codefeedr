@@ -78,4 +78,7 @@ object GHTEventStages {
       extends GHTRecordToEventStage[TeamAddEvent](stageName,
                                                   "evt.teamadd.insert")
 
+  class GHTRecordToWatchEventStage(stageName: String = "ght_watch")
+      extends GHTRecordToEventStage[WatchEvent](stageName, "evt.watch.insert")
+
 }
