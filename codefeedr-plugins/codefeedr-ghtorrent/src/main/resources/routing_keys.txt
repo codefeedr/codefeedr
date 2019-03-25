@@ -3,11 +3,7 @@ evt.create.insert
 evt.delete.insert
 evt.deployment.insert
 evt.deploymentstatus.insert
-evt.download.insert
-evt.follow.insert
 evt.fork.insert
-evt.forkapply.insert
-evt.gist.insert
 evt.gollum.insert
 evt.issuecomment.insert
 evt.issues.insert
