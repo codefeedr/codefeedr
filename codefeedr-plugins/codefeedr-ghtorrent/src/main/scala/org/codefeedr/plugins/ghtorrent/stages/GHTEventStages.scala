@@ -69,4 +69,8 @@ object GHTEventStages {
   class GHTRecordToReleaseEventStage(stageName: String = "ght_release")
       extends GHTRecordToEventStage[ReleaseEvent](stageName,
                                                   "evt.release.insert")
+
+  class GHTRecordToRepositoryEventStage(stageName: String = "ght_repository")
+      extends GHTRecordToEventStage[RepositoryEvent](stageName,
+                                                     "evt.repository.insert")
 }

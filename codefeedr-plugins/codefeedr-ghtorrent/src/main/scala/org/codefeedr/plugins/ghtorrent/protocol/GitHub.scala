@@ -702,6 +702,41 @@ object GitHub {
   case class RepositoryPayload(action: String, repository: Repository)
 
   /**
-  * END Repository
+    * END Repository
+    */
+  /**
+    * START Status
+    */
+  case class StatusEvent(id: String,
+                         _id: _id,
+                         `type`: String,
+                         actor: Actor,
+                         repo: Repo,
+                         organization: Option[Organization],
+                         payload: StatusPayload,
+                         public: Boolean,
+                         created_at: Date)
+      extends Event
+
+  case class StatusPayload(id: Long,
+                           sha: String,
+                           name: String,
+                           target_url: Option[String],
+                           context: String,
+                           description: Option[String],
+                           state: String,
+                           commit: Commit,
+                           branches: List[Branch],
+                           created_at: Date,
+                           updated_at: Date,
+                           repository: Repository,
+                           sender: User)
+
+  case class Branch(name: String, commit: BranchCommit)
+
+  case class BranchCommit(sha: String, url: String)
+
+  /**
+  * END Status
   */
 }
