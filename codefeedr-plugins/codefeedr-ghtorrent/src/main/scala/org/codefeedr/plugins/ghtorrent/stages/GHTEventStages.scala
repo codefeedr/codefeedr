@@ -59,4 +59,10 @@ object GHTEventStages {
   class GHTRecordToPageBuildStage(stageName: String = "ght_pagebuild")
       extends GHTRecordToEventStage[PageBuildEvent](stageName,
                                                     "evt.pagebuild.insert")
+
+  class GHTRecordToPullRequestReviewCommentStage(
+      stageName: String = "ght_pullrequestreviewcomment")
+      extends GHTRecordToEventStage[PullRequestReviewCommentEvent](
+        stageName,
+        "evt.pullrequestreviewcomment.insert")
 }
