@@ -39,19 +39,24 @@ object GHTEventStages {
   class GHTRecordToGolumEventStage(stageName: String = "ght_gollum")
       extends GHTRecordToEventStage[GollumEvent](stageName, "evt.gollum.insert")
 
-  class GHTRecordToIssuesEvent(stageName: String = "ght_issues")
+  class GHTRecordToIssuesEventStage(stageName: String = "ght_issues")
       extends GHTRecordToEventStage[IssuesEvent](stageName, "evt.issues.insert")
 
-  class GHTRecordToIssueCommentEvent(stageName: String = "ght_issuecomment")
+  class GHTRecordToIssueCommentEventStage(
+      stageName: String = "ght_issuecomment")
       extends GHTRecordToEventStage[IssuesEvent](stageName,
                                                  "evt.issuecomment.insert")
-  class GHTRecordToMemberEvent(stageName: String = "ght_member")
+  class GHTRecordToMemberEventStage(stageName: String = "ght_member")
       extends GHTRecordToEventStage[MemberEvent](stageName, "evt.member.insert")
 
-  class GHTRecordToMemberShipEvent(stageName: String = "ght_membership")
+  class GHTRecordToMemberShipEventStage(stageName: String = "ght_membership")
       extends GHTRecordToEventStage[MemberShipEvent](stageName,
                                                      "evt.membership.insert")
 
-  class GHTRecordToPublicEvent(stageName: String = "ght_public")
+  class GHTRecordToPublicEventStage(stageName: String = "ght_public")
       extends GHTRecordToEventStage[PublicEvent](stageName, "evt.public.insert")
+
+  class GHTRecordToPageBuildStage(stageName: String = "ght_pagebuild")
+      extends GHTRecordToEventStage[PageBuildEvent](stageName,
+                                                    "evt.pagebuild.insert")
 }
