@@ -553,7 +553,40 @@ object GitHub {
                          public: Boolean,
                          created_at: Date)
       extends Event
+
   /**
-  * END PublicEvent
+    * END PublicEvent
+    */
+  /**
+    * START PageBuild
+    */
+  case class PageBuildEvent(id: String,
+                            _id: _id,
+                            `type`: String,
+                            actor: Actor,
+                            repo: Repo,
+                            organization: Option[Organization],
+                            payload: PageBuildPayload,
+                            public: Boolean,
+                            created_at: Date)
+      extends Event
+
+  case class PageBuildPayload(id: Long,
+                              build: PageBuild,
+                              repository: Repository,
+                              sender: User)
+
+  case class PageBuild(url: String,
+                       status: String,
+                       error: Error,
+                       pusher: User,
+                       commit: String,
+                       duration: Long,
+                       created_at: Date,
+                       updated_at: Date)
+
+  case class Error(message: Option[String])
+  /**
+  * END PageBuild
   */
 }
