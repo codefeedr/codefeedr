@@ -627,8 +627,62 @@ object GitHub {
                                 updated_at: Date,
                                 html_url: String,
                                 pull_request_url: String,
-                                author_association: String)
+                                author_association: String,
+                                in_reply_to_id: Long)
+
   /**
-  * END PullRequestReviewComment
+    * END PullRequestReviewComment
+    */
+  /**
+    * START Release
+    */
+  case class ReleaseEvent(id: String,
+                          _id: _id,
+                          `type`: String,
+                          actor: Actor,
+                          repo: Repo,
+                          organization: Option[Organization],
+                          payload: ReleasePayload,
+                          public: Boolean,
+                          created_at: Date)
+      extends Event
+
+  case class ReleasePayload(action: String, release: Release)
+
+  case class Release(url: String,
+                     assets_url: String,
+                     upload_url: String,
+                     html_url: String,
+                     id: Long,
+                     node_id: String,
+                     tag_name: String,
+                     target_commitish: String,
+                     name: String,
+                     draft: Boolean,
+                     author: User,
+                     prerelease: Boolean,
+                     created_at: Date,
+                     published_at: Date,
+                     assets: List[Asset],
+                     tarball_url: String,
+                     zipball_url: String,
+                     body: String)
+
+  case class Asset(url: String,
+                   browser_download_url: String,
+                   id: Long,
+                   node_id: String,
+                   name: String,
+                   label: String,
+                   state: String,
+                   content_type: String,
+                   size: Long,
+                   download_count: Int,
+                   created_at: Date,
+                   updated_at: Date,
+                   uploader: User)
+
+  /**
+  * END Release
   */
 }
