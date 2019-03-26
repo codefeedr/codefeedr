@@ -364,9 +364,7 @@ object GitHub {
       extends Event
 
   case class DeploymentStatusPayload(deployment_status: DeploymentStatus,
-                                     deployment: Deployment,
-                                     repository: Repository,
-                                     sender: Option[User])
+                                     deployment: Deployment)
 
   case class DeploymentStatus(url: String,
                               id: Long,
@@ -531,7 +529,6 @@ object GitHub {
   case class MemberShipPayload(action: String,
                                scope: String,
                                member: User,
-                               sender: User,
                                team: Team,
                                org: Option[Organization])
 
@@ -568,10 +565,7 @@ object GitHub {
                             created_at: Date)
       extends Event
 
-  case class PageBuildPayload(id: Long,
-                              build: PageBuild,
-                              repository: Repository,
-                              sender: User)
+  case class PageBuildPayload(id: Long, build: PageBuild)
 
   case class PageBuild(url: String,
                        status: String,
@@ -747,9 +741,7 @@ object GitHub {
                            commit: Commit,
                            branches: List[Branch],
                            created_at: Date,
-                           updated_at: Date,
-                           repository: Repository,
-                           sender: User)
+                           updated_at: Date)
 
   case class Branch(name: String, commit: BranchCommit)
 
@@ -772,10 +764,7 @@ object GitHub {
                           created_at: Date)
       extends Event
 
-  case class TeamAddPayload(team: Team,
-                            repository: Repository,
-                            organization: Option[Organization],
-                            sender: User)
+  case class TeamAddPayload(team: Team, organization: Option[Organization])
 
   /**
     * END TeamAdd
