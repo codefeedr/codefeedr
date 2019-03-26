@@ -311,7 +311,6 @@ object GitHub {
                    node_id: String,
                    url: String,
                    name: String,
-                   description: String,
                    color: String,
                    default: Boolean)
 
@@ -332,9 +331,7 @@ object GitHub {
                              created_at: Date)
       extends Event
 
-  case class DeploymentPayload(deployment: Deployment,
-                               repository: Repository,
-                               sender: Option[User])
+  case class DeploymentPayload(deployment: Deployment)
 
   case class Deployment(url: String,
                         id: Long,
