@@ -22,6 +22,10 @@ import org.slf4j.Logger
 import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
 
+case class SideOutput(enabled: Boolean = true,
+                      sideOutputTopic: String = "parse_exception",
+                      sideOutputKafkaServer: String = "localhost:9092")
+
 /** Transforms a GHTRecord to an [[Event]].
   *
   * @param stageName the name of this stage (must be unique per stage).
@@ -32,9 +36,7 @@ protected class GHTRecordToEventStage[
     T <: Serializable with AnyRef with Event: TypeTag: ClassTag: TypeInformation](
     stageName: String,
     routingKey: String,
-    sideOutput: Boolean = true,
-    sideOutputTopic: String = "parse_exception",
-    sideOutputKafkaServer: String = "localhost:9092")
+    sideOutput: SideOutput = SideOutput())
     extends TransformStage[Record, T](Some(stageName)) {
 
   val outputTag = OutputTag[Record]("parse_exception")
@@ -48,13 +50,13 @@ protected class GHTRecordToEventStage[
     val trans = source
       .process(new EventExtract[T](routingKey, outputTag))
 
-    if (sideOutput) {
+    if (sideOutput.enabled) {
       trans
         .getSideOutput(outputTag)
         .addSink(
           new FlinkKafkaProducer011[Record](
-            sideOutputKafkaServer,
-            sideOutputTopic,
+            sideOutput.sideOutputKafkaServer,
+            sideOutput.sideOutputTopic,
             Serializer.getSerde[Record](Serializer.JSON)))
     }
 
@@ -76,7 +78,7 @@ class EventExtract[T: Manifest](routingKey: String,
     if (value.routingKey != routingKey) return //filter on routing keys
 
     // Extract it into an optional.
-    val parsedEvent = parse(value.contents).extractOpt[T]
+    val parsedEvent = Some(parse(value.contents).extract[T])
 
     if (parsedEvent.isEmpty) {
       ctx.output(outputTag, value)
