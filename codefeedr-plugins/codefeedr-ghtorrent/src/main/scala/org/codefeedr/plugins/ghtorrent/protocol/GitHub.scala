@@ -604,9 +604,7 @@ object GitHub {
 
   case class PullRequestReviewCommentPayload(action: String,
                                              comment: PullRequestComment,
-                                             pull_request: PullRequest,
-                                             repository: Repository,
-                                             sender: User)
+                                             pull_request: PullRequestMin)
 
   case class PullRequestComment(url: String,
                                 pull_request_review_id: Long,
@@ -614,8 +612,8 @@ object GitHub {
                                 node_id: String,
                                 diff_hunk: String,
                                 path: String,
-                                position: Double,
-                                original_position: Double,
+                                position: Option[Long],
+                                original_position: Option[Long],
                                 commit_id: String,
                                 original_commit_id: String,
                                 user: User,
@@ -625,7 +623,31 @@ object GitHub {
                                 html_url: String,
                                 pull_request_url: String,
                                 author_association: String,
-                                in_reply_to_id: Long)
+                                in_reply_to_id: Option[Long])
+
+  case class PullRequestMin(url: String,
+                            id: Long,
+                            node_id: String,
+                            number: Long,
+                            state: String,
+                            locked: Boolean,
+                            title: String,
+                            user: User,
+                            body: String,
+                            created_at: Date,
+                            updated_at: Date,
+                            closed_at: Option[Date],
+                            merged_at: Option[Date],
+                            merge_commit_sha: String,
+                            assignee: Option[User],
+                            assignees: List[User],
+                            requested_reviewers: List[User],
+                            requested_teams: List[Team],
+                            labels: List[Label],
+                            milestone: Option[Milestone],
+                            head: PullRequestMarker,
+                            base: PullRequestMarker,
+                            author_association: String)
 
   /**
     * END PullRequestReviewComment
