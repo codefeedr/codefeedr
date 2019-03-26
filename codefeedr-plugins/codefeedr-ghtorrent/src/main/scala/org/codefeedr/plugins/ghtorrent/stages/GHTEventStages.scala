@@ -5,82 +5,132 @@ import org.apache.flink.api.scala._
 
 object GHTEventStages {
 
-  class GHTRecordToCreateEventStage(stageName: String = "ght_create")
-      extends GHTRecordToEventStage[CreateEvent](stageName, "evt.create.insert")
-  class GHTRecordToDeleteEventStage(stageName: String = "ght_delete")
-      extends GHTRecordToEventStage[DeleteEvent](stageName, "evt.delete.insert")
+  class GHTRecordToCreateEventStage(stageName: String = "ght_create",
+                                    sideOutput: SideOutput = SideOutput())
+      extends GHTRecordToEventStage[CreateEvent](stageName,
+                                                 "evt.create.insert",
+                                                 sideOutput)
 
-  class GHTRecordToPushEventStage(stageName: String = "ght_push")
-      extends GHTRecordToEventStage[PushEvent](stageName, "evt.push.insert")
+  class GHTRecordToDeleteEventStage(stageName: String = "ght_delete",
+                                    sideOutput: SideOutput = SideOutput())
+      extends GHTRecordToEventStage[DeleteEvent](stageName,
+                                                 "evt.delete.insert",
+                                                 sideOutput)
+
+  class GHTRecordToPushEventStage(stageName: String = "ght_push",
+                                  sideOutput: SideOutput = SideOutput())
+      extends GHTRecordToEventStage[PushEvent](stageName,
+                                               "evt.push.insert",
+                                               sideOutput)
 
   class GHTRecordToCommitCommentEventStage(
-      stageName: String = "ght_commitcomment")
+      stageName: String = "ght_commitcomment",
+      sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[CommitCommentEvent](
         stageName,
-        "evt.commitcomment.insert")
+        "evt.commitcomment.insert",
+        sideOutput)
 
-  class GHTRecordToPullRequestEventStage(stageName: String = "ght_pullrequest")
+  class GHTRecordToPullRequestEventStage(stageName: String = "ght_pullrequest",
+                                         sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[PullRequestEvent](stageName,
-                                                      "evt.pullrequest.insert")
+                                                      "evt.pullrequest.insert",
+                                                      sideOutput)
 
-  class GHTRecordToDeploymentEventStage(stageName: String = "ght_deployment")
+  class GHTRecordToDeploymentEventStage(stageName: String = "ght_deployment",
+                                        sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[DeploymentEvent](stageName,
-                                                     "evt.deployment.insert")
+                                                     "evt.deployment.insert",
+                                                     sideOutput)
 
   class GHTRecordToDeploymentStatusEventStage(
-      stageName: String = "ght_deploymentstatus")
+      stageName: String = "ght_deploymentstatus",
+      sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[DeploymentStatusEvent](
         stageName,
-        "evt.deploymentstatus.insert")
+        "evt.deploymentstatus.insert",
+        sideOutput)
 
-  class GHTRecordToForkEventStage(stageName: String = "ght_fork")
-      extends GHTRecordToEventStage[ForkEvent](stageName, "evt.fork.insert")
+  class GHTRecordToForkEventStage(stageName: String = "ght_fork",
+                                  sideOutput: SideOutput = SideOutput())
+      extends GHTRecordToEventStage[ForkEvent](stageName,
+                                               "evt.fork.insert",
+                                               sideOutput)
 
-  class GHTRecordToGolumEventStage(stageName: String = "ght_gollum")
-      extends GHTRecordToEventStage[GollumEvent](stageName, "evt.gollum.insert")
+  class GHTRecordToGolumEventStage(stageName: String = "ght_gollum",
+                                   sideOutput: SideOutput = SideOutput())
+      extends GHTRecordToEventStage[GollumEvent](stageName,
+                                                 "evt.gollum.insert",
+                                                 sideOutput)
 
-  class GHTRecordToIssuesEventStage(stageName: String = "ght_issues")
-      extends GHTRecordToEventStage[IssuesEvent](stageName, "evt.issues.insert")
+  class GHTRecordToIssuesEventStage(stageName: String = "ght_issues",
+                                    sideOutput: SideOutput = SideOutput())
+      extends GHTRecordToEventStage[IssuesEvent](stageName,
+                                                 "evt.issues.insert",
+                                                 sideOutput)
 
   class GHTRecordToIssueCommentEventStage(
-      stageName: String = "ght_issuecomment")
+      stageName: String = "ght_issuecomment",
+      sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[IssueCommentEvent](
         stageName,
-        "evt.issuecomment.insert")
+        "evt.issuecomment.insert",
+        sideOutput)
 
-  class GHTRecordToMemberEventStage(stageName: String = "ght_member")
-      extends GHTRecordToEventStage[MemberEvent](stageName, "evt.member.insert")
+  class GHTRecordToMemberEventStage(stageName: String = "ght_member",
+                                    sideOutput: SideOutput = SideOutput())
+      extends GHTRecordToEventStage[MemberEvent](stageName,
+                                                 "evt.member.insert",
+                                                 sideOutput)
 
-  class GHTRecordToMemberShipEventStage(stageName: String = "ght_membership")
+  class GHTRecordToMemberShipEventStage(stageName: String = "ght_membership",
+                                        sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[MemberShipEvent](stageName,
-                                                     "evt.membership.insert")
+                                                     "evt.membership.insert",
+                                                     sideOutput)
 
-  class GHTRecordToPublicEventStage(stageName: String = "ght_public")
-      extends GHTRecordToEventStage[PublicEvent](stageName, "evt.public.insert")
+  class GHTRecordToPublicEventStage(stageName: String = "ght_public",
+                                    sideOutput: SideOutput = SideOutput())
+      extends GHTRecordToEventStage[PublicEvent](stageName,
+                                                 "evt.public.insert",
+                                                 sideOutput)
 
-  class GHTRecordToPageBuildEventStage(stageName: String = "ght_pagebuild")
+  class GHTRecordToPageBuildEventStage(stageName: String = "ght_pagebuild",
+                                       sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[PageBuildEvent](stageName,
-                                                    "evt.pagebuild.insert")
+                                                    "evt.pagebuild.insert",
+                                                    sideOutput)
 
   class GHTRecordToPullRequestReviewCommentEventStage(
-      stageName: String = "ght_pullrequestreviewcomment")
+      stageName: String = "ght_pullrequestreviewcomment",
+      sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[PullRequestReviewCommentEvent](
         stageName,
-        "evt.pullrequestreviewcomment.insert")
+        "evt.pullrequestreviewcomment.insert",
+        sideOutput)
 
-  class GHTRecordToReleaseEventStage(stageName: String = "ght_release")
+  class GHTRecordToReleaseEventStage(stageName: String = "ght_release",
+                                     sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[ReleaseEvent](stageName,
-                                                  "evt.release.insert")
+                                                  "evt.release.insert",
+                                                  sideOutput)
 
-  class GHTRecordToRepositoryEventStage(stageName: String = "ght_repository")
+  class GHTRecordToRepositoryEventStage(stageName: String = "ght_repository",
+                                        sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[RepositoryEvent](stageName,
-                                                     "evt.repository.insert")
+                                                     "evt.repository.insert",
+                                                     sideOutput)
 
-  class GHTRecordToTeamAddEventStage(stageName: String = "ght_teamadd")
+  class GHTRecordToTeamAddEventStage(stageName: String = "ght_teamadd",
+                                     sideOutput: SideOutput = SideOutput())
       extends GHTRecordToEventStage[TeamAddEvent](stageName,
-                                                  "evt.teamadd.insert")
+                                                  "evt.teamadd.insert",
+                                                  sideOutput)
 
-  class GHTRecordToWatchEventStage(stageName: String = "ght_watch")
-      extends GHTRecordToEventStage[WatchEvent](stageName, "evt.watch.insert")
+  class GHTRecordToWatchEventStage(stageName: String = "ght_watch",
+                                   sideOutput: SideOutput = SideOutput())
+      extends GHTRecordToEventStage[WatchEvent](stageName,
+                                                "evt.watch.insert",
+                                                sideOutput)
 
 }
