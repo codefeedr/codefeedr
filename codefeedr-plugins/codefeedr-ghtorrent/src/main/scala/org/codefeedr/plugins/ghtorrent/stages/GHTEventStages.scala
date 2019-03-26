@@ -44,8 +44,10 @@ object GHTEventStages {
 
   class GHTRecordToIssueCommentEventStage(
       stageName: String = "ght_issuecomment")
-      extends GHTRecordToEventStage[IssuesEvent](stageName,
-                                                 "evt.issuecomment.insert")
+      extends GHTRecordToEventStage[IssueCommentEvent](
+        stageName,
+        "evt.issuecomment.insert")
+
   class GHTRecordToMemberEventStage(stageName: String = "ght_member")
       extends GHTRecordToEventStage[MemberEvent](stageName, "evt.member.insert")
 

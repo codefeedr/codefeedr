@@ -2,11 +2,6 @@ package org.codefeedr.plugins.ghtorrent.stages
 
 import java.util.Properties
 
-import org.apache.flink.api.common.functions.{
-  FilterFunction,
-  MapFunction,
-  RichMapFunction
-}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, OutputTag}
 import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.{Event, Record}
