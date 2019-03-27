@@ -263,8 +263,8 @@ object GitHub {
                        open_issues: Int,
                        closed_issues: Int,
                        created_at: Date,
-                       updated_at: Date,
-                       due_on: Date)
+                       updated_at: Option[Date],
+                       due_on: Option[Date])
 
   case class PullRequestMarker(label: String,
                                ref: String,
@@ -304,7 +304,7 @@ object GitHub {
   case class License(key: String,
                      name: String,
                      spdx_id: String,
-                     url: String,
+                     url: Option[String],
                      node_id: String)
 
   case class Label(id: Long,
@@ -484,6 +484,7 @@ object GitHub {
 
   case class IssueComment(url: String,
                           node_id: String,
+                          id: Double,
                           user: User,
                           created_at: Date,
                           updated_at: Date,
