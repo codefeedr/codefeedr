@@ -258,19 +258,20 @@ object GitHub {
                        number: Int,
                        state: String,
                        title: String,
-                       description: String,
-                       creator: User,
+                       description: Option[String],
+                       creator: Option[User],
                        open_issues: Int,
                        closed_issues: Int,
                        created_at: Date,
                        updated_at: Option[Date],
-                       due_on: Option[Date])
+                       due_on: Option[Date],
+                       closed_at: Option[Date])
 
   case class PullRequestMarker(label: String,
                                ref: String,
                                sha: String,
                                user: User,
-                               repo: Repository)
+                               repo: Option[Repository])
 
   case class Repository(id: Long,
                         name: String,
