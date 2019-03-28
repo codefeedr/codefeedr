@@ -22,7 +22,7 @@ import java.util.Properties
 
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.pipeline.Context
 import org.codefeedr.stages.InputStage
@@ -55,7 +55,7 @@ class KafkaInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
   //add flink kafka consumer
   override def main(context: Context): DataStream[T] = {
     context.env
-      .addSource(new FlinkKafkaConsumer011[T](topic, serde, properties))
+      .addSource(new FlinkKafkaConsumer[T](topic, serde, properties))
   }
 
 }
