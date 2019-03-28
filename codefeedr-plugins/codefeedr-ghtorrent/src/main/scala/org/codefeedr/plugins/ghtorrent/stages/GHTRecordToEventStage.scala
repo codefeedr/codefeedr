@@ -78,7 +78,7 @@ class EventExtract[T: Manifest](routingKey: String,
     if (value.routingKey != routingKey) return //filter on routing keys
 
     // Extract it into an optional.
-    val parsedEvent = Some(parse(value.contents).extract[T])
+    val parsedEvent = parse(value.contents).extractOpt[T]
 
     if (parsedEvent.isEmpty) {
       ctx.output(outputTag, value)
