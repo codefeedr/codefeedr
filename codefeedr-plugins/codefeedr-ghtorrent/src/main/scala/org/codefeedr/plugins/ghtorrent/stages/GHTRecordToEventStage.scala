@@ -1,7 +1,5 @@
 package org.codefeedr.plugins.ghtorrent.stages
 
-import java.util.Properties
-
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, OutputTag}
 import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.{Event, Record}
@@ -12,12 +10,8 @@ import org.json4s.jackson.JsonMethods.parse
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.ProcessFunction
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
-import org.apache.flink.streaming.connectors.kafka.internal.FlinkKafkaProducer
-import org.apache.flink.types.Nothing
 import org.apache.flink.util.Collector
 import org.codefeedr.buffer.serialization.Serializer
-import org.codefeedr.stages.kafka.KafkaOutput
-import org.slf4j.Logger
 
 import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
