@@ -21,7 +21,7 @@ package org.codefeedr.stages.kafka
 import java.util.Properties
 
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.stages.OutputStage
 
@@ -47,6 +47,6 @@ class KafkaOutput[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
   //add producer as sink
   override def main(source: DataStream[T]): Unit = {
-    source.addSink(new FlinkKafkaProducer011[T](topic, serde, properties))
+    source.addSink(new FlinkKafkaProducer[T](topic, serde, properties))
   }
 }
