@@ -162,7 +162,7 @@ lazy val dependencies =
 
     val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided
     val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Provided
-    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka"     % flinkVersion
+    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka"          % flinkVersion
     val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion      % Provided
     val flinkElasticSearch = "org.apache.flink"          %% "flink-connector-elasticsearch6" % flinkVersion
     val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion
