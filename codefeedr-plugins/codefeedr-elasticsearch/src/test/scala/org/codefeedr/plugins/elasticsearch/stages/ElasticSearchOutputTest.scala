@@ -46,7 +46,7 @@ class ElasticSearchOutputTest extends FunSuite with MockitoSugar {
 
     assert(addresses.size() == 1)
     assert(addresses.get(0).getHostName == "localhost")
-    assert(addresses.get(0).getPort == 9300)
+    assert(addresses.get(0).getPort == 9200)
   }
 
   test("Should add configured hosts") {
