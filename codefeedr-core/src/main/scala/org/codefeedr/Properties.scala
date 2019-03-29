@@ -19,15 +19,13 @@
 package org.codefeedr
 
 import scala.language.implicitConversions
+import scala.collection.JavaConverters._
 
 /** Implicit conversions for Properties. */
 object Properties {
   // Conversion implicits
   implicit def stringToBoolean(str: String): Boolean = str.toBoolean
   implicit def booleanToString(bool: Boolean): String = bool.toString
-
-  implicit def stringToInt(str: String): Int = str.toInt
-  implicit def intToString(int: Int): String = int.toString
 }
 
 /** Object containing configuration properties. */

@@ -29,7 +29,6 @@ import org.apache.flink.streaming.connectors.kafka.{
 }
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.apache.logging.log4j.scala.Logging
-import org.codefeedr.Properties._
 import org.codefeedr.buffer.serialization.schema_exposure.{
   RedisSchemaExposer,
   SchemaExposer,
@@ -189,11 +188,12 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
       logger.info(s"Topic $topic doesn't exist yet, now creating it.")
       val newTopic = new NewTopic(
         topic,
-        properties.getOrElse[Int](KafkaBuffer.AMOUNT_OF_PARTITIONS,
-                                  KafkaBufferDefaults.AMOUNT_OF_PARTITIONS),
+        properties.getOrElse[Int](
+          KafkaBuffer.AMOUNT_OF_PARTITIONS,
+          KafkaBufferDefaults.AMOUNT_OF_PARTITIONS)(_.toInt),
         properties
           .getOrElse[Int](KafkaBuffer.AMOUNT_OF_REPLICAS,
-                          KafkaBufferDefaults.AMOUNT_OF_REPLICAS)
+                          KafkaBufferDefaults.AMOUNT_OF_REPLICAS)(_.toInt)
           .asInstanceOf[Short]
       )
       createTopic(adminClient, newTopic)
