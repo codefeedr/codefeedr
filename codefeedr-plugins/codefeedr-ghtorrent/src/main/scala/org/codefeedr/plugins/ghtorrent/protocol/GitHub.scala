@@ -45,7 +45,7 @@ object GitHub {
                         comment_count: Int,
                         verification: Verification)
 
-  case class CommitUser(name: String, email: String, date: String)
+  case class CommitUser(name: String, email: String, date: Date)
 
   case class User(id: Long,
                   login: String,
