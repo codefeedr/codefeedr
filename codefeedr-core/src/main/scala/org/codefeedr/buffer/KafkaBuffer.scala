@@ -58,7 +58,7 @@ object KafkaBuffer {
   //PARTITIONS, REPLICAS AND COMPRESSION
   val AMOUNT_OF_PARTITIONS = "AMOUNT_OF_PARTITONS"
   val AMOUNT_OF_REPLICAS = "AMOUNT_OF_REPLICAS"
-  val COMPRESSION_METHOD = "COMPRESSION_METHOD"
+  val COMPRESSION_TYPE = "COMPRESSION_TYPE"
 
 }
 
@@ -96,6 +96,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     //PARTITIONS, REPLICAS AND COMPRESSION
     val AMOUNT_OF_PARTITIONS = 1
     val AMOUNT_OF_REPLICAS = 1
+    val COMPRESSION_TYPE = "none"
   }
 
   /** Get a Kafka Consumer as source for a stage.
@@ -155,6 +156,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     kafkaProp.put("auto.commit.interval.ms",
                   KafkaBufferDefaults.AUTO_COMMIT_INTERVAL_MS)
     kafkaProp.put("enable.auto.commit", KafkaBufferDefaults.ENABLE_AUTO_COMMIT)
+    kafkaProp.put("compression.type", KafkaBufferDefaults.COMPRESSION_TYPE)
     kafkaProp.put("group.id", groupId)
 
     properties.getContents.foreach {
@@ -189,7 +191,11 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
         topic,
         properties.getOrElse[Int](KafkaBuffer.AMOUNT_OF_PARTITIONS,
                                   KafkaBufferDefaults.AMOUNT_OF_PARTITIONS),
-        1)
+        properties
+          .getOrElse[Int](KafkaBuffer.AMOUNT_OF_REPLICAS,
+                          KafkaBufferDefaults.AMOUNT_OF_REPLICAS)
+          .asInstanceOf[Short]
+      )
       createTopic(adminClient, newTopic)
     }
   }
