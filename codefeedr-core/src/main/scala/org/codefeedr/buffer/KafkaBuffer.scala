@@ -40,6 +40,7 @@ import org.codefeedr.pipeline.Pipeline
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
+import org.codefeedr.Properties._
 
 /** Holds Kafka property names. */
 object KafkaBuffer {
@@ -53,6 +54,12 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE_SERVICE = "SCHEMA_EXPOSURE_SERVICE"
   val SCHEMA_EXPOSURE_HOST = "SCHEMA_EXPOSURE_HOST"
   val SCHEMA_EXPOSURE_DESERIALIZATION = "SCHEMA_EXPOSURE_SERIALIZATION"
+
+  //PARTITIONS, REPLICAS AND COMPRESSION
+  val AMOUNT_OF_PARTITIONS = "AMOUNT_OF_PARTITONS"
+  val AMOUNT_OF_REPLICAS = "AMOUNT_OF_REPLICAS"
+  val COMPRESSION_METHOD = "COMPRESSION_METHOD"
+
 }
 
 /** The implementation for the Kafka buffer. This buffer is the default.
@@ -85,6 +92,10 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     val SCHEMA_EXPOSURE = false
     val SCHEMA_EXPOSURE_SERVICE = "redis"
     val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
+
+    //PARTITIONS, REPLICAS AND COMPRESSION
+    val AMOUNT_OF_PARTITIONS = 1
+    val AMOUNT_OF_REPLICAS = 1
   }
 
   /** Get a Kafka Consumer as source for a stage.
@@ -117,6 +128,12 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
       exposeSchema()
     }
+
+    // Make sure the topic already exists, otherwise create it.
+    checkAndCreateSubject(
+      topic,
+      properties
+        .getOrElse[String](KafkaBuffer.BROKER, KafkaBufferDefaults.BROKER))
 
     // Create Kafka producer.
     val producer =
@@ -168,7 +185,11 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     if (!alreadyCreated) {
       // The topic configuration will probably be overwritten by the producer.
       logger.info(s"Topic $topic doesn't exist yet, now creating it.")
-      val newTopic = new NewTopic(topic, 1, 1)
+      val newTopic = new NewTopic(
+        topic,
+        properties.getOrElse[Int](KafkaBuffer.AMOUNT_OF_PARTITIONS,
+                                  KafkaBufferDefaults.AMOUNT_OF_PARTITIONS),
+        1)
       createTopic(adminClient, newTopic)
     }
   }
