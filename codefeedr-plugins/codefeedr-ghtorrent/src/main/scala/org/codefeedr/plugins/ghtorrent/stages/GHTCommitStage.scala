@@ -31,8 +31,8 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
 import org.apache.flink.util.Collector
 import org.codefeedr.buffer.serialization.Serializer
 
-class GHTRecordToCommitStage(stageName: String = "commits",
-                             sideOutput: SideOutput = SideOutput())
+class GHTCommitStage(stageName: String = "commits",
+                     sideOutput: SideOutput = SideOutput())
     extends TransformStage[Record, Commit](Some(stageName)) {
 
   val outputTag = OutputTag[Record](sideOutput.sideOutputTopic)

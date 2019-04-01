@@ -44,7 +44,7 @@ case class SideOutput(enabled: Boolean = true,
   * @param routingKey the routing_key to filter on.
   * @tparam T the type of this event.
   */
-protected class GHTRecordToEventStage[
+protected class GHTAbstractEventStage[
     T <: Serializable with AnyRef with Event: TypeTag: ClassTag: TypeInformation](
     stageName: String,
     routingKey: String,
