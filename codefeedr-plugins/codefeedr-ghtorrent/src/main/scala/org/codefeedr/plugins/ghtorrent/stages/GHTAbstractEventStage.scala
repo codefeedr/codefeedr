@@ -18,6 +18,8 @@
  */
 package org.codefeedr.plugins.ghtorrent.stages
 
+import java.util.Properties
+
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, OutputTag}
 import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.{Event, Record}
@@ -27,7 +29,7 @@ import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.JsonMethods.parse
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.ProcessFunction
-import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaProducer}
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer
 import org.apache.flink.util.Collector
 import org.codefeedr.buffer.serialization.Serializer
 
@@ -57,6 +59,11 @@ protected class GHTAbstractEventStage[
     sideOutput: SideOutput = SideOutput())
     extends TransformStage[Record, T](Some(stageName)) {
 
+  // We only send to this topic once in a while, so we need to disable batches.
+  val props = new Properties()
+  props.put("bootstrap.servers", sideOutput.sideOutputKafkaServer)
+  props.put("batch.size", "0")
+
   val outputTag = OutputTag[Record](sideOutput.sideOutputTopic)
 
   /** Transforms and parses [[Event]] from [[Record]].
@@ -74,9 +81,9 @@ protected class GHTAbstractEventStage[
         .getSideOutput(outputTag)
         .addSink(
           new FlinkKafkaProducer[Record](
-            sideOutput.sideOutputKafkaServer,
             sideOutput.sideOutputTopic,
-            Serializer.getSerde[Record](Serializer.JSON)))
+            Serializer.getSerde[Record](Serializer.JSON),
+            props))
     }
 
     trans

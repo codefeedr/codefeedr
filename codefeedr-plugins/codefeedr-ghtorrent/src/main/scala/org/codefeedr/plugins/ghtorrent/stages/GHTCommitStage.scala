@@ -18,6 +18,8 @@
  */
 package org.codefeedr.plugins.ghtorrent.stages
 
+import java.util.Properties
+
 import org.apache.flink.streaming.api.scala.{DataStream, OutputTag}
 import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.Record
 import org.codefeedr.plugins.ghtorrent.protocol.GitHub.Commit
@@ -40,6 +42,11 @@ class GHTCommitStage(stageName: String = "ght_commits",
                      sideOutput: SideOutput = SideOutput())
     extends TransformStage[Record, Commit](Some(stageName)) {
 
+  // We only send to this topic once in a while, so we need to disable batches.
+  val props = new Properties()
+  props.put("bootstrap.servers", sideOutput.sideOutputKafkaServer)
+  props.put("batch.size", "0")
+
   val outputTag = OutputTag[Record](sideOutput.sideOutputTopic)
 
   /** Transform from a Record to a Commit.
@@ -58,9 +65,9 @@ class GHTCommitStage(stageName: String = "ght_commits",
         .getSideOutput(outputTag)
         .addSink(
           new FlinkKafkaProducer[Record](
-            sideOutput.sideOutputKafkaServer,
             sideOutput.sideOutputTopic,
-            Serializer.getSerde[Record](Serializer.JSON)))
+            Serializer.getSerde[Record](Serializer.JSON),
+            props))
     }
 
     trans
