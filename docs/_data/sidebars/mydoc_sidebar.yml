@@ -55,9 +55,17 @@ entries:
       - title: MongoDB
         url: /mydoc_mongo.html
         output: web, pdf
-        output: web, pdf
-        url: /mydoc_ghtorrent.html
-      - title: GHTorrent
+
+        subfolders:
+          - title: GHTorrent
+            output: web, pdf
+            subfolderitems:
+              - title: General
+                url: /mydoc_ghtorrent.html
+                output: web, pdf
+              - title: Specification
+                url: /mydoc_ghtorrentspec.html
+                output: web, pdf
 
   - title: Internals
     output: web, pdf
