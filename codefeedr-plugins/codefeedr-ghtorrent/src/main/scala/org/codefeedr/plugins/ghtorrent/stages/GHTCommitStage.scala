@@ -31,17 +31,28 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
 import org.apache.flink.util.Collector
 import org.codefeedr.buffer.serialization.Serializer
 
-class GHTCommitStage(stageName: String = "commits",
+/** Transforms a Record into a [[Commit]].
+  *
+  * @param stageName the name of this stage.
+  * @param sideOutput sideoutput configuration for unparse-able.
+  */
+class GHTCommitStage(stageName: String = "ght_commits",
                      sideOutput: SideOutput = SideOutput())
     extends TransformStage[Record, Commit](Some(stageName)) {
 
   val outputTag = OutputTag[Record](sideOutput.sideOutputTopic)
 
+  /** Transform from a Record to a Commit.
+    *
+    * @param source The input source with type [[Record]].
+    * @return The transformed stream with type [[Commit]].
+    */
   override def transform(source: DataStream[Record]): DataStream[Commit] = {
     val trans = source
       .filter(_.routingKey == "ent.commits.insert")
       .process(new CommitExtract(outputTag))
 
+    // If side-output is enabled, unparseable instances are send to a Kafka topic.
     if (sideOutput.enabled) {
       trans
         .getSideOutput(outputTag)
@@ -56,6 +67,7 @@ class GHTCommitStage(stageName: String = "commits",
   }
 }
 
+/** Extract a Commit from a Record. **/
 class CommitExtract(outputTag: OutputTag[Record])
     extends ProcessFunction[Record, Commit] {
   implicit lazy val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all

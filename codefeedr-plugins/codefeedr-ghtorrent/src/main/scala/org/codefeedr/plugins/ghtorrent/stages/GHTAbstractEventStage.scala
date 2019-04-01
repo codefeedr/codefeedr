@@ -34,6 +34,12 @@ import org.codefeedr.buffer.serialization.Serializer
 import scala.reflect.{ClassTag, classTag}
 import scala.reflect.runtime.universe._
 
+/** Configuration for a side-output if parsing fails.
+  *
+  * @param enabled if side-output is enabled.
+  * @param sideOutputTopic the topic to side-output to.
+  * @param sideOutputKafkaServer the broker of the output server.
+  */
 case class SideOutput(enabled: Boolean = true,
                       sideOutputTopic: String = "parse_exception",
                       sideOutputKafkaServer: String = "localhost:9092")
@@ -62,6 +68,7 @@ protected class GHTAbstractEventStage[
     val trans = source
       .process(new EventExtract[T](routingKey, outputTag))
 
+    // If side-output is enabled, unparseable instances are send to a Kafka topic.
     if (sideOutput.enabled) {
       trans
         .getSideOutput(outputTag)
@@ -84,6 +91,7 @@ class EventExtract[T: Manifest](routingKey: String,
 
   implicit lazy val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
 
+  /** Filters on key and extracts correct event. */
   override def processElement(value: Record,
                               ctx: ProcessFunction[Record, T]#Context,
                               out: Collector[T]): Unit = {

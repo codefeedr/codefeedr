@@ -21,6 +21,7 @@ package org.codefeedr.plugins.ghtorrent.stages
 import org.codefeedr.plugins.ghtorrent.protocol.GitHub._
 import org.apache.flink.api.scala._
 
+/** Wrapper for all event classes. **/
 object GHTEventStages {
 
   class GHTCreateEventStage(stageName: String = "ght_create",
