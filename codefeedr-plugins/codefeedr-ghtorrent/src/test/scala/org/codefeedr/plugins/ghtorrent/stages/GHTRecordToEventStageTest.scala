@@ -24,7 +24,7 @@ class GHTRecordToEventStageTest extends FunSuite {
   test("GHTRecordToEventStage integration test") {
     new PipelineBuilder()
       .append(new GHTTestSource(List(recordOne, recordTwo, recordThree)))
-      .append(new GHTRecordToEventStage[PushEvent]("", "pushroute"))
+      .append(new GHTAbstractEventStage[PushEvent]("", "pushroute"))
       .append { x: DataStream[PushEvent] =>
         x.addSink(new EventCollectSink[PushEvent])
       }
@@ -40,7 +40,7 @@ class GHTRecordToEventStageTest extends FunSuite {
   test("GHTRecordToEventStage integration test 2") {
     new PipelineBuilder()
       .append(new GHTTestSource(List(recordOne, recordTwo, recordThree)))
-      .append(new GHTRecordToEventStage[CreateEvent]("", "createroute"))
+      .append(new GHTAbstractEventStage[CreateEvent]("", "createroute"))
       .append { x: DataStream[CreateEvent] =>
         x.addSink(new EventCollectSink[CreateEvent])
       }

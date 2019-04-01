@@ -21,7 +21,7 @@ class GHTRecordToCommitStageTest extends FunSuite {
   test("GHTRecordToCommitStage integration test") {
     new PipelineBuilder()
       .append(new GHTTestSource(List(recordOne, recordTwo)))
-      .append(new GHTRecordToCommitStage())
+      .append(new GHTCommitStage())
       .append { x: DataStream[Commit] =>
         x.addSink(new CommitCollectSink)
       }
