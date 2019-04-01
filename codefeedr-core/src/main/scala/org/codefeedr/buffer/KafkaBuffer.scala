@@ -24,8 +24,8 @@ import org.apache.avro.reflect.ReflectData
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.kafka.{
-  FlinkKafkaConsumer011,
-  FlinkKafkaProducer011
+  FlinkKafkaConsumer,
+  FlinkKafkaProducer
 }
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.apache.logging.log4j.scala.Logging
@@ -113,7 +113,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
     // Add a source.
     pipeline.environment.addSource(
-      new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties))
+      new FlinkKafkaConsumer[T](topic, serde, getKafkaProperties))
   }
 
   /** Get a Kafka Producer as sink to the buffer.
@@ -137,7 +137,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
     // Create Kafka producer.
     val producer =
-      new FlinkKafkaProducer011[T](topic, getSerializer, getKafkaProperties)
+      new FlinkKafkaProducer[T](topic, getSerializer, getKafkaProperties)
     producer.setWriteTimestampToKafka(true)
 
     producer
