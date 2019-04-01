@@ -27,7 +27,7 @@ import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.JsonMethods.parse
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.functions.ProcessFunction
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer
 import org.apache.flink.util.Collector
 import org.codefeedr.buffer.serialization.Serializer
 
@@ -57,7 +57,7 @@ class GHTCommitStage(stageName: String = "ght_commits",
       trans
         .getSideOutput(outputTag)
         .addSink(
-          new FlinkKafkaProducer011[Record](
+          new FlinkKafkaProducer[Record](
             sideOutput.sideOutputKafkaServer,
             sideOutput.sideOutputTopic,
             Serializer.getSerde[Record](Serializer.JSON)))
