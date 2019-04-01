@@ -170,7 +170,7 @@ class KafkaBufferTest
     correctProperties.put("enable.auto.commit", "true")
     correctProperties.put("group.id", "test")
     correctProperties.put("some.other.property", "some-value")
-    correctDefaultProperties.put("compression.type", "none")
+    correctProperties.put("compression.type", "none")
     assert(kafkaBuffer2.getKafkaProperties == correctProperties)
 
   }
