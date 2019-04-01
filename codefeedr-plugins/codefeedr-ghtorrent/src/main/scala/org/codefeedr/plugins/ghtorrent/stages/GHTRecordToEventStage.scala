@@ -51,7 +51,7 @@ protected class GHTRecordToEventStage[
     sideOutput: SideOutput = SideOutput())
     extends TransformStage[Record, T](Some(stageName)) {
 
-  val outputTag = OutputTag[Record]("parse_exception")
+  val outputTag = OutputTag[Record](sideOutput.sideOutputTopic)
 
   /** Transforms and parses [[Event]] from [[Record]].
     *
@@ -89,9 +89,8 @@ class EventExtract[T: Manifest](routingKey: String,
                               out: Collector[T]): Unit = {
     if (value.routingKey != routingKey) return //filter on routing keys
 
-    // Extract it into an optional.
-
     try {
+      // Extract it into an optional.
       val parsedEvent = parse(value.contents).extractOpt[T]
 
       if (parsedEvent.isEmpty) {
@@ -100,7 +99,7 @@ class EventExtract[T: Manifest](routingKey: String,
         out.collect(parsedEvent.get)
       }
     } catch {
-      case exception: MappingException => ctx.output(outputTag, value)
+      case _: MappingException => ctx.output(outputTag, value)
     }
   }
 }

@@ -18,24 +18,62 @@
  */
 package org.codefeedr.plugins.ghtorrent.stages
 
-import org.apache.flink.streaming.api.scala.DataStream
+import org.apache.flink.streaming.api.scala.{DataStream, OutputTag}
 import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.Record
 import org.codefeedr.plugins.ghtorrent.protocol.GitHub.Commit
 import org.codefeedr.stages.TransformStage
-import org.json4s.DefaultFormats
+import org.json4s.{DefaultFormats, MappingException}
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.JsonMethods.parse
 import org.apache.flink.api.scala._
+import org.apache.flink.streaming.api.functions.ProcessFunction
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011
+import org.apache.flink.util.Collector
+import org.codefeedr.buffer.serialization.Serializer
 
-class GHTRecordToCommitStage(stageName: String = "commits")
+class GHTRecordToCommitStage(stageName: String = "commits",
+                             sideOutput: SideOutput = SideOutput())
     extends TransformStage[Record, Commit](Some(stageName)) {
 
+  val outputTag = OutputTag[Record](sideOutput.sideOutputTopic)
+
   override def transform(source: DataStream[Record]): DataStream[Commit] = {
-    source
+    val trans = source
       .filter(_.routingKey == "ent.commits.insert")
-      .map { x =>
-        implicit val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
-        parse(x.contents).extract[Commit]
+      .process(new CommitExtract(outputTag))
+
+    if (sideOutput.enabled) {
+      trans
+        .getSideOutput(outputTag)
+        .addSink(
+          new FlinkKafkaProducer011[Record](
+            sideOutput.sideOutputKafkaServer,
+            sideOutput.sideOutputTopic,
+            Serializer.getSerde[Record](Serializer.JSON)))
+    }
+
+    trans
+  }
+}
+
+class CommitExtract(outputTag: OutputTag[Record])
+    extends ProcessFunction[Record, Commit] {
+  implicit lazy val defaultFormats = DefaultFormats ++ JavaTimeSerializers.all
+
+  override def processElement(value: Record,
+                              ctx: ProcessFunction[Record, Commit]#Context,
+                              out: Collector[Commit]): Unit = {
+    try {
+      // Extract it into an optional.
+      val parsedEvent = parse(value.contents).extractOpt[Commit]
+
+      if (parsedEvent.isEmpty) {
+        ctx.output(outputTag, value)
+      } else {
+        out.collect(parsedEvent.get)
       }
+    } catch {
+      case _: MappingException => ctx.output(outputTag, value)
+    }
   }
 }
