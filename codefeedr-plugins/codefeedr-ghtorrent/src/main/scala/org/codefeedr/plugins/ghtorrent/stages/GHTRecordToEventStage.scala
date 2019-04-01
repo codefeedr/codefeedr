@@ -22,7 +22,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, OutputTag}
 import org.codefeedr.plugins.ghtorrent.protocol.GHTorrent.{Event, Record}
 import org.codefeedr.stages.TransformStage
-import org.json4s.DefaultFormats
+import org.json4s.{DefaultFormats, MappingException}
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.JsonMethods.parse
 import org.apache.flink.api.scala._
@@ -90,12 +90,17 @@ class EventExtract[T: Manifest](routingKey: String,
     if (value.routingKey != routingKey) return //filter on routing keys
 
     // Extract it into an optional.
-    val parsedEvent = parse(value.contents).extractOpt[T]
 
-    if (parsedEvent.isEmpty) {
-      ctx.output(outputTag, value)
-    } else {
-      out.collect(parsedEvent.get)
+    try {
+      val parsedEvent = parse(value.contents).extractOpt[T]
+
+      if (parsedEvent.isEmpty) {
+        ctx.output(outputTag, value)
+      } else {
+        out.collect(parsedEvent.get)
+      }
+    } catch {
+      case exception: MappingException => ctx.output(outputTag, value)
     }
   }
 }
