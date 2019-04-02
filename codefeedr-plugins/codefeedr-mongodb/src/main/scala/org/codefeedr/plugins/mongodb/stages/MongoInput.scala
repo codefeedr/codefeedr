@@ -41,10 +41,10 @@ class MongoInput[
     T <: Serializable with AnyRef: ClassTag: Manifest: TypeInformation](
     database: String,
     collection: String,
+    stageId: String = "mongo_input",
     server: String = "mongodb://localhost:27017",
-    query: MongoQuery = MongoQuery.empty,
-    stageId: Option[String] = None)
-    extends InputStage[T](stageId) {
+    query: MongoQuery = MongoQuery.empty)
+    extends InputStage[T](Some(stageId)) {
 
   override def main(context: Context): DataStream[T] = {
     val config = Map("database" -> database,

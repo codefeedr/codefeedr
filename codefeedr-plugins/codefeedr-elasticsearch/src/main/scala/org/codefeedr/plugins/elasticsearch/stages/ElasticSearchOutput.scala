@@ -57,10 +57,10 @@ import scala.reflect.{ClassTag, Manifest}
   */
 class ElasticSearchOutput[T <: Serializable with AnyRef: ClassTag: Manifest](
     index: String,
+    stageId: String = "es_output",
     servers: Set[String] = Set(),
-    config: Map[String, String] = Map(),
-    stageId: Option[String] = None)
-    extends OutputStage[T](stageId)
+    config: Map[String, String] = Map())
+    extends OutputStage[T](Some(stageId))
     with Logging {
 
   //TODO Add configuration support

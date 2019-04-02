@@ -36,6 +36,9 @@ case class IssueOpenedReply(id: Double, secondsDelay: Long)
 
 case class SimpleIssue(issueId: Double, created_at: Date)
 
+/**
+  * EXPERIMENTAL!
+  */
 class GitHubIssueCommentDelay
     extends TransformStage2[IssuesEvent, IssueCommentEvent, IssueOpenedReply] {
   override def transform(source: DataStream[IssuesEvent],
