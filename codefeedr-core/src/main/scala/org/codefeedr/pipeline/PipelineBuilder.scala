@@ -18,6 +18,9 @@
  */
 package org.codefeedr.pipeline
 
+import org.apache.flink.api.common.restartstrategy.RestartStrategies
+import org.apache.flink.api.common.restartstrategy.RestartStrategies.RestartStrategyConfiguration
+import org.apache.flink.runtime.executiongraph.restart.RestartStrategy
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.{
   DataStream,
@@ -79,6 +82,9 @@ class PipelineBuilder extends Logging {
 
   /** The name of the pipeline, "CodeFeedr pipeline" by default. */
   protected var name = "CodeFeedr pipeline"
+
+  /** The RestartStrategy. Default: [[RestartStrategies.noRestart()]] */
+  protected var restartStrategy = RestartStrategies.noRestart()
 
   /** Get the type of the buffer.
     *
@@ -194,6 +200,18 @@ class PipelineBuilder extends Logging {
     */
   def setStreamTimeCharacteristic(timeCharacteristic: TimeCharacteristic) = {
     this.streamTimeCharacteristic = timeCharacteristic
+
+    this
+  }
+
+  /** Set the RestartStrategy of the whole pipeline.
+    *
+    * @param strategy The strategy.
+    * @return The builder instance.
+    */
+  def setRestartStrategy(
+      strategy: RestartStrategyConfiguration): PipelineBuilder = {
+    this.restartStrategy = strategy
 
     this
   }
