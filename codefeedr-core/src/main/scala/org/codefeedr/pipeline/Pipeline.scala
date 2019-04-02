@@ -43,7 +43,7 @@ case class PipelineProperties(bufferType: BufferType,
                               keyManager: KeyManager,
                               streamTimeCharacteristic: TimeCharacteristic,
                               restartStrategy: RestartStrategyConfiguration,
-                              checkpointing: Option[Int],
+                              checkpointing: Option[Long],
                               stateBackend: StateBackend)
 
 /** The Pipeline holds all the data and logic to execute a CodeFeedr job.

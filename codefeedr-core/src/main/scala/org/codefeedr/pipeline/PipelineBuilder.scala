@@ -89,7 +89,7 @@ class PipelineBuilder extends Logging {
   protected var restartStrategy = RestartStrategies.noRestart()
 
   /** The Checkpointing. Default: None (No checkpointing). */
-  protected var checkpointing: Option[Int] = None
+  protected var checkpointing: Option[Long] = None
 
   protected var stateBackend: StateBackend = new MemoryStateBackend()
 
@@ -241,6 +241,17 @@ class PipelineBuilder extends Logging {
     */
   def setSerializer(serializer: SerializerType) = {
     this.setBufferProperty(Buffer.SERIALIZER, serializer)
+
+    this
+  }
+
+  /** Enable checkpointing for this pipeline.
+    *
+    * @param interval The interval to checkpoint on.
+    * @return This builder instance.
+    */
+  def enableCheckpointing(interval: Long) = {
+    this.checkpointing = Some(interval)
 
     this
   }

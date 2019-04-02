@@ -208,6 +208,19 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
       pipeline.pipelineProperties.stateBackend.isInstanceOf[FsStateBackend])
   }
 
+  test("Default checkpointing is disabled") {
+    val pipeline = builder.append(new SimpleSourceStage()).build()
+
+    assert(pipeline.pipelineProperties.checkpointing.isEmpty)
+  }
+
+  test("Default checkpointing can be enabled.") {
+    val pipeline =
+      builder.append(new SimpleSourceStage()).enableCheckpointing(1000).build()
+
+    assert(pipeline.pipelineProperties.checkpointing.get == 1000)
+  }
+
   test("A non-sequential pipeline cannot switch to a sequential pipeline") {
     val a = new SimpleSourceStage()
     val b = new SimpleTransformStage()
