@@ -21,6 +21,8 @@ package org.codefeedr.pipeline
 import org.apache.flink.api.common.restartstrategy.RestartStrategies
 import org.apache.flink.api.common.restartstrategy.RestartStrategies.RestartStrategyConfiguration
 import org.apache.flink.runtime.executiongraph.restart.RestartStrategy
+import org.apache.flink.runtime.state.StateBackend
+import org.apache.flink.runtime.state.memory.MemoryStateBackend
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.{
   DataStream,
@@ -86,8 +88,10 @@ class PipelineBuilder extends Logging {
   /** The RestartStrategy. Default: [[RestartStrategies.noRestart()]] */
   protected var restartStrategy = RestartStrategies.noRestart()
 
-  /** The CheckpointingMode. Default: None (No checkpointing). */
-  protected var checkpointingMode: Option[Int] = None
+  /** The Checkpointing. Default: None (No checkpointing). */
+  protected var checkpointing: Option[Int] = None
+
+  protected var stateBackend: StateBackend = new MemoryStateBackend()
 
   /** Get the type of the buffer.
     *
@@ -215,6 +219,17 @@ class PipelineBuilder extends Logging {
   def setRestartStrategy(
       strategy: RestartStrategyConfiguration): PipelineBuilder = {
     this.restartStrategy = strategy
+
+    this
+  }
+
+  /** Sets the StateBackend of the whole pipeline.
+    *
+    * @param stateBackend the statebackend.
+    * @return The builder instance.
+    */
+  def setStateBackend(stateBackend: StateBackend): PipelineBuilder = {
+    this.stateBackend = stateBackend
 
     this
   }
@@ -490,7 +505,10 @@ class PipelineBuilder extends Logging {
     val props = PipelineProperties(bufferType,
                                    bufferProperties,
                                    keyManager,
-                                   streamTimeCharacteristic)
+                                   streamTimeCharacteristic,
+                                   restartStrategy,
+                                   checkpointing,
+                                   stateBackend)
 
     Pipeline(name, props, graph, stageProperties.toMap)
   }

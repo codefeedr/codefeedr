@@ -27,6 +27,8 @@ import org.apache.flink.streaming.api.scala.{
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.buffer.{Buffer, BufferType}
 import org.apache.flink.api.scala._
+import org.apache.flink.runtime.state.filesystem.FsStateBackend
+import org.apache.flink.runtime.state.memory.MemoryStateBackend
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.stages.utilities.StringType
@@ -187,6 +189,23 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
     assert(
       pipeline.pipelineProperties.restartStrategy == RestartStrategies
         .noRestart())
+  }
+
+  test("Default StateBackend is memory") {
+    val pipeline = builder.append(new SimpleSourceStage()).build()
+
+    assert(
+      pipeline.pipelineProperties.stateBackend.isInstanceOf[MemoryStateBackend])
+  }
+
+  test("Default StateBackend can be overriden.") {
+    val pipeline = builder
+      .append(new SimpleSourceStage())
+      .setStateBackend(new FsStateBackend("/"))
+      .build()
+
+    assert(
+      pipeline.pipelineProperties.stateBackend.isInstanceOf[FsStateBackend])
   }
 
   test("A non-sequential pipeline cannot switch to a sequential pipeline") {
