@@ -35,12 +35,14 @@ import org.codefeedr.pipeline.RuntimeType.RuntimeType
   * @param keyManager The key manager which provide API call management at stage-level.
   * @param streamTimeCharacteristic The TimeCharacteristic of the whole pipeline. Event, Ingestion or Processing.
   * @param restartStrategy The RestartStrategy of the whole pipeline.
+  * @param checkpointing Captures if checkpointing is enabled and if so, what the interval is.
   */
 case class PipelineProperties(bufferType: BufferType,
                               bufferProperties: Properties,
                               keyManager: KeyManager,
                               streamTimeCharacteristic: TimeCharacteristic,
-                              restartStrategy: RestartStrategyConfiguration)
+                              restartStrategy: RestartStrategyConfiguration,
+                              checkpointing: Option[Int])
 
 /** The Pipeline holds all the data and logic to execute a CodeFeedr job.
   * It stores all stages (Flink jobs) and connects them by setting up buffers (like Kafka).
@@ -67,6 +69,10 @@ case class Pipeline(var name: String,
       _environment.setStreamTimeCharacteristic(
         pipelineProperties.streamTimeCharacteristic)
       _environment.setRestartStrategy(pipelineProperties.restartStrategy)
+
+      if (pipelineProperties.checkpointing.isDefined) {
+        _environment.enableCheckpointing(pipelineProperties.checkpointing.get)
+      }
     }
 
     _environment

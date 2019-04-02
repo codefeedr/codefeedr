@@ -86,6 +86,9 @@ class PipelineBuilder extends Logging {
   /** The RestartStrategy. Default: [[RestartStrategies.noRestart()]] */
   protected var restartStrategy = RestartStrategies.noRestart()
 
+  /** The CheckpointingMode. Default: None (No checkpointing). */
+  protected var checkpointingMode: Option[Int] = None
+
   /** Get the type of the buffer.
     *
     * @return The buffer type.
