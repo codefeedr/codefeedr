@@ -33,7 +33,8 @@ import org.json4s.jackson.JsonMethods._
 /**
   * Transform stage which reads from EventsInput and filters to IssuesEvent.
   */
-class GitHubEventToIssuesEvent extends TransformStage[Event, IssuesEvent] {
+class GitHubEventToIssuesEvent(stageName: String = "gh_issues")
+    extends TransformStage[Event, IssuesEvent](Some(stageName)) {
 
   /**
     * Filter and parses IssuesEvent from GitHub Event stream.
