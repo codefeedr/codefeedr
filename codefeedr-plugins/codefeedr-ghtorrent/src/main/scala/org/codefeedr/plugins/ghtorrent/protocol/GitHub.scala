@@ -35,7 +35,7 @@ object GitHub {
                     author: Option[User],
                     committer: Option[User],
                     parents: List[Parent],
-                    stats: Stats,
+                    stats: Option[Stats],
                     files: List[File])
 
   case class CommitData(author: CommitUser,
