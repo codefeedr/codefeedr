@@ -103,7 +103,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
 
   test("Throws when connection string is incorrect") {
     val pipeline = new PipelineBuilder()
-      .append(new MongoInput[StringType]("db", "collection", "aaa"))
+      .append(new MongoInput[StringType]("db", "collection", "", "aaa"))
       .append({ x: DataStream[StringType] =>
         x.addSink(new StringCollectSink).setParallelism(1)
       })
