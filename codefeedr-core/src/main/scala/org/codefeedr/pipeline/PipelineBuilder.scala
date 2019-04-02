@@ -23,7 +23,7 @@ import org.apache.flink.api.common.restartstrategy.RestartStrategies.RestartStra
 import org.apache.flink.runtime.executiongraph.restart.RestartStrategy
 import org.apache.flink.runtime.state.StateBackend
 import org.apache.flink.runtime.state.memory.MemoryStateBackend
-import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala.{
   DataStream,
   StreamExecutionEnvironment
@@ -88,10 +88,15 @@ class PipelineBuilder extends Logging {
   /** The RestartStrategy. Default: [[RestartStrategies.noRestart()]] */
   protected var restartStrategy = RestartStrategies.noRestart()
 
-  /** The Checkpointing. Default: None (No checkpointing). */
+  /** The Checkpointing interval. Default: None (No checkpointing). */
   protected var checkpointing: Option[Long] = None
 
+  /** The StateBackend. Default: [[org.apache.flink.runtime.state.memory.MemoryStateBackend]] */
   protected var stateBackend: StateBackend = new MemoryStateBackend()
+
+  /** The checkpointing mode. Default is exactly once.*/
+  protected var checkpointingMode: CheckpointingMode =
+    CheckpointingMode.EXACTLY_ONCE
 
   /** Get the type of the buffer.
     *
@@ -248,10 +253,31 @@ class PipelineBuilder extends Logging {
   /** Enable checkpointing for this pipeline.
     *
     * @param interval The interval to checkpoint on.
+    * @param checkpointingMode The checkpointingmode (exactly once or at least once).
+    * @return This builder instance.
+    */
+  def enableCheckpointing(interval: Long,
+                          checkpointingMode: CheckpointingMode) = {
+    this.checkpointing = Some(interval)
+
+    this
+  }
+
+  /** Enable checkpointing for this pipeline.
+    *
+    * @param interval The interval to checkpoint on.
     * @return This builder instance.
     */
   def enableCheckpointing(interval: Long) = {
-    this.checkpointing = Some(interval)
+    this.enableCheckpointing(interval, CheckpointingMode.EXACTLY_ONCE)
+  }
+
+  /** Sets the CheckpointMode for this pipeline. Note: this method does not enable checkpointing.
+    *
+    * @param checkpointingMode The checkpointingmode (exactly once or at least once).
+    */
+  def setCheckpointingMode(checkpointingMode: CheckpointingMode) = {
+    this.checkpointingMode = checkpointingMode
 
     this
   }

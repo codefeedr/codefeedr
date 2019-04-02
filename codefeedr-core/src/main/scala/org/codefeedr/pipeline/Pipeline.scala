@@ -22,7 +22,7 @@ import org.apache.flink.api.common.restartstrategy.RestartStrategies.RestartStra
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.configuration.{ConfigConstants, Configuration}
 import org.apache.flink.runtime.state.StateBackend
-import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferType.BufferType
@@ -44,6 +44,7 @@ case class PipelineProperties(bufferType: BufferType,
                               streamTimeCharacteristic: TimeCharacteristic,
                               restartStrategy: RestartStrategyConfiguration,
                               checkpointing: Option[Long],
+                              checkpointingMode: CheckpointingMode,
                               stateBackend: StateBackend)
 
 /** The Pipeline holds all the data and logic to execute a CodeFeedr job.
@@ -74,7 +75,8 @@ case class Pipeline(var name: String,
       _environment.setStateBackend(pipelineProperties.stateBackend)
 
       if (pipelineProperties.checkpointing.isDefined) {
-        _environment.enableCheckpointing(pipelineProperties.checkpointing.get)
+        _environment.enableCheckpointing(pipelineProperties.checkpointing.get,
+                                         pipelineProperties.checkpointingMode)
       }
     }
 
