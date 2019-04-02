@@ -17,6 +17,8 @@
  */
 package org.codefeedr.pipeline
 
+import org.apache.flink.api.common.restartstrategy.RestartStrategies
+import org.apache.flink.api.common.restartstrategy.RestartStrategies.RestartStrategyConfiguration
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.{
   DataStream,
@@ -166,6 +168,25 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     assert(
       pipeline.pipelineProperties.streamTimeCharacteristic == TimeCharacteristic.IngestionTime)
+  }
+
+  test("Default RestartStrategy is no restart.") {
+    val pipeline = builder.append(new SimpleSourceStage()).build()
+
+    assert(
+      pipeline.pipelineProperties.restartStrategy == RestartStrategies
+        .noRestart())
+  }
+
+  test("Default RestartStrategy can be overriden.") {
+    val pipeline = builder
+      .append(new SimpleSourceStage())
+      .setRestartStrategy(RestartStrategies.fallBackRestart())
+      .build()
+
+    assert(
+      pipeline.pipelineProperties.restartStrategy == RestartStrategies
+        .noRestart())
   }
 
   test("A non-sequential pipeline cannot switch to a sequential pipeline") {

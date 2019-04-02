@@ -18,6 +18,7 @@
  */
 package org.codefeedr.pipeline
 
+import org.apache.flink.api.common.restartstrategy.RestartStrategies.RestartStrategyConfiguration
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.configuration.{ConfigConstants, Configuration}
 import org.apache.flink.streaming.api.TimeCharacteristic
@@ -33,11 +34,13 @@ import org.codefeedr.pipeline.RuntimeType.RuntimeType
   * @param bufferProperties The properties of the Buffer.
   * @param keyManager The key manager which provide API call management at stage-level.
   * @param streamTimeCharacteristic The TimeCharacteristic of the whole pipeline. Event, Ingestion or Processing.
+  * @param restartStrategy The RestartStrategy of the whole pipeline.
   */
 case class PipelineProperties(bufferType: BufferType,
                               bufferProperties: Properties,
                               keyManager: KeyManager,
-                              streamTimeCharacteristic: TimeCharacteristic)
+                              streamTimeCharacteristic: TimeCharacteristic,
+                              restartStrategy: RestartStrategyConfiguration)
 
 /** The Pipeline holds all the data and logic to execute a CodeFeedr job.
   * It stores all stages (Flink jobs) and connects them by setting up buffers (like Kafka).
@@ -63,6 +66,7 @@ case class Pipeline(var name: String,
       _environment = StreamExecutionEnvironment.getExecutionEnvironment
       _environment.setStreamTimeCharacteristic(
         pipelineProperties.streamTimeCharacteristic)
+      _environment.setRestartStrategy(pipelineProperties.restartStrategy)
     }
 
     _environment
