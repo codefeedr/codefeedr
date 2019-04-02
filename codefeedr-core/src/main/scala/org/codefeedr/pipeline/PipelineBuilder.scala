@@ -18,7 +18,12 @@
  */
 package org.codefeedr.pipeline
 
-import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.api.common.restartstrategy.RestartStrategies
+import org.apache.flink.api.common.restartstrategy.RestartStrategies.RestartStrategyConfiguration
+import org.apache.flink.runtime.executiongraph.restart.RestartStrategy
+import org.apache.flink.runtime.state.StateBackend
+import org.apache.flink.runtime.state.memory.MemoryStateBackend
+import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala.{
   DataStream,
   StreamExecutionEnvironment
@@ -79,6 +84,19 @@ class PipelineBuilder extends Logging {
 
   /** The name of the pipeline, "CodeFeedr pipeline" by default. */
   protected var name = "CodeFeedr pipeline"
+
+  /** The RestartStrategy. Default: [[RestartStrategies.noRestart()]] */
+  protected var restartStrategy = RestartStrategies.noRestart()
+
+  /** The Checkpointing interval. Default: None (No checkpointing). */
+  protected var checkpointing: Option[Long] = None
+
+  /** The StateBackend. Default: [[org.apache.flink.runtime.state.memory.MemoryStateBackend]] */
+  protected var stateBackend: StateBackend = new MemoryStateBackend()
+
+  /** The checkpointing mode. Default is exactly once.*/
+  protected var checkpointingMode: CheckpointingMode =
+    CheckpointingMode.EXACTLY_ONCE
 
   /** Get the type of the buffer.
     *
@@ -198,6 +216,29 @@ class PipelineBuilder extends Logging {
     this
   }
 
+  /** Set the RestartStrategy of the whole pipeline.
+    *
+    * @param strategy The strategy.
+    * @return The builder instance.
+    */
+  def setRestartStrategy(
+      strategy: RestartStrategyConfiguration): PipelineBuilder = {
+    this.restartStrategy = strategy
+
+    this
+  }
+
+  /** Sets the StateBackend of the whole pipeline.
+    *
+    * @param stateBackend the statebackend.
+    * @return The builder instance.
+    */
+  def setStateBackend(stateBackend: StateBackend): PipelineBuilder = {
+    this.stateBackend = stateBackend
+
+    this
+  }
+
   /** Sets the serializer type for the buffer.
     *
     * @param serializer The serializer type (which is basically a string).
@@ -205,6 +246,39 @@ class PipelineBuilder extends Logging {
     */
   def setSerializer(serializer: SerializerType) = {
     this.setBufferProperty(Buffer.SERIALIZER, serializer)
+
+    this
+  }
+
+  /** Enable checkpointing for this pipeline.
+    *
+    * @param interval The interval to checkpoint on.
+    * @param checkpointingMode The checkpointingmode (exactly once or at least once).
+    * @return This builder instance.
+    */
+  def enableCheckpointing(interval: Long,
+                          checkpointingMode: CheckpointingMode) = {
+    this.checkpointing = Some(interval)
+    this.checkpointingMode = checkpointingMode
+
+    this
+  }
+
+  /** Enable checkpointing for this pipeline.
+    *
+    * @param interval The interval to checkpoint on.
+    * @return This builder instance.
+    */
+  def enableCheckpointing(interval: Long): PipelineBuilder = {
+    this.enableCheckpointing(interval, CheckpointingMode.EXACTLY_ONCE)
+  }
+
+  /** Sets the CheckpointMode for this pipeline. Note: this method does not enable checkpointing.
+    *
+    * @param checkpointingMode The checkpointingmode (exactly once or at least once).
+    */
+  def setCheckpointingMode(checkpointingMode: CheckpointingMode) = {
+    this.checkpointingMode = checkpointingMode
 
     this
   }
@@ -469,7 +543,11 @@ class PipelineBuilder extends Logging {
     val props = PipelineProperties(bufferType,
                                    bufferProperties,
                                    keyManager,
-                                   streamTimeCharacteristic)
+                                   streamTimeCharacteristic,
+                                   restartStrategy,
+                                   checkpointing,
+                                   checkpointingMode,
+                                   stateBackend)
 
     Pipeline(name, props, graph, stageProperties.toMap)
   }

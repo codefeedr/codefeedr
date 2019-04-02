@@ -17,6 +17,8 @@
  */
 package org.codefeedr.pipeline
 
+import org.apache.flink.api.common.restartstrategy.RestartStrategies
+import org.apache.flink.api.common.restartstrategy.RestartStrategies.RestartStrategyConfiguration
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.{
   DataStream,
@@ -25,7 +27,9 @@ import org.apache.flink.streaming.api.scala.{
 import org.codefeedr.keymanager.StaticKeyManager
 import org.codefeedr.buffer.{Buffer, BufferType}
 import org.apache.flink.api.scala._
-import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.runtime.state.filesystem.FsStateBackend
+import org.apache.flink.runtime.state.memory.MemoryStateBackend
+import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.stages.utilities.StringType
 import org.codefeedr.stages.OutputStage
@@ -166,6 +170,81 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     assert(
       pipeline.pipelineProperties.streamTimeCharacteristic == TimeCharacteristic.IngestionTime)
+  }
+
+  test("Default RestartStrategy is no restart.") {
+    val pipeline = builder.append(new SimpleSourceStage()).build()
+
+    assert(
+      pipeline.pipelineProperties.restartStrategy == RestartStrategies
+        .noRestart())
+  }
+
+  test("Default RestartStrategy can be overriden.") {
+    val pipeline = builder
+      .append(new SimpleSourceStage())
+      .setRestartStrategy(RestartStrategies.fallBackRestart())
+      .build()
+
+    assert(
+      pipeline.pipelineProperties.restartStrategy == RestartStrategies
+        .fallBackRestart())
+  }
+
+  test("Default StateBackend is memory") {
+    val pipeline = builder.append(new SimpleSourceStage()).build()
+
+    assert(
+      pipeline.pipelineProperties.stateBackend.isInstanceOf[MemoryStateBackend])
+  }
+
+  test("Default StateBackend can be overriden.") {
+    val pipeline = builder
+      .append(new SimpleSourceStage())
+      .setStateBackend(new FsStateBackend("file://test/test"))
+      .build()
+
+    assert(
+      pipeline.pipelineProperties.stateBackend.isInstanceOf[FsStateBackend])
+  }
+
+  test("Default checkpointing is disabled") {
+    val pipeline = builder.append(new SimpleSourceStage()).build()
+
+    assert(pipeline.pipelineProperties.checkpointing.isEmpty)
+    assert(
+      pipeline.pipelineProperties.checkpointingMode == CheckpointingMode.EXACTLY_ONCE)
+  }
+
+  test("Default checkpointing can be enabled.") {
+    val pipeline =
+      builder.append(new SimpleSourceStage()).enableCheckpointing(1000).build()
+
+    assert(pipeline.pipelineProperties.checkpointing.get == 1000)
+  }
+
+  test("Default checkpointing can be enabled and mode can be set.") {
+    val pipeline =
+      builder
+        .append(new SimpleSourceStage())
+        .enableCheckpointing(500, CheckpointingMode.AT_LEAST_ONCE)
+        .build()
+
+    assert(pipeline.pipelineProperties.checkpointing.get == 500)
+    assert(
+      pipeline.pipelineProperties.checkpointingMode == CheckpointingMode.AT_LEAST_ONCE)
+  }
+
+  test("Checkpointmode can be overriden.") {
+    val pipeline =
+      builder
+        .append(new SimpleSourceStage())
+        .setCheckpointingMode(CheckpointingMode.AT_LEAST_ONCE)
+        .build()
+
+    assert(
+      pipeline.pipelineProperties.checkpointingMode == CheckpointingMode.AT_LEAST_ONCE)
+    assert(pipeline.pipelineProperties.checkpointing.isEmpty)
   }
 
   test("A non-sequential pipeline cannot switch to a sequential pipeline") {

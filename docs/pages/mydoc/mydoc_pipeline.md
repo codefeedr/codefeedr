@@ -175,6 +175,14 @@ by `builder.disablePipelineVerification()`, however we do not recommend
 this. If you disable this, make sure the serialization framework will
 support the conversion (if you remove fields, this is often supported).
 
+### Flink environment configuration
+Many Flink environment configuration values are overloaded into the pipeline builder:
+- [The state backend.](https://ci.apache.org/projects/flink/flink-docs-master/ops/state/state_backends.html): `builder.setStateBackend(new MemoryStateBackend())`
+- [The restart strategy.](https://ci.apache.org/projects/flink/flink-docs-master/dev/restart_strategies.html): `builder.setRestartStrategy(RestartStrategies.noRestart())`
+- [Checkpointing](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/state/checkpointing.htmlhttps://ci.apache.org/projects/flink/flink-docs-master/dev/stream/state/checkpointing.html): `builder.enableCheckpointing(1000, CheckpointingMode.EXACTLY_ONCE)`
+
+**Note**: All these configuration values are pipeline-wide, so they will be configured for every stage. Stage-level environment configuration is currently not supported, however a workaround is to directly configure the environment in the `transform` function. 
+
 ### Stage Properties
 In the PipelineBuilder properties can be specified **per** stage. This
 properties map is available to the Stage at run-time. To set a stage
