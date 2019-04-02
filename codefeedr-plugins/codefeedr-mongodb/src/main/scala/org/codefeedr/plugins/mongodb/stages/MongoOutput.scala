@@ -38,9 +38,9 @@ import scala.reflect.{ClassTag, Manifest}
 class MongoOutput[T <: Serializable with AnyRef: ClassTag: Manifest](
     database: String,
     collection: String,
-    server: String = "mongodb://localhost:27017",
-    stageId: Option[String] = None)
-    extends OutputStage[T](stageId) {
+    stageName: String = "mongo_output",
+    server: String = "mongodb://localhost:27017")
+    extends OutputStage[T](Some(stageName)) {
 
   override def main(source: DataStream[T]): Unit = {
     val config = Map("database" -> database,
