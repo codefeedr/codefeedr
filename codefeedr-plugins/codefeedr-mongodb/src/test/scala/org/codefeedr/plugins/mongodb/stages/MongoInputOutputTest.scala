@@ -182,6 +182,7 @@ Etiam nisl sem, egestas sit amet pretium quis, tristique ut diam. Ut dapibus sod
       .append(
         new MongoInput[TestEvent]("db",
                                   "collection",
+                                  "",
                                   "mongodb://localhost:12345",
                                   query))
       .append({ x: DataStream[TestEvent] =>
