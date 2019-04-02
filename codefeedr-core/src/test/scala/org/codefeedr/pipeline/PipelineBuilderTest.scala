@@ -188,7 +188,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
 
     assert(
       pipeline.pipelineProperties.restartStrategy == RestartStrategies
-        .noRestart())
+        .fallBackRestart())
   }
 
   test("Default StateBackend is memory") {
@@ -201,7 +201,7 @@ class PipelineBuilderTest extends FunSuite with BeforeAndAfter with Matchers {
   test("Default StateBackend can be overriden.") {
     val pipeline = builder
       .append(new SimpleSourceStage())
-      .setStateBackend(new FsStateBackend("/"))
+      .setStateBackend(new FsStateBackend("file://test/test"))
       .build()
 
     assert(

@@ -259,6 +259,7 @@ class PipelineBuilder extends Logging {
   def enableCheckpointing(interval: Long,
                           checkpointingMode: CheckpointingMode) = {
     this.checkpointing = Some(interval)
+    this.checkpointingMode = checkpointingMode
 
     this
   }
@@ -268,7 +269,7 @@ class PipelineBuilder extends Logging {
     * @param interval The interval to checkpoint on.
     * @return This builder instance.
     */
-  def enableCheckpointing(interval: Long) = {
+  def enableCheckpointing(interval: Long): PipelineBuilder = {
     this.enableCheckpointing(interval, CheckpointingMode.EXACTLY_ONCE)
   }
 
@@ -545,6 +546,7 @@ class PipelineBuilder extends Logging {
                                    streamTimeCharacteristic,
                                    restartStrategy,
                                    checkpointing,
+                                   checkpointingMode,
                                    stateBackend)
 
     Pipeline(name, props, graph, stageProperties.toMap)
