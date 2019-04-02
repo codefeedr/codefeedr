@@ -38,7 +38,7 @@ import org.codefeedr.buffer.serialization.Serializer
   * @param stageName the name of this stage.
   * @param sideOutput sideoutput configuration for unparse-able.
   */
-class GHTCommitStage(stageName: String = "ght_commits",
+class GHTCommitStage(stageName: String = "ght_commit",
                      sideOutput: SideOutput = SideOutput())
     extends TransformStage[Record, Commit](Some(stageName)) {
 

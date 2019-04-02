@@ -27,7 +27,7 @@ object GHTorrent {
     */
   case class Record(routingKey: String, contents: String)
 
-  /** Every GHTorrent record has an _id objet.
+  /** Every GHTorrent record has an _id object.
     *
     * @param `$oid` the object id.
     */
