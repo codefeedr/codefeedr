@@ -39,9 +39,9 @@ import scala.reflect.runtime.universe._
   */
 class RabbitMQInput[T <: Serializable with AnyRef: ClassTag: TypeTag](
     queue: String,
-    server: URI = new URI("amqp://localhost:5672"),
-    stageId: Option[String] = None)
-    extends InputStage[T](stageId) {
+    stageName: String = "rmq_input",
+    server: URI = new URI("amqp://localhost:5672"))
+    extends InputStage[T](Some(stageName)) {
 
   //Get type of the class at run time
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]

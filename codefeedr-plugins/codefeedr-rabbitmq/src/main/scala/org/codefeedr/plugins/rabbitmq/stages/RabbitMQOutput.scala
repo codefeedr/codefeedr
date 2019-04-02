@@ -37,9 +37,10 @@ import scala.reflect.runtime.universe._
   */
 class RabbitMQOutput[T <: Serializable with AnyRef: ClassTag: TypeTag](
     queue: String,
+    stageName: String = "rmq_output",
     server: URI = new URI("amqp://localhost:5672"),
     stageId: Option[String] = None)
-    extends OutputStage[T](stageId) {
+    extends OutputStage[T](Some(stageName)) {
 
   /** Add the InputSource to the Flink environment. */
   override def main(source: DataStream[T]): Unit = {

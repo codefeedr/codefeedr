@@ -32,7 +32,8 @@ import org.json4s.jackson.JsonMethods._
 /**
   * Transform stage which reads from EventsInput and filters to PushEvents.
   */
-class GitHubEventToPushEvent extends TransformStage[Event, PushEvent] {
+class GitHubEventToPushEvent(stageName: String = "gh_push")
+    extends TransformStage[Event, PushEvent](Some(stageName)) {
 
   /**
     * Filter and parses PushEvents from GitHub Event stream.

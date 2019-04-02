@@ -51,7 +51,7 @@ class ElasticSearchOutputTest extends FunSuite with MockitoSugar {
 
   test("Should add configured hosts") {
     val servers = Set("es://example.com:9300", "es://google.com:9200")
-    val stage = new ElasticSearchOutput[StringType](index, servers)
+    val stage = new ElasticSearchOutput[StringType](index, "", servers)
 
     val addresses = stage.createTransportAddresses()
 
@@ -64,7 +64,7 @@ class ElasticSearchOutputTest extends FunSuite with MockitoSugar {
 
   test("Should not add servers with no es schema") {
     val servers = Set("es://example.com:9300", "myHost:9200")
-    val stage = new ElasticSearchOutput[StringType](index, servers)
+    val stage = new ElasticSearchOutput[StringType](index, "", servers)
 
     val addresses = stage.createTransportAddresses()
 

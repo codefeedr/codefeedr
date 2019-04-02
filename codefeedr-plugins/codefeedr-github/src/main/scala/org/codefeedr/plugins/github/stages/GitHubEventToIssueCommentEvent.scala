@@ -29,8 +29,8 @@ import org.json4s.jackson.JsonMethods.parse
 /**
   * Transform stage which reads from EventsInput and filters to IssueCommentEvent.
   */
-class GitHubEventToIssueCommentEvent
-    extends TransformStage[Event, IssueCommentEvent] {
+class GitHubEventToIssueCommentEvent(stageName: String = "gh_issuecomment")
+    extends TransformStage[Event, IssueCommentEvent](Some(stageName)) {
 
   /**
     * Filter and parses IssueCommentEvent from GitHub Event stream.
