@@ -78,4 +78,44 @@ evt.push.insert
 ```
 
 **Note:** Records are parsed based on the `routing_key` and its `content`, but the content itself is not parsed.
+### Event stages
+The `GHTInputStage` can be linked to several event stages in order to parse and forward each event to its own (Kafka) topic.
+The event stages are defined like this: `GHT#EVENT_NAME#Stage`. E.g. `GHTPushEventStage`, `GHTPullRequestStage` and `GHTForkEvent`.
+
+For instance, if you want to parse and forward `IssuesEvent` you write the following code:
+```scala
+val stageName = "ght_issues"
+val issuesStage = new GHTIssuesStage(stageName)
+
+val pipeline = new PipelineBuilder().edge(new GHTInputStage("wzorgdrager"), issuesStage).build()
+```
+
+Default stage names are: `ght_#EVENT_TYPE#` (`ght_push`, `ght_issues`, `ght_delete`, ...)
+
+
+#### Parse exception
+It might be possible that the case class we defined for the events are incompatible with the actual data. 
+By default these parse exception are stored into a different Kafka topic (in order to improve the case classes in the long run).
+This side-output can be configured like:
+
+```scala
+val enabled = true // By default un-parseable data will be send to a Kafka topic. If disabled, the records will just be ignored.
+val sideOutputTopic = "parse_exception" // Topic name. Default is parse_exception.
+val sideOutputKafkaServer = "localhost:9092" // Kafka broker. Default is localhost:9092.
+
+val sideOutput = SideOutput(enabled, sideOutput, sideOutputKafkaServer)
+
+val pushEventStage = new GHTPushEventStage("gth_issues", sideOutput)
+```
+
+### Commit stage
+It is possible to follow all commits processed by GHTorrent. The name of this stage is `GHTCommitStage`. It follows the same ([side-output](#parse-exception)) configuration as the [event stages](#event-stages).
+
+```scala
+val commitStage = new GHTCommitStage("ght_commits", SideOuput(false))
+
+val pipeline = new PipelineBuilder().edge(new GHTInputStage("wzorgdrager"), commitStage).build()
+```
+
+
 ## Example use-case
