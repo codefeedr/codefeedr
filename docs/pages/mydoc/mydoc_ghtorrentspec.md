@@ -4,6 +4,7 @@ keywords: plugins, ghtorrent
 tags: [plugins]
 sidebar: mydoc_sidebar
 highlighter: rouge
+toc: false
 permalink: mydoc_ghtorrentspec.html
 ---
 
