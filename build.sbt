@@ -46,7 +46,8 @@ lazy val root = (project in file("."))
     pluginMongodb,
     pluginElasticSearch,
     pluginGitHub,
-    pluginRabbitMQ)
+    pluginRabbitMQ,
+    pluginGHTorrent)
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
@@ -100,9 +101,7 @@ lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb")
       dependencies.embeddedMongo
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-elasticsearch"))
   .settings(
@@ -113,9 +112,7 @@ lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-ela
       dependencies.flinkElasticSearch
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
   .settings(
@@ -130,9 +127,7 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
       dependencies.json4sExt
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginRabbitMQ = (project in file("codefeedr-plugins/codefeedr-rabbitmq"))
   .settings(
@@ -144,9 +139,18 @@ lazy val pluginRabbitMQ = (project in file("codefeedr-plugins/codefeedr-rabbitmq
       //dependencies.embeddedRabbitMQ
     )
   )
-  .dependsOn(core
-  )
+  .dependsOn(core)
 
+lazy val pluginGHTorrent = (project in file("codefeedr-plugins/codefeedr-ghtorrent"))
+  .settings(
+    name := pluginPrefix + "ghtorrent",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.flinkRabbitMQ,
+      //dependencies.embeddedRabbitMQ
+    )
+  ).dependsOn(core)
 
 lazy val dependencies =
   new {
