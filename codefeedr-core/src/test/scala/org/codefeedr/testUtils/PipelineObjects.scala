@@ -65,6 +65,14 @@ class SimpleTransformStage extends Stage[StringType, StringType] {
       source: DataStream[StringType]): DataStream[StringType] = source
 }
 
+//simply transforms from x => x
+class SimpleTwoTransformStage
+    extends Stage2[StringType, StringType, StringType] {
+  override def transform(
+      source: DataStream[StringType],
+      secondSource: DataStream[StringType]): DataStream[StringType] = source
+}
+
 //simple sink which prints the elements and stops after #elements
 class SimpleSinkStage(elements: Int = -1) extends OutputStage[StringType] {
   override def main(source: DataStream[StringType]): Unit = {

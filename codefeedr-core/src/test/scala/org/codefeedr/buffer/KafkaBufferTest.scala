@@ -151,6 +151,7 @@ class KafkaBufferTest
     correctDefaultProperties.put("auto.commit.interval.ms", "100")
     correctDefaultProperties.put("enable.auto.commit", "true")
     correctDefaultProperties.put("group.id", "test")
+    correctDefaultProperties.put("compression.type", "none")
     assert(kafkaBuffer.getKafkaProperties == correctDefaultProperties)
 
     val properties = new org.codefeedr.Properties()
@@ -169,6 +170,7 @@ class KafkaBufferTest
     correctProperties.put("enable.auto.commit", "true")
     correctProperties.put("group.id", "test")
     correctProperties.put("some.other.property", "some-value")
+    correctProperties.put("compression.type", "none")
     assert(kafkaBuffer2.getKafkaProperties == correctProperties)
 
   }

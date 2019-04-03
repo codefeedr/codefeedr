@@ -19,6 +19,7 @@
 package org.codefeedr
 
 import scala.language.implicitConversions
+import scala.collection.JavaConverters._
 
 /** Implicit conversions for Properties. */
 object Properties {

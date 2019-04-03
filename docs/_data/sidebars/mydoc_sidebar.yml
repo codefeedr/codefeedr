@@ -56,9 +56,20 @@ entries:
         url: /mydoc_mongo.html
         output: web, pdf
 
+        subfolders:
+          - title: GHTorrent
+            output: web, pdf
+            subfolderitems:
+              - title: General
+                url: /mydoc_ghtorrent.html
+                output: web, pdf
+              - title: Specification
+                url: /mydoc_ghtorrentspec.html
+                output: web, pdf
+
   - title: Internals
     output: web, pdf
-
+ 
     folderitems:
     - title: Pipeline
       url: /mydoc_pipeline.html

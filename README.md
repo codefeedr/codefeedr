@@ -66,7 +66,7 @@ In order to run the documentation locally, make sure to have [Ruby and Rubygem](
 By default the documentation will be served at [http://127.0.0.1:4000](http://127.0.0.1:4000)
 
 ## Use orchestration tools
-The orchestration tools are located under [`/tools`](/tools). They depends on:
+The orchestration tools are located under [`/tools`](/tools). They depend on:
 - Python
 - Docker
 - Redis

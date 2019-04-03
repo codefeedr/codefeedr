@@ -356,7 +356,7 @@ class PipelineTest
     val output = stream.toString
 
     assert(output.split("\n").length == 2)
-    assert(output.startsWith("org.codefeedr.stages.utilities.StringInput"))
+    assert(output.startsWith("string_input"))
   }
 
   test("Show list of pipeline item ids in an exception") {

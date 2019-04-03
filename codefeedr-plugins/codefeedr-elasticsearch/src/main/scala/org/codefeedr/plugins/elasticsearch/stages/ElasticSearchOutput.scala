@@ -39,11 +39,12 @@ import org.codefeedr.stages.OutputStage
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.{Requests, RestClientBuilder}
 import org.elasticsearch.common.xcontent.XContentType
-import org.json4s.NoTypeHints
+import org.json4s.{FieldSerializer, NoTypeHints}
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
-import collection.JavaConversions._
+import org.json4s.FieldSerializer._
 
+import collection.JavaConversions._
 import scala.reflect.{ClassTag, Manifest}
 
 /**
@@ -57,10 +58,10 @@ import scala.reflect.{ClassTag, Manifest}
   */
 class ElasticSearchOutput[T <: Serializable with AnyRef: ClassTag: Manifest](
     index: String,
+    stageId: String = "es_output",
     servers: Set[String] = Set(),
-    config: Map[String, String] = Map(),
-    stageId: Option[String] = None)
-    extends OutputStage[T](stageId)
+    config: Map[String, String] = Map())
+    extends OutputStage[T](Some(stageId))
     with Logging {
 
   //TODO Add configuration support
@@ -92,7 +93,7 @@ class ElasticSearchOutput[T <: Serializable with AnyRef: ClassTag: Manifest](
     if (servers.isEmpty) {
       logger.info(
         "Transport address set is empty. Using localhost with default port 9300.")
-      transportAddresses.add(new HttpHost("localhost", 9300, "http"))
+      transportAddresses.add(new HttpHost("localhost", 9200, "http"))
     }
 
     for (server <- servers) {
@@ -119,7 +120,13 @@ private class ElasticSearchSink[
     T <: Serializable with AnyRef: ClassTag: Manifest](index: String)
     extends ElasticsearchSinkFunction[T] {
 
-  implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all
+  // ES records are not allowed to have _id fields, so we replace it with idd.
+  val esSerializer = FieldSerializer[T](
+    renameTo("_id", "idd"),
+    renameFrom("idd", "_id")
+  )
+
+  implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all + esSerializer
 
   def createIndexRequest(element: T): IndexRequest = {
     val bytes = serialize(element)

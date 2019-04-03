@@ -32,8 +32,9 @@ import scala.reflect.{ClassTag, Manifest}
   */
 class SeqInput[
     T <: Serializable with AnyRef: ClassTag: Manifest: TypeInformation](
-    seq: Seq[T])
-    extends InputStage[T] {
+    seq: Seq[T],
+    stageName: String = "seq_input")
+    extends InputStage[T](Some(stageName)) {
 
   /** Creates a DataStream for the collection.
     *

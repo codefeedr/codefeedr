@@ -8,8 +8,10 @@ permalink: mydoc_create_your_own_plugin.html
 
 ## Setup
 To use the framework import the following dependency in your project:
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12)
 ```scala
-libraryDependencies += "org.codefeedr" %% "codefeedr-core" %  "0.1.0"
+libraryDependencies += "org.codefeedr" %% "codefeedr-core" %  "LATEST_VERSION"
 libraryDependencies += "org.apache.flink" %% "flink-scala" % "1.7.0"
 libraryDependencies += "org.apache.flink" %% "flink-streaming-scala" % "1.7.0"
 ```

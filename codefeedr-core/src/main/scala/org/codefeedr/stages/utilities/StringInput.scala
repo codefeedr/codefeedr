@@ -29,8 +29,8 @@ case class StringType(value: String)
   *
   * @param str The string to split.
   */
-class StringInput(str: String = "", stageId: Option[String] = None)
-    extends InputStage[StringType](stageId) {
+class StringInput(str: String = "", stageId: String = "string_input")
+    extends InputStage[StringType](Some(stageId)) {
 
   /** Splits a String into elements of [[StringType]].
     *

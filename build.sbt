@@ -28,7 +28,7 @@ ThisBuild / description := "CodeFeedr provides an infrastructure on top of Apach
 ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / homepage := Some(url("https://github.com/codefeedr/codefeedr"))
 
-ThisBuild / version := "0.1.1"
+ThisBuild / version := "0.1.2"
 ThisBuild / organization := "org.codefeedr"
 ThisBuild / scalaVersion := scala212
 
@@ -46,7 +46,8 @@ lazy val root = (project in file("."))
     pluginMongodb,
     pluginElasticSearch,
     pluginGitHub,
-    pluginRabbitMQ)
+    pluginRabbitMQ,
+    pluginGHTorrent)
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
@@ -100,9 +101,7 @@ lazy val pluginMongodb = (project in file("codefeedr-plugins/codefeedr-mongodb")
       dependencies.embeddedMongo
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-elasticsearch"))
   .settings(
@@ -113,9 +112,7 @@ lazy val pluginElasticSearch = (project in file("codefeedr-plugins/codefeedr-ela
       dependencies.flinkElasticSearch
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
   .settings(
@@ -130,9 +127,7 @@ lazy val pluginGitHub = (project in file("codefeedr-plugins/codefeedr-github"))
       dependencies.json4sExt
     )
   )
-  .dependsOn(
-    core
-  )
+  .dependsOn(core)
 
 lazy val pluginRabbitMQ = (project in file("codefeedr-plugins/codefeedr-rabbitmq"))
   .settings(
@@ -144,9 +139,18 @@ lazy val pluginRabbitMQ = (project in file("codefeedr-plugins/codefeedr-rabbitmq
       //dependencies.embeddedRabbitMQ
     )
   )
-  .dependsOn(core
-  )
+  .dependsOn(core)
 
+lazy val pluginGHTorrent = (project in file("codefeedr-plugins/codefeedr-ghtorrent"))
+  .settings(
+    name := pluginPrefix + "ghtorrent",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.flinkRabbitMQ,
+      //dependencies.embeddedRabbitMQ
+    )
+  ).dependsOn(core)
 
 lazy val dependencies =
   new {
@@ -162,7 +166,7 @@ lazy val dependencies =
 
     val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided
     val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Provided
-    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka-0.11"     % flinkVersion
+    val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka"          % flinkVersion
     val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion      % Provided
     val flinkElasticSearch = "org.apache.flink"          %% "flink-connector-elasticsearch6" % flinkVersion
     val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion

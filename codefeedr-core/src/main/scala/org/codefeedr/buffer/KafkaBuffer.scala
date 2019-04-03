@@ -24,12 +24,11 @@ import org.apache.avro.reflect.ReflectData
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.kafka.{
-  FlinkKafkaConsumer011,
-  FlinkKafkaProducer011
+  FlinkKafkaConsumer,
+  FlinkKafkaProducer
 }
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.apache.logging.log4j.scala.Logging
-import org.codefeedr.Properties._
 import org.codefeedr.buffer.serialization.schema_exposure.{
   RedisSchemaExposer,
   SchemaExposer,
@@ -40,6 +39,7 @@ import org.codefeedr.pipeline.Pipeline
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
+import org.codefeedr.Properties._
 
 /** Holds Kafka property names. */
 object KafkaBuffer {
@@ -53,6 +53,12 @@ object KafkaBuffer {
   val SCHEMA_EXPOSURE_SERVICE = "SCHEMA_EXPOSURE_SERVICE"
   val SCHEMA_EXPOSURE_HOST = "SCHEMA_EXPOSURE_HOST"
   val SCHEMA_EXPOSURE_DESERIALIZATION = "SCHEMA_EXPOSURE_SERIALIZATION"
+
+  //PARTITIONS, REPLICAS AND COMPRESSION
+  val AMOUNT_OF_PARTITIONS = "AMOUNT_OF_PARTITONS"
+  val AMOUNT_OF_REPLICAS = "AMOUNT_OF_REPLICAS"
+  val COMPRESSION_TYPE = "compression.type"
+
 }
 
 /** The implementation for the Kafka buffer. This buffer is the default.
@@ -85,6 +91,11 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     val SCHEMA_EXPOSURE = false
     val SCHEMA_EXPOSURE_SERVICE = "redis"
     val SCHEMA_EXPOSURE_HOST = "redis://localhost:6379"
+
+    //PARTITIONS, REPLICAS AND COMPRESSION
+    val AMOUNT_OF_PARTITIONS = 1
+    val AMOUNT_OF_REPLICAS = 1
+    val COMPRESSION_TYPE = "none"
   }
 
   /** Get a Kafka Consumer as source for a stage.
@@ -102,7 +113,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
     // Add a source.
     pipeline.environment.addSource(
-      new FlinkKafkaConsumer011[T](topic, serde, getKafkaProperties))
+      new FlinkKafkaConsumer[T](topic, serde, getKafkaProperties))
   }
 
   /** Get a Kafka Producer as sink to the buffer.
@@ -118,9 +129,15 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
       exposeSchema()
     }
 
+    // Make sure the topic already exists, otherwise create it.
+    checkAndCreateSubject(
+      topic,
+      properties
+        .getOrElse[String](KafkaBuffer.BROKER, KafkaBufferDefaults.BROKER))
+
     // Create Kafka producer.
     val producer =
-      new FlinkKafkaProducer011[T](topic, getSerializer, getKafkaProperties)
+      new FlinkKafkaProducer[T](topic, getSerializer, getKafkaProperties)
     producer.setWriteTimestampToKafka(true)
 
     producer
@@ -138,6 +155,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     kafkaProp.put("auto.commit.interval.ms",
                   KafkaBufferDefaults.AUTO_COMMIT_INTERVAL_MS)
     kafkaProp.put("enable.auto.commit", KafkaBufferDefaults.ENABLE_AUTO_COMMIT)
+    kafkaProp.put("compression.type", KafkaBufferDefaults.COMPRESSION_TYPE)
     kafkaProp.put("group.id", groupId)
 
     properties.getContents.foreach {
@@ -168,7 +186,16 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     if (!alreadyCreated) {
       // The topic configuration will probably be overwritten by the producer.
       logger.info(s"Topic $topic doesn't exist yet, now creating it.")
-      val newTopic = new NewTopic(topic, 1, 1)
+      val newTopic = new NewTopic(
+        topic,
+        properties.getOrElse[Int](
+          KafkaBuffer.AMOUNT_OF_PARTITIONS,
+          KafkaBufferDefaults.AMOUNT_OF_PARTITIONS)(_.toInt),
+        properties
+          .getOrElse[Int](KafkaBuffer.AMOUNT_OF_REPLICAS,
+                          KafkaBufferDefaults.AMOUNT_OF_REPLICAS)(_.toInt)
+          .asInstanceOf[Short]
+      )
       createTopic(adminClient, newTopic)
     }
   }
