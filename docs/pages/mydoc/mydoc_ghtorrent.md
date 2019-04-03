@@ -119,3 +119,45 @@ val pipeline = new PipelineBuilder().edge(new GHTInputStage("wzorgdrager"), comm
 
 
 ## Example use-case
+
+Lets say you want to process and analyze all real-time commits and issues. Your topology will look something like this:
+
+![](/images/topology_ght.png) 
+
+The corresponding code is:
+
+```scala
+val input = new GHTInputStage("wzorgdrager")
+val toCommit = new GHTCommitStage()
+val toIssue = new GHTIssuesEventStage()
+
+val commitAnalysis = new YourCommitAnalysisStage()
+val issueAnalysis = new YourIssueAnalysisStage()
+
+new PipelineBuilder()
+    .setBufferProperty("message.max.bytes", "5000000") // max message size is 5mb
+    .setBufferProperty("max.request.size", "5000000") // max message size is 5 mb
+    .edge(input, toCommit)
+    .edge(input, toIssue)
+    .edge(toCommit, commitAnalysis)
+    .edge(toIssue, issueAnalysis)
+    .build()
+    .start(args)
+```
+This will create and fill 3 Kafka topics: `ght_input`, `ght_issues` and `ght_commit`.
+
+## Notes
+The maximum message in Kafka is by default set to 1MB. Some events might be bigger than 1MB and this will crash the plugin. 
+To fix this you have to increase the Kafka message size in the pipeline as well as in your broker.
+Add the following lines when building your pipeline:
+```scala
+builder
+    .setBufferProperty("message.max.bytes", "5000000") // max message size is 5mb
+    .setBufferProperty("max.request.size", "5000000") // max message size is 5 mb
+```
+
+Finally, configure your Kafka broker(s) with the following properties:
+```yml
+message.max.bytes: 5000000
+replica.fetch.max.bytes: 5000000
+```
