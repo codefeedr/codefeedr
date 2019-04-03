@@ -71,7 +71,7 @@ case class Commit(_id: _id,
                 author: Option[User],
                 committer: Option[User],
                 parents: List[Parent],
-                stats: Stats,
+                stats: Option[Stats],
                 files: List[File])
 
 case class CommitData(author: CommitUser,
@@ -864,6 +864,403 @@ case class PublicEvent(id: String,
                      public: Boolean,
                      created_at: Date)
   extends Event
+{% endhighlight %}                       
+                               </div>
+                        </div>
+                    </div>
+</div>
+<!-- /.panel-group -->
+<div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="noCrossRef accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#prrc">PullRequestReviewComment</a>
+                            </h4>
+                        </div>
+                        <div id="prrc" class="panel-collapse collapse noCrossRef">
+                            <div class="panel-body"> 
+{% highlight scala %}
+case class PullRequestReviewCommentEvent(
+  id: String,
+  _id: _id,
+  `type`: String,
+  actor: Actor,
+  repo: Repo,
+  organization: Option[Organization],
+  payload: PullRequestReviewCommentPayload,
+  public: Boolean,
+  created_at: Date)
+  extends Event
+
+case class PullRequestReviewCommentPayload(action: String,
+                                         comment: PullRequestComment,
+                                         pull_request: PullRequestMin)
+
+case class PullRequestComment(url: String,
+                            pull_request_review_id: Long,
+                            id: Long,
+                            node_id: String,
+                            diff_hunk: String,
+                            path: String,
+                            position: Option[Long],
+                            original_position: Option[Long],
+                            commit_id: String,
+                            original_commit_id: String,
+                            user: User,
+                            body: String,
+                            created_at: Date,
+                            updated_at: Date,
+                            html_url: String,
+                            pull_request_url: String,
+                            author_association: String,
+                            in_reply_to_id: Option[Long])
+
+case class PullRequestMin(url: String,
+                        id: Long,
+                        node_id: String,
+                        number: Long,
+                        state: String,
+                        locked: Boolean,
+                        title: String,
+                        user: User,
+                        body: String,
+                        created_at: Date,
+                        updated_at: Date,
+                        closed_at: Option[Date],
+                        merged_at: Option[Date],
+                        merge_commit_sha: String,
+                        assignee: Option[User],
+                        assignees: List[User],
+                        requested_reviewers: List[User],
+                        requested_teams: List[Team],
+                        labels: List[Label],
+                        milestone: Option[Milestone],
+                        head: PullRequestMarker,
+                        base: PullRequestMarker,
+                        author_association: String)
+
+case class User(id: Long,
+              login: String,
+              avatar_url: String,
+              `type`: String,
+              site_admin: Boolean)
+              
+case class Team(id: Long,
+                node_id: String,
+                url: String,
+                name: String,
+                slug: String,
+                description: String,
+                privacy: String,
+                permission: String,
+                members_url: String,
+                repositories_url: String,
+                parent: Option[Team])      
+
+case class Milestone(url: String,
+                   html_url: String,
+                   labels_url: String,
+                   id: Long,
+                   node_id: String,
+                   number: Int,
+                   state: String,
+                   title: String,
+                   description: Option[String],
+                   creator: Option[User],
+                   open_issues: Int,
+                   closed_issues: Int,
+                   created_at: Date,
+                   updated_at: Option[Date],
+                   due_on: Option[Date],
+                   closed_at: Option[Date])
+
+case class Label(id: Long,
+               node_id: String,
+               url: String,
+               name: String,
+               color: String,
+               default: Boolean)                                           
+{% endhighlight %}                       
+                               </div>
+                        </div>
+                    </div>
+</div>
+<!-- /.panel-group -->
+<div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="noCrossRef accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#push">Push</a>
+                            </h4>
+                        </div>
+                        <div id="push" class="panel-collapse collapse noCrossRef">
+                            <div class="panel-body"> 
+{% highlight scala %}
+case class PushEvent(id: String,
+                   _id: _id,
+                   `type`: String,
+                   actor: Actor,
+                   repo: Repo,
+                   organization: Option[Organization],
+                   payload: PushPayload,
+                   public: Boolean,
+                   created_at: Date)
+  extends Event
+
+case class PushPayload(push_id: Long,
+                     size: Int,
+                     distinct_size: Int,
+                     ref: String,
+                     head: String,
+                     before: String,
+                     commits: List[PushCommit])
+
+case class PushCommit(sha: String,
+                    author: PushAuthor,
+                    message: String,
+                    distinct: Boolean)
+
+case class PushAuthor(email: String, name: String)
+{% endhighlight %}                       
+                               </div>
+                        </div>
+                    </div>
+</div>
+<!-- /.panel-group -->
+<div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="noCrossRef accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#release">Release</a>
+                            </h4>
+                        </div>
+                        <div id="release" class="panel-collapse collapse noCrossRef">
+                            <div class="panel-body"> 
+{% highlight scala %}
+case class ReleaseEvent(id: String,
+                      _id: _id,
+                      `type`: String,
+                      actor: Actor,
+                      repo: Repo,
+                      organization: Option[Organization],
+                      payload: ReleasePayload,
+                      public: Boolean,
+                      created_at: Date)
+  extends Event
+
+case class ReleasePayload(action: String, release: Release)
+
+case class Release(url: String,
+                 assets_url: String,
+                 upload_url: String,
+                 html_url: String,
+                 id: Long,
+                 node_id: String,
+                 tag_name: String,
+                 target_commitish: String,
+                 name: String,
+                 draft: Boolean,
+                 author: User,
+                 prerelease: Boolean,
+                 created_at: Date,
+                 published_at: Date,
+                 assets: List[Asset],
+                 tarball_url: String,
+                 zipball_url: String,
+                 body: String)
+
+case class Asset(url: String,
+               browser_download_url: String,
+               id: Long,
+               node_id: String,
+               name: String,
+               label: String,
+               state: String,
+               content_type: String,
+               size: Long,
+               download_count: Int,
+               created_at: Date,
+               updated_at: Date,
+               uploader: User)
+               
+case class User(id: Long,
+              login: String,
+              avatar_url: String,
+              `type`: String,
+              site_admin: Boolean)             
+{% endhighlight %}                       
+                               </div>
+                        </div>
+                    </div>
+</div>
+<!-- /.panel-group -->
+<div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="noCrossRef accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#repo">Repository</a>
+                            </h4>
+                        </div>
+                        <div id="repo" class="panel-collapse collapse noCrossRef">
+                            <div class="panel-body"> 
+{% highlight scala %}
+case class Repository(id: Long,
+                    name: String,
+                    node_id: String,
+                    full_name: String,
+                    `private`: Boolean,
+                    owner: User,
+                    description: String,
+                    fork: Boolean,
+                    created_at: Date,
+                    updated_at: Date,
+                    pushed_at: Date,
+                    homepage: Option[String],
+                    size: Double,
+                    stargazers_count: Double,
+                    watchers_count: Double,
+                    language: String,
+                    has_issues: Boolean,
+                    has_projects: Boolean,
+                    has_downloads: Boolean,
+                    has_wiki: Boolean,
+                    has_pages: Boolean,
+                    archived: Boolean,
+                    open_issues_count: Double,
+                    license: Option[License],
+                    forks: Double,
+                    open_issues: Double,
+                    watchers: Double,
+                    default_branch: String)
+
+case class License(key: String,
+                 name: String,
+                 spdx_id: String,
+                 url: Option[String],
+                 node_id: String)
+
+case class Label(id: Long,
+               node_id: String,
+               url: String,
+               name: String,
+               color: String,
+               default: Boolean)
+
+case class User(id: Long,
+              login: String,
+              avatar_url: String,
+              `type`: String,
+              site_admin: Boolean)  
+{% endhighlight %}                       
+                               </div>
+                        </div>
+                    </div>
+</div>
+<!-- /.panel-group -->
+<div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="noCrossRef accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#status">Status</a>
+                            </h4>
+                        </div>
+                        <div id="status" class="panel-collapse collapse noCrossRef">
+                            <div class="panel-body"> 
+{% highlight scala %}
+case class StatusEvent(id: String,
+                     _id: _id,
+                     `type`: String,
+                     actor: Actor,
+                     repo: Repo,
+                     organization: Option[Organization],
+                     payload: StatusPayload,
+                     public: Boolean,
+                     created_at: Date)
+  extends Event
+
+case class StatusPayload(id: Long,
+                       sha: String,
+                       name: String,
+                       target_url: Option[String],
+                       context: String,
+                       description: Option[String],
+                       state: String,
+                       commit: Commit,
+                       branches: List[Branch],
+                       created_at: Date,
+                       updated_at: Date)
+
+case class Branch(name: String, commit: BranchCommit)
+
+case class BranchCommit(sha: String, url: String)
+{% endhighlight %}                       
+                               </div>
+                        </div>
+                    </div>
+</div>
+<!-- /.panel-group -->
+<div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="noCrossRef accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#teamadd">TeamAdd</a>
+                            </h4>
+                        </div>
+                        <div id="teamadd" class="panel-collapse collapse noCrossRef">
+                            <div class="panel-body"> 
+{% highlight scala %}
+case class TeamAddEvent(id: String,
+                      _id: _id,
+                      `type`: String,
+                      actor: Actor,
+                      repo: Repo,
+                      organization: Option[Organization],
+                      payload: TeamAddPayload,
+                      public: Boolean,
+                      created_at: Date)
+  extends Event
+
+case class TeamAddPayload(team: Team, organization: Option[Organization])
+
+case class Team(id: Long,
+              node_id: String,
+              url: String,
+              name: String,
+              slug: String,
+              description: String,
+              privacy: String,
+              permission: String,
+              members_url: String,
+              repositories_url: String,
+              parent: Option[Team])
+{% endhighlight %}                       
+                               </div>
+                        </div>
+                    </div>
+</div>
+<!-- /.panel-group -->
+<div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="noCrossRef accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#watch">Watch</a>
+                            </h4>
+                        </div>
+                        <div id="watch" class="panel-collapse collapse noCrossRef">
+                            <div class="panel-body"> 
+{% highlight scala %}
+case class WatchEvent(id: String,
+                    _id: _id,
+                    `type`: String,
+                    actor: Actor,
+                    repo: Repo,
+                    organization: Option[Organization],
+                    payload: WatchPayload,
+                    public: Boolean,
+                    created_at: Date)
+  extends Event
+
+case class WatchPayload(action: String)
 {% endhighlight %}                       
                                </div>
                         </div>
