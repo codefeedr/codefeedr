@@ -144,7 +144,7 @@ new PipelineBuilder()
     .build()
     .start(args)
 ```
-This will create and fill 3 Kafka topics: `ght_input`, `ght_issues` and `ght_commit`.
+This will create and fill 3 Kafka topics: `ght_input`, `ght_issues` and `ght_commit` (and potentially more depending on your stages).
 
 ## Notes
 The maximum message in Kafka is by default set to 1MB. Some events might be bigger than 1MB and this will crash the plugin. 
