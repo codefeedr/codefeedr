@@ -59,6 +59,14 @@ object KafkaBuffer {
   val AMOUNT_OF_REPLICAS = "AMOUNT_OF_REPLICAS"
   val COMPRESSION_TYPE = "compression.type"
 
+  //OFFSETS
+  val START_POSITION = "START_POSITION"
+  val START_TIMESTAMP = "START_TIMESTAMP"
+  val GROUP_OFFSETS = "GROUP_OFFSETS"
+  val TIMESTAMP = "TIMESTAMP"
+  val LATEST = "LATEST"
+  val EARLIEST = "EARLIEST"
+
 }
 
 /** The implementation for the Kafka buffer. This buffer is the default.
@@ -96,6 +104,10 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     val AMOUNT_OF_PARTITIONS = 1
     val AMOUNT_OF_REPLICAS = 1
     val COMPRESSION_TYPE = "none"
+
+    //OFFSETS
+    val START_POSITION = "group_offsets"
+    val START_TIMESTAMP = "START_TIMESTAMP"
   }
 
   /** Get a Kafka Consumer as source for a stage.
