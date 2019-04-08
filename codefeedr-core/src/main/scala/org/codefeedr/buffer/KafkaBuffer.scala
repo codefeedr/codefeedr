@@ -107,7 +107,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
     //OFFSETS
     val START_POSITION = "group_offsets"
-    val START_TIMESTAMP = "START_TIMESTAMP"
+    val START_TIMESTAMP = 0x0
   }
 
   /** Get a Kafka Consumer as source for a stage.
@@ -122,6 +122,24 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
                           properties
                             .get[String](KafkaBuffer.BROKER)
                             .getOrElse(KafkaBufferDefaults.BROKER))
+
+    val kafkaConsumer =
+      new FlinkKafkaConsumer[T](topic, serde, getKafkaProperties)
+    val startPosition = properties.getOrElse[String](
+      KafkaBuffer.START_POSITION,
+      KafkaBufferDefaults.START_POSITION)
+
+    /** Configure the starting point. */
+    startPosition match {
+      case KafkaBuffer.EARLIEST => kafkaConsumer.setStartFromEarliest()
+      case KafkaBuffer.LATEST   => kafkaConsumer.setStartFromLatest()
+      case KafkaBuffer.TIMESTAMP =>
+        kafkaConsumer.setStartFromTimestamp(
+          properties.getOrElse[Long](KafkaBuffer.START_POSITION,
+                                     KafkaBufferDefaults.START_TIMESTAMP))
+      case KafkaBuffer.GROUP_OFFSETS => kafkaConsumer.setStartFromGroupOffsets()
+      case _                         => kafkaConsumer.setStartFromGroupOffsets()
+    }
 
     // Add a source.
     pipeline.environment.addSource(
