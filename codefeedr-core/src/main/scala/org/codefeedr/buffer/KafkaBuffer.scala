@@ -106,7 +106,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     val COMPRESSION_TYPE = "none"
 
     //OFFSETS
-    val START_POSITION = "group_offsets"
+    val START_POSITION = KafkaBuffer.GROUP_OFFSETS
     val START_TIMESTAMP = 0x0
   }
 
