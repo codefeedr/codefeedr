@@ -30,7 +30,7 @@ object Serializer extends Enumeration {
   /** JSON serde support.
     * See: http://json4s.org/
     */
-  val JSON4s = "JSON"
+  val JSON4s = "JSON4s"
 
   /** BSON serde support.
     * See: http://bsonspec.org/
