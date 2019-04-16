@@ -158,6 +158,7 @@ lazy val pluginPypi = (project in file("codefeedr-plugins/codefeedr-pypi"))
     settings,
     assemblySettings,
     libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.romeRSS
     )
   ).dependsOn(core)
 
@@ -204,6 +205,7 @@ lazy val dependencies =
     //val embeddedRabbitMQ   = "io.arivera.oss"            %% "embedded-rabbitmq"              % "1.3.0"           % Test
 
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
+    val romeRSS            = "com.rometools"              % "rome"                           % "1.12.0"
   }
 
 lazy val commonDependencies = Seq(
