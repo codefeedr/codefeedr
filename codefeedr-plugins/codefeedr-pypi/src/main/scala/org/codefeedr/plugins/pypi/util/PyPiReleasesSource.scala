@@ -2,6 +2,7 @@ package org.codefeedr.plugins.pypi.util
 
 import java.text.SimpleDateFormat
 
+import org.apache.flink.api.common.accumulators.LongCounter
 import org.apache.flink.api.common.state.{
   ListState,
   ListStateDescriptor,
@@ -40,6 +41,8 @@ class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
 
   def getIsRunning: Boolean = isRunning
 
+  val releasesProcessed = new LongCounter()
+
   override def open(parameters: Configuration): Unit = {
     isRunning = true
     runsLeft = maxNumberOfRuns
@@ -51,26 +54,31 @@ class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
   }
 
   override def run(ctx: SourceFunction.SourceContext[PyPiRelease]): Unit = {
+    val lock = ctx.getCheckpointLock
+
     while (isRunning && runsLeft != 0) {
-      try {
-        // Polls the RSS feed
-        val rssAsString = getRSSAsString
-        // Parses the received rss items
-        val items: Seq[PyPiRelease] = parseRSSString(rssAsString)
+      lock.synchronized {
+        try {
+          // Polls the RSS feed
+          val rssAsString = getRSSAsString
+          // Parses the received rss items
+          val items: Seq[PyPiRelease] = parseRSSString(rssAsString)
 
-        decreaseRunsLeft()
+          decreaseRunsLeft()
 
-        // Collect right items and update last item
-        val validSortedItems = sortAndDropDuplicates(items)
-        validSortedItems.foreach(ctx.collect)
-        if (validSortedItems.nonEmpty) {
-          lastItem = Some(validSortedItems.last)
+          // Collect right items and update last item
+          val validSortedItems = sortAndDropDuplicates(items)
+          validSortedItems.foreach(ctx.collect)
+          releasesProcessed.add(validSortedItems.size)
+          if (validSortedItems.nonEmpty) {
+            lastItem = Some(validSortedItems.last)
+          }
+
+          // Wait until the next poll
+          waitPollingInterval()
+        } catch {
+          case _: Throwable =>
         }
-
-        // Wait until the next poll
-        waitPollingInterval()
-      } catch {
-        case _: Throwable =>
       }
     }
   }
