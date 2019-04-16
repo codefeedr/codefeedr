@@ -152,6 +152,15 @@ lazy val pluginGHTorrent = (project in file("codefeedr-plugins/codefeedr-ghtorre
     )
   ).dependsOn(core)
 
+lazy val pluginPypi = (project in file("codefeedr-plugins/codefeedr-pypi"))
+  .settings(
+    name := pluginPrefix + "pypi",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+    )
+  ).dependsOn(core)
+
 lazy val dependencies =
   new {
     val flinkVersion       = "1.7.0"
