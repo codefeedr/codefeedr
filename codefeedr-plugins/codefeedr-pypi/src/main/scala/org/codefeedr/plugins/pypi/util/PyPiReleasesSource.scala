@@ -68,7 +68,8 @@ class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
 
           // Collect right items and update last item
           val validSortedItems = sortAndDropDuplicates(items)
-          validSortedItems.foreach(ctx.collect)
+          validSortedItems.foreach(x =>
+            ctx.collectWithTimestamp(x, x.pubDate.getTime))
           releasesProcessed.add(validSortedItems.size)
           if (validSortedItems.nonEmpty) {
             lastItem = Some(validSortedItems.last)
