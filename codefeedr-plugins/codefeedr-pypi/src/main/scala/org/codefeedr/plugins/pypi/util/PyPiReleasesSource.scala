@@ -19,6 +19,8 @@ import org.apache.flink.streaming.api.functions.source.{
 import org.codefeedr.plugins.pypi.protocol.Protocol.PyPiRelease
 
 import collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
+import java.util.concurrent._
 
 class PyPiReleasesSource(waitTime: Long = 1000)
     extends RichSourceFunction[PyPiRelease] {
@@ -27,38 +29,34 @@ class PyPiReleasesSource(waitTime: Long = 1000)
   var input: SyndFeedInput = _
   var feed: SyndFeed = _
 
-  val stateConfig = StateTtlConfig
-    .newBuilder(Time.hours(12))
-    .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
-    .setStateVisibility(
-      StateTtlConfig.StateVisibility.ReturnExpiredIfNotCleanedUp)
-    .cleanupFullSnapshot()
-    .build()
-
-  var titleState: ListState[String] = _
+  val titleState: ListBuffer[String] = ListBuffer.empty[String]
   val releaseCounter = new LongCounter()
 
   var isRunning = false
+  var stateClearer: ScheduledFuture[_] = _
 
   override def open(parameters: Configuration): Unit = {
     input = new SyndFeedInput()
+    input.setPreserveWireFeed(true)
+    input.setAllowDoctypes(true)
+
     feed = input.build(new XmlReader(feedUrl))
-
-    val titleStateDescriptor =
-      new ListStateDescriptor[String]("titles_already_send", classOf[String])
-    titleStateDescriptor.enableTimeToLive(stateConfig)
-
-    titleState = getRuntimeContext.getListState(titleStateDescriptor)
-
     isRunning = true
+
+    val ex = new ScheduledThreadPoolExecutor(1)
+    val task = new Runnable {
+      override def run(): Unit = titleState.clear()
+    }
+    stateClearer = ex.scheduleAtFixedRate(task, 1, 1, TimeUnit.HOURS)
   }
 
   override def run(ctx: SourceFunction.SourceContext[PyPiRelease]): Unit = {
     while (isRunning) {
-      val state = titleState.get().asScala.toList
+      val state = titleState.toList
 
       val entries = feed.getEntries.asScala
         .map { x =>
+          println(x.getWireEntry)
           val title = x.getTitle
           val link = x.getLink
           val desc = x.getDescription.getValue
@@ -69,9 +67,11 @@ class PyPiReleasesSource(waitTime: Long = 1000)
 
       val notEmitted = entries.filter(x => !state.contains(x.title))
 
+      notEmitted.foreach(println)
+
       /** Emit and add to state */
       releaseCounter.add(notEmitted.size)
-      notEmitted.foreach(x => titleState.add(x.title))
+      notEmitted.foreach(x => titleState += x.title)
       notEmitted.foreach(x => ctx.collectWithTimestamp(x, x.pubDate.getTime))
 
       Thread.sleep(waitTime)
@@ -80,5 +80,8 @@ class PyPiReleasesSource(waitTime: Long = 1000)
     cancel()
   }
 
-  override def cancel(): Unit = isRunning = false
+  override def cancel(): Unit = {
+    isRunning = false
+    stateClearer.cancel(true)
+  }
 }

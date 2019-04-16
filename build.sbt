@@ -174,10 +174,10 @@ lazy val dependencies =
     val loggingCore        = "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion      % Runtime
     val loggingScala       = "org.apache.logging.log4j"  %% "log4j-api-scala"                % log4jScalaVersion
 
-    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided
-    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Provided
+    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion     // % Provided
+    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion     // % Provided
     val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka"          % flinkVersion
-    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion      % Provided
+    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion      //% Provided
     val flinkElasticSearch = "org.apache.flink"          %% "flink-connector-elasticsearch6" % flinkVersion
     val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion
 
@@ -206,6 +206,7 @@ lazy val dependencies =
 
     val avro               = "org.apache.avro"            % "avro"                           % "1.8.2"
     val romeRSS            = "com.rometools"              % "rome"                           % "1.12.0"
+    val rssReader          = "com.apptastic"              % "rssreader"                      % "2.0.1"
   }
 
 lazy val commonDependencies = Seq(
@@ -233,7 +234,8 @@ lazy val commonSettings = Seq(
     "confluent"                               at "http://packages.confluent.io/maven/",
     "Apache Development Snapshot Repository"  at "https://repository.apache.org/content/repositories/snapshots/",
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
-    Resolver.mavenLocal
+    Resolver.mavenLocal,
+    Resolver.jcenterRepo
   ),
   publishMavenStyle in ThisBuild := true,
   publishTo in ThisBuild := Some(
