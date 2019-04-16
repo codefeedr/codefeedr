@@ -3,8 +3,6 @@ package org.codefeedr.plugins.pypi.util
 import java.net.URL
 import java.text.SimpleDateFormat
 
-import com.rometools.rome.feed.synd.SyndFeed
-import com.rometools.rome.io.{SyndFeedInput, XmlReader}
 import org.apache.flink.api.common.accumulators.LongCounter
 import org.apache.flink.api.common.state.{
   ListState,
@@ -31,7 +29,7 @@ import scala.xml.XML
 class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
     extends RichSourceFunction[PyPiRelease] {
 
-  val dateFormat = "EEE, d MMM YYYY HH:mm:ss z"
+  val dateFormat = "EEE, dd MMM yyyy HH:mm:ss ZZ"
   val url = "https://pypi.org/rss/updates.xml"
   private var isRunning = false
   private var runsLeft = 0
