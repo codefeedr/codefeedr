@@ -1,6 +1,7 @@
 package org.codefeedr.plugins.pypi.util
 
 import java.net.URL
+import java.text.SimpleDateFormat
 
 import com.rometools.rome.feed.synd.SyndFeed
 import com.rometools.rome.io.{SyndFeedInput, XmlReader}
@@ -22,66 +23,130 @@ import collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import java.util.concurrent._
 
-class PyPiReleasesSource(waitTime: Long = 1000)
+import org.codefeedr.stages.utilities.{HttpRequester, RequestException}
+import scalaj.http.Http
+
+import scala.xml.XML
+
+class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
     extends RichSourceFunction[PyPiRelease] {
 
-  val feedUrl = new URL("https://pypi.org/rss/updates.xml")
-  var input: SyndFeedInput = _
-  var feed: SyndFeed = _
+  val dateFormat = "EEE, d MMM YYYY HH:mm:ss z"
+  val url = "https://pypi.org/rss/updates.xml"
+  private var isRunning = false
+  private var runsLeft = 0
+  private var lastItem: Option[PyPiRelease] = None
 
-  val titleState: ListBuffer[String] = ListBuffer.empty[String]
-  val releaseCounter = new LongCounter()
-
-  var isRunning = false
-  var stateClearer: ScheduledFuture[_] = _
+  def getIsRunning: Boolean = isRunning
 
   override def open(parameters: Configuration): Unit = {
-    input = new SyndFeedInput()
-    input.setPreserveWireFeed(true)
-    input.setAllowDoctypes(true)
-
-    feed = input.build(new XmlReader(feedUrl))
     isRunning = true
-
-    val ex = new ScheduledThreadPoolExecutor(1)
-    val task = new Runnable {
-      override def run(): Unit = titleState.clear()
-    }
-    stateClearer = ex.scheduleAtFixedRate(task, 1, 1, TimeUnit.HOURS)
-  }
-
-  override def run(ctx: SourceFunction.SourceContext[PyPiRelease]): Unit = {
-    while (isRunning) {
-      val state = titleState.toList
-
-      val entries = feed.getEntries.asScala
-        .map { x =>
-          println(x.getWireEntry)
-          val title = x.getTitle
-          val link = x.getLink
-          val desc = x.getDescription.getValue
-          val date = x.getPublishedDate
-
-          PyPiRelease(title, link, desc, date)
-        }
-
-      val notEmitted = entries.filter(x => !state.contains(x.title))
-
-      notEmitted.foreach(println)
-
-      /** Emit and add to state */
-      releaseCounter.add(notEmitted.size)
-      notEmitted.foreach(x => titleState += x.title)
-      notEmitted.foreach(x => ctx.collectWithTimestamp(x, x.pubDate.getTime))
-
-      Thread.sleep(waitTime)
-    }
-
-    cancel()
+    runsLeft = maxNumberOfRuns
   }
 
   override def cancel(): Unit = {
     isRunning = false
-    stateClearer.cancel(true)
+
   }
+
+  override def run(ctx: SourceFunction.SourceContext[PyPiRelease]): Unit = {
+    while (isRunning && runsLeft != 0) {
+      try {
+        // Polls the RSS feed
+        val rssAsString = getRSSAsString
+        // Parses the received rss items
+        val items: Seq[PyPiRelease] = parseRSSString(rssAsString)
+
+        decreaseRunsLeft()
+
+        // Collect right items and update last item
+        val validSortedItems = sortAndDropDuplicates(items)
+        validSortedItems.foreach(ctx.collect)
+        if (validSortedItems.nonEmpty) {
+          lastItem = Some(validSortedItems.last)
+        }
+
+        // Wait until the next poll
+        waitPollingInterval()
+      } catch {
+        case _: Throwable =>
+      }
+    }
+  }
+
+  /**
+    * Drops items that already have been collected and sorts them based on times
+    * @param items Potential items to be collected
+    * @return Valid sorted items
+    */
+  def sortAndDropDuplicates(items: Seq[PyPiRelease]): Seq[PyPiRelease] = {
+    items
+      .filter((x: PyPiRelease) => {
+        if (lastItem.isDefined)
+          lastItem.get.pubDate.before(x.pubDate) && lastItem.get.link != x.link
+        else
+          true
+      })
+      .sortWith((x: PyPiRelease, y: PyPiRelease) => x.pubDate.before(y.pubDate))
+  }
+
+  /**
+    * Requests the RSS feed and returns its body as a string.
+    * Will keep trying with increasing intervals if it doesn't succeed
+    * @return Body of requested RSS feed
+    */
+  @throws[RequestException]
+  def getRSSAsString: String = {
+    new HttpRequester().retrieveResponse(Http(url)).body
+  }
+
+  /**
+    * Parses a string that contains xml with RSS items
+    * @param rssString XML string with RSS items
+    * @return Sequence of RSS items
+    */
+  def parseRSSString(rssString: String): Seq[PyPiRelease] = {
+    try {
+      val xml = XML.loadString(rssString)
+      val nodes = xml \\ "item"
+      for (t <- nodes) yield xmlToPyPiRelease(t)
+    } catch {
+      // If the string cannot be parsed return an empty list
+      case _: Throwable => Nil
+    }
+  }
+
+  /**
+    * Parses a xml node to a RSS item
+    * @param node XML node
+    * @return RSS item
+    */
+  def xmlToPyPiRelease(node: scala.xml.Node): PyPiRelease = {
+    val title = (node \ "title").text
+    val description = (node \ "description").text
+    val link = (node \ "link").text
+
+    val formatter = new SimpleDateFormat(dateFormat)
+    val pubDate = formatter.parse((node \ "pubDate").text)
+
+    PyPiRelease(title, description, link, pubDate)
+  }
+
+  /**
+    * If there is a limit to the amount of runs decrease by 1
+    */
+  def decreaseRunsLeft(): Unit = {
+    if (runsLeft > 0) {
+      runsLeft -= 1
+    }
+  }
+
+  /**
+    * Wait a certain amount of times the polling interval
+    * @param times Times the polling interval should be waited
+    */
+  def waitPollingInterval(times: Int = 1): Unit = {
+    Thread.sleep(times * pollingInterval)
+  }
+
 }
