@@ -4,7 +4,7 @@ import java.util.Date
 
 object Protocol {
 
-  case class PypiRelease(title: String,
+  case class PyPiRelease(title: String,
                          link: String,
                          description: String,
                          pubDate: Date)
