@@ -1,3 +1,19 @@
 package org.codefeedr.plugins.pypi.stages
 
-class PyPiReleasesStage {}
+import org.apache.flink.streaming.api.scala.DataStream
+import org.codefeedr.pipeline.Context
+import org.codefeedr.plugins.pypi.protocol.Protocol.PyPiRelease
+import org.codefeedr.plugins.pypi.util.PyPiReleasesSource
+import org.codefeedr.stages.InputStage
+import org.apache.flink.api.scala._
+
+class PyPiReleasesStage extends InputStage[PyPiRelease] {
+  override def main(context: Context): DataStream[PyPiRelease] = {
+    val str = context.env
+      .addSource(new PyPiReleasesSource())
+
+    str.print()
+
+    str
+  }
+}
