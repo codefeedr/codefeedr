@@ -1,39 +1,42 @@
 package org.codefeedr.plugins.pypi.util
 
-import java.net.URL
 import java.text.SimpleDateFormat
 
-import org.apache.flink.api.common.accumulators.LongCounter
 import org.apache.flink.api.common.state.{
   ListState,
   ListStateDescriptor,
-  StateTtlConfig
+  ValueState,
+  ValueStateDescriptor
 }
-import org.apache.flink.api.common.time.Time
 import org.apache.flink.configuration.Configuration
+import org.apache.flink.runtime.state.{
+  FunctionInitializationContext,
+  FunctionSnapshotContext
+}
+import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
 import org.apache.flink.streaming.api.functions.source.{
   RichSourceFunction,
   SourceFunction
 }
 import org.codefeedr.plugins.pypi.protocol.Protocol.PyPiRelease
-
-import collection.JavaConverters._
-import scala.collection.mutable.ListBuffer
-import java.util.concurrent._
-
 import org.codefeedr.stages.utilities.{HttpRequester, RequestException}
 import scalaj.http.Http
 
+import collection.JavaConverters._
 import scala.xml.XML
 
 class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
-    extends RichSourceFunction[PyPiRelease] {
+    extends RichSourceFunction[PyPiRelease]
+    with CheckpointedFunction {
 
   val dateFormat = "EEE, dd MMM yyyy HH:mm:ss ZZ"
   val url = "https://pypi.org/rss/updates.xml"
   private var isRunning = false
   private var runsLeft = 0
   private var lastItem: Option[PyPiRelease] = None
+
+  @transient
+  private var checkpointedState: ListState[PyPiRelease] = _
 
   def getIsRunning: Boolean = isRunning
 
@@ -147,4 +150,23 @@ class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
     Thread.sleep(times * pollingInterval)
   }
 
+  override def snapshotState(context: FunctionSnapshotContext): Unit = {
+    if (lastItem.isDefined) {
+      checkpointedState.clear()
+      checkpointedState.add(lastItem.get)
+    }
+  }
+
+  override def initializeState(context: FunctionInitializationContext): Unit = {
+    val descriptor =
+      new ListStateDescriptor[PyPiRelease]("last_element", classOf[PyPiRelease])
+
+    checkpointedState = context.getOperatorStateStore.getListState(descriptor)
+
+    if (context.isRestored) {
+      checkpointedState.get().asScala.foreach { x =>
+        lastItem = Some(x)
+      }
+    }
+  }
 }
