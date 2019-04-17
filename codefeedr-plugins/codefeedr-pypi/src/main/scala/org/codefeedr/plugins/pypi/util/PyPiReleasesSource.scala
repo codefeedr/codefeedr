@@ -3,12 +3,7 @@ package org.codefeedr.plugins.pypi.util
 import java.text.SimpleDateFormat
 
 import org.apache.flink.api.common.accumulators.LongCounter
-import org.apache.flink.api.common.state.{
-  ListState,
-  ListStateDescriptor,
-  ValueState,
-  ValueStateDescriptor
-}
+import org.apache.flink.api.common.state.{ListState, ListStateDescriptor}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.runtime.state.{
   FunctionInitializationContext,
@@ -30,40 +25,51 @@ class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
     extends RichSourceFunction[PyPiRelease]
     with CheckpointedFunction {
 
+  /** Format and URL of RSS Feed. */
   val dateFormat = "EEE, dd MMM yyyy HH:mm:ss ZZ"
   val url = "https://pypi.org/rss/updates.xml"
+
+  /** Some track variables of this source. */
   private var isRunning = false
   private var runsLeft = 0
   private var lastItem: Option[PyPiRelease] = None
-
   @transient
   private var checkpointedState: ListState[PyPiRelease] = _
 
   def getIsRunning: Boolean = isRunning
 
+  /** Accumulator for the amount of processed releases. */
   val releasesProcessed = new LongCounter()
 
+  /** Opens this source. */
   override def open(parameters: Configuration): Unit = {
     isRunning = true
     runsLeft = maxNumberOfRuns
   }
 
+  /** Close the source. */
   override def cancel(): Unit = {
     isRunning = false
 
   }
 
+  /** Runs the source.
+    *
+    * @param ctx the source the context.
+    */
   override def run(ctx: SourceFunction.SourceContext[PyPiRelease]): Unit = {
     val lock = ctx.getCheckpointLock
 
+    /** While is running or #runs left. */
     while (isRunning && runsLeft != 0) {
-      lock.synchronized {
+      lock.synchronized { // Synchronize to the checkpoint lock.
         try {
           // Polls the RSS feed
           val rssAsString = getRSSAsString
           // Parses the received rss items
           val items: Seq[PyPiRelease] = parseRSSString(rssAsString)
 
+          // Decrease the amount of runs left.
           decreaseRunsLeft()
 
           // Collect right items and update last item
@@ -159,6 +165,7 @@ class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
     Thread.sleep(times * pollingInterval)
   }
 
+  /** Make a snapshot of the current state. */
   override def snapshotState(context: FunctionSnapshotContext): Unit = {
     if (lastItem.isDefined) {
       checkpointedState.clear()
@@ -166,6 +173,7 @@ class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
     }
   }
 
+  /** Initializes state by reading from a checkpoint or creating an empty one. */
   override def initializeState(context: FunctionInitializationContext): Unit = {
     val descriptor =
       new ListStateDescriptor[PyPiRelease]("last_element", classOf[PyPiRelease])
