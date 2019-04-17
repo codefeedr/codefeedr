@@ -23,6 +23,7 @@ import org.apache.flink.streaming.api.functions.async.{
   ResultFuture,
   RichAsyncFunction
 }
+import org.codefeedr.plugins.pypi.operators.RetrieveProjectAsync
 import org.codefeedr.plugins.pypi.util.PyPiService
 
 import collection.JavaConverters._
@@ -34,7 +35,7 @@ class PyPiReleaseExtStage(stageId: String = "pypi_releases")
       source: DataStream[PyPiRelease]): DataStream[PyPiReleaseExt] = {
 
     val async = JavaAsyncDataStream.orderedWait(source.javaStream,
-                                                new MapReleaseToProject,
+                                                new RetrieveProjectAsync,
                                                 5,
                                                 TimeUnit.SECONDS,
                                                 100)
@@ -44,44 +45,5 @@ class PyPiReleaseExtStage(stageId: String = "pypi_releases")
       .print()
 
     new org.apache.flink.streaming.api.scala.DataStream(async)
-  }
-}
-
-/** Maps a [[PyPiRelease]] to a [[PyPiProject]]. */
-class MapReleaseToProject
-    extends RichAsyncFunction[PyPiRelease, PyPiReleaseExt] {
-
-  implicit lazy val executor: ExecutionContext = ExecutionContext.global
-
-  override def asyncInvoke(input: PyPiRelease,
-                           resultFuture: ResultFuture[PyPiReleaseExt]): Unit = {
-    val projectName = input.title.replace(" ", "/")
-    val requestProject: Future[Option[PyPiProject]] = Future(
-      PyPiService.getProject(projectName))
-
-    requestProject.onComplete {
-      case Success(result: Option[PyPiProject]) => {
-        if (result.isDefined) {
-          resultFuture.complete(
-            List(
-              PyPiReleaseExt(input.title,
-                             input.link,
-                             input.description,
-                             input.pubDate,
-                             result.get)).asJava)
-        } else {
-          resultFuture.complete(List().asJava)
-        }
-      }
-      case Failure(e) =>
-        resultFuture.complete(List().asJava)
-        e.printStackTrace()
-    }
-
-  }
-
-  override def timeout(input: PyPiRelease,
-                       resultFuture: ResultFuture[PyPiReleaseExt]): Unit = {
-    resultFuture.complete(List().asJava)
   }
 }
