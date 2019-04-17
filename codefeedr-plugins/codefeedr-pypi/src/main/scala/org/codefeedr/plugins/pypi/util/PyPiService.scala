@@ -35,7 +35,11 @@ object PyPiService extends Serializable {
     val json = parse(rawProject.get)
     // println(json)
     //println(Some(extract[PyPiProject](transformProject(json))))
-    Some(extract[PyPiProject](transformProject(json)))
+    if (extractOpt[PyPiProject](transformProject(json)).isEmpty) {
+      println(json)
+    }
+
+    extractOpt[PyPiProject](transformProject(json))
   }
 
   def transformProject(json: JValue): JValue =

@@ -1,4 +1,4 @@
-package org.codefeedr.plugins.pypi.util
+package org.codefeedr.plugins.pypi.operators
 
 import java.text.SimpleDateFormat
 
@@ -18,7 +18,7 @@ import org.codefeedr.plugins.pypi.protocol.Protocol.PyPiRelease
 import org.codefeedr.stages.utilities.{HttpRequester, RequestException}
 import scalaj.http.Http
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import scala.xml.XML
 
 class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
