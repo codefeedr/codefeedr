@@ -53,27 +53,15 @@ class MapReleaseToProject
 
   implicit lazy val executor: ExecutionContext = ExecutionContext.global
 
-  val successElements = new LongCounter()
-  val failedElements = new LongCounter()
-
-  override def open(parameters: Configuration): Unit = {
-    getRuntimeContext.addAccumulator("releases_processed_success",
-                                     successElements)
-    getRuntimeContext.addAccumulator("releases_processed_failed",
-                                     failedElements)
-  }
-
   override def asyncInvoke(input: PyPiRelease,
                            resultFuture: ResultFuture[PyPiReleaseExt]): Unit = {
-    val projectName = input.title.split(" ")(0)
-    this.getRuntimeContext.addAccumulator()
+    val projectName = input.title.replace(" ", "/")
     val requestProject: Future[Option[PyPiProject]] = Future(
       PyPiService.getProject(projectName))
 
     requestProject.onComplete {
       case Success(result: Option[PyPiProject]) => {
         if (result.isDefined) {
-          successElements.add(1)
           resultFuture.complete(
             List(
               PyPiReleaseExt(input.title,
@@ -82,12 +70,10 @@ class MapReleaseToProject
                              input.pubDate,
                              result.get)).asJava)
         } else {
-          failedElements.add(1)
           resultFuture.complete(List().asJava)
         }
       }
       case Failure(e) =>
-        failedElements.add(1)
         resultFuture.complete(List().asJava)
         e.printStackTrace()
     }
@@ -96,7 +82,6 @@ class MapReleaseToProject
 
   override def timeout(input: PyPiRelease,
                        resultFuture: ResultFuture[PyPiReleaseExt]): Unit = {
-    failedElements.add(1)
     resultFuture.complete(List().asJava)
   }
 }
