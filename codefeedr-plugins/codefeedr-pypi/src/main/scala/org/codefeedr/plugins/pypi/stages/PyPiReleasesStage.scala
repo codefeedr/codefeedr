@@ -13,8 +13,6 @@ class PyPiReleasesStage(stageId: String = "pypi_releases_min")
     val str = context.env
       .addSource(new PyPiReleasesSource())
 
-    str.print()
-
     str
   }
 }

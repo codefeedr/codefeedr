@@ -26,7 +26,7 @@ object Protocol {
                   classifiers: List[String],
                   description: String,
                   description_content_type: String,
-                  docs_url: String,
+                  docs_url: Option[String],
                   download_url: String,
                   downloads: Downloads,
                   home_page: String,
@@ -38,10 +38,10 @@ object Protocol {
                   package_url: String,
                   platform: String,
                   project_url: String,
-                  project_urls: ProjectUrl,
+                  project_urls: Option[ProjectUrl],
                   release_url: String,
-                  requires_dist: String,
-                  requires_python: String,
+                  requires_dist: List[String],
+                  requires_python: Option[String],
                   summary: String,
                   version: String)
 
@@ -58,7 +58,7 @@ object Protocol {
                      md5_digest: String,
                      packagetype: String,
                      python_version: String,
-                     requires_python: String,
+                     requires_python: Option[String],
                      size: Double,
                      upload_time: Date,
                      url: String)

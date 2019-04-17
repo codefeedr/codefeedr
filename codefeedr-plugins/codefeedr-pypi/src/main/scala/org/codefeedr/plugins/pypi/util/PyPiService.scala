@@ -1,5 +1,7 @@
 package org.codefeedr.plugins.pypi.util
 
+import java.text.SimpleDateFormat
+
 import org.codefeedr.plugins.pypi.protocol.Protocol.PyPiProject
 import org.codefeedr.stages.utilities.HttpRequester
 import org.json4s.{DefaultFormats, Formats}
@@ -7,10 +9,15 @@ import org.json4s.ext.JavaTimeSerializers
 import scalaj.http.{Http, HttpRequest}
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.Extraction._
+import org.json4s.JsonAST._
 
 object PyPiService extends Serializable {
 
-  lazy implicit val formats: Formats = DefaultFormats ++ JavaTimeSerializers.all
+  lazy implicit val formats: Formats = new DefaultFormats {
+    override def dateFormatter: SimpleDateFormat =
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+
+  } ++ JavaTimeSerializers.all
   private val url = "https://pypi.org/pypi/"
 
   /** Retrieves a PyPi project.
@@ -26,8 +33,22 @@ object PyPiService extends Serializable {
     if (rawProject.isEmpty) return None
 
     val json = parse(rawProject.get)
-    extractOpt[PyPiProject](json)
+    // println(json)
+    //println(Some(extract[PyPiProject](transformProject(json))))
+    Some(extract[PyPiProject](transformProject(json)))
   }
+
+  def transformProject(json: JValue): JValue =
+    json transformField {
+      case JField("releases", JObject(x)) => {
+        val newList = x.map { y =>
+          new JObject(
+            List(JField("version", JString(y._1)), JField("releases", y._2)))
+        }
+
+        JField("releases", JArray(newList))
+      }
+    }
 
   /** Returns a project as a raw string.
     *
