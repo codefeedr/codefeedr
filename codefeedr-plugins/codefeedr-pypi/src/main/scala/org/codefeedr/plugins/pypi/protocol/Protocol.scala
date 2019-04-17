@@ -46,6 +46,7 @@ object Protocol {
                   version: String)
 
   case class Downloads(last_day: Int, last_month: Int, last_week: Int)
+
   case class ProjectUrl(Homepage: String)
 
   case class ReleaseVersion(version: String, releases: List[Release])

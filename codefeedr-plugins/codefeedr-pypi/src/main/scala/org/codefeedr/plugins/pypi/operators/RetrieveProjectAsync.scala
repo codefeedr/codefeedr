@@ -40,7 +40,7 @@ class RetrieveProjectAsync
     /** Collects the result. */
     requestProject.onComplete {
       case Success(result: Option[PyPiProject]) => {
-        if (result.isDefined) {
+        if (result.isDefined) { //If we get None, we return nothing.
           resultFuture.complete(
             List(
               PyPiReleaseExt(input.title,

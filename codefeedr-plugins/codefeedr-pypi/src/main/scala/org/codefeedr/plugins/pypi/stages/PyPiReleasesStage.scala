@@ -11,12 +11,16 @@ import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util.Collector
 import org.codefeedr.plugins.pypi.operators.PyPiReleasesSource
 
+/** Fetches real-time releases from PyPi. */
 class PyPiReleasesStage(stageId: String = "pypi_releases_min")
     extends InputStage[PyPiRelease](Some(stageId)) {
-  override def main(context: Context): DataStream[PyPiRelease] = {
-    val str = context.env
-      .addSource(new PyPiReleasesSource())
 
-    str
-  }
+  /** Fetches [[PyPiRelease]] from real-time PyPi feed.
+    *
+    * @param context The context to add the source to.
+    * @return The stream of type [[PyPiRelease]].
+    */
+  override def main(context: Context): DataStream[PyPiRelease] =
+    context.env
+      .addSource(new PyPiReleasesSource())
 }
