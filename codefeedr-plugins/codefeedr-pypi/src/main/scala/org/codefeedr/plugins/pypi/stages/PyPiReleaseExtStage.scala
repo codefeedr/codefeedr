@@ -27,7 +27,7 @@ class PyPiReleaseExtStage(stageId: String = "pypi_releases")
                                             TimeUnit.SECONDS,
                                             100)
 
-    //async.print()
+    async.map(x => (x.project.info.name, x.project.releases)).print()
 
     async
   }

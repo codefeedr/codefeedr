@@ -13,7 +13,6 @@ object Main {
     new PipelineBuilder()
       .append(new PyPiReleasesStage)
       .append(new PyPiReleaseExtStage)
-      .append(new PrinterOutput[PyPiReleaseExt]())
       .build()
       .startMock()
   }
