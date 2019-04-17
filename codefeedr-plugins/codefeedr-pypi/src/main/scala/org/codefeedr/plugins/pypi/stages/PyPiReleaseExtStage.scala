@@ -8,6 +8,8 @@ import org.codefeedr.plugins.pypi.protocol.Protocol.{PyPiProject, PyPiRelease}
 import org.codefeedr.stages.TransformStage
 import org.apache.flink.api.scala._
 import org.apache.flink.streaming.api.scala.async.{AsyncFunction, ResultFuture}
+
+import scala.concurrent.ExecutionContext
 class PyPiReleaseExtStage(stageId: String = "pypi_releases")
     extends TransformStage[PyPiRelease, PyPiProject](Some(stageId)) {
   override def transform(
@@ -23,6 +25,8 @@ class PyPiReleaseExtStage(stageId: String = "pypi_releases")
 
 /** Maps a [[PyPiRelease]] to a [[PyPiProject]]. */
 class MapReleaseToProject extends AsyncFunction[PyPiRelease, PyPiProject] {
+
+  implicit val executor: ExecutionContext = ExecutionContext.global
 
   override def asyncInvoke(input: PyPiRelease,
                            resultFuture: ResultFuture[PyPiProject]): Unit = {}
