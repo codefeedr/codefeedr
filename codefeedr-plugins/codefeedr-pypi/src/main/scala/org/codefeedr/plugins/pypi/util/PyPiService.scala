@@ -8,11 +8,16 @@ import scalaj.http.{Http, HttpRequest}
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.Extraction._
 
-class PyPiService extends Serializable {
+object PyPiService extends Serializable {
 
   lazy implicit val formats: Formats = DefaultFormats ++ JavaTimeSerializers.all
   private val url = "https://pypi.org/pypi/"
 
+  /** Retrieves a PyPi project.
+    *
+    * @param projectName the name of the project.
+    * @return an optional PyPiProject.
+    */
   def getProject(projectName: String): Option[PyPiProject] = {
     val projectEndPoint = projectName + "/json"
 
@@ -24,6 +29,11 @@ class PyPiService extends Serializable {
     extractOpt[PyPiProject](json)
   }
 
+  /** Returns a project as a raw string.
+    *
+    * @param endpoint the end_point to do the request.
+    * @return an optional String.
+    */
   def getProjectRaw(endpoint: String): Option[String] = {
     val response = try {
       val request = Http(url + endpoint).headers(getHeaders)
