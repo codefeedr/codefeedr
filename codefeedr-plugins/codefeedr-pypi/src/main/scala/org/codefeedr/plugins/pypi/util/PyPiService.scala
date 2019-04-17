@@ -11,13 +11,17 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.Extraction._
 import org.json4s.JsonAST._
 
+/** Services to retrieve a project from the PyPi APi. */
 object PyPiService extends Serializable {
 
+  /** Extraction formats. */
   lazy implicit val formats: Formats = new DefaultFormats {
     override def dateFormatter: SimpleDateFormat =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
 
   } ++ JavaTimeSerializers.all
+
+  /** Retrieve the API url. */
   private val url = "https://pypi.org/pypi/"
 
   /** Retrieves a PyPi project.
@@ -28,8 +32,8 @@ object PyPiService extends Serializable {
   def getProject(projectName: String): Option[PyPiProject] = {
     val projectEndPoint = projectName + "/json"
 
+    /** Retrieve the project. */
     val rawProject = getProjectRaw(projectEndPoint)
-
     if (rawProject.isEmpty) return None
 
     val json = parse(rawProject.get)
@@ -39,9 +43,11 @@ object PyPiService extends Serializable {
       println(json)
     }
 
+    /** Extract into an optional if it can't be parsed. */
     extractOpt[PyPiProject](transformProject(json))
   }
 
+  /** Transform the JSON AST to be more suitable with a case class.*/
   def transformProject(json: JValue): JValue =
     json transformField {
       case JField("releases", JObject(x)) => {
