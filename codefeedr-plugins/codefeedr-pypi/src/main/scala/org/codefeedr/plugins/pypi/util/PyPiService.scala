@@ -8,7 +8,7 @@ import org.codefeedr.stages.utilities.HttpRequester
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s.ext.JavaTimeSerializers
 import scalaj.http.{Http, HttpRequest}
-import org.json4s.jackson.JsonMethods.parse
+import org.json4s.jackson.JsonMethods.parseOpt
 import org.json4s.Extraction._
 import org.json4s.JsonAST._
 
@@ -35,17 +35,17 @@ object PyPiService extends Logging with Serializable {
 
     /** Retrieve the project. */
     val rawProject = getProjectRaw(projectEndPoint)
-    if (rawProject.isEmpty) {
+    val json = parseOpt(rawProject.get)
 
+    if (json.isEmpty) {
       logger.error(
         s"Couldn't retrieve PyPi project with name $projectEndPoint.")
 
       return None
     }
-    val json = parse(rawProject.get)
 
     /** Extract into an optional if it can't be parsed. */
-    val project = extractOpt[PyPiProject](transformProject(json))
+    val project = extractOpt[PyPiProject](transformProject(json.get))
 
     if (project.isEmpty) {
       logger.error(
