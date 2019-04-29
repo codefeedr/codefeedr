@@ -44,6 +44,18 @@ val stage = new PyPiReleasesStage(topic, config)
 
 ### PyPiReleasesExtStage
 The `PyPiReleasesExtStage` (asynchronously) enriches a `PyPiRelease` with all the project information. The full specification can be found [here](/mydoc_pypispec.html#release-extended). 
+By default the data is pushed into the `pypi_releases` Kafka topic. **Note:** this stage relies on the [PyPiReleasesStage](#pypireleasesstage) stage to retrieve the (minimized) releases:
+
+```scala
+val releaseSource = new PyPiReleasesStage()
+val enrichReleases = new PyPiReleasesExtStage()
+
+new PipelineBuilder()
+    .setBufferProperty("message.max.bytes", "5000000") // max message size is 5mb
+    .setBufferProperty("max.request.size", "5000000") // max message size is 5 mb
+    .edge(releaseSource, enrichReleases)
+    .start(args)
+```
 ## Notes
 The maximum message in Kafka is by default set to 1MB. Some events might be bigger than 1MB and this will crash the plugin. 
 To fix this you have to increase the Kafka message size in the pipeline as well as in your broker.
