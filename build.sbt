@@ -173,10 +173,10 @@ lazy val dependencies =
     val loggingCore        = "org.apache.logging.log4j"   % "log4j-core"                     % log4jVersion      % Runtime
     val loggingScala       = "org.apache.logging.log4j"  %% "log4j-api-scala"                % log4jScalaVersion
 
-    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion     // % Provided
-    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion     // % Provided
+    val flink              = "org.apache.flink"          %% "flink-scala"                    % flinkVersion      % Provided
+    val flinkStreaming     = "org.apache.flink"          %% "flink-streaming-scala"          % flinkVersion      % Provided
     val flinkKafka         = "org.apache.flink"          %% "flink-connector-kafka"          % flinkVersion
-    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion      //% Provided
+    val flinkRuntimeWeb    = "org.apache.flink"          %% "flink-runtime-web"              % flinkVersion      % Provided
     val flinkElasticSearch = "org.apache.flink"          %% "flink-connector-elasticsearch6" % flinkVersion
     val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion
 
