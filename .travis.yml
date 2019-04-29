@@ -2,7 +2,7 @@ language: scala
 scala:
   - 2.12.8
 sudo: required
-dist: trusty
+dist: xenial
 jdk: openjdk11
 
 before_cache:
