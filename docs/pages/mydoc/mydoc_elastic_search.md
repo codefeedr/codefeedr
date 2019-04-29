@@ -13,9 +13,9 @@ output stage, you will need to run version 5.1.2 of ElasticSearch and open up po
 the Flink repository.
 
 ### Installation
-
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12)
 ```scala
-dependencies += "org.codefeedr" %% "codefeedr-elasticsearch" % "0.1-SNAPSHOT"
+dependencies += "org.codefeedr" %% "codefeedr-plugin-elasticsearch" % "LATEST_VERSION"
 ```
 
 ### Configuration

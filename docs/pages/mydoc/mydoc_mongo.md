@@ -11,9 +11,9 @@ data from a Mongo collection, or creating such data by streaming into it. It als
 key manager
 
 ## Installation
-
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12)
 ```scala
-dependencies += "org.codefeedr" %% "codefeedr-mongodb" % "0.1-SNAPSHOT"
+dependencies += "org.codefeedr" %% "codefeedr-plugin-mongodb" % "LATEST_VERSION"
 ```
 
 ## Stages
