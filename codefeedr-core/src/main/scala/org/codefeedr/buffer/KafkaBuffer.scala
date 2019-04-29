@@ -136,7 +136,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
       case KafkaBuffer.TIMESTAMP =>
         kafkaConsumer.setStartFromTimestamp(
           properties.getOrElse[Long](
-            KafkaBuffer.START_POSITION,
+            KafkaBuffer.START_TIMESTAMP,
             KafkaBufferDefaults.START_TIMESTAMP)(_.toLong))
       case KafkaBuffer.GROUP_OFFSETS => kafkaConsumer.setStartFromGroupOffsets()
       case _                         => kafkaConsumer.setStartFromGroupOffsets()

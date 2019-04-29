@@ -40,6 +40,15 @@ pipelineBuilder
 propagated to the Kafka producer/consumer, see the [Kafka
 documentation](https://kafka.apache.org/documentation/#configuration)
 for specifics.
+
+### Kafka Start position
+To set the start position for **all** stages in a pipeline it can be configured as buffer property:
+
+- Group offsets (default): `setBufferProperty(KafkaBuffer.START_POSITION, KafkaBuffer.GROUP_OFFSETS)`
+- Latest: `setBufferProperty(KafkaBuffer.START_POSITION, KafkaBuffer.LATEST)`
+- Earliest: `setBufferProperty(KafkaBuffer.START_POSITION, KafkaBuffer.EARLIEST)`
+- Timestamp: `setBufferProperty(KafkaBuffer.START_POSITION, KafkaBuffer.TIMESTAMP)` and `setBufferProperty(KafkaBuffer.START_TIMESTAMP, "START_TIMESTAMP_HERE")`
+
 ### Default properties
 
 #### Kafka
