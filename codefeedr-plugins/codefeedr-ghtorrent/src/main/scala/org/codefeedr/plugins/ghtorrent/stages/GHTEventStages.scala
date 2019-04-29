@@ -126,8 +126,8 @@ object GHTEventStages {
         "evt.pullrequestreviewcomment.insert",
         sideOutput)
 
-  class GHRecordToReleaseEventStage(stageName: String = "ght_release",
-                                    sideOutput: SideOutput = SideOutput())
+  class GHTReleaseEventStage(stageName: String = "ght_release",
+                             sideOutput: SideOutput = SideOutput())
       extends GHTAbstractEventStage[ReleaseEvent](stageName,
                                                   "evt.release.insert",
                                                   sideOutput)
