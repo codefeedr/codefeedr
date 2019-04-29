@@ -152,6 +152,15 @@ lazy val pluginGHTorrent = (project in file("codefeedr-plugins/codefeedr-ghtorre
     )
   ).dependsOn(core)
 
+lazy val pluginPypi = (project in file("codefeedr-plugins/codefeedr-pypi"))
+  .settings(
+    name := pluginPrefix + "pypi",
+    settings,
+    assemblySettings,
+    libraryDependencies ++= commonDependencies ++ Seq(
+    )
+  ).dependsOn(core)
+
 lazy val dependencies =
   new {
     val flinkVersion       = "1.7.0"
@@ -222,7 +231,8 @@ lazy val commonSettings = Seq(
     "confluent"                               at "http://packages.confluent.io/maven/",
     "Apache Development Snapshot Repository"  at "https://repository.apache.org/content/repositories/snapshots/",
     "Artima Maven Repository"                 at "http://repo.artima.com/releases",
-    Resolver.mavenLocal
+    Resolver.mavenLocal,
+    Resolver.jcenterRepo
   ),
   publishMavenStyle in ThisBuild := true,
   publishTo in ThisBuild := Some(
