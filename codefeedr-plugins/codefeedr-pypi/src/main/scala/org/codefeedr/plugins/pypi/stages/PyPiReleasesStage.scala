@@ -9,10 +9,14 @@ import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.function.ProcessAllWindowFunction
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util.Collector
-import org.codefeedr.plugins.pypi.operators.PyPiReleasesSource
+import org.codefeedr.plugins.pypi.operators.{
+  PyPiReleasesSource,
+  PyPiSourceConfig
+}
 
 /** Fetches real-time releases from PyPi. */
-class PyPiReleasesStage(stageId: String = "pypi_releases_min")
+class PyPiReleasesStage(stageId: String = "pypi_releases_min",
+                        sourceConfig: PyPiSourceConfig = PyPiSourceConfig())
     extends InputStage[PyPiRelease](Some(stageId)) {
 
   /** Fetches [[PyPiRelease]] from real-time PyPi feed.
@@ -22,5 +26,5 @@ class PyPiReleasesStage(stageId: String = "pypi_releases_min")
     */
   override def main(context: Context): DataStream[PyPiRelease] =
     context.env
-      .addSource(new PyPiReleasesSource())
+      .addSource(new PyPiReleasesSource(sourceConfig))
 }

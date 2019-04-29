@@ -21,7 +21,10 @@ import scalaj.http.Http
 import scala.collection.JavaConverters._
 import scala.xml.XML
 
-class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
+case class PyPiSourceConfig(pollingInterval: Int = 1000,
+                            maxNumberOfRuns: Int = -1)
+
+class PyPiReleasesSource(config: PyPiSourceConfig = PyPiSourceConfig())
     extends RichSourceFunction[PyPiRelease]
     with CheckpointedFunction {
 
@@ -44,7 +47,7 @@ class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
   /** Opens this source. */
   override def open(parameters: Configuration): Unit = {
     isRunning = true
-    runsLeft = maxNumberOfRuns
+    runsLeft = config.maxNumberOfRuns
   }
 
   /** Close the source. */
@@ -162,7 +165,7 @@ class PyPiReleasesSource(pollingInterval: Int = 1000, maxNumberOfRuns: Int = -1)
     * @param times Times the polling interval should be waited
     */
   def waitPollingInterval(times: Int = 1): Unit = {
-    Thread.sleep(times * pollingInterval)
+    Thread.sleep(times * config.pollingInterval)
   }
 
   /** Make a snapshot of the current state. */
