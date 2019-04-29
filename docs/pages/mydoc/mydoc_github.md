@@ -8,9 +8,9 @@ permalink: mydoc_github.html
 
 The GitHub plugin provides stages for interaction with the [GitHubAPI](https://developer.github.com/v3/?). 
 ## Installation
-
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12)
 ```scala
-dependencies += "org.codefeedr" %% "codefeedr-github" % "0.1-SNAPSHOT"
+dependencies += "org.codefeedr" %% "codefeedr-plugin-github" % "LATEST_VERSION"
 ```
 
 ## Stages

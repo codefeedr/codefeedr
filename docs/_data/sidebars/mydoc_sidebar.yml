@@ -66,6 +66,15 @@ entries:
               - title: Specification
                 url: /mydoc_ghtorrentspec.html
                 output: web, pdf
+          - title: PyPi
+            output: web, pdf
+            subfolderitems:
+              - title: General
+                url: /mydoc_pypi.html
+                output: web, pdf
+              - title: Specification
+                url: /mydoc_pypispec.html
+                output: web, pdf
 
   - title: Internals
     output: web, pdf
