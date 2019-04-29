@@ -61,6 +61,12 @@ object GHTEventStages {
                                                      "evt.deployment.insert",
                                                      sideOutput)
 
+  class GHTStatusEventStage(stageName: String = "ght_status",
+                            sideOutput: SideOutput = SideOutput())
+      extends GHTAbstractEventStage[StatusEvent](stageName,
+                                                 "evt.status.insert",
+                                                 sideOutput)
+
   class GHTDeploymentStatusEventStage(
       stageName: String = "ght_deploymentstatus",
       sideOutput: SideOutput = SideOutput())
