@@ -129,21 +129,21 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
       KafkaBuffer.START_POSITION,
       KafkaBufferDefaults.START_POSITION)
 
-    /** Configure the starting point. */
+    /** Configure the starting point FromGroupOffsets. */
     startPosition match {
       case KafkaBuffer.EARLIEST => kafkaConsumer.setStartFromEarliest()
       case KafkaBuffer.LATEST   => kafkaConsumer.setStartFromLatest()
       case KafkaBuffer.TIMESTAMP =>
         kafkaConsumer.setStartFromTimestamp(
-          properties.getOrElse[Long](KafkaBuffer.START_POSITION,
-                                     KafkaBufferDefaults.START_TIMESTAMP))
+          properties.getOrElse[Long](
+            KafkaBuffer.START_POSITION,
+            KafkaBufferDefaults.START_TIMESTAMP)(_.toLong))
       case KafkaBuffer.GROUP_OFFSETS => kafkaConsumer.setStartFromGroupOffsets()
       case _                         => kafkaConsumer.setStartFromGroupOffsets()
     }
 
     // Add a source.
-    pipeline.environment.addSource(
-      new FlinkKafkaConsumer[T](topic, serde, getKafkaProperties))
+    pipeline.environment.addSource(kafkaConsumer)
   }
 
   /** Get a Kafka Producer as sink to the buffer.
