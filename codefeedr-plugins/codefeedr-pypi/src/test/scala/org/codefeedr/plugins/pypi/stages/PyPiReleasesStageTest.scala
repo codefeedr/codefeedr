@@ -19,13 +19,11 @@ class PyPiReleasesStageTest extends FunSuite {
       new PyPiReleasesStage(sourceConfig = PyPiSourceConfig(1000, 12))
     val sink = new LimitingSinkStage(12)
 
-    assertThrows[JobFinishedException] {
-      val pipeline = new PipelineBuilder()
-        .append(source)
-        .append(sink)
-        .build()
-        .startMock()
-    }
+    val pipeline = new PipelineBuilder()
+      .append(source)
+      .append(sink)
+      .build()
+      .startMock()
   }
 
 }
