@@ -13,9 +13,8 @@ With the help of the GHTorrent plugin you can either hook into our CodeFeedr ser
 ## Installation
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.codefeedr/codefeedr-core_2.12)
 ```scala
-dependencies += "org.codefeedr" %% "codefeedr-ghtorrent" % "LATEST_VERSION"
+dependencies += "org.codefeedr" %% "codefeedr-plugin-ghtorrent" % "LATEST_VERSION"
 ``` 
-
 
 ## Stages
 In general the GHTorrent plugin provides stages to mirror and parse (parts) of GHTorrent. In general, its important that you have access to the GHTorrent streaming service. This involves adding your public key to their repository. Please read [this page](http://ghtorrent.org/services.html) on details how to add your key.
