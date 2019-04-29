@@ -2,6 +2,7 @@ package org.codefeedr.plugins.pypi.util
 
 import java.text.SimpleDateFormat
 
+import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.plugins.pypi.protocol.Protocol.PyPiProject
 import org.codefeedr.stages.utilities.HttpRequester
 import org.json4s.{DefaultFormats, Formats}
@@ -12,7 +13,7 @@ import org.json4s.Extraction._
 import org.json4s.JsonAST._
 
 /** Services to retrieve a project from the PyPi APi. */
-object PyPiService extends Serializable {
+object PyPiService extends Logging with Serializable {
 
   /** Extraction formats. */
   lazy implicit val formats: Formats = new DefaultFormats {
@@ -34,17 +35,25 @@ object PyPiService extends Serializable {
 
     /** Retrieve the project. */
     val rawProject = getProjectRaw(projectEndPoint)
-    if (rawProject.isEmpty) return None
+    if (rawProject.isEmpty) {
 
-    val json = parse(rawProject.get)
-    // println(json)
-    //println(Some(extract[PyPiProject](transformProject(json))))
-    if (extractOpt[PyPiProject](transformProject(json)).isEmpty) {
-      println(json)
+      logger.error(
+        s"Couldn't retrieve PyPi project with name $projectEndPoint.")
+
+      return None
     }
+    val json = parse(rawProject.get)
 
     /** Extract into an optional if it can't be parsed. */
-    extractOpt[PyPiProject](transformProject(json))
+    val project = extractOpt[PyPiProject](transformProject(json))
+
+    if (project.isEmpty) {
+      logger.error(
+        s"Couldn't retrieve PyPi project with name $projectEndPoint and json $json.")
+    }
+
+    /** Forward the project */
+    project
   }
 
   /** Transform the JSON AST to be more suitable with a case class.*/
