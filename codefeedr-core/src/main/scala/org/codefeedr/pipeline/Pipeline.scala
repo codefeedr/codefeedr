@@ -59,6 +59,19 @@ case class Pipeline(var name: String,
                     graph: DirectedAcyclicGraph,
                     objectProperties: Map[String, Properties]) {
 
+  /** Prepare the pipeline by adding this instance to every stage.*/
+  def prepare() = {
+    val nodes = getNodes
+
+    // Run all setups.
+    for (obj <- nodes) {
+      obj.setUp(this)
+    }
+  }
+
+  /** Run this immediately. */
+  prepare()
+
   /** The mutable StreamExecutionEnvironment. */
   var _environment: StreamExecutionEnvironment = null
 
@@ -215,11 +228,6 @@ case class Pipeline(var name: String,
 
     val nodes = getNodes
 
-    // Run all setups.
-    for (nodes <- nodes) {
-      nodes.setUp(this)
-    }
-
     // Connect each object by getting a starting buffer, if any, and sending it to the next.
     var buffer: DataStream[Serializable with AnyRef] = null
     for (obj <- nodes) {
@@ -235,11 +243,6 @@ case class Pipeline(var name: String,
     */
   def startLocal(): Unit = {
     val nodes = getNodes
-
-    // Run all setups.
-    for (obj <- nodes) {
-      obj.setUp(this)
-    }
 
     // For each PO, make buffers and run.
     for (obj <- nodes) {
@@ -273,8 +276,7 @@ case class Pipeline(var name: String,
     val obj = optObj.get
       .asInstanceOf[Stage[Serializable with AnyRef, Serializable with AnyRef]]
 
-    // Setup and run object.
-    obj.setUp(this)
+    // Run object.
     runStage(obj, groupId)
 
     // Run stage in one environment.

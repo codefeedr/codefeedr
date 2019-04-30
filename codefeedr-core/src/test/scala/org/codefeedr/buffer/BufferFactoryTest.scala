@@ -64,6 +64,50 @@ class BufferFactoryTest extends FunSuite with BeforeAndAfter {
     assert(buffer.isInstanceOf[KafkaBuffer[StringType]])
   }
 
+  test("Buffer properties and stage properties should be merged.") {
+    val pipeline = new PipelineBuilder()
+      .setBufferType(BufferType.Kafka)
+      .append(nodeA)
+      .setBufferProperty("a", "val")
+      .setStageProperty(nodeA, "b", "val")
+      .setStageProperty(nodeB, "c", "val")
+      .append(nodeB)
+      .build()
+
+    val factory = new BufferFactory(pipeline, nodeA, nodeB)
+
+    // created for nodeB sink, so should have subject of nodeB
+    val nodeSubject = nodeB.getContext.stageId
+    val buffer = factory.create[StringType]()
+
+    assert(buffer.getProperties.has("a"))
+    assert(buffer.getProperties.has("b"))
+    assert(!buffer.getProperties.has("c"))
+  }
+
+  test("Stage properties should override buffer properties.") {
+    val pipeline = new PipelineBuilder()
+      .setBufferType(BufferType.Kafka)
+      .append(nodeA)
+      .setBufferProperty("a", "val")
+      .setStageProperty(nodeA, "b", "val")
+      .setStageProperty(nodeB, "c", "val")
+      .setBufferProperty("b", "no")
+      .append(nodeB)
+      .build()
+
+    val factory = new BufferFactory(pipeline, nodeA, nodeB)
+
+    // created for nodeB sink, so should have subject of nodeB
+    val nodeSubject = nodeB.getContext.stageId
+    val buffer = factory.create[StringType]()
+
+    assert(buffer.getProperties.has("a"))
+    assert(buffer.getProperties.has("b"))
+    assert(!buffer.getProperties.has("c"))
+    assert(buffer.getProperties.get("b").get.equals("val"))
+  }
+
   test("Register your own buffer.") {
     BufferFactory.register[DummyBuffer[_]]("my_buffer!")
 

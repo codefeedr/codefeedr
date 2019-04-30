@@ -70,6 +70,9 @@ abstract class Buffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
     Serializer.getSerde[T](serializer)
   }
+
+  /** Returns the properties of this buffer. */
+  def getProperties = properties
 }
 
 /**
