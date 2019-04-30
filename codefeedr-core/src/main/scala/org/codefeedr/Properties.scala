@@ -87,6 +87,17 @@ class Properties(private val contents: Map[String, String] = Map()) {
   def set[T](key: String, value: T)(implicit convert: T => String): Properties =
     new Properties(contents + (key -> value))
 
+  def merge(properties: Properties): Properties = {
+    val keys = properties.keys()
+    var newProps = this
+
+    for (key <- keys) {
+      newProps = newProps.set(key, properties.get(key).get)
+    }
+
+    newProps
+  }
+
   /**
     * Get a set if keys in this properties.
     *
