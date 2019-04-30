@@ -250,6 +250,8 @@ class PipelineTest
 
   test("A pipeline has a default name") {
     val pipeline = builder
+      .disablePipelineVerification()
+      .append(new KafkaTopic[StringType]("fake"))
       .append(new SimpleSourceStage())
       .append(new SimpleSinkStage())
       .build()

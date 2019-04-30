@@ -236,7 +236,8 @@ case class Pipeline(var name: String,
     // Connect each object by getting a starting buffer, if any, and sending it to the next.
     var buffer: DataStream[Serializable with AnyRef] = null
     for (obj <- nodes) {
-      buffer = obj.transform(buffer)
+      if (!obj.isInstanceOf[FakeStage[_]])
+        buffer = obj.transform(buffer)
     }
 
     // Execute in one environment.
