@@ -9,7 +9,6 @@ import org.codefeedr.plugins.pypi.operators.{
 }
 import org.codefeedr.plugins.pypi.protocol.Protocol.PyPiRelease
 import org.codefeedr.stages.OutputStage
-import org.codefeedr.testUtils.JobFinishedException
 import org.scalatest.FunSuite
 
 class PyPiReleasesStageTest extends FunSuite {
@@ -53,7 +52,7 @@ class LimitingSink(elements: Int) extends SinkFunction[PyPiRelease] {
     println(count)
 
     if (elements != -1 && count >= elements) {
-      throw new JobFinishedException()
+      throw new RuntimeException()
     }
   }
 }
