@@ -199,7 +199,9 @@ case class Pipeline(var name: String,
 
       throw PipelineListException(json)
     } else {
-      getNodes.foreach(item => println(item.getContext.stageId))
+      getNodes
+        .filter(!_.isInstanceOf[FakeStage[_]])
+        .foreach(item => println(item.getContext.stageId))
     }
   }
 
