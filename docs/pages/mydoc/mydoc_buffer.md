@@ -51,6 +51,14 @@ To set the start position for **all** stages in a pipeline it can be configured 
 - Earliest: `setBufferProperty(KafkaBuffer.START_POSITION, KafkaBuffer.EARLIEST)`
 - Timestamp: `setBufferProperty(KafkaBuffer.START_POSITION, KafkaBuffer.TIMESTAMP)` and `setBufferProperty(KafkaBuffer.START_TIMESTAMP, "START_TIMESTAMP_HERE")`
 
+To set the start position on **stage** level, you need to use stage properties:
+- Group offsets (default): `setStageProperty(stageInstance, KafkaBuffer.START_POSITION, KafkaBuffer.GROUP_OFFSETS)`
+- Latest: `setStageProperty(stageInstance, KafkaBuffer.START_POSITION, KafkaBuffer.LATEST)`
+- Earliest: `setStageProperty(stageInstance, KafkaBuffer.START_POSITION, KafkaBuffer.EARLIEST)`
+- Timestamp: `setStageProperty(stageInstance, KafkaBuffer.START_POSITION, KafkaBuffer.TIMESTAMP)` and `setBufferProperty(KafkaBuffer.START_TIMESTAMP, "START_TIMESTAMP_HERE")`
+
+This will set the start position of the Kafka consumer of the `stageInstance`. I.e. if set to `LATEST`, `stageInstance` will start consuming from the latest entry of the stage it is linked to. 
+
 ### Default properties
 
 #### Kafka
