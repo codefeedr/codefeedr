@@ -67,7 +67,7 @@ class BufferFactory[+In <: Serializable with AnyRef,
         val cleanedSubject = subject.replace("$", "-")
         new KafkaBuffer[T](
           pipeline,
-          stage.getContext.stageProperties.merge(pipeline.bufferProperties),
+          pipeline.bufferProperties.merge(stage.getContext.stageProperties),
           cleanedSubject,
           groupIdFinal)
       }
@@ -83,7 +83,7 @@ class BufferFactory[+In <: Serializable with AnyRef,
           .getConstructors()(0)
           .newInstance(
             pipeline,
-            stage.getContext.stageProperties.merge(pipeline.bufferProperties),
+            pipeline.bufferProperties.merge(stage.getContext.stageProperties),
             subject,
             ct,
             tt)
@@ -94,7 +94,7 @@ class BufferFactory[+In <: Serializable with AnyRef,
         val cleanedSubject = subject.replace("$", "-")
         new KafkaBuffer[T](
           pipeline,
-          stage.getContext.stageProperties.merge(pipeline.bufferProperties),
+          pipeline.bufferProperties.merge(stage.getContext.stageProperties),
           cleanedSubject,
           groupIdFinal)
       }
