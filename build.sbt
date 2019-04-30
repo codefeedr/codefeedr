@@ -47,7 +47,8 @@ lazy val root = (project in file("."))
     pluginElasticSearch,
     pluginGitHub,
     pluginRabbitMQ,
-    pluginGHTorrent)
+    pluginGHTorrent,
+    pluginPypi)
 
 lazy val core = (project in file("codefeedr-core"))
   .settings(
