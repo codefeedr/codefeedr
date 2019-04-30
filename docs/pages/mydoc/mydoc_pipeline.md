@@ -204,7 +204,7 @@ getContext.getStageProperties("the_key")
 This will return `Some("the_value")`, if the key is unknown `None` will
 be returned.
 
-**Note**: Stage properties are also added to the _buffer properties_ of the buffer belonging to that stage. So to override buffer properties on __stage level__, use stage properties.  
+**Note**: Stage properties are also added to the _buffer properties_ of the buffer belonging to that stage. So to override buffer properties on _stage level_, use stage properties.  
 
 ### Start the pipeline
 If the Pipeline is properly build using the PipelineBuilder, it can be

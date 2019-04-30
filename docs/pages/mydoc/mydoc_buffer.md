@@ -36,6 +36,8 @@ pipelineBuilder
     .setBufferProperty(KafkaBuffer.BROKER, "localhost:9092")
 ```
 
+To set buffer properties on _stage level_ use stage properties `.setStageProperty(stageInstance, key, value)`. This will override a global buffer property. 
+
 **Note:** in case of the Kafka buffer all these properties will be
 propagated to the Kafka producer/consumer, see the [Kafka
 documentation](https://kafka.apache.org/documentation/#configuration)
