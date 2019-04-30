@@ -26,6 +26,7 @@ import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferType.BufferType
+import org.codefeedr.buffer.FakeBuffer
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.RuntimeType.RuntimeType
 
@@ -67,6 +68,7 @@ case class Pipeline(var name: String,
     for (obj <- nodes) {
       obj.setUp(this)
     }
+
   }
 
   /** Run this immediately. */
@@ -188,6 +190,7 @@ case class Pipeline(var name: String,
   def showList(asException: Boolean): Unit = {
     if (asException) {
       val contents = getNodes
+        .filter(!_.isInstanceOf[FakeBuffer[_]])
         .map { item =>
           '"' + item.getContext.stageId + '"'
         }
@@ -292,6 +295,11 @@ case class Pipeline(var name: String,
   private def runStage(
       stage: Stage[Serializable with AnyRef, Serializable with AnyRef],
       groupId: String = null): Unit = {
+
+    /** We won't run a fake stage. */
+    if (stage.isInstanceOf[FakeBuffer[_]]) {
+      return
+    }
 
     // Find the source lazily.
     lazy val source =
