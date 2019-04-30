@@ -217,6 +217,8 @@ class PipelineTest
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE, "true")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_SERVICE, "zookeeper")
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST, "localhost:2181")
+      .setBufferProperty(KafkaBuffer.START_POSITION, KafkaBuffer.TIMESTAMP)
+      .setBufferProperty(KafkaBuffer.START_TIMESTAMP, "0")
       .build()
 
     assertThrows[JobExecutionException] {

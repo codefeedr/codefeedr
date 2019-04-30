@@ -76,6 +76,7 @@ class KafkaBufferTest
 
     //setup simple kafkabuffer
     val pipeline = new PipelineBuilder()
+      .setBufferProperty(KafkaBuffer.START_POSITION, KafkaBuffer.LATEST)
       .append(new SimpleSourceStage())
       .setBufferProperty(KafkaBuffer.SCHEMA_EXPOSURE_HOST,
                          s"redis://localhost:$redisPort")
@@ -118,6 +119,7 @@ class KafkaBufferTest
     val numberInput = new NumberInput()
 
     val pipeline = new PipelineBuilder()
+      .setBufferProperty(KafkaBuffer.START_POSITION, KafkaBuffer.EARLIEST)
       .append(numberInput) //pushes 1 till 50
       .append(numberOutput) //reads and crashes
       .build()

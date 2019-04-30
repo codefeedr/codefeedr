@@ -125,4 +125,31 @@ class PropertiesTest extends FunSuite {
     assert(props.has("foo"))
     assert(!props.has("bar"))
   }
+
+  test("Two property maps should be able to merge") {
+    var props = new Properties()
+    var props2 = new Properties()
+
+    props = props.set("ha", "na")
+    props2 = props2.set("bla", "na")
+
+    val finalProps = props.merge(props2)
+
+    assert(finalProps.has("ha"))
+    assert(finalProps.has("bla"))
+  }
+
+  test("Two property maps should be able to merge and overridden") {
+    var props = new Properties()
+    var props2 = new Properties()
+
+    props = props.set("ha", "na")
+    props2 = props2.set("ha", "ba")
+
+    val finalProps = props.merge(props2)
+
+    assert(finalProps.has("ha"))
+    assert(!finalProps.has("bla"))
+    assert(finalProps.get("ha").get.equals("ba"))
+  }
 }
