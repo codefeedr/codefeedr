@@ -65,10 +65,11 @@ class BufferFactory[+In <: Serializable with AnyRef,
     pipeline.bufferType match {
       case BufferType.Kafka => {
         val cleanedSubject = subject.replace("$", "-")
-        new KafkaBuffer[T](pipeline,
-                           pipeline.bufferProperties,
-                           cleanedSubject,
-                           groupIdFinal)
+        new KafkaBuffer[T](
+          pipeline,
+          stage.getContext.stageProperties.merge(pipeline.bufferProperties),
+          cleanedSubject,
+          groupIdFinal)
       }
       case x if BufferFactory.registry.exists(_._1 == x) => {
         val tt = typeTag[T]
@@ -80,16 +81,22 @@ class BufferFactory[+In <: Serializable with AnyRef,
           .get
           .runtimeClass
           .getConstructors()(0)
-          .newInstance(pipeline, pipeline.bufferProperties, subject, ct, tt)
+          .newInstance(
+            pipeline,
+            stage.getContext.stageProperties.merge(pipeline.bufferProperties),
+            subject,
+            ct,
+            tt)
           .asInstanceOf[Buffer[T]]
       }
       case _ => {
         //Switch to Kafka.
         val cleanedSubject = subject.replace("$", "-")
-        new KafkaBuffer[T](pipeline,
-                           pipeline.bufferProperties,
-                           cleanedSubject,
-                           groupIdFinal)
+        new KafkaBuffer[T](
+          pipeline,
+          stage.getContext.stageProperties.merge(pipeline.bufferProperties),
+          cleanedSubject,
+          groupIdFinal)
       }
     }
   }
