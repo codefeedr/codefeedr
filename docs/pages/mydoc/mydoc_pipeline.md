@@ -119,7 +119,19 @@ overhead instead of combining multiple stages into one stage.
 To have a better understanding of stages take a look at the plugins
 package which includes multiple (complex) stages.
 
+### Fake Stages
+In a situation where a (part of a) plugin is already running and you want to hook your plugin onto those stages there are two options:
+- You add all the already running stages in your pipeline and **only start** the ones not running.
+- You link it using a `FakeStage[T](stageId)', which basically implies 'I know there is a buffer with _this_ stage id filled with _this_ datatype.'
 
+See [this issue](https://github.com/codefeedr/codefeedr/issues/212) for a detailed example. Currently we only support Kafka and its fake stage are implemented in the `KafkaTopic` class.
+
+#### KafkaTopic
+You can use this stage to link it directly to a KafkaTopic.
+```scala
+builder.edge(new KafkaTopic[B]("topic_with_type_B"), new StageWhichProcessesB())
+```
+**Note:** Using this stage there is no guarantee the data is there nor that the _topic name_ is correct.
 ## PipelineBuilder
 The PipelineBuilder is used to create a pipeline of stages. Next to
 that, it allows to set the buffer type (like Kafka), buffer properties

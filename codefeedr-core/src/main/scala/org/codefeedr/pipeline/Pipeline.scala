@@ -26,6 +26,7 @@ import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala._
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferType.BufferType
+import org.codefeedr.buffer.FakeStage
 import org.codefeedr.keymanager.KeyManager
 import org.codefeedr.pipeline.RuntimeType.RuntimeType
 
@@ -67,6 +68,7 @@ case class Pipeline(var name: String,
     for (obj <- nodes) {
       obj.setUp(this)
     }
+
   }
 
   /** Run this immediately. */
@@ -188,6 +190,7 @@ case class Pipeline(var name: String,
   def showList(asException: Boolean): Unit = {
     if (asException) {
       val contents = getNodes
+        .filter(!_.isInstanceOf[FakeStage[_]])
         .map { item =>
           '"' + item.getContext.stageId + '"'
         }
@@ -196,7 +199,9 @@ case class Pipeline(var name: String,
 
       throw PipelineListException(json)
     } else {
-      getNodes.foreach(item => println(item.getContext.stageId))
+      getNodes
+        .filter(!_.isInstanceOf[FakeStage[_]])
+        .foreach(item => println(item.getContext.stageId))
     }
   }
 
@@ -231,7 +236,8 @@ case class Pipeline(var name: String,
     // Connect each object by getting a starting buffer, if any, and sending it to the next.
     var buffer: DataStream[Serializable with AnyRef] = null
     for (obj <- nodes) {
-      buffer = obj.transform(buffer)
+      if (!obj.isInstanceOf[FakeStage[_]])
+        buffer = obj.transform(buffer)
     }
 
     // Execute in one environment.
@@ -292,6 +298,11 @@ case class Pipeline(var name: String,
   private def runStage(
       stage: Stage[Serializable with AnyRef, Serializable with AnyRef],
       groupId: String = null): Unit = {
+
+    /** We won't run a fake stage. */
+    if (stage.isInstanceOf[FakeStage[_]]) {
+      return
+    }
 
     // Find the source lazily.
     lazy val source =

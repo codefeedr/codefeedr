@@ -25,7 +25,7 @@ import org.apache.flink.streaming.api.scala.{
   DataStream,
   StreamExecutionEnvironment
 }
-import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer}
+import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer, KafkaTopic}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite}
 import org.apache.flink.api.scala._
 import org.apache.flink.runtime.client.JobExecutionException
@@ -250,6 +250,8 @@ class PipelineTest
 
   test("A pipeline has a default name") {
     val pipeline = builder
+      .disablePipelineVerification()
+      .append(new KafkaTopic[StringType]("fake"))
       .append(new SimpleSourceStage())
       .append(new SimpleSinkStage())
       .build()
@@ -343,11 +345,12 @@ class PipelineTest
     }
   }
 
-  test("Show list of pipeline item ids") {
+  test("Show list of pipeline item ids while fake topic is ignored.") {
     val pipeline = builder
       .disablePipelineVerification()
       .append(new StringInput())
       .append(new JsonPrinterOutput())
+      .append(new KafkaTopic("kafka_name"))
       .build()
 
     val stream = new java.io.ByteArrayOutputStream()
