@@ -19,7 +19,7 @@
 package org.codefeedr.stages.kafka
 
 import java.util
-import java.util.{Properties, UUID}
+import java.util.{Optional, Properties, UUID}
 
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.runtime.client.JobExecutionException
@@ -97,7 +97,7 @@ class KafkaInputOutputTest
       //the topic configuration will probably be overwritten by the producer
       //TODO check this ^
       println(s"Topic $topic doesn't exist yet, now creating it.")
-      val newTopic = new NewTopic(topic, Some(1), 1)
+      val newTopic = new NewTopic(topic, new Optional[Integer](1), 1)
       adminClient
         .createTopics(List(newTopic).asJavaCollection)
         .all()
