@@ -37,9 +37,5 @@ class PyPiReleaseExtStage(stageId: String = "pypi_releases")
                                                 100)
 
     new org.apache.flink.streaming.api.scala.DataStream(async)
-      .map(x => (x.project.info.name, x.project.releases))
-      .print()
-
-    new org.apache.flink.streaming.api.scala.DataStream(async)
   }
 }

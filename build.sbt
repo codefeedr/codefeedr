@@ -164,7 +164,7 @@ lazy val pluginPypi = (project in file("codefeedr-plugins/codefeedr-pypi"))
 
 lazy val dependencies =
   new {
-    val flinkVersion       = "1.8.0"
+    val flinkVersion       = "1.9.1"
     val json4sVersion      = "3.6.4"
     val log4jVersion       = "2.11.0"
     val log4jScalaVersion  = "11.0"
