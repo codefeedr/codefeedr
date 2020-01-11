@@ -182,7 +182,7 @@ lazy val dependencies =
     val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion
 
     val redis              = "net.debasishg"             %% "redisclient"                    % "3.6"
-    val kafkaClient        = "org.apache.kafka"           % "kafka-clients"                  % "1.0.0"
+    val kafkaClient        = "org.apache.kafka"           % "kafka-clients"                  % "2.4.0"
     val zookeeper          = "org.apache.zookeeper"       % "zookeeper"                      % "3.4.9"
 
     val json4s             = "org.json4s"                %% "json4s-scalap"                  % json4sVersion

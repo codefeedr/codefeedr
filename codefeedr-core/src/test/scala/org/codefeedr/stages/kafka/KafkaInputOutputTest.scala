@@ -97,7 +97,7 @@ class KafkaInputOutputTest
       //the topic configuration will probably be overwritten by the producer
       //TODO check this ^
       println(s"Topic $topic doesn't exist yet, now creating it.")
-      val newTopic = new NewTopic(topic, Optional.of(1), Optional.of(1.toShort))
+      val newTopic = new NewTopic(topic, 1, 1.toShort)
       adminClient
         .createTopics(List(newTopic).asJavaCollection)
         .all()
