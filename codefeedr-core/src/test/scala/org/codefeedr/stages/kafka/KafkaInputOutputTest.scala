@@ -72,9 +72,12 @@ class KafkaInputOutputTest
 
     assertThrows[JobExecutionException] {
       pipeline.startLocal()
+      assert(KafkaStringCollectSink.result.size() == 7)
+
     }
 
-    assert(KafkaStringCollectSink.result.size() == 7)
+
+
   }
 
   def checkAndCreateSubject(topic: String, connection: String): Unit = {
@@ -103,6 +106,7 @@ class KafkaInputOutputTest
         .all()
         .get() //this blocks the method until the topic is created
     }
+
   }
 
 }
@@ -123,7 +127,10 @@ class KafkaStringCollectSink(amount: Int) extends SinkFunction[StringType] {
 
       amountLeft = amountLeft - 1
       println(s"Added new element ${value.value}, amountLeft: $amountLeft")
-      if (amountLeft == 0) throw new JobFinishedException()
+      if (amountLeft == 0) {
+        throw new JobFinishedException()
+      }
+
     }
   }
 
