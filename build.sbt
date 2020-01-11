@@ -164,7 +164,7 @@ lazy val pluginPypi = (project in file("codefeedr-plugins/codefeedr-pypi"))
 
 lazy val dependencies =
   new {
-    val flinkVersion       = "1.8.0"
+    val flinkVersion       = "1.9.1"
     val json4sVersion      = "3.6.4"
     val log4jVersion       = "2.11.0"
     val log4jScalaVersion  = "11.0"
@@ -182,7 +182,7 @@ lazy val dependencies =
     val flinkRabbitMQ      = "org.apache.flink"          %% "flink-connector-rabbitmq"       % flinkVersion
 
     val redis              = "net.debasishg"             %% "redisclient"                    % "3.6"
-    val kafkaClient        = "org.apache.kafka"           % "kafka-clients"                  % "1.0.0"
+    val kafkaClient        = "org.apache.kafka"           % "kafka-clients"                  % "2.4.0"
     val zookeeper          = "org.apache.zookeeper"       % "zookeeper"                      % "3.4.9"
 
     val json4s             = "org.json4s"                %% "json4s-scalap"                  % json4sVersion
@@ -200,7 +200,8 @@ lazy val dependencies =
     val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
     val embeddedRedis      = "com.github.sebruck"        %% "scalatest-embedded-redis"       % "0.3.0"           % Test
-    val embeddedKafka      = "net.manub"                 %% "scalatest-embedded-kafka"       % "2.0.0"           % Test
+
+    val embeddedKafka      = "io.github.embeddedkafka"   %% "embedded-kafka"                 % "2.4.0"           % Test
     val embeddedMongo      = "com.github.simplyscala"    %% "scalatest-embedmongo"           % "0.2.4"           % Test
     //val embeddedRabbitMQ   = "io.arivera.oss"            %% "embedded-rabbitmq"              % "1.3.0"           % Test
 

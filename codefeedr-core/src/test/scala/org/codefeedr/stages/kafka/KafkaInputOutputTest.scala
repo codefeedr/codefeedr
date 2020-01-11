@@ -19,7 +19,7 @@
 package org.codefeedr.stages.kafka
 
 import java.util
-import java.util.{Properties, UUID}
+import java.util.{Optional, Properties, UUID}
 
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.flink.runtime.client.JobExecutionException
@@ -72,9 +72,12 @@ class KafkaInputOutputTest
 
     assertThrows[JobExecutionException] {
       pipeline.startLocal()
+      assert(KafkaStringCollectSink.result.size() == 7)
+
     }
 
-    assert(KafkaStringCollectSink.result.size() == 7)
+
+
   }
 
   def checkAndCreateSubject(topic: String, connection: String): Unit = {
@@ -97,12 +100,13 @@ class KafkaInputOutputTest
       //the topic configuration will probably be overwritten by the producer
       //TODO check this ^
       println(s"Topic $topic doesn't exist yet, now creating it.")
-      val newTopic = new NewTopic(topic, 1, 1)
+      val newTopic = new NewTopic(topic, 1, 1.toShort)
       adminClient
         .createTopics(List(newTopic).asJavaCollection)
         .all()
         .get() //this blocks the method until the topic is created
     }
+
   }
 
 }
@@ -123,7 +127,10 @@ class KafkaStringCollectSink(amount: Int) extends SinkFunction[StringType] {
 
       amountLeft = amountLeft - 1
       println(s"Added new element ${value.value}, amountLeft: $amountLeft")
-      if (amountLeft == 0) throw new JobFinishedException()
+      if (amountLeft == 0) {
+        throw new JobFinishedException()
+      }
+
     }
   }
 
