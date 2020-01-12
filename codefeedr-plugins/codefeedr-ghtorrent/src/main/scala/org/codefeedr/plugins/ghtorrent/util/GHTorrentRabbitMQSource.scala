@@ -42,18 +42,18 @@ import collection.JavaConverters._
 /** This class is based on the orginal Flink RabbitMQSource.
   * It creates a queue bound to a set of routing keys according to the GHTorrent protocol.
   *
+  * @param username your username to specify to GHTorrent.
   * @param host the host name, default is localhost.
   * @param port the port, default is 5672.
   * @param routingKeysFile the location of the routingKeysFile (in the resources directory).
   * @param usesCorrelationId if correlation id's should be enabled, default is false.
-  * @param username your username to specify to GHTorrent.
   * @param password your password to specify to GHTorrent.
   */
-class GHTorrentRabbitMQSource(host: String = "localhost",
+class GHTorrentRabbitMQSource(username: String = "streamer",
+                              host: String = "localhost",
                               port: Int = 5672,
                               routingKeysFile: String = "routing_keys.txt",
                               usesCorrelationId: Boolean = false,
-                              username: String = "streamer",
                               password: String = "streamer")
     extends MultipleIdsMessageAcknowledgingSourceBase[String, String, Long](
       classOf[String])
