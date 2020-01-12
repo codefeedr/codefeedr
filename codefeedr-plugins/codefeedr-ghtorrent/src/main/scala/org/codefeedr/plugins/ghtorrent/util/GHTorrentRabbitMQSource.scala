@@ -42,14 +42,14 @@ import collection.JavaConverters._
 /** This class is based on the orginal Flink RabbitMQSource.
   * It creates a queue bound to a set of routing keys according to the GHTorrent protocol.
   *
-  * @param user your username to specify to GHTorrent.
   * @param host the host name, default is localhost.
   * @param port the port, default is 5672.
   * @param routingKeysFile the location of the routingKeysFile (in the resources directory).
   * @param usesCorrelationId if correlation id's should be enabled, default is false.
+  * @param username your username to specify to GHTorrent.
+  * @param password your password to specify to GHTorrent.
   */
-class GHTorrentRabbitMQSource(user: String,
-                              host: String = "localhost",
+class GHTorrentRabbitMQSource(host: String = "localhost",
                               port: Int = 5672,
                               routingKeysFile: String = "routing_keys.txt",
                               usesCorrelationId: Boolean = false,
@@ -89,7 +89,7 @@ class GHTorrentRabbitMQSource(user: String,
   private var running: Boolean = false
 
   /** Setting queueName according to GHTorrent specification **/
-  private val queueName = user + "_queue"
+  private val queueName = username + "_queue"
 
   /** Parse all routing keys from the file. We assume they are separated by new lines. **/
   val routingKeys = parseRoutingKeys()
@@ -105,7 +105,7 @@ class GHTorrentRabbitMQSource(user: String,
     channel.exchangeDeclare(exchangeName, "topic", true)
 
     // Create a queue with auto delete.
-    channel.queueDeclare(user + "_queue",
+    channel.queueDeclare(username + "_queue",
                          false,
                          false,
                          true,
