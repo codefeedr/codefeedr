@@ -203,7 +203,7 @@ class GHTorrentRabbitMQSource(username: String = "streamer",
             if (!autoAck) { //If autoAck is disabled, we provide the delivery tag to a list of sessionIds.
               val deliveryTag = envelope.getDeliveryTag
 
-              if (usesCorrelationId) {
+            /**  if (usesCorrelationId) {
                 val correlationId = properties.getCorrelationId
 
                 Preconditions.checkNotNull(
@@ -212,7 +212,7 @@ class GHTorrentRabbitMQSource(username: String = "streamer",
                 if (!alreadyProcessed(correlationId)) { //Ignore if we already processed this message.
                   return
                 }
-              }
+              } **/
               getSessionIds
                 .add(deliveryTag) //Add the delivery tag so that it can be checkpointed.
             }
