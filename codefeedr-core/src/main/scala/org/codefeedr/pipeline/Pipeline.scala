@@ -24,6 +24,7 @@ import org.apache.flink.configuration.{ConfigConstants, Configuration}
 import org.apache.flink.runtime.state.StateBackend
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
 import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.Semantic
 import org.codefeedr.Properties
 import org.codefeedr.buffer.BufferType.BufferType
 import org.codefeedr.buffer.FakeStage

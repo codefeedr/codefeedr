@@ -23,17 +23,11 @@ import java.util.Properties
 import org.apache.avro.reflect.ReflectData
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
-import org.apache.flink.streaming.connectors.kafka.{
-  FlinkKafkaConsumer,
-  FlinkKafkaProducer
-}
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.Semantic
+import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.apache.logging.log4j.scala.Logging
-import org.codefeedr.buffer.serialization.schema_exposure.{
-  RedisSchemaExposer,
-  SchemaExposer,
-  ZookeeperSchemaExposer
-}
+import org.codefeedr.buffer.serialization.schema_exposure.{RedisSchemaExposer, SchemaExposer, ZookeeperSchemaExposer}
 import org.codefeedr.pipeline.Pipeline
 
 import scala.collection.JavaConverters._
@@ -67,6 +61,12 @@ object KafkaBuffer {
   val LATEST = "LATEST"
   val EARLIEST = "EARLIEST"
 
+  //SEMANTICS
+  val SEMANTIC = "SEMANTIC"
+
+  // PARTITIONING
+  val ROUND_ROBIN = "ROUND_ROBIN"
+
 }
 
 /** The implementation for the Kafka buffer. This buffer is the default.
@@ -84,6 +84,8 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     groupId: String)
     extends Buffer[T](pipeline, properties, topic)
     with Logging {
+
+  implicit def stringToSemantic(str: String): Semantic = Semantic.valueOf(str)
 
   /** Default settings for the Kafka buffer. */
   private object KafkaBufferDefaults {
@@ -108,6 +110,12 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     //OFFSETS
     val START_POSITION = KafkaBuffer.GROUP_OFFSETS
     val START_TIMESTAMP = 0x0
+
+    //SEMANTIC
+    val SEMANTIC : Semantic = Semantic.AT_LEAST_ONCE
+
+    // PARTITIONING
+    val ROUND_ROBIN = true
   }
 
   /** Get a Kafka Consumer as source for a stage.
@@ -165,9 +173,14 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
       properties
         .getOrElse[String](KafkaBuffer.BROKER, KafkaBufferDefaults.BROKER))
 
+    // Check preferred partitioning
+    val partitioning = properties.getOrElse[Boolean](KafkaBuffer.ROUND_ROBIN, KafkaBufferDefaults.ROUND_ROBIN)
+    val semantic = properties.getOrElse[Semantic](KafkaBuffer.SEMANTIC, KafkaBufferDefaults.SEMANTIC)(stringToSemantic)
+
+
     // Create Kafka producer.
     val producer =
-      new FlinkKafkaProducer[T](topic, getSerializer, getKafkaProperties)
+      new FlinkKafkaProducer[T](topic, getSerializer, getKafkaProperties, null, semantic)
     producer.setWriteTimestampToKafka(true)
 
     producer

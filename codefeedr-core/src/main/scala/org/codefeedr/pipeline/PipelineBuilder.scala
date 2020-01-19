@@ -24,13 +24,11 @@ import org.apache.flink.runtime.executiongraph.restart.RestartStrategy
 import org.apache.flink.runtime.state.StateBackend
 import org.apache.flink.runtime.state.memory.MemoryStateBackend
 import org.apache.flink.streaming.api.{CheckpointingMode, TimeCharacteristic}
-import org.apache.flink.streaming.api.scala.{
-  DataStream,
-  StreamExecutionEnvironment
-}
+import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.Semantic
 import org.apache.logging.log4j.scala.Logging
 import org.codefeedr.Properties
-import org.codefeedr.buffer.{Buffer, BufferType}
+import org.codefeedr.buffer.{Buffer, BufferType, KafkaBuffer}
 import org.codefeedr.buffer.BufferType.BufferType
 import org.codefeedr.buffer.serialization.Serializer
 import org.codefeedr.buffer.serialization.Serializer.SerializerType
@@ -260,6 +258,30 @@ class PipelineBuilder extends Logging {
                           checkpointingMode: CheckpointingMode) = {
     this.checkpointing = Some(interval)
     this.checkpointingMode = checkpointingMode
+
+    this
+  }
+
+  /** Sets the semantic. Default: AT_LEAST_ONCE.
+    *
+    * @param semantic the Kafka buffer semantics.
+    * @return this builder instance.
+    */
+  def setSemantic(semantic: Semantic): PipelineBuilder = {
+    this.setBufferProperty(KafkaBuffer.SEMANTIC, semantic.toString)
+
+    this
+  }
+
+  /** Disables round robin distribution over the KafkaPartition.
+    * If disabled each parallel instance is mapped to one partition.
+    *
+    * Note: if parallelism < partitioning, some partitions don't get data.
+    *
+    * @return this builder instace.
+    */
+  def disableRoundRobin(): PipelineBuilder = {
+    this.setBufferProperty(KafkaBuffer.ROUND_ROBIN, "false")
 
     this
   }
