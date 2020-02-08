@@ -65,7 +65,7 @@ class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
     // Create a source with correlation id usage enabled for exactly once guarantees.
     val source =
-      new RMQSource[T](connectionConfig, queueName, true, getSerializer)
+      new RMQSource[T](connectionConfig, queueName, true, getSerializer())
 
     pipeline.environment
       .addSource(source)
@@ -82,7 +82,7 @@ class RabbitMQBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     // We use the related stage name for the queue.
     val queueName = relatedStageName
 
-    new RMQSinkDurable[T](connectionConfig, queueName, getSerializer)
+    new RMQSinkDurable[T](connectionConfig, queueName, getSerializer())
   }
 
   /** Create a RabbitMQ configuration using buffer properties and defaults.
