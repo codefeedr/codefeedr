@@ -36,7 +36,7 @@ import scala.reflect.runtime.universe._
   * @tparam T Type of the SerDe.
   */
 class BsonSerde[T <: Serializable with AnyRef: TypeTag: ClassTag](topic: String = "")
-    extends AbstractSerde[T] {
+    extends AbstractSerde[T](topic) {
 
   // Implicitly and lazily define the serialization to JSON.
   implicit lazy val formats = Serialization.formats(NoTypeHints) ++ JavaTimeSerializers.all

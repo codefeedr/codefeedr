@@ -30,7 +30,7 @@ import scala.reflect.runtime.universe._
   *
   * @tparam T Type of the SerDe.
   */
-class KryoSerde[T <: Serializable: TypeTag: ClassTag](topic: String = "") extends AbstractSerde[T] {
+class KryoSerde[T <: Serializable: TypeTag: ClassTag](topic: String = "") extends AbstractSerde[T](topic) {
 
   // Lazily retrieve kryo instance.
   private lazy val kryo: KryoBase = getKryo

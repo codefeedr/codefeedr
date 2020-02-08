@@ -69,7 +69,7 @@ object Serializer extends Enumeration {
           .get
           .runtimeClass
           .getConstructors()(0) // Get constructor of runtime class.
-          .newInstance(tt, ct) // Provide class and type tags.
+          .newInstance(topic, tt, ct) // Provide class and type tags.
           .asInstanceOf[AbstractSerde[T]] // Create instance of serde.
       }
       case _ => JSONSerde[T](topic) //default is JSON

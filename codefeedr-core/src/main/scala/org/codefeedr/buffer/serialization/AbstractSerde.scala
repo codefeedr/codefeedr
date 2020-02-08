@@ -29,7 +29,7 @@ import scala.reflect.{ClassTag, classTag}
   *
   * @tparam T Type of the SerDe.
   */
-abstract class AbstractSerde[T <: Serializable: ClassTag]
+abstract class AbstractSerde[T <: Serializable: ClassTag](topic: String = "")
     extends AbstractDeserializationSchema[T](
       TypeExtractor.createTypeInfo(
         classTag[T].runtimeClass.asInstanceOf[Class[T]]))
