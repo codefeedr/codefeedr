@@ -31,8 +31,8 @@ class KryoSerdeTest extends FunSuite with BeforeAndAfter {
   private var serde2: KryoSerde[KryoComplexCaseClass] = _
 
   before {
-    serde = KryoSerde[KryoSimpleCaseClass]
-    serde2 = KryoSerde[KryoComplexCaseClass]
+    serde = KryoSerde[KryoSimpleCaseClass]()
+    serde2 = KryoSerde[KryoComplexCaseClass]()
   }
 
   test("Deserializes complex serialized values") {

@@ -46,13 +46,15 @@ import collection.JavaConverters._
   * @param host the host name, default is localhost.
   * @param port the port, default is 5672.
   * @param routingKeysFile the location of the routingKeysFile (in the resources directory).
-  * @param usesCorrelationId if correlation id's should be enabled, default is false.
+  * @param virtualHost the virtual host of GHTorrent.
+  * @param password your password to specify to GHTorrent.
   */
-class GHTorrentRabbitMQSource(username: String,
+class GHTorrentRabbitMQSource(username: String = "streamer",
                               host: String = "localhost",
                               port: Int = 5672,
                               routingKeysFile: String = "routing_keys.txt",
-                              usesCorrelationId: Boolean = false)
+                              virtualHost: String = "/",
+                              password: String = "streamer")
     extends MultipleIdsMessageAcknowledgingSourceBase[String, String, Long](
       classOf[String])
     with ResultTypeQueryable[String] {
@@ -69,9 +71,9 @@ class GHTorrentRabbitMQSource(username: String,
     new RMQConnectionConfig.Builder()
       .setHost(host)
       .setPort(port)
-      .setVirtualHost("/")
-      .setUserName("streamer")
-      .setPassword("streamer")
+      .setVirtualHost(virtualHost)
+      .setUserName(username)
+      .setPassword(password)
       .build()
 
   @transient
@@ -201,7 +203,7 @@ class GHTorrentRabbitMQSource(username: String,
             if (!autoAck) { //If autoAck is disabled, we provide the delivery tag to a list of sessionIds.
               val deliveryTag = envelope.getDeliveryTag
 
-              if (usesCorrelationId) {
+            /**  if (usesCorrelationId) {
                 val correlationId = properties.getCorrelationId
 
                 Preconditions.checkNotNull(
@@ -210,7 +212,7 @@ class GHTorrentRabbitMQSource(username: String,
                 if (!alreadyProcessed(correlationId)) { //Ignore if we already processed this message.
                   return
                 }
-              }
+              } **/
               getSessionIds
                 .add(deliveryTag) //Add the delivery tag so that it can be checkpointed.
             }

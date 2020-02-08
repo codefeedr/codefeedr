@@ -32,12 +32,16 @@ import org.apache.flink.api.scala._
   * @param host the host name, default is localhost.
   * @param port the port, default is 5672.
   * @param routingKeysFile the location of the routingKeysFile (in the resources directory).
+  * @param virtualHost the virtual host of GHTorrent.
+  * @param password your password to specify to GHTorrent.
   */
 class GHTInputStage(username: String,
                     stageName: String = "ght_input",
                     host: String = "localhost",
                     port: Int = 5672,
-                    routingKeysFile: String = "routing_keys.txt")
+                    routingKeysFile: String = "routing_keys.txt",
+                    virtualHost: String = "/",
+                    password: String = "streamer")
     extends InputStage[Record](Some(stageName)) {
 
   /** Transforms GHTorrent data to a Record format.
@@ -48,7 +52,7 @@ class GHTInputStage(username: String,
   override def main(context: Context): DataStream[Record] = {
     context.env
       .addSource(
-        new GHTorrentRabbitMQSource(username, host, port, routingKeysFile))
+        new GHTorrentRabbitMQSource(username, host, port, routingKeysFile, password = password, virtualHost = virtualHost))
       .map { x =>
         val splitEl = x.split("#", 2)
         val routingKey = splitEl(0)

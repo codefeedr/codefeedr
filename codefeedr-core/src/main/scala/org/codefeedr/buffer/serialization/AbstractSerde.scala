@@ -18,12 +18,10 @@
  */
 package org.codefeedr.buffer.serialization
 
-import org.apache.flink.api.common.serialization.{
-  AbstractDeserializationSchema,
-  SerializationSchema
-}
+import org.apache.flink.api.common.serialization.{AbstractDeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.typeutils.TypeExtractor
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema
 
 import scala.reflect.{ClassTag, classTag}
 
@@ -31,11 +29,11 @@ import scala.reflect.{ClassTag, classTag}
   *
   * @tparam T Type of the SerDe.
   */
-abstract class AbstractSerde[T <: Serializable: ClassTag]()
+abstract class AbstractSerde[T <: Serializable: ClassTag](topic: String = "")
     extends AbstractDeserializationSchema[T](
       TypeExtractor.createTypeInfo(
         classTag[T].runtimeClass.asInstanceOf[Class[T]]))
-    with SerializationSchema[T] {
+    with SerializationSchema[T] with KafkaSerializationSchema[T] {
 
   // Get type of class
   val inputClassType: Class[T] = classTag[T].runtimeClass.asInstanceOf[Class[T]]
