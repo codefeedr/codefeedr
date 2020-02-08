@@ -32,8 +32,8 @@ class BsonSerdeTest extends FunSuite with BeforeAndAfter {
   private var serde2: BsonSerde[ComplexCaseClass] = _
 
   before {
-    serde = BsonSerde[SimpleCaseClassBson]
-    serde2 = BsonSerde[ComplexCaseClass]
+    serde = BsonSerde[SimpleCaseClassBson]()
+    serde2 = BsonSerde[ComplexCaseClass]()
   }
 
   test("Deserializes complex serialized values") {

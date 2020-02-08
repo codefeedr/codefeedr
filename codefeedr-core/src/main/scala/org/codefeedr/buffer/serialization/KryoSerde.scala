@@ -18,7 +18,10 @@
 
 package org.codefeedr.buffer.serialization
 
+import java.lang
+
 import com.twitter.chill.{Input, KryoBase, Output, ScalaKryoInstantiator}
+import org.apache.kafka.clients.producer.ProducerRecord
 
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
@@ -27,7 +30,7 @@ import scala.reflect.runtime.universe._
   *
   * @tparam T Type of the SerDe.
   */
-class KryoSerde[T <: Serializable: TypeTag: ClassTag] extends AbstractSerde[T] {
+class KryoSerde[T <: Serializable: TypeTag: ClassTag](topic: String = "") extends AbstractSerde[T] {
 
   // Lazily retrieve kryo instance.
   private lazy val kryo: KryoBase = getKryo
@@ -62,6 +65,17 @@ class KryoSerde[T <: Serializable: TypeTag: ClassTag] extends AbstractSerde[T] {
     inst.setRegistrationRequired(false)
     inst.newKryo()
   }
+
+  /** Serialize as Kafka Producer Record.
+    * @return ProducerRecord.
+    */
+  override def serialize(element: T, timestamp: lang.Long) = {
+    val buffer : Array[Byte] = new Array[Byte](KryoSerde.BUFFER_SIZE)
+    val output = new Output(buffer)
+    kryo.writeObject(output, element)
+
+    new ProducerRecord(topic, serialize(element))
+  }
 }
 
 /** Companion object to simply instantiation of a KryoSerde. */
@@ -69,6 +83,6 @@ object KryoSerde {
   val BUFFER_SIZE = 4096
 
   /** Creates new Kryo Serde. */
-  def apply[T <: Serializable: ClassTag: TypeTag]: KryoSerde[T] =
-    new KryoSerde[T]()
+  def apply[T <: Serializable: ClassTag: TypeTag](topic: String = ""): KryoSerde[T] =
+    new KryoSerde[T](topic)
 }

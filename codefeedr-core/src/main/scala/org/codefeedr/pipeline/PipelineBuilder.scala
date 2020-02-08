@@ -273,19 +273,6 @@ class PipelineBuilder extends Logging {
     this
   }
 
-  /** Disables round robin distribution over the KafkaPartition.
-    * If disabled each parallel instance is mapped to one partition.
-    *
-    * Note: if parallelism < partitioning, some partitions don't get data.
-    *
-    * @return this builder instace.
-    */
-  def disableRoundRobin(): PipelineBuilder = {
-    this.setBufferProperty(KafkaBuffer.ROUND_ROBIN, "false")
-
-    this
-  }
-
   /** Enable checkpointing for this pipeline.
     *
     * @param interval The interval to checkpoint on.

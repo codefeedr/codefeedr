@@ -18,8 +18,10 @@
  */
 package org.codefeedr.buffer.serialization
 
+import java.lang
 import java.nio.charset.StandardCharsets
 
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
 import org.json4s.jackson.Serialization
@@ -31,7 +33,7 @@ import scala.reflect.runtime.universe._
   *
   * @tparam T Type of the SerDe.
   */
-class JSONSerde[T <: Serializable with AnyRef: TypeTag: ClassTag]
+class JSONSerde[T <: Serializable with AnyRef: TypeTag: ClassTag](topic: String = "")
     extends AbstractSerde[T] {
 
   // Implicitly and lazily define the serialization to JSON.
@@ -55,12 +57,19 @@ class JSONSerde[T <: Serializable with AnyRef: TypeTag: ClassTag]
   override def deserialize(message: Array[Byte]): T = {
     Serialization.read[T](new String(message, StandardCharsets.UTF_8))
   }
+
+  /** Serialize as Kafka Producer Record.
+    * @return ProducerRecord.
+    */
+  override def serialize(element: T, timestamp: lang.Long): ProducerRecord[Array[Byte], Array[Byte]] = {
+    new ProducerRecord(topic, serialize(element))
+  }
 }
 
 /** Companion object to simply instantiation of a JSONSerde. */
 object JSONSerde {
 
   /** Creates new JSON Serde. */
-  def apply[T <: Serializable with AnyRef: ClassTag: TypeTag]: JSONSerde[T] =
-    new JSONSerde[T]()
+  def apply[T <: Serializable with AnyRef: ClassTag: TypeTag](topic: String = ""): JSONSerde[T] =
+    new JSONSerde[T](topic)
 }

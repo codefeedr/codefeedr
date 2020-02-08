@@ -18,7 +18,10 @@
  */
 package org.codefeedr.buffer.serialization
 
+import java.lang
+
 import com.mongodb.BasicDBObject
+import org.apache.kafka.clients.producer.ProducerRecord
 import org.bson._
 import org.json4s.NoTypeHints
 import org.json4s.ext.JavaTimeSerializers
@@ -32,7 +35,7 @@ import scala.reflect.runtime.universe._
   *
   * @tparam T Type of the SerDe.
   */
-class BsonSerde[T <: Serializable with AnyRef: TypeTag: ClassTag]
+class BsonSerde[T <: Serializable with AnyRef: TypeTag: ClassTag](topic: String = "")
     extends AbstractSerde[T] {
 
   // Implicitly and lazily define the serialization to JSON.
@@ -60,12 +63,22 @@ class BsonSerde[T <: Serializable with AnyRef: TypeTag: ClassTag]
     val json = new RawBsonDocument(message).toJson
     Serialization.read[T](json)
   }
+
+  /** Serialize as Kafka Producer Record.
+    * @return ProducerRecord.
+    */
+  override def serialize(element: T, timestamp: lang.Long) = {
+    val json = Serialization.write(element)(formats)
+    encoder.encode(BasicDBObject.parse(json))
+
+    new ProducerRecord(topic, serialize(element))
+  }
 }
 
 /** Companion object to simply instantiation of a BSONSerde. */
 object BsonSerde {
 
   /** Creates new BSON Serde. */
-  def apply[T <: Serializable with AnyRef: TypeTag: ClassTag]: BsonSerde[T] =
-    new BsonSerde[T]()
+  def apply[T <: Serializable with AnyRef: TypeTag: ClassTag](topic: String = ""): BsonSerde[T] =
+    new BsonSerde[T](topic)
 }

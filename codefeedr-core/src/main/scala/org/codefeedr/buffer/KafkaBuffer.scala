@@ -18,12 +18,13 @@
  */
 package org.codefeedr.buffer
 
-import java.util.Properties
+import java.util.{Optional, Properties}
 
 import org.apache.avro.reflect.ReflectData
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
 import org.apache.flink.streaming.api.scala.DataStream
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.Semantic
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
 import org.apache.kafka.clients.admin.{AdminClient, AdminClientConfig, NewTopic}
 import org.apache.logging.log4j.scala.Logging
@@ -63,9 +64,6 @@ object KafkaBuffer {
 
   //SEMANTICS
   val SEMANTIC = "SEMANTIC"
-
-  // PARTITIONING
-  val ROUND_ROBIN = "ROUND_ROBIN"
 
 }
 
@@ -113,9 +111,6 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
 
     //SEMANTIC
     val SEMANTIC : Semantic = Semantic.AT_LEAST_ONCE
-
-    // PARTITIONING
-    val ROUND_ROBIN = true
   }
 
   /** Get a Kafka Consumer as source for a stage.
@@ -123,7 +118,7 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     * @return The DataStream retrieved from the buffer.
     */
   override def getSource: DataStream[T] = {
-    val serde = getSerializer
+    val serde = getSerializer()
 
     // Make sure the topic already exists, otherwise create it.
     checkAndCreateSubject(topic,
@@ -174,13 +169,11 @@ class KafkaBuffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
         .getOrElse[String](KafkaBuffer.BROKER, KafkaBufferDefaults.BROKER))
 
     // Check preferred partitioning
-    val partitioning = properties.getOrElse[Boolean](KafkaBuffer.ROUND_ROBIN, KafkaBufferDefaults.ROUND_ROBIN)
     val semantic = properties.getOrElse[Semantic](KafkaBuffer.SEMANTIC, KafkaBufferDefaults.SEMANTIC)(stringToSemantic)
-
 
     // Create Kafka producer.
     val producer =
-      new FlinkKafkaProducer[T](topic, getSerializer, getKafkaProperties, null, semantic)
+      new FlinkKafkaProducer[T](topic, getSerializer(topic), getKafkaProperties, semantic)
     producer.setWriteTimestampToKafka(true)
 
     producer

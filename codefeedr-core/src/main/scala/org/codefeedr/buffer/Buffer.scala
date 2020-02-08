@@ -63,12 +63,12 @@ abstract class Buffer[T <: Serializable with AnyRef: ClassTag: TypeTag](
     *
     * @return The configured serializer.
     */
-  def getSerializer: AbstractSerde[T] = {
+  def getSerializer(topic: String = ""): AbstractSerde[T] = {
     val serializer =
       properties
         .getOrElse[String](Buffer.SERIALIZER, Serializer.JSON) //default is JSON
 
-    Serializer.getSerde[T](serializer)
+    Serializer.getSerde[T](serializer, topic)
   }
 
   /** Returns the properties of this buffer. */

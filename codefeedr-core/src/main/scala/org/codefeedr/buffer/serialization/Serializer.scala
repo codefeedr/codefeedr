@@ -55,11 +55,11 @@ object Serializer extends Enumeration {
     * @tparam T the type which has to be serialized/deserialized.
     * @return the serde instance.
     */
-  def getSerde[T <: Serializable with AnyRef: ClassTag: TypeTag](name: String) =
+  def getSerde[T <: Serializable with AnyRef: ClassTag: TypeTag](name: String, topic: String = "") =
     name match {
-      case "JSON" => JSONSerde[T]
-      case "BSON" => BsonSerde[T]
-      case "KRYO" => KryoSerde[T]
+      case "JSON" => JSONSerde[T](topic)
+      case "BSON" => BsonSerde[T](topic)
+      case "KRYO" => KryoSerde[T](topic)
       case _ if registry.exists(_._1 == name) => {
         val tt = typeTag[T]
         val ct = classTag[T]
@@ -72,7 +72,7 @@ object Serializer extends Enumeration {
           .newInstance(tt, ct) // Provide class and type tags.
           .asInstanceOf[AbstractSerde[T]] // Create instance of serde.
       }
-      case _ => JSONSerde[T] //default is JSON
+      case _ => JSONSerde[T](topic) //default is JSON
     }
 
   /** Registers a new SerDe. This SerDe needs to be subclassed from [[AbstractSerde]].
