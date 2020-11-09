@@ -10,8 +10,7 @@ ThisBuild / organizationHomepage := Some(url("http://codefeedr.org"))
 
 ThisBuild / githubOwner := "codefeedr"
 ThisBuild / githubRepository := "codefeedr"
-
-githubTokenSource := TokenSource.GitConfig("github.token") || TokenSource.Environment("GITHUB_TOKEN")
+ThisBuild / githubTokenSource := TokenSource.GitConfig("github.token") || TokenSource.Environment("GITHUB_TOKEN")
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
