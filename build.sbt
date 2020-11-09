@@ -8,6 +8,11 @@ ThisBuild / organization := "org.codefeedr"
 ThisBuild / organizationName := "CodeFeedr"
 ThisBuild / organizationHomepage := Some(url("http://codefeedr.org"))
 
+ThisBuild / githubOwner := "codefeedr"
+ThisBuild / githubRepository := "codefeedr"
+
+githubTokenSource := TokenSource.GitConfig("github.token") || TokenSource.Environment("GITHUB_TOKEN")
+
 ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/codefeedr/codefeedr"),
@@ -28,7 +33,7 @@ ThisBuild / description := "CodeFeedr provides an infrastructure on top of Apach
 ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / homepage := Some(url("https://github.com/codefeedr/codefeedr"))
 
-ThisBuild / version := "0.1.9"
+ThisBuild / version := "1.0.10"
 ThisBuild / organization := "org.codefeedr"
 ThisBuild / scalaVersion := scala212
 
