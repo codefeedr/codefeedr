@@ -4,7 +4,8 @@ scala:
 sudo: required
 dist: xenial
 jdk: openjdk11
-
+env:
+  - GITHUB_TOKEN=""
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
