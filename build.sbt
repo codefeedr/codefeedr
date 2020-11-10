@@ -199,8 +199,8 @@ lazy val dependencies =
 
     val kryoChill          = "com.twitter"               %% "chill"                          % "0.9.1"
 
-    val scalactic          = "org.scalactic"             %% "scalactic"                      % "3.0.1"           % Test
-    val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.0.5"           % Test
+    val scalactic          = "org.scalactic"             %% "scalactic"                      % "3.2.2"           % Test
+    val scalatest          = "org.scalatest"             %% "scalatest"                      % "3.2.2"           % Test
     val scalamock          = "org.scalamock"             %% "scalamock"                      % "4.1.0"           % Test
     val mockito            = "org.mockito"                % "mockito-all"                    % "1.10.19"         % Test
     val embeddedRedis      = "com.github.sebruck"        %% "scalatest-embedded-redis"       % "0.3.0"           % Test
